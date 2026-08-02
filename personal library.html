@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Personal Library - Three-Engine Framework Catalog</title>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest">
+  <!-- Lucide Icons (loaded separately) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
     // Render CSS Jacket HTML
     function createJacketHtml(title, author) {
       return `
@@ -24,7 +25,7 @@
       const container = imgElement.parentElement;
       if (container) {
         container.innerHTML = createJacketHtml(title, author);
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
       }
     }
 
@@ -1214,7 +1215,7 @@ height: 38px;
       } else {
         slotElem.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Engine track available</p>`;
       }
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function unassignEngine(bookId) {
@@ -1307,7 +1308,7 @@ height: 38px;
         </article>
       `).join('');
 
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
       updateActiveEngines();
     }
 
@@ -1445,7 +1446,7 @@ height: 38px;
       } else {
         themeIcon.setAttribute('data-lucide', 'sun');
       }
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     themeToggleBtn.addEventListener('click', () => {
