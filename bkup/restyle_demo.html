@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personal Library Restyle Demo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    :root {
+      --radius: 16px;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-md: 20px;
+      --space-lg: 28px;
+      --font-base: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-serif: "Cormorant Garamond", Georgia, Cambria, "Times New Roman", Times, serif;
+      --text-strong: 1.05rem;
+      --text-regular: 0.92rem;
+      --text-small: 0.82rem;
+      --text-mono: 0.78rem;
+      --bg: #090a0d;
+      --surface: #14181f;
+      --panel: rgba(255,255,255,0.03);
+      --border-soft: rgba(255,255,255,0.08);
+      --button-surface: rgba(255,255,255,0.04);
+      --button-surface-hover: rgba(255,255,255,0.08);
+      --text-primary: #f2f3f5;
+      --text-secondary: rgba(255,255,255,0.68);
+      --text-muted: rgba(255,255,255,0.55);
+      --status-bg: rgba(255,255,255,0.05);
+      --status-border: rgba(255,255,255,0.12);
+      --status-text: rgba(255,255,255,0.78);
+      --input-bg: rgba(255,255,255,0.04);
+      --input-border: rgba(255,255,255,0.08);
+      --engine-bg: rgba(255,255,255,0.03);
+      --engine-border: rgba(255,255,255,0.08);
+      --shadow-soft: 0 18px 35px rgba(0,0,0,0.16);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-base);
+      color: var(--text-primary);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    body.font-sans { --font-base: var(--font-sans); }
+    body.font-serif { --font-base: var(--font-serif); }
+
+    .page {
+      width: min(1200px, calc(100% - 32px));
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border-soft);
+      border-radius: calc(var(--radius) * 1.1);
+      padding: 26px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+
+    .toggle-group,
+    .mode-group,
+    .font-switcher,
+    .button-group {
+      display: inline-flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-button {
+      border: 1px solid var(--border-soft);
+      background: transparent;
+      color: inherit;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .toggle-button.active {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .demo-grid,
+    .font-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .demo-row,
+    .font-section {
+      display: grid;
+      gap: 20px;
+    }
+
+    .card-sample,
+    .font-card {
+      background: var(--panel);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      overflow: hidden;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+
+    .card-cover,
+    .font-card {
+      position: relative;
+    }
+
+    .card-cover {
+      min-height: 220px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent 65%), var(--surface);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .card-cover::after,
+    .font-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.12), transparent 45%);
+      pointer-events: none;
+    }
+
+    .cover-thumb {
+      width: 100%;
+      max-width: 180px;
+      aspect-ratio: 3 / 4;
+      background: #0f1114;
+      border-radius: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+    }
+
+    .card-info {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .card-meta,
+    .volume-label,
+    .fonts-label,
+    .field-label,
+    .font-chip {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-secondary);
+    }
+
+    .card-title,
+    .volume-title,
+    .engine-title,
+    .font-title,
+    .font-sample-headline {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+    }
+
+    .card-author,
+    .volume-description,
+    .engine-copy,
+    .font-description,
+    .font-sample-copy,
+    .small-note {
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .font-sample-headline {
+      font-size: 1.6rem;
+      line-height: 1.05;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: var(--text-small);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      width: fit-content;
+      border: 1px solid var(--status-border);
+      color: var(--status-text);
+      background: var(--status-bg);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .reading-number {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+    }
+
+    .buttons-sample,
+    .volume-sample,
+    .fields-sample,
+    .engine-sample,
+    .font-switcher {
+      display: grid;
+      gap: 12px;
+    }
+
+    .btn-row,
+    .engine-actions,
+    .font-labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-sample,
+    .engine-btn,
+    .toggle-button {
+      border-radius: 14px;
+      font-weight: 700;
+    }
+
+    .btn-sample {
+      padding: 12px 18px;
+      min-width: 130px;
+      border: 1px solid var(--border-soft);
+      background: var(--button-surface);
+      color: inherit;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-sample:hover,
+    .engine-btn:hover,
+    .toggle-button:hover {
+      transform: translateY(-1px);
+      background: var(--button-surface-hover);
+    }
+
+    .btn-primary {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .btn-secondary,
+    .btn-ghost {
+      background: transparent;
+    }
+
+    .btn-ghost {
+      border-color: transparent;
+      color: inherit;
+    }
+
+    .fields-group {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field-row {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-primary);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .field-textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .field-input::placeholder,
+    .field-select::placeholder,
+    .field-textarea::placeholder {
+      color: rgba(255,255,255,0.45);
+    }
+
+    .engine-panel,
+    .font-card {
+      background: var(--engine-bg);
+      border: 1px solid var(--engine-border);
+    }
+
+    .font-card {
+      padding: 22px;
+      min-height: 260px;
+    }
+
+    .font-chip {
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-soft);
+    }
+
+    .theme-light {
+      --bg: #f6f4ef;
+      --surface: #ffffff;
+      --panel: #ffffff;
+      --border-soft: rgba(15,23,42,0.08);
+      --button-surface: rgba(15,23,42,0.04);
+      --button-surface-hover: rgba(15,23,42,0.08);
+      --text-primary: #0f172a;
+      --text-secondary: rgba(15,23,42,0.72);
+      --text-muted: rgba(15,23,42,0.55);
+      --status-bg: rgba(15,23,42,0.03);
+      --status-border: rgba(15,23,42,0.12);
+      --status-text: rgba(15,23,42,0.88);
+      --input-bg: rgba(15,23,42,0.04);
+      --input-border: rgba(15,23,42,0.12);
+      --engine-bg: rgba(15,23,42,0.03);
+      --engine-border: rgba(15,23,42,0.12);
+      --shadow-soft: 0 18px 35px rgba(15,23,42,0.08);
+    }
+
+    .theme-light .field-input::placeholder,
+    .theme-light .field-select::placeholder,
+    .theme-light .field-textarea::placeholder {
+      color: rgba(15,23,42,0.4);
+    }
+
+    .theme-light .font-chip,
+    .theme-light .field-label,
+    .theme-light .card-meta,
+    .theme-light .volume-description,
+    .theme-light .engine-copy,
+    .theme-light .font-description,
+    .theme-light .small-note {
+      color: var(--text-secondary);
+    }
+
+    .theme-light .button-group .toggle-button.active,
+    .theme-light .toggle-button:hover,
+    .theme-light .btn-sample:hover,
+    .theme-light .engine-btn:hover {
+      background: rgba(15,23,42,0.08);
+    }
+
+    .theme-warm {
+      --bg: #0f1113;
+      --surface: #1d2024;
+      --panel: rgba(255,255,255,0.04);
+      --border-soft: rgba(255,255,255,0.08);
+      --button-surface: rgba(255,255,255,0.04);
+      --button-surface-hover: rgba(216,162,95,0.16);
+      --text-primary: #f0e8d8;
+      --text-secondary: #c8bda8;
+      --text-muted: #95907b;
+      --status-bg: rgba(216,162,95,0.14);
+      --status-border: rgba(216,162,95,0.22);
+      --status-text: #f7ebd8;
+      --input-bg: rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.08);
+      --engine-bg: rgba(255,255,255,0.04);
+      --engine-border: rgba(216,162,95,0.15);
+      --shadow-soft: 0 18px 35px rgba(0,0,0,0.16);
+    }
+
+    .theme-warm .card-cover {
+      background: linear-gradient(180deg, rgba(216,162,95,0.16), transparent 62%), #1d2024;
+    }
+
+    .theme-warm .card-title,
+    .theme-warm .volume-title,
+    .theme-warm .engine-title,
+    .theme-warm .font-title,
+    .theme-warm .font-sample-headline {
+      color: #fff2dc;
+    }
+
+    .theme-warm .card-author,
+    .theme-warm .volume-description,
+    .theme-warm .engine-copy,
+    .theme-warm .reading-number,
+    .theme-warm .field-label,
+    .theme-warm .font-chip {
+      color: var(--text-secondary);
+    }
+
+    .theme-warm .card-meta,
+    .theme-warm .field-input,
+    .theme-warm .field-select,
+    .theme-warm .field-textarea,
+    .theme-warm .engine-badge {
+      color: #d9c8ad;
+    }
+
+    .theme-warm .status-pill {
+      border-color: rgba(216,162,95,0.22);
+      background: rgba(216,162,95,0.14);
+      color: #f7ebd8;
+    }
+
+    .theme-warm .btn-primary {
+      background: rgba(216,162,95,0.18);
+      border-color: rgba(216,162,95,0.28);
+      color: #f6e9d4;
+    }
+
+    .theme-warm .btn-sample:hover,
+    .theme-warm .engine-btn:hover,
+    .theme-warm .toggle-button:hover {
+      background: rgba(216,162,95,0.16);
+    }
+
+    .theme-warm .field-input,
+    .theme-warm .field-select,
+    .theme-warm .field-textarea {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .theme-warm .engine-panel {
+      border-color: rgba(216,162,95,0.15);
+    }
+
+    .theme-warm .engine-badge {
+      background: rgba(216,162,95,0.12);
+      border-color: rgba(216,162,95,0.18);
+    }
+
+    .theme-minimal {
+      --bg: #090a0d;
+      --surface: #14181f;
+      --panel: rgba(255,255,255,0.03);
+      --border-soft: rgba(255,255,255,0.08);
+      --button-surface: rgba(255,255,255,0.04);
+      --button-surface-hover: rgba(255,255,255,0.08);
+      --text-primary: #f2f3f5;
+      --text-secondary: rgba(255,255,255,0.68);
+      --text-muted: rgba(255,255,255,0.55);
+      --status-bg: rgba(255,255,255,0.05);
+      --status-border: rgba(255,255,255,0.12);
+      --status-text: rgba(255,255,255,0.78);
+      --input-bg: rgba(255,255,255,0.04);
+      --input-border: rgba(255,255,255,0.08);
+      --engine-bg: rgba(255,255,255,0.03);
+      --engine-border: rgba(255,255,255,0.08);
+      --shadow-soft: 0 18px 35px rgba(0,0,0,0.16);
+    }
+
+    @media (max-width: 860px) {
+      .demo-grid,
+      .font-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        gap: 18px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .toggle-group,
+      .mode-group,
+      .font-switcher {
+        justify-content: stretch;
+        width: 100%;
+      }
+
+      .toggle-button,
+      .btn-sample,
+      .engine-btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body class="theme-minimal theme-dark font-sans">
+  <div class="page">
+    <section class="panel topbar">
+      <div>
+        <h1>Library UI Restyle Demo</h1>
+        <p class="small-note">Compare two minimal visual systems and explore light/dark mode plus modern indie font direction. Use the controls to switch themes, toggle modes, and test serif/sans styling.</p>
+      </div>
+      <div class="button-group">
+        <div class="toggle-group" role="tablist" aria-label="Theme options">
+          <button class="toggle-button active" id="themeA" type="button" role="tab" aria-selected="true">Option A</button>
+          <button class="toggle-button" id="themeB" type="button" role="tab" aria-selected="false">Option B</button>
+        </div>
+        <div class="mode-group" role="tablist" aria-label="Color mode options">
+          <button class="toggle-button active" id="modeDark" type="button" role="tab" aria-selected="true">Dark</button>
+          <button class="toggle-button" id="modeLight" type="button" role="tab" aria-selected="false">Light</button>
+        </div>
+        <div class="font-switcher" role="tablist" aria-label="Font family options">
+          <button class="toggle-button active" id="fontSans" type="button" role="tab" aria-selected="true">Space Grotesk</button>
+          <button class="toggle-button" id="fontSerif" type="button" role="tab" aria-selected="false">Cormorant Garamond</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel demo-grid">
+      <div class="demo-row">
+        <div class="card-sample">
+          <div class="card-cover">
+            <div class="cover-thumb"></div>
+          </div>
+          <div class="card-info">
+            <div class="card-meta">Vol 4 · Stage 2 · Reading Order 9</div>
+            <h2 class="card-title">Quiet Systems: Design, Discipline, and Reading</h2>
+            <p class="card-author">Harper Lewis</p>
+            <div class="card-footer">
+              <span class="status-pill">In Progress</span>
+              <span class="reading-number">#9</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons-sample">
+          <div class="btn-row">
+            <button class="btn-sample btn-primary">Continue</button>
+            <button class="btn-sample btn-secondary">View details</button>
+            <button class="btn-sample btn-ghost">Save later</button>
+          </div>
+          <p class="small-note">Built for quiet action states and bold typographic hierarchy, with minimal edge and strong readability.</p>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <div class="volume-sample">
+          <div class="volume-header-sample">
+            <div class="volume-label">Volume Header</div>
+            <h2 class="volume-title">Volume 2 — Parallel Tracks</h2>
+            <p class="volume-description">A clear section header for grouped reading volumes. It supports both editorial and minimal systems while maintaining a modern pace.</p>
+          </div>
+        </div>
+
+        <div class="fields-sample">
+          <div class="fields-group">
+            <div class="field-row">
+              <label class="field-label" for="demo-title">Book title</label>
+              <input id="demo-title" class="field-input" placeholder="Enter title" value="Quiet Systems" />
+            </div>
+            <div class="field-row">
+              <label class="field-label" for="demo-author">Author</label>
+              <input id="demo-author" class="field-input" placeholder="Author name" value="Harper Lewis" />
+            </div>
+            <div class="field-row">
+              <label class="field-label" for="demo-status">Reading status</label>
+              <select id="demo-status" class="field-select">
+                <option>To read</option>
+                <option selected>In progress</option>
+                <option>Finished</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label class="field-label" for="demo-notes">Notes</label>
+              <textarea id="demo-notes" class="field-textarea" placeholder="Add the key idea..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="engine-sample">
+        <div class="engine-title">Engine Book Section</div>
+        <p class="engine-copy">A focused card for the current reading engine, current track, or active assignment. It emphasizes a calm layout with clear typographic cues and subtle action states.</p>
+        <span class="engine-badge">Assigned to Engine</span>
+        <div class="engine-actions">
+          <button class="engine-btn">Edit engine</button>
+          <button class="engine-btn">Reassign</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel font-section">
+      <div class="volume-header-sample">
+        <div class="volume-label">Font Explorer</div>
+        <p class="volume-description">Explore two distinctive, indie-friendly type directions: a warm expressive serif and a quirky geometric sans-serif. Both are designed to feel modern and characterful.</p>
+      </div>
+      <div class="font-grid">
+        <article class="font-card" style="font-family: 'Cormorant Garamond', Georgia, serif;">
+          <p class="font-label">Unconventional Serif</p>
+          <h2 class="font-title">Soft editorial expression with surprising rhythm</h2>
+          <p class="font-sample-copy">Cormorant Garamond brings elevated contrast, organic shapes, and a refined voice. It creates a modern library aesthetic that feels deliberate, poetic, and editorially tuned.</p>
+          <div class="font-labels">
+            <span class="font-chip">Cormorant Garamond</span>
+            <span class="font-chip">Indie editorial</span>
+          </div>
+        </article>
+        <article class="font-card" style="font-family: 'Space Grotesk', sans-serif;">
+          <p class="font-label">Unconventional Sans-serif</p>
+          <h2 class="font-title">A playful geometric workhorse with personality</h2>
+          <p class="font-sample-copy">Space Grotesk is crisp, expressive, and slightly unexpected. Its friendly forms give a modern UI a quirky edge without losing clarity.</p>
+          <div class="font-labels">
+            <span class="font-chip">Space Grotesk</span>
+            <span class="font-chip">Modern quirky</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const root = document.body;
+    const themeA = document.getElementById('themeA');
+    const themeB = document.getElementById('themeB');
+    const modeDark = document.getElementById('modeDark');
+    const modeLight = document.getElementById('modeLight');
+    const fontSans = document.getElementById('fontSans');
+    const fontSerif = document.getElementById('fontSerif');
+
+    function setTheme(theme) {
+      root.classList.toggle('theme-minimal', theme === 'minimal');
+      root.classList.toggle('theme-warm', theme === 'warm');
+      themeA.classList.toggle('active', theme === 'minimal');
+      themeB.classList.toggle('active', theme === 'warm');
+      themeA.setAttribute('aria-selected', theme === 'minimal');
+      themeB.setAttribute('aria-selected', theme === 'warm');
+    }
+
+    function setMode(mode) {
+      root.classList.toggle('theme-light', mode === 'light');
+      root.classList.toggle('theme-dark', mode === 'dark');
+      modeDark.classList.toggle('active', mode === 'dark');
+      modeLight.classList.toggle('active', mode === 'light');
+      modeDark.setAttribute('aria-selected', mode === 'dark');
+      modeLight.setAttribute('aria-selected', mode === 'light');
+    }
+
+    function setFont(font) {
+      root.classList.toggle('font-sans', font === 'sans');
+      root.classList.toggle('font-serif', font === 'serif');
+      fontSans.classList.toggle('active', font === 'sans');
+      fontSerif.classList.toggle('active', font === 'serif');
+      fontSans.setAttribute('aria-selected', font === 'sans');
+      fontSerif.setAttribute('aria-selected', font === 'serif');
+    }
+
+    themeA.addEventListener('click', () => setTheme('minimal'));
+    themeB.addEventListener('click', () => setTheme('warm'));
+    modeDark.addEventListener('click', () => setMode('dark'));
+    modeLight.addEventListener('click', () => setMode('light'));
+    fontSans.addEventListener('click', () => setFont('sans'));
+    fontSerif.addEventListener('click', () => setFont('serif'));
+
+    setTheme('minimal');
+    setMode('dark');
+    setFont('sans');
+  </script>
+</body>
+</html>

@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Personal Library - Three-Engine Framework Catalog</title>
-  <!-- Inter Font (variable, weights 400-800) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- SortableJS for Drag-and-Drop -->
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     :root {
       --bg-main: hsl(223, 39%, 7%);
@@ -25,7 +19,7 @@
       --text-secondary: hsl(215, 20%, 85%);
       --text-muted: #64748b;
       --img-bg: hsl(220, 42%, 13%);
-      --img-bg-hover: hsl(220, 42%, 33%);
+      
       --engine-1: #3b82f6;
       --engine-2: #06b6d4;
       --engine-3: #f59e0b;
@@ -34,17 +28,16 @@
 
     [data-theme="light"] {
       --bg-main: #fff;
-      --bg-surface: hsl(200, 20%, 97%);
+      --bg-surface: #f8fafc;
       --bg-card: #f1f5f9;
-      --bg-card-hover: hsl(214, 32%, 91%);
+      --bg-card-hover: #e2e8f0;
       --bg-input: #ffffff;
       --border-color: #cbd5e1;
       --border-accent: #3b82f6;
       --text-primary: #0f172a;
       --text-secondary: hsl(215, 8%, 45%);
       --text-muted: #7e8fa7;
-      --img-bg: hsl(200, 20%, 97%);
-      --img-bg-hover: hsl(200, 21%, 94%);
+      --img-bg: hsl(200, 18%, 97%);
       --accent-color: #4f46e5;
     }
 
@@ -56,9 +49,7 @@
     }
 
     body {
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg-main);
       color: var(--text-primary);
       padding: 24px;
@@ -132,7 +123,6 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
     .icon-btn {
@@ -265,11 +255,6 @@
       gap: 12px;
       width: 100%;
       align-items: center;
-      cursor: pointer;
-    }
-
-    .engine-book-container:hover .engine-book-title {
-      color: var(--border-accent);
     }
 
     .engine-cover {
@@ -302,7 +287,7 @@
       font-weight: 700;
       font-size: 0.88rem;
       color: var(--text-primary);
-      line-height: 1.3;
+      line-height: 1.25;
       margin-bottom: 2px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -345,7 +330,7 @@
       background: var(--bg-surface);
     }
 
-    /* Filter Controls UI */
+    /* Filter Controls UI Fix */
     .filter-bar {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
@@ -407,64 +392,6 @@
       margin-bottom: 16px;
     }
 
-    /* Export Reminder Banner */
-    .export-reminder {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-accent);
-      border-left: 4px solid var(--accent-color);
-      border-radius: 10px;
-      padding: 10px 16px;
-      margin-bottom: 20px;
-      font-size: 0.875rem;
-      color: var(--text-primary);
-    }
-
-    .export-reminder.visible {
-      display: flex;
-    }
-
-    .export-reminder-text {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 220px;
-    }
-
-    .export-reminder-text svg,
-    .export-reminder-text i {
-      color: var(--accent-color);
-      flex-shrink: 0;
-    }
-
-    .export-reminder-text .reminder-muted {
-      color: var(--text-muted);
-    }
-
-    .export-reminder .btn-export-now {
-      background: var(--accent-color);
-      color: #fff;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .export-reminder .btn-export-now:hover {
-      opacity: 0.9;
-    }
-
     /* Main Book Grid Layout */
     .book-grid {
       display: grid;
@@ -475,39 +402,25 @@
     }
 
     .book-card {
+      
+      border: none;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       height: 100%;
-      cursor: grab;
+      cursor: pointer;
       position: relative;
-      user-select: none;
-      background-color: var(--bg-main);
-      /* border-radius: 12px; */
-      /* border: 1px solid var(--border-color); */
-      border-radius: 12px;
-      transition: all 0.3s ease;
-
-    }
-
-    .book-card:active {
-      cursor: grabbing;
     }
 
     .book-card:hover {
-      /* transform: translateY(-10px); */
-      border-color: var(--border-accent);
+      transform: translateY(-2px);
     }
 
-    .book-card:hover .cover-container {
-      background-color:var(--img-bg-hover);
-    }
-    .book-card:hover .cover-img,.book-card:hover .book-jacket{
-      transform: scale(1.05);
-    }
     .cover-container {
       border-radius: 12px;
       width: 100%;
+      /* Minimum 160px on small phones, scales at 30% viewport height, caps at 300px on large monitors */
+      /* height: clamp(160px, 35vh, 380px); */
       max-height: 340px;
       aspect-ratio: 2 / 3;
       background-color: var(--img-bg);
@@ -516,16 +429,13 @@
       justify-content: center;
       padding: 8px;
       position: relative;
-      transition: all 0.3s ease;
     }
 
     .cover-img {
-      height: 80%;
-      width: 85%;
+      height: 85%;
+      width: 90%;
       object-fit: contain;
       border-radius: 0px;
-      transition: all 0.2s ease;
-
     }
 
     /* CSS Book Jacket Fallback Styles */
@@ -544,7 +454,6 @@
       box-shadow: inset 3px 0 5px -2px rgba(0, 0, 0, 0.35);
       overflow: hidden;
       user-select: none;
-      transition: all 0.2s ease;
     }
 
     .jacket-header {
@@ -558,7 +467,7 @@
       font-size: 0.8rem;
       font-weight: 700;
       color: var(--text-primary);
-      line-height: 1.4;
+      line-height: 1.3;
       display: -webkit-box;
       -webkit-line-clamp: 4;
       line-clamp: 4;
@@ -579,14 +488,37 @@
       margin-top: 4px;
     }
 
+    .engine-cover .book-jacket {
+      padding: 6px 4px;
+      border-left-width: 2px;
+      box-shadow: inset 2px 0 4px -2px rgba(0, 0, 0, 0.35);
+    }
+
+    .engine-cover .jacket-header {
+      display: none;
+    }
+
+    .engine-cover .jacket-title {
+      font-size: 0.62rem;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      line-height: 1.15;
+    }
+
+    .engine-cover .jacket-author {
+      font-size: 0.55rem;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+    }
+
     .book-info {
-      padding: 12px 8px;
+      padding: 12px 4px;
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      min-height: 120px;
+      min-height: 140px;
     }
-    
+
     .book-vol-stage {
       font-size: 0.78rem;
       font-weight: 500;
@@ -596,7 +528,6 @@
       flex-wrap: wrap;
       gap: 6px;
       align-items: center;
-      justify-content: space-between;
     }
 
     .reading-order-number {
@@ -605,17 +536,17 @@
     }
 
     .book-title {
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 600;
       color: var(--text-primary);
       line-height: 1.28;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .book-author {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       display: -webkit-box;
       -webkit-line-clamp: 1;
       line-clamp: 1;
@@ -623,6 +554,15 @@
       overflow: hidden;
       min-width: 0;
       flex: 0 0 auto;
+    }
+
+    .book-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding-top: 8px;
     }
 
     .status-pill {
@@ -634,6 +574,11 @@
       background: var(--bg-main);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
+    }
+
+    /* Ensure book info area is consistent height across cards; reduce on narrow screens */
+    @media (max-width: 600px) {
+      .book-info { min-height: 110px; }
     }
 
     /* Modal Styling */
@@ -708,10 +653,6 @@
       gap: 6px;
     }
 
-    .form-group[hidden] {
-      display: none;
-    }
-
     .form-group.full-width {
       grid-column: span 2;
     }
@@ -764,8 +705,38 @@
       display: flex;
       gap: 10px;
     }
+    /* ========================================== */
+    /* MOBILE HEADER ACTIONS FIX (SOLUTION 1)     */
+    /* ========================================== */
+    @media (max-width: 475px) {
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 6px;
+      }
 
-    /* View Toggle Active State */
+      .header-actions .btn-secondary,
+      .header-actions .btn-primary {
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        font-size: 0; /* Hides text labels, leaves SVG icons visible */
+        flex-shrink: 0;
+      }
+
+      .header-actions .icon-btn {
+        width: 40px;
+        height: 40px;
+      }
+
+      .header-actions button svg,
+      .header-actions button i {
+        width: 18px;
+        height: 18px;
+      }
+    }
+    /* Active State for View Toggle Buttons */
     .view-toggle .btn-secondary.active {
       background: var(--accent-color);
       color: white;
@@ -780,36 +751,29 @@
       width: 100%;
     }
 
+    /* Unboxed, Typographic Roadmap Layout */
     .volume-section {
       background: transparent;
       border: none;
       border-radius: 0;
       padding: 0;
-      margin-bottom: 36px;
+      margin-bottom: 48px; /* Generous separation between volumes */
     }
 
+    /* Sticky Volume Header */
     .volume-header {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: var(--bg-main);
+      background: var(--bg-main); /* Required so book cards don't show through as they scroll under */
       padding-top: 12px;
       padding-bottom: 12px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid var(--text-muted);
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border-accent);
       font-size: 1.35rem;
       font-weight: 800;
       color: var(--text-primary);
-      letter-spacing: -0.01em;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .volume-title-group {
+      letter-spacing: -0.02em;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -820,31 +784,27 @@
       border: none;
       border-radius: 0;
       padding: 0;
-      margin-bottom: 24px;
+      margin-bottom: 32px; /* Distinct spacing between stages inside a volume */
     }
 
+    .stage-block:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Sticky Stage Header (Stacks right beneath the Volume Header) */
     .stage-header {
       position: sticky;
-      top: 52px;
+      top: 52px; /* Offsets down so it sits right under the Volume Header */
       z-index: 9;
       background: var(--bg-main);
-      padding-top: 12px;
+      padding-top: 8px;
       padding-bottom: 8px;
-      margin-bottom: 14px;
-      font-size: 1rem;
+      margin-bottom: 16px;
+      font-size: 0.8rem;
       font-weight: 700;
-      /* text-transform: uppercase; */
-      /* letter-spacing: 0.08em; */
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .stage-title-group {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -854,161 +814,26 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 16px;
-      min-height: 80px;
-      padding: 8px;
-      border: 1px dashed transparent;
-      border-radius: 8px;
-      transition: all 0.2s ease;
     }
 
-    .stage-grid.empty-stage-grid {
-      border-color: var(--border-color);
-      background: rgba(255, 255, 255, 0.02);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    /* Collapsed States & Drop Targets */
-    .volume-section.collapsed-volume .volume-content {
-      display: none !important;
-    }
-
-    .stage-block.collapsed-stage .stage-grid {
-      min-height: 44px !important;
-      height: 44px !important;
-      padding: 8px 16px !important;
-      border: 1px dashed var(--border-accent) !important;
-      background: rgba(59, 130, 246, 0.08) !important;
-      border-radius: 8px;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      transition: all 0.2s ease;
-    }
-
-    .stage-block.collapsed-stage .stage-grid .book-card,
-    .stage-block.collapsed-stage .stage-grid .empty-stage-msg {
-      display: none !important;
-    }
-
-    .stage-block.collapsed-stage .stage-grid .collapsed-stage-hint {
-      display: flex !important;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      font-weight: 500;
-      pointer-events: none;
-    }
-
-    .stage-block:not(.collapsed-stage) .stage-grid .collapsed-stage-hint {
-      display: none !important;
-    }
-
-    /* Drag & Drop Visual Styles */
-    .sortable-ghost {
-      opacity: 0.35 !important;
-      border: 2px dashed var(--accent-color) !important;
-      background: var(--bg-surface) !important;
-    }
-
-    .sortable-drag {
-      opacity: 0.95 !important;
-      transform: scale(1.03);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Action & Controls Styling */
-    .section-action-btns {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .action-icon-btn {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 0;
-      transition: all 0.2s ease;
-    }
-
-    .action-icon-btn svg {
-      width: 14px;
-      height: 14px;
-    }
-
-    .action-icon-btn:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-accent);
-    }
-
-    .action-icon-btn.danger:hover {
-      background: #ef4444;
-      color: #ffffff;
-      border-color: #ef4444;
-    }
-
-    .btn-xs {
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      border-radius: 6px;
-      height: 30px;
-    }
-
-    .card-reorder-toolbar {
-      display: inline-flex;
-      gap: 4px;
-    }
-
-    .card-reorder-toolbar .action-icon-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 4px;
-    }
-
-    .card-reorder-toolbar .action-icon-btn svg {
-      width: 12px;
-      height: 12px;
-    }
-
-    .count-badge {
-      font-size: 0.75rem;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 2px 8px;
-      border-radius: 12px;
-      margin-left: 6px;
-      font-weight: 500;
-    }
-
-    /* Mobile Responsive Adjustments */
+    /* Mobile 3-Column Layout */
     @media (max-width: 600px) {
+      /* Force 3 equal columns and reduce grid spacing */
       .book-grid,
       .stage-grid {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 8px !important;
       }
 
+      /* Compact padding inside the book cards */
       .book-info {
         padding: 8px 6px;
       }
 
+      /* Scale text down for smaller card width */
       .book-title {
         font-size: 0.75rem;
-        line-height: 1.3;
+        line-height: 1.15;
       }
 
       .book-author,
@@ -1045,11 +870,6 @@
       </div>
 
       <div class="header-actions">
-        <!-- Copy All Book Titles Button -->
-        <button class="btn-secondary" id="copy-titles-btn" title="Copy all book titles nested by Volumes and Stages">
-          <i data-lucide="copy"></i> Copy Titles
-        </button>
-
         <!-- Import / Export Controls -->
         <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
         <button class="btn-secondary" id="import-btn" title="Import Library CSV"><i data-lucide="upload"></i> Import CSV</button>
@@ -1064,17 +884,6 @@
         <button class="btn-primary" id="add-book-btn"><i data-lucide="plus"></i> Add Book</button>
       </div>
     </header>
-
-    <!-- Export Reminder Banner -->
-    <div class="export-reminder" id="export-reminder">
-      <div class="export-reminder-text">
-        <i data-lucide="download"></i>
-        <span id="export-reminder-message"></span>
-      </div>
-      <button class="btn-export-now" id="export-reminder-btn" title="Export Catalog to CSV">
-        <i data-lucide="file-down"></i> Export Now
-      </button>
-    </div>
 
     <!-- Active Reading Engines -->
     <section class="engines-section">
@@ -1131,25 +940,36 @@
         <option value="">All Volumes</option>
       </select>
 
+      <!-- NEW: Stage Filter Dropdown -->
+      <select class="filter-select" id="filter-stage">
+        <option value="">All Stages</option>
+      </select>
+
       <select class="filter-select" id="filter-status">
         <option value="">All Statuses</option>
         <option value="To Read">To Read</option>
         <option value="Reading">Reading</option>
         <option value="Completed">Completed</option>
       </select>
-
+      <select class="filter-select" id="filter-engine">
+        <option value="">All Engines</option>
+        <option value="Engine 1: Deep Focus">Engine 1: Deep Focus</option>
+        <option value="Engine 2: Complementary">Engine 2: Complementary</option>
+        <option value="Engine 3: Exploration">Engine 3: Exploration</option>
+      </select>
       <select class="filter-select" id="sort-select">
-        <option value="reading-order">Reading Order (Volume → Stage → Order)</option>
-        <option value="year-desc" selected>Year (Newest First)</option>
+        <option value="reading-order" selected>Reading Order (Volume → Stage → Order)</option>
+        <option value="year-desc">Year (Newest First)</option>
         <option value="year-asc">Year (Oldest First)</option>
         <option value="title-asc">Title (A-Z)</option>
       </select>
 
+      <!-- NEW: View Toggle Buttons -->
       <div class="view-toggle" style="display: flex; gap: 4px;">
         <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View">
           <i data-lucide="grid"></i>
         </button>
-        <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Roadmap View (Drag & Drop Supported)">
+        <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Roadmap View">
           <i data-lucide="layers"></i>
         </button>
       </div>
@@ -1158,11 +978,11 @@
     <!-- Results Count -->
     <div class="results-count">Showing <strong id="displayed-count">0</strong> books</div>
 
-    <!-- Main Book Display Area -->
-    <main id="book-grid" class="book-grid"></main>
+    <!-- Main Book Grid -->
+    <main class="book-grid" id="book-grid"></main>
   </div>
 
-  <!-- View / Edit Book Modal -->
+  <!-- View / Edit Entry Modal -->
   <div class="modal-overlay" id="book-modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -1181,22 +1001,24 @@
             <input type="text" id="book-author-input" required placeholder="e.g. C. Thi Nguyen">
           </div>
 
+          <!-- Volume Number & Name -->
           <div class="form-group">
-            <label for="book-volume-input">Volume</label>
-            <select id="book-volume-input" required></select>
+            <label for="book-volume-num-input">Volume Number (int)</label>
+            <input type="number" id="book-volume-num-input" min="1" step="1" required placeholder="e.g. 1">
           </div>
-          <div class="form-group" id="new-volume-name-group" hidden>
-            <label for="book-new-volume-name-input">New Volume Name</label>
-            <input type="text" id="book-new-volume-name-input" placeholder="e.g. Philosophy of Games">
+          <div class="form-group">
+            <label for="book-volume-name-input">Volume Name</label>
+            <input type="text" id="book-volume-name-input" required placeholder="e.g. Philosophy of Games">
           </div>
 
+          <!-- Stage Number, Stage Name & Reading Order -->
           <div class="form-group">
-            <label for="book-stage-input">Stage</label>
-            <select id="book-stage-input" required></select>
+            <label for="book-stage-num-input">Stage Number (int)</label>
+            <input type="number" id="book-stage-num-input" min="1" step="1" required placeholder="e.g. 1">
           </div>
-          <div class="form-group" id="new-stage-name-group" hidden>
-            <label for="book-new-stage-name-input">New Stage Name</label>
-            <input type="text" id="book-new-stage-name-input" placeholder="e.g. Foundational Concepts">
+          <div class="form-group">
+            <label for="book-stage-name-input">Stage Name</label>
+            <input type="text" id="book-stage-name-input" required placeholder="e.g. Foundational Concepts">
           </div>
 
           <div class="form-group">
@@ -1251,62 +1073,11 @@
     </div>
   </div>
 
-  <!-- Edit Volume Modal -->
-  <div class="modal-overlay" id="volume-modal">
-    <div class="modal-content" style="max-width: 450px;">
-      <div class="modal-header">
-        <h2>Edit Volume Details</h2>
-        <button class="close-btn" id="close-volume-modal"><i data-lucide="x"></i></button>
-      </div>
-      <form id="volume-form">
-        <input type="hidden" id="edit-volume-target-num">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label for="volume-name-modal-input">Volume Name</label>
-          <input type="text" id="volume-name-modal-input" required placeholder="e.g. Agency & Games">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" id="cancel-volume-modal-btn">Cancel</button>
-          <button type="submit" class="btn-primary">Save Volume</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit Stage Modal -->
-  <div class="modal-overlay" id="stage-modal">
-    <div class="modal-content" style="max-width: 450px;">
-      <div class="modal-header">
-        <h2>Edit Stage Details</h2>
-        <button class="close-btn" id="close-stage-modal"><i data-lucide="x"></i></button>
-      </div>
-      <form id="stage-form">
-        <input type="hidden" id="edit-stage-target-vol">
-        <input type="hidden" id="edit-stage-target-num">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label for="stage-name-modal-input">Stage Name</label>
-          <input type="text" id="stage-name-modal-input" required placeholder="e.g. Value Capture & Play">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-secondary" id="cancel-stage-modal-btn">Cancel</button>
-          <button type="submit" class="btn-primary">Save Stage</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
     // LocalStorage Keys
     const STORAGE_KEY = 'personal_library_books_v2';
-    const COLLAPSED_VOLUMES_KEY = 'personal_library_collapsed_volumes';
-    const COLLAPSED_STAGES_KEY = 'personal_library_collapsed_stages';
-    const LAST_MODIFIED_KEY = 'personal_library_last_modified';
-    const LAST_EXPORTED_KEY = 'personal_library_last_exported';
 
-    // Collapsible States
-    let collapsedVolumes = new Set(JSON.parse(localStorage.getItem(COLLAPSED_VOLUMES_KEY) || '[]'));
-    let collapsedStages = new Set(JSON.parse(localStorage.getItem(COLLAPSED_STAGES_KEY) || '[]'));
-
-    // Default Seed Dataset
+    // Initial Default Seed Dataset
     const defaultBooksSeed = [
       {
         id: "1",
@@ -1406,10 +1177,8 @@
       }
     ];
 
+    // State
     let books = [];
-    let currentView = 'grid';
-    let sortableInstances = [];
-    let dragExpandTimeout = null;
 
     // LocalStorage Operations
     function loadBooksFromStorage() {
@@ -1430,37 +1199,9 @@
 
     function saveBooksToStorage(data) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      localStorage.setItem(LAST_MODIFIED_KEY, new Date().toISOString());
-      updateExportReminder();
     }
 
-    function saveCollapsedStates() {
-      localStorage.setItem(COLLAPSED_VOLUMES_KEY, JSON.stringify(Array.from(collapsedVolumes)));
-      localStorage.setItem(COLLAPSED_STAGES_KEY, JSON.stringify(Array.from(collapsedStages)));
-    }
-
-    function toggleVolumeCollapse(volNum) {
-      const key = `vol-${volNum}`;
-      if (collapsedVolumes.has(key)) {
-        collapsedVolumes.delete(key);
-      } else {
-        collapsedVolumes.add(key);
-      }
-      saveCollapsedStates();
-      renderBooks();
-    }
-
-    function toggleStageCollapse(volNum, stageNum) {
-      const key = `stage-${volNum}-${stageNum}`;
-      if (collapsedStages.has(key)) {
-        collapsedStages.delete(key);
-      } else {
-        collapsedStages.add(key);
-      }
-      saveCollapsedStates();
-      renderBooks();
-    }
-
+    // Helper: Normalize Data Schema
     function normalizeBook(b) {
       return {
         id: b.id || Date.now().toString() + Math.random().toString(36).substr(2, 5),
@@ -1480,14 +1221,7 @@
       };
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-      });
-    }
-
-    // Cover Rendering
+    // Cover Rendering & Jacket Helpers
     function createJacketHtml(title, author) {
       return `
         <div class="book-jacket">
@@ -1522,12 +1256,16 @@
     }
 
     // DOM Elements
+    let currentView = 'grid'; // 'grid' or 'roadmap'
+
+    const filterStage = document.getElementById('filter-stage');
     const viewGridBtn = document.getElementById('view-grid-btn');
     const viewRoadmapBtn = document.getElementById('view-roadmap-btn');
     const bookGrid = document.getElementById('book-grid');
     const searchInput = document.getElementById('search-input');
     const filterVolume = document.getElementById('filter-volume');
     const filterStatus = document.getElementById('filter-status');
+    const filterEngine = document.getElementById('filter-engine');
     const sortSelect = document.getElementById('sort-select');
 
     // Header Stats
@@ -1542,7 +1280,7 @@
     const slot2 = document.getElementById('engine-slot-2');
     const slot3 = document.getElementById('engine-slot-3');
 
-    // Modals
+    // Modal Elements
     const modal = document.getElementById('book-modal');
     const modalTitle = document.getElementById('modal-title');
     const bookForm = document.getElementById('book-form');
@@ -1551,16 +1289,14 @@
     const deleteBookBtn = document.getElementById('delete-book-btn');
     const addBookBtn = document.getElementById('add-book-btn');
 
-    // Form Fields
+    // Form Field Elements
     const inputId = document.getElementById('book-id');
     const inputTitle = document.getElementById('book-title-input');
     const inputAuthor = document.getElementById('book-author-input');
-    const inputVolSelect = document.getElementById('book-volume-input');
-    const inputStageSelect = document.getElementById('book-stage-input');
-    const inputNewVolName = document.getElementById('book-new-volume-name-input');
-    const inputNewStageName = document.getElementById('book-new-stage-name-input');
-    const newVolNameGroup = document.getElementById('new-volume-name-group');
-    const newStageNameGroup = document.getElementById('new-stage-name-group');
+    const inputVolNum = document.getElementById('book-volume-num-input');
+    const inputVolName = document.getElementById('book-volume-name-input');
+    const inputStageNum = document.getElementById('book-stage-num-input');
+    const inputStageName = document.getElementById('book-stage-name-input');
     const inputReadingOrder = document.getElementById('book-reading-order-input');
     const inputYear = document.getElementById('book-year-input');
     const inputStatus = document.getElementById('book-status-input');
@@ -1569,17 +1305,17 @@
     const inputIsbn = document.getElementById('book-isbn-input');
     const inputNotes = document.getElementById('book-notes-input');
 
-    // Controls
+    // Controls Buttons
     const importBtn = document.getElementById('import-btn');
     const exportBtn = document.getElementById('export-btn');
     const resetBtn = document.getElementById('reset-btn');
     const csvFileInput = document.getElementById('csv-file-input');
-    const copyTitlesBtn = document.getElementById('copy-titles-btn');
 
-    // Dropdown Filters
+    // Populates Volume Dropdown
     function updateVolumeFilterDropdown() {
       const selectedVal = filterVolume.value;
       const volumeMap = new Map();
+
       books.forEach(b => {
         const key = b.volumeNumber;
         if (!volumeMap.has(key) || (b.volumeName && b.volumeName !== "General")) {
@@ -1588,125 +1324,43 @@
       });
 
       const sortedVolNumbers = Array.from(volumeMap.keys()).sort((a, b) => a - b);
+
       let optionsHTML = '<option value="">All Volumes</option>';
       sortedVolNumbers.forEach(volNum => {
         const volName = volumeMap.get(volNum) || `Volume ${volNum}`;
-        optionsHTML += `<option value="${volNum}">Vol ${volNum} - ${escapeHtml(volName)}</option>`;
+        const label = `Vol ${volNum} - ${volName}`;
+        optionsHTML += `<option value="${volNum}">${escapeHtml(label)}</option>`;
       });
 
       filterVolume.innerHTML = optionsHTML;
       filterVolume.value = selectedVal;
     }
+    // Populates Stage Dropdown dynamically based on catalog content
+    function updateStageFilterDropdown() {
+      const selectedVal = filterStage.value;
+      const stageMap = new Map();
 
-    // Modal Volume/Stage Dropdown Helpers
-    function getVolumeMap() {
-      const map = new Map();
       books.forEach(b => {
-        const key = b.volumeNumber;
-        if (!map.has(key) || (b.volumeName && b.volumeName !== "General")) {
-          map.set(key, b.volumeName);
-        }
-      });
-      return map;
-    }
-
-    function getStageMap(volNum) {
-      const map = new Map();
-      books.filter(b => b.volumeNumber === volNum).forEach(b => {
         const key = b.stageNumber;
-        if (!map.has(key) || (b.stageName && b.stageName !== "Stage " + key)) {
-          map.set(key, b.stageName);
+        if (!stageMap.has(key) || (b.stageName && b.stageName !== "Stage " + key)) {
+          stageMap.set(key, b.stageName);
         }
       });
-      return map;
-    }
 
-    function nextVolumeNumber() {
-      return books.length > 0 ? Math.max(...books.map(b => b.volumeNumber)) + 1 : 1;
-    }
+      const sortedStageNumbers = Array.from(stageMap.keys()).sort((a, b) => a - b);
 
-    function nextStageNumber(volNum) {
-      const volBooks = books.filter(b => b.volumeNumber === volNum);
-      return volBooks.length > 0 ? Math.max(...volBooks.map(b => b.stageNumber)) + 1 : 1;
-    }
-
-    function populateVolumeDropdown(selectedVolNum) {
-      const volMap = getVolumeMap();
-      const sorted = Array.from(volMap.keys()).sort((a, b) => a - b);
-      if (selectedVolNum && selectedVolNum !== '__new__' && !volMap.has(selectedVolNum)) {
-        sorted.push(selectedVolNum);
-        volMap.set(selectedVolNum, `Volume ${selectedVolNum}`);
-      }
-      let html = '';
-      sorted.forEach(v => {
-        const volName = volMap.get(v) || `Volume ${v}`;
-        const selected = (selectedVolNum && selectedVolNum === v) ? ' selected' : '';
-        html += `<option value="${v}"${selected}>Vol ${v} — ${escapeHtml(volName)}</option>`;
+      let optionsHTML = '<option value="">All Stages</option>';
+      sortedStageNumbers.forEach(sNum => {
+        const sName = stageMap.get(sNum) || `Stage ${sNum}`;
+        const label = `Stage ${sNum} - ${sName}`;
+        optionsHTML += `<option value="${sNum}">${escapeHtml(label)}</option>`;
       });
-      html += `<option value="__new__">➕ New Volume…</option>`;
-      inputVolSelect.innerHTML = html;
-      inputVolSelect.value = selectedVolNum === '__new__' ? '__new__' : (selectedVolNum || '');
-      onVolumeChange();
+
+      filterStage.innerHTML = optionsHTML;
+      filterStage.value = selectedVal;
     }
 
-    function populateStageDropdown(volNum, selectedStageNum) {
-      const stageMap = getStageMap(volNum);
-      const sorted = Array.from(stageMap.keys()).sort((a, b) => a - b);
-      if (selectedStageNum && selectedStageNum !== '__new__' && !stageMap.has(selectedStageNum)) {
-        sorted.push(selectedStageNum);
-        stageMap.set(selectedStageNum, `Stage ${selectedStageNum}`);
-      }
-      let html = '';
-      sorted.forEach(s => {
-        const sName = stageMap.get(s) || `Stage ${s}`;
-        const selected = (selectedStageNum && selectedStageNum === s) ? ' selected' : '';
-        html += `<option value="${s}"${selected}>Stage ${s} — ${escapeHtml(sName)}</option>`;
-      });
-      html += `<option value="__new__">➕ New Stage…</option>`;
-      inputStageSelect.innerHTML = html;
-      inputStageSelect.value = selectedStageNum === '__new__' ? '__new__' : (selectedStageNum || '');
-      onStageChange();
-    }
-
-    function onVolumeChange() {
-      const v = inputVolSelect.value;
-      if (v === '__new__') {
-        newVolNameGroup.hidden = false;
-        if (!inputNewVolName.value.trim()) inputNewVolName.value = `Volume ${nextVolumeNumber()}`;
-        // Brand-new volume → no existing stages yet; start with "+ New Stage…"
-        inputStageSelect.innerHTML = '<option value="__new__" selected>➕ New Stage…</option>';
-        newStageNameGroup.hidden = false;
-        inputNewStageName.value = 'Stage 1';
-      } else {
-        newVolNameGroup.hidden = true;
-        if (v === '') {
-          inputStageSelect.innerHTML = '<option value="">Select a volume first</option>';
-          newStageNameGroup.hidden = true;
-        } else {
-          const vol = parseInt(v);
-          const stageMap = getStageMap(vol);
-          const firstStage = Array.from(stageMap.keys()).sort((a, b) => a - b)[0];
-          populateStageDropdown(vol, firstStage);
-        }
-      }
-    }
-
-    function onStageChange() {
-      const s = inputStageSelect.value;
-      if (s === '__new__') {
-        newStageNameGroup.hidden = false;
-        const v = inputVolSelect.value;
-        const baseVol = (v && v !== '__new__') ? parseInt(v) : nextVolumeNumber();
-        inputNewStageName.value = `Stage ${nextStageNumber(baseVol)}`;
-      } else {
-        newStageNameGroup.hidden = true;
-      }
-    }
-
-    inputVolSelect.addEventListener('change', onVolumeChange);
-    inputStageSelect.addEventListener('change', onStageChange);
-
-    // View Toggles
+    // View Toggle Handlers
     viewGridBtn.addEventListener('click', () => {
       currentView = 'grid';
       viewGridBtn.classList.add('active');
@@ -1721,71 +1375,7 @@
       renderBooks();
     });
 
-    // 1) FIX: Copy All Titles Functionality (Nested under Volumes & Stages)
-    copyTitlesBtn.addEventListener('click', () => {
-      if (!books || books.length === 0) {
-        alert("No books in library to copy.");
-        return;
-      }
-
-      // Group books by Volume -> Stage
-      const volumeMap = new Map();
-      books.forEach(book => {
-        const vKey = book.volumeNumber;
-        if (!volumeMap.has(vKey)) {
-          volumeMap.set(vKey, {
-            volumeName: book.volumeName || `Volume ${vKey}`,
-            stages: new Map()
-          });
-        }
-        const stageMap = volumeMap.get(vKey).stages;
-        const sKey = book.stageNumber;
-        if (!stageMap.has(sKey)) {
-          stageMap.set(sKey, {
-            stageName: book.stageName || `Stage ${sKey}`,
-            books: []
-          });
-        }
-        stageMap.get(sKey).books.push(book);
-      });
-
-      const sortedVolKeys = Array.from(volumeMap.keys()).sort((a, b) => a - b);
-      const lines = [];
-
-      sortedVolKeys.forEach(volNum => {
-        const volData = volumeMap.get(volNum);
-        lines.push(`Volume ${volNum}: ${volData.volumeName}`);
-
-        const sortedStageKeys = Array.from(volData.stages.keys()).sort((a, b) => a - b);
-        sortedStageKeys.forEach(stageNum => {
-          const stageData = volData.stages.get(stageNum);
-          lines.push(`  Stage ${stageNum}: ${stageData.stageName}`);
-
-          stageData.books.sort((a, b) => a.readingOrder - b.readingOrder);
-          stageData.books.forEach((b, idx) => {
-            lines.push(`    ${idx + 1}. ${b.title} - ${b.author} - ${b.year || 'N/A'}`);
-          });
-        });
-        lines.push(''); // Blank line between volumes
-      });
-
-      const formattedText = lines.join('\n').trim();
-
-      navigator.clipboard.writeText(formattedText).then(() => {
-        const originalHTML = copyTitlesBtn.innerHTML;
-        copyTitlesBtn.innerHTML = `<i data-lucide="check"></i> Copied!`;
-        lucide.createIcons();
-        setTimeout(() => {
-          copyTitlesBtn.innerHTML = originalHTML;
-          lucide.createIcons();
-        }, 2000);
-      }).catch(err => {
-        console.error("Clipboard write error:", err);
-        alert("Failed to copy titles.");
-      });
-    });
-
-    // Active Engines UI
+    // Render Active Engines UI
     function updateActiveEngines() {
       const activeE1 = books.find(b => b.engine === 'Engine 1: Deep Focus');
       const activeE2 = books.find(b => b.engine === 'Engine 2: Complementary');
@@ -1805,7 +1395,7 @@
     function renderEngineSlot(slotElem, book) {
       if (book) {
         slotElem.innerHTML = `
-          <div class="engine-book-container" onclick="openEditModal('${book.id}')" title="Open Book Details" style="cursor: pointer;">
+          <div class="engine-book-container">
             <div class="engine-cover">
               ${renderCoverHtml(book.cover, book.title, book.author, 'engine-cover-img')}
             </div>
@@ -1824,7 +1414,7 @@
       } else {
         slotElem.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Engine track available</p>`;
       }
-      if (window.lucide) lucide.createIcons();
+      lucide.createIcons();
     }
 
     function unassignEngine(bookId) {
@@ -1836,28 +1426,23 @@
       }
     }
 
-    // Render Card HTML
-    function renderBookCardHtml(book, showReorderControls = false) {
-      const reorderHtml = showReorderControls ? `
-        <div class="card-reorder-toolbar" onclick="event.stopPropagation();">
-          <button class="action-icon-btn" title="Move Up in Stage" onclick="moveBookOrder('${book.id}', 'up')">
-            <i data-lucide="chevron-up"></i>
-          </button>
-          <button class="action-icon-btn" title="Move Down in Stage" onclick="moveBookOrder('${book.id}', 'down')">
-            <i data-lucide="chevron-down"></i>
-          </button>
-        </div>
-      ` : '';
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
 
+    // Helper function to render book cards across both views
+    function renderBookCardHtml(book) {
       return `
-        <article class="book-card" data-id="${book.id}" onclick="openEditModal('${book.id}')">
+        <article class="book-card" onclick="openEditModal('${book.id}')">
           <div class="cover-container">
             ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img')}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
-              <span>Vol ${book.volumeNumber} · Stage ${book.stageNumber} · <span class="reading-order-number">#${book.readingOrder}</span></span>
-              ${reorderHtml}
+              Vol ${book.volumeNumber} · Stage ${book.stageNumber} · <span class="reading-order-number">#${book.readingOrder}</span>
             </div>
             <h2 class="book-title" title="${escapeHtml(book.title)}">${escapeHtml(book.title)}</h2>
             <p class="book-author">${escapeHtml(book.author)}</p>
@@ -1867,146 +1452,16 @@
       `;
     }
 
-    // Destroy Previous Sortable Instances
-    function destroySortables() {
-      sortableInstances.forEach(inst => {
-        try { inst.destroy(); } catch (e) {}
-      });
-      sortableInstances = [];
-    }
-
-    // Auto-Expand Collapsed Sections when hovering over them while dragging
-    function attachHeaderDragListeners() {
-      const headers = document.querySelectorAll('.volume-header, .stage-header');
-      headers.forEach(header => {
-        const handleDragOver = (e) => {
-          if (!document.body.classList.contains('is-dragging')) return;
-          if (dragExpandTimeout) return;
-
-          dragExpandTimeout = setTimeout(() => {
-            dragExpandTimeout = null;
-            const volSection = header.closest('.volume-section');
-            const stageBlock = header.closest('.stage-block');
-
-            if (header.classList.contains('volume-header') && volSection && volSection.classList.contains('collapsed-volume')) {
-              const volNum = volSection.getAttribute('data-vol-num');
-              volSection.classList.remove('collapsed-volume');
-              collapsedVolumes.delete(`vol-${volNum}`);
-              saveCollapsedStates();
-              const icon = header.querySelector('.vol-expand-icon');
-              if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-down');
-                lucide.createIcons();
-              }
-            } else if (header.classList.contains('stage-header') && stageBlock && stageBlock.classList.contains('collapsed-stage')) {
-              const volNum = stageBlock.getAttribute('data-vol-num');
-              const stageNum = stageBlock.getAttribute('data-stage-num');
-              stageBlock.classList.remove('collapsed-stage');
-              collapsedStages.delete(`stage-${volNum}-${stageNum}`);
-              saveCollapsedStates();
-              const icon = header.querySelector('.stage-expand-icon');
-              if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-down');
-                lucide.createIcons();
-              }
-            }
-          }, 250);
-        };
-
-        const handleDragLeave = () => {
-          if (dragExpandTimeout) {
-            clearTimeout(dragExpandTimeout);
-            dragExpandTimeout = null;
-          }
-        };
-
-        header.addEventListener('pointerover', handleDragOver);
-        header.addEventListener('pointerleave', handleDragLeave);
-        header.addEventListener('dragover', handleDragOver);
-        header.addEventListener('dragleave', handleDragLeave);
-      });
-    }
-
-    // Initialize SortableJS on Roadmap Stages
-    function initRoadmapSortables() {
-      destroySortables();
-
-      const stageGrids = document.querySelectorAll('.sortable-stage');
-      stageGrids.forEach(gridEl => {
-        const instance = new Sortable(gridEl, {
-          group: 'roadmap-books-group', // Allows drag-and-drop across all stages/volumes
-          animation: 150,
-          ghostClass: 'sortable-ghost',
-          dragClass: 'sortable-drag',
-          delay: 50,
-          delayOnTouchOnly: true,
-          onStart: function () {
-            document.body.classList.add('is-dragging');
-          },
-          onEnd: function (evt) {
-            document.body.classList.remove('is-dragging');
-            if (dragExpandTimeout) {
-              clearTimeout(dragExpandTimeout);
-              dragExpandTimeout = null;
-            }
-
-            const bookId = evt.item.getAttribute('data-id');
-            if (!bookId) return;
-
-            const targetGrid = evt.to;
-            const sourceGrid = evt.from;
-
-            const targetVolNum = parseInt(targetGrid.getAttribute('data-vol-num'));
-            const targetVolName = targetGrid.getAttribute('data-vol-name');
-            const targetStageNum = parseInt(targetGrid.getAttribute('data-stage-num'));
-            const targetStageName = targetGrid.getAttribute('data-stage-name');
-
-            // Update Target Stage Books order & Volume/Stage assignments
-            const targetChildren = Array.from(targetGrid.children).filter(c => c.hasAttribute('data-id'));
-            targetChildren.forEach((child, index) => {
-              const id = child.getAttribute('data-id');
-              const b = books.find(item => item.id === id);
-              if (b) {
-                b.readingOrder = index + 1;
-                b.volumeNumber = targetVolNum;
-                b.volumeName = targetVolName;
-                b.stageNumber = targetStageNum;
-                b.stageName = targetStageName;
-              }
-            });
-
-            // Update Source Stage Books order if moved to another stage
-            if (sourceGrid !== targetGrid) {
-              const sourceChildren = Array.from(sourceGrid.children).filter(c => c.hasAttribute('data-id'));
-              sourceChildren.forEach((child, index) => {
-                const id = child.getAttribute('data-id');
-                const b = books.find(item => item.id === id);
-                if (b) {
-                  b.readingOrder = index + 1;
-                }
-              });
-            }
-
-            saveBooksToStorage(books);
-            renderBooks();
-          }
-        });
-        sortableInstances.push(instance);
-      });
-
-      attachHeaderDragListeners();
-    }
-
-    // 2) FIX: Roadmap View Rendering Logic with Full Support for Collapsed Stages & Volumes Drag Target
+    // Roadmap View Rendering Logic
     function renderRoadmapView(filteredBooks) {
-      destroySortables();
-
       if (filteredBooks.length === 0) {
         bookGrid.innerHTML = `<p style="color: var(--text-muted); padding: 20px;">No books match the current filters.</p>`;
         return;
       }
 
+      // Group books by Volume Number -> Stage Number
       const volumeMap = new Map();
+
       filteredBooks.forEach(book => {
         const vKey = book.volumeNumber;
         if (!volumeMap.has(vKey)) {
@@ -2029,99 +1484,52 @@
 
       const sortedVolKeys = Array.from(volumeMap.keys()).sort((a, b) => a - b);
 
-      let html = `
-        <div class="roadmap-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">
-            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> Roadmap View (Drag & Drop Books Across Stages & Volumes)
-          </span>
-          <button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>
-        </div>
-      `;
-
+      let html = '';
       sortedVolKeys.forEach(volNum => {
         const volData = volumeMap.get(volNum);
-        const isVolCollapsed = collapsedVolumes.has(`vol-${volNum}`);
         const sortedStageKeys = Array.from(volData.stages.keys()).sort((a, b) => a - b);
 
-        let totalVolBooks = 0;
-        sortedStageKeys.forEach(sKey => {
-          totalVolBooks += volData.stages.get(sKey).books.length;
-        });
-
         html += `
-          <section class="volume-section ${isVolCollapsed ? 'collapsed-volume' : ''}" data-vol-num="${volNum}">
-            <h2 class="volume-header" onclick="toggleVolumeCollapse(${volNum})">
-              <div class="volume-title-group">
-                <i data-lucide="${isVolCollapsed ? 'chevron-right' : 'chevron-down'}" class="vol-expand-icon" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
-                <span>Volume ${volNum}: ${escapeHtml(volData.volumeName)}</span>
-                <span class="count-badge">${totalVolBooks} books</span>
-              </div>
-              <div class="section-action-btns" onclick="event.stopPropagation();">
-                <button class="action-icon-btn" title="Move Volume Up" onclick="moveVolume(${volNum}, 'up')"><i data-lucide="chevron-up"></i></button>
-                <button class="action-icon-btn" title="Move Volume Down" onclick="moveVolume(${volNum}, 'down')"><i data-lucide="chevron-down"></i></button>
-                <button class="action-icon-btn" title="Edit Volume Name" onclick="openEditVolumeModal(${volNum})"><i data-lucide="edit-3"></i></button>
-                <button class="action-icon-btn danger" title="Delete Volume" onclick="deleteVolume(${volNum})"><i data-lucide="trash-2"></i></button>
-                <button class="btn-secondary btn-xs" title="Add New Stage" onclick="addNewStageToVolume(${volNum})"><i data-lucide="plus"></i> Stage</button>
-              </div>
+          <section class="volume-section">
+            <h2 class="volume-header">
+              <i data-lucide="bookmark" style="width: 18px; height: 18px;"></i>
+              Volume ${volNum}: ${escapeHtml(volData.volumeName)}
             </h2>
-            <div class="volume-content">
         `;
 
         sortedStageKeys.forEach(stageNum => {
           const stageData = volData.stages.get(stageNum);
-          const isStageCollapsed = collapsedStages.has(`stage-${volNum}-${stageNum}`);
           stageData.books.sort((a, b) => a.readingOrder - b.readingOrder);
 
           html += `
-            <div class="stage-block ${isStageCollapsed ? 'collapsed-stage' : ''}" data-vol-num="${volNum}" data-stage-num="${stageNum}">
-              <div class="stage-header" onclick="toggleStageCollapse(${volNum}, ${stageNum})">
-                <div class="stage-title-group">
-                  <i data-lucide="${isStageCollapsed ? 'chevron-right' : 'chevron-down'}" class="stage-expand-icon" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
-                  <span>Stage ${stageNum}: ${escapeHtml(stageData.stageName)}</span>
-                  <span class="count-badge">${stageData.books.length}</span>
-                </div>
-                <div class="section-action-btns" onclick="event.stopPropagation();">
-                  <button class="action-icon-btn" title="Move Stage Up" onclick="moveStage(${volNum}, ${stageNum}, 'up')"><i data-lucide="chevron-up"></i></button>
-                  <button class="action-icon-btn" title="Move Stage Down" onclick="moveStage(${volNum}, ${stageNum}, 'down')"><i data-lucide="chevron-down"></i></button>
-                  <button class="action-icon-btn" title="Edit Stage Name" onclick="openEditStageModal(${volNum}, ${stageNum})"><i data-lucide="edit-3"></i></button>
-                  <button class="action-icon-btn danger" title="Delete Stage" onclick="deleteStage(${volNum}, ${stageNum})"><i data-lucide="trash-2"></i></button>
-                  <button class="btn-secondary btn-xs" title="Add Book to Stage" onclick="addNewBookToStage(${volNum}, ${stageNum})"><i data-lucide="plus"></i> Book</button>
-                </div>
+            <div class="stage-block">
+              <div class="stage-header">
+                <i data-lucide="git-commit" style="width: 16px; height: 16px;"></i>
+                Stage ${stageNum}: ${escapeHtml(stageData.stageName)} (${stageData.books.length})
               </div>
-
-              <div class="stage-grid sortable-stage ${stageData.books.length === 0 ? 'empty-stage-grid' : ''}" 
-                   data-vol-num="${volNum}" 
-                   data-vol-name="${escapeHtml(volData.volumeName)}" 
-                   data-stage-num="${stageNum}" 
-                   data-stage-name="${escapeHtml(stageData.stageName)}">
-                <div class="collapsed-stage-hint">
-                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Drop book here to move to Stage ${stageNum}
-                </div>
-                ${stageData.books.length > 0 
-                  ? stageData.books.map(book => renderBookCardHtml(book, true)).join('') 
-                  : '<p class="empty-stage-msg" style="pointer-events:none;">Drag books here into this stage</p>'}
+              <div class="stage-grid">
+                ${stageData.books.map(book => renderBookCardHtml(book)).join('')}
               </div>
             </div>
           `;
         });
 
-        html += `
-            </div>
-          </section>
-        `;
+        html += `</section>`;
       });
 
       bookGrid.innerHTML = html;
-      initRoadmapSortables();
     }
 
     // Main Render Function
     function renderBooks() {
       updateVolumeFilterDropdown();
+      updateStageFilterDropdown();
 
       const query = searchInput.value.toLowerCase().trim();
       const selectedVol = filterVolume.value;
+      const selectedStage = filterStage.value;
       const selectedStatus = filterStatus.value;
+      const selectedEngine = filterEngine.value;
       const sortVal = sortSelect.value;
 
       let filtered = books.filter(b => {
@@ -2134,9 +1542,11 @@
           b.isbn.toLowerCase().includes(query);
 
         const matchesVol = !selectedVol || b.volumeNumber === parseInt(selectedVol);
+        const matchesStage = !selectedStage || b.stageNumber === parseInt(selectedStage);
         const matchesStatus = !selectedStatus || b.status === selectedStatus;
+        const matchesEngine = !selectedEngine || b.engine === selectedEngine;
 
-        return matchesSearch && matchesVol && matchesStatus;
+        return matchesSearch && matchesVol && matchesStage && matchesStatus && matchesEngine;
       });
 
       // Sorting Logic
@@ -2152,17 +1562,16 @@
         return 0;
       });
 
-      // Update Header Stats
+      // Update Counts
       displayedCount.textContent = filtered.length;
       statTotal.textContent = books.length;
       statReading.textContent = books.filter(b => b.status === 'Reading').length;
       statCompleted.textContent = books.filter(b => b.status === 'Completed').length;
 
-      // Render View
+      // Render Based on Active View
       if (currentView === 'grid') {
-        destroySortables();
         bookGrid.className = 'book-grid';
-        bookGrid.innerHTML = filtered.map(book => renderBookCardHtml(book, false)).join('');
+        bookGrid.innerHTML = filtered.map(book => renderBookCardHtml(book)).join('');
       } else {
         bookGrid.className = 'roadmap-container';
         renderRoadmapView(filtered);
@@ -2172,267 +1581,16 @@
       updateActiveEngines();
     }
 
-    // --- Volume & Stage Reordering & CRUD Functions ---
-
-    function moveVolume(volNum, direction) {
-      const volNumbers = Array.from(new Set(books.map(b => b.volumeNumber))).sort((a, b) => a - b);
-      const idx = volNumbers.indexOf(volNum);
-      if (idx === -1) return;
-
-      const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-      if (targetIdx < 0 || targetIdx >= volNumbers.length) return;
-
-      const otherVolNum = volNumbers[targetIdx];
-
-      books.forEach(b => {
-        if (b.volumeNumber === volNum) {
-          b.volumeNumber = otherVolNum;
-        } else if (b.volumeNumber === otherVolNum) {
-          b.volumeNumber = volNum;
-        }
-      });
-
-      saveBooksToStorage(books);
-      renderBooks();
-    }
-
-    function moveStage(volNum, stageNum, direction) {
-      const volBooks = books.filter(b => b.volumeNumber === volNum);
-      const stageNumbers = Array.from(new Set(volBooks.map(b => b.stageNumber))).sort((a, b) => a - b);
-      const idx = stageNumbers.indexOf(stageNum);
-      if (idx === -1) return;
-
-      const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-      if (targetIdx < 0 || targetIdx >= stageNumbers.length) return;
-
-      const otherStageNum = stageNumbers[targetIdx];
-
-      books.forEach(b => {
-        if (b.volumeNumber === volNum) {
-          if (b.stageNumber === stageNum) {
-            b.stageNumber = otherStageNum;
-          } else if (b.stageNumber === otherStageNum) {
-            b.stageNumber = stageNum;
-          }
-        }
-      });
-
-      saveBooksToStorage(books);
-      renderBooks();
-    }
-
-    function moveBookOrder(bookId, direction) {
-      const targetBook = books.find(b => b.id === bookId);
-      if (!targetBook) return;
-
-      const stageBooks = books
-        .filter(b => b.volumeNumber === targetBook.volumeNumber && b.stageNumber === targetBook.stageNumber)
-        .sort((a, b) => a.readingOrder - b.readingOrder);
-
-      const idx = stageBooks.findIndex(b => b.id === bookId);
-      if (idx === -1) return;
-
-      const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
-      if (targetIdx < 0 || targetIdx >= stageBooks.length) return;
-
-      const otherBook = stageBooks[targetIdx];
-
-      const tempOrder = targetBook.readingOrder;
-      targetBook.readingOrder = otherBook.readingOrder;
-      otherBook.readingOrder = tempOrder;
-
-      // Normalize Reading Order sequence
-      stageBooks.sort((a, b) => a.readingOrder - b.readingOrder);
-      stageBooks.forEach((b, index) => {
-        b.readingOrder = index + 1;
-      });
-
-      saveBooksToStorage(books);
-      renderBooks();
-    }
-
-    // Volume CRUD
-    const volumeModal = document.getElementById('volume-modal');
-    const volumeForm = document.getElementById('volume-form');
-    const editVolTargetNum = document.getElementById('edit-volume-target-num');
-    const volNameModalInput = document.getElementById('volume-name-modal-input');
-    const closeVolumeModalBtn = document.getElementById('close-volume-modal');
-    const cancelVolumeModalBtn = document.getElementById('cancel-volume-modal-btn');
-
-    function openEditVolumeModal(volNum) {
-      const volBook = books.find(b => b.volumeNumber === volNum);
-      if (!volBook) return;
-
-      editVolTargetNum.value = volNum;
-      volNameModalInput.value = volBook.volumeName || `Volume ${volNum}`;
-      volumeModal.classList.add('active');
-    }
-
-    function closeVolumeModal() {
-      volumeModal.classList.remove('active');
-    }
-
-    closeVolumeModalBtn.addEventListener('click', closeVolumeModal);
-    cancelVolumeModalBtn.addEventListener('click', closeVolumeModal);
-
-    volumeForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const volNum = parseInt(editVolTargetNum.value);
-      const newName = volNameModalInput.value.trim();
-
-      if (volNum && newName) {
-        books.forEach(b => {
-          if (b.volumeNumber === volNum) {
-            b.volumeName = newName;
-          }
-        });
-        saveBooksToStorage(books);
-        closeVolumeModal();
-        renderBooks();
-      }
-    });
-
-    function deleteVolume(volNum) {
-      const volBooks = books.filter(b => b.volumeNumber === volNum);
-      if (volBooks.length === 0) return;
-
-      const volName = volBooks[0].volumeName || `Volume ${volNum}`;
-      if (confirm(`Are you sure you want to delete Volume ${volNum}: "${volName}" and all ${volBooks.length} book(s) in it?`)) {
-        books = books.filter(b => b.volumeNumber !== volNum);
-        saveBooksToStorage(books);
-        renderBooks();
-      }
-    }
-
-    function addNewVolume() {
-      const maxVol = books.length > 0 ? Math.max(...books.map(b => b.volumeNumber)) : 0;
-      const newVolNum = maxVol + 1;
-
-      modalTitle.textContent = "Add New Volume & Book";
-      inputId.value = "";
-      bookForm.reset();
-
-      populateVolumeDropdown('__new__');
-      inputNewVolName.value = `Volume ${newVolNum}`;
-      inputNewStageName.value = "Stage 1";
-      inputReadingOrder.value = 1;
-
-      deleteBookBtn.style.display = "none";
-      modal.classList.add('active');
-    }
-
-    // Stage CRUD
-    const stageModal = document.getElementById('stage-modal');
-    const stageForm = document.getElementById('stage-form');
-    const editStageTargetVol = document.getElementById('edit-stage-target-vol');
-    const editStageTargetNum = document.getElementById('edit-stage-target-num');
-    const stageNameModalInput = document.getElementById('stage-name-modal-input');
-    const closeStageModalBtn = document.getElementById('close-stage-modal');
-    const cancelStageModalBtn = document.getElementById('cancel-stage-modal-btn');
-
-    function openEditStageModal(volNum, stageNum) {
-      const stageBook = books.find(b => b.volumeNumber === volNum && b.stageNumber === stageNum);
-      if (!stageBook) return;
-
-      editStageTargetVol.value = volNum;
-      editStageTargetNum.value = stageNum;
-      stageNameModalInput.value = stageBook.stageName || `Stage ${stageNum}`;
-      stageModal.classList.add('active');
-    }
-
-    function closeStageModal() {
-      stageModal.classList.remove('active');
-    }
-
-    closeStageModalBtn.addEventListener('click', closeStageModal);
-    cancelStageModalBtn.addEventListener('click', closeStageModal);
-
-    stageForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const volNum = parseInt(editStageTargetVol.value);
-      const stageNum = parseInt(editStageTargetNum.value);
-      const newName = stageNameModalInput.value.trim();
-
-      if (volNum && stageNum && newName) {
-        books.forEach(b => {
-          if (b.volumeNumber === volNum && b.stageNumber === stageNum) {
-            b.stageName = newName;
-          }
-        });
-        saveBooksToStorage(books);
-        closeStageModal();
-        renderBooks();
-      }
-    });
-
-    function deleteStage(volNum, stageNum) {
-      const stageBooks = books.filter(b => b.volumeNumber === volNum && b.stageNumber === stageNum);
-      if (stageBooks.length === 0) return;
-
-      const stageName = stageBooks[0].stageName || `Stage ${stageNum}`;
-      if (confirm(`Are you sure you want to delete Stage ${stageNum}: "${stageName}" and all ${stageBooks.length} book(s) in it?`)) {
-        books = books.filter(b => !(b.volumeNumber === volNum && b.stageNumber === stageNum));
-        saveBooksToStorage(books);
-        renderBooks();
-      }
-    }
-
-    function addNewStageToVolume(volNum) {
-      const volBooks = books.filter(b => b.volumeNumber === volNum);
-      const volName = volBooks.length > 0 ? volBooks[0].volumeName : `Volume ${volNum}`;
-      const maxStage = volBooks.length > 0 ? Math.max(...volBooks.map(b => b.stageNumber)) : 0;
-      const newStageNum = maxStage + 1;
-
-      modalTitle.textContent = `Add Stage to ${volName}`;
-      inputId.value = "";
-      bookForm.reset();
-
-      populateVolumeDropdown(volNum);
-      populateStageDropdown(volNum, '__new__');
-      inputNewStageName.value = `Stage ${newStageNum}`;
-      inputReadingOrder.value = 1;
-
-      deleteBookBtn.style.display = "none";
-      modal.classList.add('active');
-    }
-
-    function addNewBookToStage(volNum, stageNum) {
-      const stageBooks = books.filter(b => b.volumeNumber === volNum && b.stageNumber === stageNum);
-      const volName = stageBooks.length > 0 ? stageBooks[0].volumeName : `Volume ${volNum}`;
-      const stageName = stageBooks.length > 0 ? stageBooks[0].stageName : `Stage ${stageNum}`;
-      const maxOrder = stageBooks.length > 0 ? Math.max(...stageBooks.map(b => b.readingOrder)) : 0;
-
-      modalTitle.textContent = `Add Book to Stage ${stageNum}: ${stageName}`;
-      inputId.value = "";
-      bookForm.reset();
-
-      populateVolumeDropdown(volNum);
-      populateStageDropdown(volNum, stageNum);
-      inputReadingOrder.value = maxOrder + 1;
-
-      deleteBookBtn.style.display = "none";
-      modal.classList.add('active');
-    }
-
     // Modal Control Functions
     function openAddModal() {
       modalTitle.textContent = "Add New Book";
       inputId.value = "";
       bookForm.reset();
 
-      const volMap = getVolumeMap();
-      const sortedVols = Array.from(volMap.keys()).sort((a, b) => a - b);
-      if (sortedVols.length > 0) {
-        const firstVol = sortedVols[0];
-        populateVolumeDropdown(firstVol);
-        const stageMap = getStageMap(firstVol);
-        const firstStage = Array.from(stageMap.keys()).sort((a, b) => a - b)[0];
-        if (firstStage) {
-          populateStageDropdown(firstVol, firstStage);
-        }
-      } else {
-        populateVolumeDropdown('__new__');
-      }
+      inputVolNum.value = 1;
+      inputVolName.value = "General";
+      inputStageNum.value = 1;
+      inputStageName.value = "Stage 1";
       inputReadingOrder.value = (books.length + 1);
 
       deleteBookBtn.style.display = "none";
@@ -2447,10 +1605,10 @@
       inputId.value = book.id;
       inputTitle.value = book.title;
       inputAuthor.value = book.author;
-      populateVolumeDropdown(book.volumeNumber);
-      populateStageDropdown(book.volumeNumber, book.stageNumber);
-      inputNewVolName.value = book.volumeName;
-      inputNewStageName.value = book.stageName;
+      inputVolNum.value = book.volumeNumber;
+      inputVolName.value = book.volumeName;
+      inputStageNum.value = book.stageNumber;
+      inputStageName.value = book.stageName;
       inputReadingOrder.value = book.readingOrder;
       inputYear.value = book.year;
       inputStatus.value = book.status;
@@ -2467,6 +1625,7 @@
       modal.classList.remove('active');
     }
 
+    // Form Save (Add or Edit)
     bookForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const id = inputId.value;
@@ -2480,36 +1639,14 @@
         });
       }
 
-      // Derive Volume from dropdown (or new volume name/number)
-      let volumeNumber, volumeName;
-      const volVal = inputVolSelect.value;
-      if (volVal === '__new__') {
-        volumeNumber = nextVolumeNumber();
-        volumeName = inputNewVolName.value.trim() || `Volume ${volumeNumber}`;
-      } else {
-        volumeNumber = parseInt(volVal) || 1;
-        volumeName = getVolumeMap().get(volumeNumber) || `Volume ${volumeNumber}`;
-      }
-
-      // Derive Stage from dropdown (cascaded by volume, or new stage name/number)
-      let stageNumber, stageName;
-      const stageVal = inputStageSelect.value;
-      if (stageVal === '__new__') {
-        stageNumber = nextStageNumber(volumeNumber);
-        stageName = inputNewStageName.value.trim() || `Stage ${stageNumber}`;
-      } else {
-        stageNumber = parseInt(stageVal) || 1;
-        stageName = getStageMap(volumeNumber).get(stageNumber) || `Stage ${stageNumber}`;
-      }
-
       const bookData = normalizeBook({
         id: id || Date.now().toString(),
         title: inputTitle.value.trim(),
         author: inputAuthor.value.trim(),
-        volumeNumber,
-        volumeName,
-        stageNumber,
-        stageName,
+        volumeNumber: parseInt(inputVolNum.value) || 1,
+        volumeName: inputVolName.value.trim() || "General",
+        stageNumber: parseInt(inputStageNum.value) || 1,
+        stageName: inputStageName.value.trim() || "General Stage",
         readingOrder: parseInt(inputReadingOrder.value) || 1,
         year: inputYear.value.trim(),
         status: inputStatus.value,
@@ -2531,6 +1668,7 @@
       renderBooks();
     });
 
+    // Delete Book Handler
     deleteBookBtn.addEventListener('click', () => {
       const id = inputId.value;
       if (id && confirm("Are you sure you want to remove this book from your catalog?")) {
@@ -2549,25 +1687,19 @@
       if (e.target === modal) closeModal();
     });
 
-    [searchInput, filterVolume, filterStatus, sortSelect].forEach(elem => {
-      elem.addEventListener('input', renderBooks);
+    [searchInput, filterVolume, filterStage, filterStatus, filterEngine, sortSelect].forEach(elem => {
+        elem.addEventListener('input', renderBooks);
     });
 
     resetBtn.addEventListener('click', () => {
       if (confirm("Reset catalog to sample default dataset? (This will override current localStorage)")) {
         books = [...defaultBooksSeed];
-        collapsedVolumes.clear();
-        collapsedStages.clear();
-        saveCollapsedStates();
         saveBooksToStorage(books);
-        // After a reset, the library is back to a fresh known state — no export reminder.
-        localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
-        updateExportReminder();
         renderBooks();
       }
     });
 
-    // Theme Switcher
+    // Theme Switcher Logic
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
 
@@ -2579,7 +1711,7 @@
       } else {
         themeIcon.setAttribute('data-lucide', 'sun');
       }
-      if (window.lucide) lucide.createIcons();
+      lucide.createIcons();
     }
 
     themeToggleBtn.addEventListener('click', () => {
@@ -2591,21 +1723,14 @@
       (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     applyTheme(savedTheme);
 
-    // CSV Import / Export Logic
-    function exportCsv() {
+    // CSV Import & Export Logic
+    exportBtn.addEventListener('click', () => {
       if (!books.length) return alert("Catalog is empty.");
       const headers = ["Title", "Author", "Volume Number", "Volume Name", "Stage Number", "Stage Name", "Reading Order", "Year", "Status", "Engine", "Cover URL", "ISBN", "Notes"];
       
       const csvRows = [headers.join(",")];
-
-      // Sort by Volume → Stage → Reading Order before exporting
-      const sortedBooks = [...books].sort((a, b) => {
-        if (a.volumeNumber !== b.volumeNumber) return a.volumeNumber - b.volumeNumber;
-        if (a.stageNumber !== b.stageNumber) return a.stageNumber - b.stageNumber;
-        return a.readingOrder - b.readingOrder;
-      });
-
-      sortedBooks.forEach(b => {
+      
+      books.forEach(b => {
         const row = [
           b.title, b.author, b.volumeNumber, b.volumeName, b.stageNumber, b.stageName, b.readingOrder, b.year, b.status, b.engine, b.cover, b.isbn, b.notes
         ].map(val => {
@@ -2626,50 +1751,7 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      // Record export time so the reminder knows changes are now saved to CSV.
-      localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
-      updateExportReminder();
-    }
-
-    exportBtn.addEventListener('click', exportCsv);
-
-    // Export Reminder Logic
-    function formatTimestamp(isoString) {
-      if (!isoString) return null;
-      const date = new Date(isoString);
-      if (isNaN(date.getTime())) return null;
-      return date.toLocaleString([], {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
-      });
-    }
-
-    function updateExportReminder() {
-      const reminder = document.getElementById('export-reminder');
-      const messageEl = document.getElementById('export-reminder-message');
-      if (!reminder || !messageEl) return;
-
-      const lastModified = localStorage.getItem(LAST_MODIFIED_KEY);
-      const lastExported = localStorage.getItem(LAST_EXPORTED_KEY);
-
-      const needsExport = lastModified && (!lastExported || new Date(lastModified) > new Date(lastExported));
-      if (!needsExport) {
-        reminder.classList.remove('visible');
-        return;
-      }
-
-      const modifiedLabel = formatTimestamp(lastModified);
-      const exportedLabel = lastExported ? formatTimestamp(lastExported) : 'never';
-      messageEl.innerHTML = `You modified your library on <span class="reminder-muted">${modifiedLabel}</span> — no CSV export since <span class="reminder-muted">${exportedLabel}</span>.`;
-      reminder.classList.add('visible');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    document.getElementById('export-reminder-btn').addEventListener('click', exportCsv);
+    });
 
     importBtn.addEventListener('click', () => csvFileInput.click());
 
@@ -2698,9 +1780,6 @@
             notes: row.notes || ""
           }));
           saveBooksToStorage(books);
-          // After importing a CSV, the library matches an exported file — no reminder.
-          localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
-          updateExportReminder();
           renderBooks();
           alert(`Successfully imported ${books.length} books! Data saved to LocalStorage.`);
         }
@@ -2708,6 +1787,7 @@
       reader.readAsText(file);
     });
 
+    // Helper CSV Parser
     function parseCSV(text) {
       const lines = text.split(/\r\n|\n/);
       if (lines.length < 2) return [];
@@ -2751,10 +1831,9 @@
       return data;
     }
 
-    // Initialize App
+    // Initialization
     books = loadBooksFromStorage();
     renderBooks();
-    updateExportReminder();
   </script>
 </body>
 </html>
