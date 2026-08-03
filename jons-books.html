@@ -1023,11 +1023,13 @@
       content: "";
       position: absolute;
       top: 0;
-      left: -24px; /* cover the body's horizontal padding */
-      right: -24px;
+      left: calc(-24px - env(safe-area-inset-left, 0px)); /* cover body padding + left safe area */
+      right: calc(-24px - env(safe-area-inset-right, 0px)); /* cover body padding + right safe area */
       height: calc(24px + env(safe-area-inset-top, 0px)); /* body top padding + status bar */
+      min-height: 90px; /* always cover the notch strip even if env() resolves to 0 in an emulator */
       transform: translateY(-100%);
       background: var(--bg-main);
+      pointer-events: none;
     }
 
     .volume-header.is-stuck::after,
@@ -1036,10 +1038,11 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      left: -24px; /* cover the body's horizontal padding */
-      right: -24px;
+      left: calc(-24px - env(safe-area-inset-left, 0px)); /* cover body padding + left safe area */
+      right: calc(-24px - env(safe-area-inset-right, 0px)); /* cover body padding + right safe area */
       background: var(--bg-main);
       z-index: -1; /* behind header content, above page content */
+      pointer-events: none;
     }
 
     /* Mobile Responsive Adjustments */
@@ -2097,11 +2100,18 @@
 
     // Sticky roadmap headers — when a header is pinned, add .is-stuck so its
     // background extends over the mobile status bar / safe area (see CSS).
+    // A stage header's sticky offset equals the volume header's height, so derive
+    // the threshold from that instead of parsing `top` (which can be an unresolved
+    // `calc(… + env(…))` string → NaN).
     let stickyHeaderTicking = false;
     function updateStickyHeaderCover() {
       stickyHeaderTicking = false;
       document.querySelectorAll('.volume-header, .stage-header').forEach((h) => {
-        const threshold = parseFloat(getComputedStyle(h).top) || 0;
+        let threshold = 0;
+        if (h.classList.contains('stage-header')) {
+          const volHeader = h.closest('.volume-section')?.querySelector('.volume-header');
+          threshold = volHeader ? volHeader.offsetHeight : 0;
+        }
         h.classList.toggle('is-stuck', h.getBoundingClientRect().top <= threshold + 1);
       });
     }
