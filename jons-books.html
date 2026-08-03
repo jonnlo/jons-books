@@ -73,10 +73,10 @@
     }
 
     /* iOS Safari (26+) browser-UI tint shim — a fixed sliver near the top of the
-       viewport. Safari only samples elements within ~4px of the top/bottom, at
-       least 80% wide and 3px tall; this strip sits inside that detection band and
-       feeds it the page background color so the browser chrome always matches.
-       It's invisible (blends with the page bg) and lets all clicks pass through. */
+       viewport. Safari samples the color of fixed elements inside its detection
+       band (~4px from the top, ≥80% wide, ≥3px tall) to tint the browser chrome.
+       A mask makes this element fully invisible to the user, yet Safari still
+       reads its background, so the status bar / toolbar always matches the theme. */
     #safari-tint-shim {
       pointer-events: none;
       position: fixed;
@@ -85,7 +85,11 @@
       transform: translateX(-50%);
       width: 89%;
       height: 11px;
+      display: block;
       background: var(--bg-main);
+      /* Hack to style the browser UI while keeping it invisible to the user. */
+      mask-image: linear-gradient(to right, transparent, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, transparent);
       z-index: 999;
     }
 
@@ -1189,9 +1193,9 @@
 <body>
 
   <!-- iOS Safari (26+) browser-UI tint shim — Safari samples the color of fixed
-       elements near the viewport edges to tint its status bar / toolbar. This
-       tiny sliver pins what Safari samples to the page background so the browser
-       chrome always matches the current theme. -->
+       elements near the viewport edges to tint its status bar / toolbar. A CSS
+       mask hides this sliver from the user while Safari still reads its
+       background, so the browser chrome always matches the current theme. -->
   <div id="safari-tint-shim" aria-hidden="true"></div>
 
   <div class="container">
