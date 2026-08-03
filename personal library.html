@@ -259,11 +259,11 @@
       /* border: 1px dashed var(--border-color); */
       border-radius: 12px;
       padding: 32px;
-      min-height: 110px;
+      min-height: 204px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg-surface);
+      background: var(--img-bg);
       transition: all 0.3s ease;
     }
 
@@ -400,10 +400,10 @@
 
     .search-input {
       width: 100%;
-      height: 38px;
+      height: 42px;
       background: var(--bg-input);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 8px 12px 8px 38px;
       color: var(--text-primary);
       font-size: 0.875rem;
@@ -412,10 +412,10 @@
     .filter-select {
       flex: 1;
       min-width: 160px;
-      height: 38px;
+      height: 42px;
       background: var(--bg-input);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 8px 12px;
       color: var(--text-primary);
       font-size: 0.875rem;
@@ -1112,7 +1112,7 @@
             <span class="engine-tag">Philosophical / Technical</span>
           </div>
           <div class="engine-slot" id="engine-slot-1">
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Engine track available</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>
           </div>
         </div>
 
@@ -1124,7 +1124,7 @@
             <span class="engine-tag">Narrative / Theory</span>
           </div>
           <div class="engine-slot" id="engine-slot-2">
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Engine track available</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>
           </div>
         </div>
 
@@ -1136,7 +1136,7 @@
             <span class="engine-tag">Range / Reference</span>
           </div>
           <div class="engine-slot" id="engine-slot-3">
-            <p style="color: var(--text-muted); font-size: 0.85rem;">Engine track available</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>
           </div>
         </div>
       </div>
@@ -1843,7 +1843,7 @@
           </div>
         `;
       } else {
-        slotElem.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">Engine track available</p>`;
+        slotElem.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>`;
       }
       if (window.lucide) lucide.createIcons();
     }
