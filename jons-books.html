@@ -72,6 +72,23 @@
       line-height: 1.5;
     }
 
+    /* iOS Safari (26+) browser-UI tint shim — a fixed sliver near the top of the
+       viewport. Safari only samples elements within ~4px of the top/bottom, at
+       least 80% wide and 3px tall; this strip sits inside that detection band and
+       feeds it the page background color so the browser chrome always matches.
+       It's invisible (blends with the page bg) and lets all clicks pass through. */
+    #safari-tint-shim {
+      pointer-events: none;
+      position: fixed;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 89%;
+      height: 11px;
+      background: var(--bg-main);
+      z-index: 999;
+    }
+
     .container {
       max-width: 1600px;
       margin: 0 auto;
@@ -673,18 +690,23 @@
       height: 100vh;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
-      display: flex;
+      /* Hidden modals use display:none (not opacity:0) so they aren't painted and
+         can't be sampled by Safari's browser-UI tint detector — otherwise they'd
+         override the #safari-tint-shim color. */
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
     }
 
     .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
+      display: flex;
+      animation: modal-fade-in 0.2s ease;
+    }
+
+    @keyframes modal-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .modal-content {
@@ -1165,6 +1187,12 @@
   </style>
 </head>
 <body>
+
+  <!-- iOS Safari (26+) browser-UI tint shim — Safari samples the color of fixed
+       elements near the viewport edges to tint its status bar / toolbar. This
+       tiny sliver pins what Safari samples to the page background so the browser
+       chrome always matches the current theme. -->
+  <div id="safari-tint-shim" aria-hidden="true"></div>
 
   <div class="container">
     <!-- Header Navbar -->
