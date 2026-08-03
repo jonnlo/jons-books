@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Android Chrome/Edge/Samsung Internet — colors the browser chrome to match the theme -->
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f19">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <!-- iOS — only applies when added to the Home Screen (standalone mode) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>jon's books</title>
   <!-- Inter Font (variable, weights 400-800) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,7 +67,8 @@
       -moz-osx-font-smoothing: grayscale;
       background-color: var(--bg-main);
       color: var(--text-primary);
-      padding: 24px;
+      /* Safe-area top keeps content clear of the status bar in iOS standalone mode */
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 24px;
       line-height: 1.5;
     }
 
@@ -1013,36 +1020,6 @@
       border-radius: 12px;
       margin-left: 6px;
       font-weight: 500;
-    }
-
-    /* Sticky header safe-area cover — when a roadmap header is pinned (.is-stuck),
-       extend its background up over the mobile status bar / notch and out to the
-       screen edges so there's no visible gap. Toggled by JS on scroll. */
-    .volume-header.is-stuck::before,
-    .stage-header.is-stuck::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: calc(-24px - env(safe-area-inset-left, 0px)); /* cover body padding + left safe area */
-      right: calc(-24px - env(safe-area-inset-right, 0px)); /* cover body padding + right safe area */
-      height: calc(24px + env(safe-area-inset-top, 0px)); /* body top padding + status bar */
-      min-height: 90px; /* always cover the notch strip even if env() resolves to 0 in an emulator */
-      transform: translateY(-100%);
-      background: var(--bg-main);
-      pointer-events: none;
-    }
-
-    .volume-header.is-stuck::after,
-    .stage-header.is-stuck::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: calc(-24px - env(safe-area-inset-left, 0px)); /* cover body padding + left safe area */
-      right: calc(-24px - env(safe-area-inset-right, 0px)); /* cover body padding + right safe area */
-      background: var(--bg-main);
-      z-index: -1; /* behind header content, above page content */
-      pointer-events: none;
     }
 
     /* Mobile Responsive Adjustments */
@@ -2098,30 +2075,6 @@
       });
     }
 
-    // Sticky roadmap headers — when a header is pinned, add .is-stuck so its
-    // background extends over the mobile status bar / safe area (see CSS).
-    // A stage header's sticky offset equals the volume header's height, so derive
-    // the threshold from that instead of parsing `top` (which can be an unresolved
-    // `calc(… + env(…))` string → NaN).
-    let stickyHeaderTicking = false;
-    function updateStickyHeaderCover() {
-      stickyHeaderTicking = false;
-      document.querySelectorAll('.volume-header, .stage-header').forEach((h) => {
-        let threshold = 0;
-        if (h.classList.contains('stage-header')) {
-          const volHeader = h.closest('.volume-section')?.querySelector('.volume-header');
-          threshold = volHeader ? volHeader.offsetHeight : 0;
-        }
-        h.classList.toggle('is-stuck', h.getBoundingClientRect().top <= threshold + 1);
-      });
-    }
-    window.addEventListener('scroll', () => {
-      if (!stickyHeaderTicking) {
-        stickyHeaderTicking = true;
-        requestAnimationFrame(updateStickyHeaderCover);
-      }
-    }, { passive: true });
-
     // Initialize SortableJS on Roadmap Stages
     function initRoadmapSortables() {
       destroySortables();
@@ -2372,7 +2325,6 @@
 
       lucide.createIcons();
       updateActiveEngines();
-      updateStickyHeaderCover();
     }
 
     // --- Volume & Stage Reordering & CRUD Functions ---
@@ -2779,6 +2731,9 @@
     function applyTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
+      // Keep the Android status-bar color in sync with the current theme.
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) themeColorMeta.content = theme === 'light' ? '#ffffff' : '#0b0f19';
       if (theme === 'light') {
         themeIcon.setAttribute('data-lucide', 'moon');
       } else {
