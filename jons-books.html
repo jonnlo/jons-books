@@ -1015,6 +1015,33 @@
       font-weight: 500;
     }
 
+    /* Sticky header safe-area cover — when a roadmap header is pinned (.is-stuck),
+       extend its background up over the mobile status bar / notch and out to the
+       screen edges so there's no visible gap. Toggled by JS on scroll. */
+    .volume-header.is-stuck::before,
+    .stage-header.is-stuck::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -24px; /* cover the body's horizontal padding */
+      right: -24px;
+      height: calc(24px + env(safe-area-inset-top, 0px)); /* body top padding + status bar */
+      transform: translateY(-100%);
+      background: var(--bg-main);
+    }
+
+    .volume-header.is-stuck::after,
+    .stage-header.is-stuck::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -24px; /* cover the body's horizontal padding */
+      right: -24px;
+      background: var(--bg-main);
+      z-index: -1; /* behind header content, above page content */
+    }
+
     /* Mobile Responsive Adjustments */
     @media (max-width: 600px) {
       .engines-grid {
@@ -2068,6 +2095,23 @@
       });
     }
 
+    // Sticky roadmap headers — when a header is pinned, add .is-stuck so its
+    // background extends over the mobile status bar / safe area (see CSS).
+    let stickyHeaderTicking = false;
+    function updateStickyHeaderCover() {
+      stickyHeaderTicking = false;
+      document.querySelectorAll('.volume-header, .stage-header').forEach((h) => {
+        const threshold = parseFloat(getComputedStyle(h).top) || 0;
+        h.classList.toggle('is-stuck', h.getBoundingClientRect().top <= threshold + 1);
+      });
+    }
+    window.addEventListener('scroll', () => {
+      if (!stickyHeaderTicking) {
+        stickyHeaderTicking = true;
+        requestAnimationFrame(updateStickyHeaderCover);
+      }
+    }, { passive: true });
+
     // Initialize SortableJS on Roadmap Stages
     function initRoadmapSortables() {
       destroySortables();
@@ -2318,6 +2362,7 @@
 
       lucide.createIcons();
       updateActiveEngines();
+      updateStickyHeaderCover();
     }
 
     // --- Volume & Stage Reordering & CRUD Functions ---
