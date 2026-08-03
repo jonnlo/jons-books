@@ -75,9 +75,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 24px;
+      padding-bottom: 12  px;
+      margin-bottom: 36px;
       flex-wrap: wrap;
       gap: 16px;
     }
@@ -115,12 +114,12 @@
       background: var(--bg-surface);
       padding: 8px 18px;
       border-radius: 20px;
-      border: 1px solid var(--border-color);
+      /* border: 1px solid var(--border-color); */
       font-size: 0.85rem;
     }
 
     .stat-item span {
-      color: var(--text-muted);
+      color: var(--text-secondary);
       margin-right: 4px;
     }
 
@@ -189,12 +188,12 @@
 
     /* Active Reading Engines */
     .engines-section {
-      margin-bottom: 28px;
+      margin-bottom: 44px;
     }
 
-    .section-title {
-      font-size: 0.95rem;
-      font-weight: 500;
+    .engines-heading {
+      font-size: 1rem;
+      font-weight: 700;
       letter-spacing: -0.01em;
       /* text-transform: uppercase; */
       color: var(--text-secondary);
@@ -204,10 +203,17 @@
       margin-bottom: 12px;
     }
 
+    .engines-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: none;
+    }
+
     .engines-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 16px;
+      gap: 28px;
     }
 
     .engine-card {
@@ -251,31 +257,35 @@
 
     .engine-slot {
       /* border: 1px dashed var(--border-color); */
-      border-radius: 8px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 32px;
       min-height: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: var(--bg-surface);
+      transition: all 0.3s ease;
+    }
+
+    .engine-slot:hover {
+      background: var(--img-bg-hover);
+    }
+
+    .engine-slot:hover .engine-cover-img{
+      scale: 1.05;
     }
 
     .engine-book-container {
       display: flex;
-      gap: 12px;
+      gap: 20px;
       width: 100%;
       align-items: center;
       cursor: pointer;
     }
 
-    .engine-book-container:hover .engine-book-title {
-      color: var(--border-accent);
-    }
-
     .engine-cover {
       /* width: 60px; */
-      height: 120px;
-      border-radius: 6px;
+      height: 140px;
       aspect-ratio:2/3;
       flex-shrink: 0;
       overflow: hidden;
@@ -284,12 +294,19 @@
       justify-content: center;
     }
 
-    .engine-cover img {
+    /* .engine-cover img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
+    } */
+
+    .engine-cover-img {
+      height: 95%;
+      width: 95%;
+      object-fit: contain;
+      border-radius: 0px;
+      transition: all 0.2s ease;
+
     }
 
     .engine-book-info {
@@ -300,11 +317,11 @@
     }
 
     .engine-book-title {
-      font-weight: 700;
+      font-weight: 600;
       font-size: 0.9rem;
       color: var(--text-primary);
       line-height: 1.3;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
@@ -315,7 +332,6 @@
     .engine-book-author {
       font-size: 0.83rem;
       color: var(--text-secondary);
-      margin-bottom: 6px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -329,6 +345,8 @@
       gap: 6px;
       font-weight: 500;
       flex-wrap: wrap;
+      margin-bottom: 4px;
+
     }
 
     .engine-unassign-btn {
@@ -357,7 +375,7 @@
       gap: 12px;
       flex-wrap: wrap;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 36px;
     }
 
     .search-input-wrap {
@@ -1043,7 +1061,7 @@
         <div class="stat-item"><span>Total:</span> <strong id="stat-total">0</strong></div>
         <div class="stat-item"><span>Reading:</span> <strong id="stat-reading">0</strong></div>
         <div class="stat-item"><span>Completed:</span> <strong id="stat-completed">0</strong></div>
-        <div class="stat-item"><span>Active Engines:</span> <strong id="stat-active-engines">0/3</strong></div>
+        <div class="stat-item"><span>Active Books:</span> <strong id="stat-active-engines">0/3</strong></div>
       </div>
 
       <div class="header-actions">
@@ -1079,11 +1097,12 @@
     </div>
 
     <!-- Active Reading Engines -->
-    <section class="engines-section">
-      <div class="section-title">
-        <span>Active Reading</span>
-        <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: none;">Side-by-Side Parallel Tracks</span>
+     <div class="engines-heading">
+      <span>Active Books</span>
+        <small class="engines-sub">Side-by-Side Parallel Tracks</small>
       </div>
+    <section class="engines-section">
+      
       <div class="engines-grid">
         <div class="engine-card">
           <div class="engine-header">
@@ -1812,14 +1831,14 @@
               ${renderCoverHtml(book.cover, book.title, book.author, 'engine-cover-img')}
             </div>
             <div class="engine-book-info">
-              <div class="engine-book-title" title="${escapeHtml(book.title)}">${escapeHtml(book.title)}</div>
-              <div class="engine-book-author">${escapeHtml(book.author)}</div>
               <div class="engine-book-meta">
-                <span>Vol ${book.volumeNumber} • Stage ${book.stageNumber}</span>
+                <span>Vol ${book.volumeNumber} · Stage ${book.stageNumber}</span>
                 <button class="engine-unassign-btn" title="Unassign from Engine" onclick="event.stopPropagation(); unassignEngine('${book.id}')">
                   <i data-lucide="x-circle" style="width: 14px; height: 14px;"></i>
                 </button>
               </div>
+              <div class="engine-book-title" title="${escapeHtml(book.title)}">${escapeHtml(book.title)}</div>
+              <div class="engine-book-author">${escapeHtml(book.author)}</div>
             </div>
           </div>
         `;
