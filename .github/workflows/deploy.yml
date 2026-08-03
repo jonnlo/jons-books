@@ -5,7 +5,7 @@ on:
     branches: [main, master]
     paths:
       - 'CSV/**'
-      - 'personal library.html'
+      - 'jons-books.html'
       - 'scripts/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
@@ -35,7 +35,7 @@ jobs:
       - name: Stage site (index.html + catalog.csv)
         run: |
           mkdir -p _site
-          cp "personal library.html" _site/index.html
+          cp "jons-books.html" _site/index.html
           cp catalog.csv _site/catalog.csv
 
       - name: Upload Pages artifact
