@@ -193,11 +193,11 @@
     }
 
     .section-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      /* text-transform: uppercase; */
+      color: var(--text-secondary);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -211,10 +211,10 @@
     }
 
     .engine-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
+      /* background: var(--bg-surface); */
+      /* border: 1px solid var(--border-color); */
       border-radius: 12px;
-      padding: 16px;
+      /* padding: 16px; */
       display: flex;
       flex-direction: column;
     }
@@ -243,21 +243,21 @@
     .engine-tag {
       font-size: 0.7rem;
       padding: 2px 8px;
-      border-radius: 4px;
+      border-radius: 12px;
       background: var(--bg-main);
-      color: var(--text-muted);
+      color: var(--text-secondary);
       border: 1px solid var(--border-color);
     }
 
     .engine-slot {
-      border: 1px dashed var(--border-color);
+      /* border: 1px dashed var(--border-color); */
       border-radius: 8px;
       padding: 12px;
       min-height: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg-main);
+      background: var(--bg-surface);
     }
 
     .engine-book-container {
@@ -273,9 +273,10 @@
     }
 
     .engine-cover {
-      width: 60px;
-      height: 88px;
+      /* width: 60px; */
+      height: 120px;
       border-radius: 6px;
+      aspect-ratio:2/3;
       flex-shrink: 0;
       overflow: hidden;
       display: flex;
@@ -300,7 +301,7 @@
 
     .engine-book-title {
       font-weight: 700;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text-primary);
       line-height: 1.3;
       margin-bottom: 2px;
@@ -312,7 +313,7 @@
     }
 
     .engine-book-author {
-      font-size: 0.78rem;
+      font-size: 0.83rem;
       color: var(--text-secondary);
       margin-bottom: 6px;
       white-space: nowrap;
@@ -321,11 +322,12 @@
     }
 
     .engine-book-meta {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 6px;
+      font-weight: 500;
       flex-wrap: wrap;
     }
 
@@ -347,10 +349,10 @@
 
     /* Filter Controls UI */
     .filter-bar {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
+      /* background: var(--bg-surface); */
+      /* border: 1px solid var(--border-color); */
       border-radius: 12px;
-      padding: 12px;
+      /* padding: 12px; */
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
@@ -1079,14 +1081,14 @@
     <!-- Active Reading Engines -->
     <section class="engines-section">
       <div class="section-title">
-        <span>⚡ Active Reading Engines</span>
+        <span>Active Reading</span>
         <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: none;">Side-by-Side Parallel Tracks</span>
       </div>
       <div class="engines-grid">
         <div class="engine-card">
           <div class="engine-header">
             <div class="engine-name">
-              <span class="dot" style="background: var(--engine-1);"></span> Engine 1: Deep Focus
+              <span class="dot" style="background: var(--engine-1);"></span> Deep Focus
             </div>
             <span class="engine-tag">Philosophical / Technical</span>
           </div>
@@ -1098,7 +1100,7 @@
         <div class="engine-card">
           <div class="engine-header">
             <div class="engine-name">
-              <span class="dot" style="background: var(--engine-2);"></span> Engine 2: Complementary
+              <span class="dot" style="background: var(--engine-2);"></span> Complementary
             </div>
             <span class="engine-tag">Narrative / Theory</span>
           </div>
@@ -1110,7 +1112,7 @@
         <div class="engine-card">
           <div class="engine-header">
             <div class="engine-name">
-              <span class="dot" style="background: var(--engine-3);"></span> Engine 3: Exploration
+              <span class="dot" style="background: var(--engine-3);"></span> Exploration
             </div>
             <span class="engine-tag">Range / Reference</span>
           </div>
