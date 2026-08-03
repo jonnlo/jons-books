@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Personal Library - Three-Engine Framework Catalog</title>
+  <title>jon's books</title>
   <!-- Inter Font (variable, weights 400-800) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,6 +100,7 @@
     .brand h1 {
       font-size: 1.25rem;
       font-weight: 700;
+      letter-spacing: -0.03em;
     }
 
     .brand p {
@@ -1088,6 +1089,24 @@
         padding: 1px 4px;
       }
     }
+
+    /* ===== View-Only (Public Site) =====
+       On the published GitHub Pages site the library is read-only: hide all
+       editing controls. The owner still edits locally (file:// or localhost). */
+    body.view-only #import-btn,
+    body.view-only #export-btn,
+    body.view-only #reset-btn,
+    body.view-only #add-book-btn,
+    body.view-only #export-reminder,
+    body.view-only .section-action-btns,
+    body.view-only .card-reorder-toolbar,
+    body.view-only .engine-unassign-btn,
+    body.view-only .roadmap-top-bar .btn-primary {
+      display: none !important;
+    }
+    body.view-only .book-card {
+      cursor: default;
+    }
   </style>
 </head>
 <body>
@@ -1096,10 +1115,10 @@
     <!-- Header Navbar -->
     <header>
       <div class="brand">
-        <div class="brand-icon"><i data-lucide="book-open"></i></div>
+        <!-- <div class="brand-icon"><i data-lucide="book-open"></i></div> -->
         <div>
-          <h1>Personal Library</h1>
-          <p>Three-Engine Framework Catalog</p>
+          <h1>jon's books</h1>
+          <!-- <p>curated by volumes</p> -->
         </div>
       </div>
 
@@ -1369,6 +1388,12 @@
     const LAST_MODIFIED_KEY = 'personal_library_last_modified';
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
 
+    // Public / View-Only Mode — on the published site we load catalog.csv
+    // (the latest CSV export, staged by the deploy workflow) and hide editing.
+    const isPublic = window.location.protocol !== 'file:' &&
+      !['localhost', '127.0.0.1'].includes(window.location.hostname);
+    if (isPublic) document.body.classList.add('view-only');
+
     // Collapsible States
     let collapsedVolumes = new Set(JSON.parse(localStorage.getItem(COLLAPSED_VOLUMES_KEY) || '[]'));
     let collapsedStages = new Set(JSON.parse(localStorage.getItem(COLLAPSED_STAGES_KEY) || '[]'));
@@ -1496,6 +1521,7 @@
     }
 
     function saveBooksToStorage(data) {
+      if (isPublic) return; // Public site is read-only — never persist visitor edits.
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(LAST_MODIFIED_KEY, new Date().toISOString());
       updateExportReminder();
@@ -2096,12 +2122,19 @@
 
       const sortedVolKeys = Array.from(volumeMap.keys()).sort((a, b) => a - b);
 
+      const roadmapHeaderLabel = isPublic
+        ? 'Roadmap View'
+        : 'Roadmap View (Drag & Drop Books Across Stages & Volumes)';
+      const roadmapAddVolumeBtn = isPublic
+        ? ''
+        : '<button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>';
+
       let html = `
         <div class="roadmap-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">
-            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> Roadmap View (Drag & Drop Books Across Stages & Volumes)
+            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> ${roadmapHeaderLabel}
           </span>
-          <button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>
+          ${roadmapAddVolumeBtn}
         </div>
       `;
 
@@ -2179,7 +2212,7 @@
       });
 
       bookGrid.innerHTML = html;
-      initRoadmapSortables();
+      if (!isPublic) initRoadmapSortables(); // Read-only on the public site.
     }
 
     // Main Render Function
@@ -2483,6 +2516,7 @@
 
     // Modal Control Functions
     function openAddModal() {
+      if (isPublic) return; // View-only on the public site.
       modalTitle.textContent = "Add New Book";
       inputId.value = "";
       bookForm.reset();
@@ -2507,6 +2541,7 @@
     }
 
     function openEditModal(id) {
+      if (isPublic) return; // View-only on the public site.
       const book = books.find(b => b.id === id);
       if (!book) return;
 
@@ -2749,21 +2784,7 @@
         const text = evt.target.result;
         const parsed = parseCSV(text);
         if (parsed.length > 0) {
-          books = parsed.map((row) => normalizeBook({
-            title: row.title || row.book_title || "Untitled",
-            author: row.author || row.authors || "Unknown",
-            volumeNumber: row.volume_number || row.vol_num || row.volume || 1,
-            volumeName: row.volume_name || row.volume_title || row.vol_name || row.vol_title || "General",
-            stageNumber: row.stage_number || row.stage_num || row.stage || 1,
-            stageName: row.stage_name || "Stage 1",
-            readingOrder: row.reading_order || row.order || 1,
-            year: row.year || row.pub_year || "",
-            status: row.status || "To Read",
-            engine: row.engine || "None",
-            cover: row.cover_url || row.cover || row.image || "",
-            isbn: row.isbn || "",
-            notes: row.notes || ""
-          }));
+          books = booksFromCsvRows(parsed);
           saveBooksToStorage(books);
           // After importing a CSV, the library matches an exported file — no reminder.
           localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -2818,10 +2839,54 @@
       return data;
     }
 
-    // Initialize App
-    books = loadBooksFromStorage();
-    renderBooks();
-    updateExportReminder();
+    // Map parsed CSV rows to normalized book objects (shared by Import + remote load)
+    function booksFromCsvRows(parsed) {
+      return parsed.map((row) => normalizeBook({
+        title: row.title || row.book_title || "Untitled",
+        author: row.author || row.authors || "Unknown",
+        volumeNumber: row.volume_number || row.vol_num || row.volume || 1,
+        volumeName: row.volume_name || row.volume_title || row.vol_name || row.vol_title || "General",
+        stageNumber: row.stage_number || row.stage_num || row.stage || 1,
+        stageName: row.stage_name || "Stage 1",
+        readingOrder: row.reading_order || row.order || 1,
+        year: row.year || row.pub_year || "",
+        status: row.status || "To Read",
+        engine: row.engine || "None",
+        cover: row.cover_url || row.cover || row.image || "",
+        isbn: row.isbn || "",
+        notes: row.notes || ""
+      }));
+    }
+
+    // Load the published catalog (catalog.csv — the latest CSV export, staged by the
+    // deploy workflow). Falls back to localStorage/seed when unreachable (file:// or offline).
+    async function loadCatalogFromRemote() {
+      if (!isPublic) return false; // Local editing keeps using localStorage; only the public site loads the CSV.
+      try {
+        const response = await fetch('catalog.csv', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const parsed = parseCSV(await response.text());
+        if (parsed.length > 0) {
+          books = booksFromCsvRows(parsed);
+          renderBooks();
+          return true;
+        }
+      } catch (err) {
+        console.warn('[library] catalog.csv unavailable, using local data:', err);
+      }
+      return false;
+    }
+
+    // Initialize App — prefer the published CSV when reachable (public site),
+    // otherwise fall back to localStorage/seed for local editing use.
+    (async function init() {
+      const loadedRemote = await loadCatalogFromRemote();
+      if (!loadedRemote) {
+        books = loadBooksFromStorage();
+        renderBooks();
+      }
+      if (!isPublic) updateExportReminder();
+    })();
   </script>
 </body>
 </html>
