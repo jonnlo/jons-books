@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>jon's books</title>
   <!-- Inter Font (variable, weights 400-800) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -125,7 +125,7 @@
     }
 
     .stat-item strong {
-      color: var(--engine-3);
+      color: var(--text-primary);
     }
 
     .header-actions {
@@ -814,7 +814,7 @@
       top: 0;
       z-index: 10;
       background: var(--bg-main);
-      padding-top: 12px;
+      padding-top: calc(12px + env(safe-area-inset-top, 0px));
       padding-bottom: 12px;
       margin-bottom: 16px;
       border-bottom: 1px solid var(--text-muted);
@@ -846,10 +846,10 @@
 
     .stage-header {
       position: sticky;
-      top: 52px;
+      top: calc(52px + env(safe-area-inset-top, 0px));
       z-index: 9;
       background: var(--bg-main);
-      padding-top: 12px;
+      padding-top: calc(12px + env(safe-area-inset-top, 0px));
       padding-bottom: 8px;
       margin-bottom: 14px;
       font-size: 1rem;
@@ -1087,6 +1087,54 @@
       .status-pill {
         font-size: 0.6rem;
         padding: 1px 4px;
+      }
+
+      /* Roadmap headers — up to 2-line titles with fixed header height so badges stay stable */
+      .volume-header {
+        font-size: 0.95rem;
+        gap: 8px;
+        min-height: 64px; /* reserve room for 2-line titles so the sticky offset stays valid */
+      }
+
+      .stage-header {
+        font-size: 0.85rem;
+        top: calc(64px + env(safe-area-inset-top, 0px));
+        min-height: 56px;
+      }
+
+      .volume-title-group,
+      .stage-title-group {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .volume-title-group span:not(.count-badge),
+      .stage-title-group span:not(.count-badge) {
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.3;
+      }
+
+      .count-badge {
+        flex-shrink: 0;
+      }
+
+      .section-action-btns {
+        gap: 4px;
+      }
+
+      .section-action-btns .action-icon-btn {
+        width: 26px;
+        height: 26px;
+      }
+
+      .section-action-btns .action-icon-btn svg {
+        width: 12px;
+        height: 12px;
       }
     }
 
@@ -2154,7 +2202,7 @@
               <div class="volume-title-group">
                 <i data-lucide="${isVolCollapsed ? 'chevron-right' : 'chevron-down'}" class="vol-expand-icon" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
                 <span>Volume ${volNum}: ${escapeHtml(volData.volumeName)}</span>
-                <span class="count-badge">${totalVolBooks} books</span>
+                <span class="count-badge">${totalVolBooks}</span>
               </div>
               <div class="section-action-btns" onclick="event.stopPropagation();">
                 <button class="action-icon-btn" title="Move Volume Up" onclick="moveVolume(${volNum}, 'up')"><i data-lucide="chevron-up"></i></button>
