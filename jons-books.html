@@ -736,8 +736,8 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background-color: color-mix(in srgb, var(--bg-main) 80%, transparent);
+      backdrop-filter: blur(5px);
       /* Hidden modals use display:none (not opacity:0) so they aren't painted and
          can't be sampled by Safari's browser-UI tint detector — otherwise they'd
          override the #safari-tint-shim color. */
@@ -749,7 +749,7 @@
 
     .modal-overlay.active {
       display: flex;
-      animation: modal-fade-in 0.2s ease;
+      animation: modal-fade-in 0.2s ease-out;
     }
 
     @keyframes modal-fade-in {
