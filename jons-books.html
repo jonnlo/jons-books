@@ -1213,7 +1213,6 @@
         <div class="stat-item"><span>Total:</span> <strong id="stat-total">0</strong></div>
         <div class="stat-item"><span>Reading:</span> <strong id="stat-reading">0</strong></div>
         <div class="stat-item"><span>Completed:</span> <strong id="stat-completed">0</strong></div>
-        <div class="stat-item"><span>Active Books:</span> <strong id="stat-active-engines">0/3</strong></div>
       </div>
 
       <div class="header-actions">
@@ -1734,7 +1733,6 @@
     const statTotal = document.getElementById('stat-total');
     const statReading = document.getElementById('stat-reading');
     const statCompleted = document.getElementById('stat-completed');
-    const statActiveEngines = document.getElementById('stat-active-engines');
     const displayedCount = document.getElementById('displayed-count');
 
     // Engine Slots
@@ -1990,12 +1988,6 @@
       const activeE1 = books.find(b => b.engine === 'Engine 1: Deep Focus');
       const activeE2 = books.find(b => b.engine === 'Engine 2: Complementary');
       const activeE3 = books.find(b => b.engine === 'Engine 3: Exploration');
-
-      let activeCount = 0;
-      if (activeE1) activeCount++;
-      if (activeE2) activeCount++;
-      if (activeE3) activeCount++;
-      statActiveEngines.textContent = `${activeCount}/3`;
 
       renderEngineSlot(slot1, activeE1);
       renderEngineSlot(slot2, activeE2);
