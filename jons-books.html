@@ -72,6 +72,17 @@
       line-height: 1.5;
     }
 
+    /* Global Lucide icon defaults for buttons & button-styled controls.
+       Base size = 18px; stroke-weight = 1.5 (Lucide default is 2). The more
+       specific rules below (e.g. .action-icon-btn svg) still override the size
+       for the small arrow buttons; stroke-width applies to all of them. */
+    button svg,
+    .btn-secondary svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.5;
+    }
+
     /* iOS Safari (26+) browser-UI tint shim — a fixed sliver near the top of the
        viewport. Safari samples the color of fixed elements inside its detection
        band (~4px from the top, ≥80% wide, ≥3px tall) to tint the browser chrome.
@@ -424,6 +435,7 @@
       color: var(--text-muted);
       width: 18px;
       height: 18px;
+      stroke-width: 1.5;
       pointer-events: none;
     }
 
