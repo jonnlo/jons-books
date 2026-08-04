@@ -998,11 +998,63 @@
       outline: none;
       box-shadow: none;
     }
-    /* View Toggle Active State */
-    .view-toggle .btn-secondary.active {
+    /* View Toggle — animated segmented control (sliding pill)
+       CSS-only sliding indicator: a 50%-wide pill glides between the two
+       segments. The existing JS handlers just toggle `.active`; `:has()`
+       moves the pill to the right half when the roadmap button is active. */
+    .view-toggle {
+      position: relative;
+      display: inline-flex;
+      gap: 0;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    /* The sliding active pill (inset 3px, rounded) */
+    .view-toggle::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 3px;
+      width: calc(50% - 6px);
+      border-radius: 7px;
       background: var(--accent-color);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+      z-index: 1;
+    }
+
+    /* Roadmap active → slide the pill to the right half */
+    .view-toggle:has(#view-roadmap-btn.active)::before {
+      transform: translateX(calc(100% + 6px));
+    }
+
+    .view-toggle .btn-secondary {
+      position: relative;
+      z-index: 2; /* keep icon + label above the pill */
+      flex: 1 1 0;
+      min-width: 110px; /* equal segment widths so the 50% pill lines up */
+      justify-content: center;
+      white-space: nowrap;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      padding: 8px 12px;
+    }
+
+    .view-toggle .btn-secondary.active {
+      background: transparent;
       color: white;
-      border-color: var(--accent-color);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .view-toggle::before {
+        transition: none;
+      }
     }
 
     /* Roadmap View Layout */
@@ -1515,12 +1567,12 @@
         <option value="title-asc">Title (A-Z)</option>
       </select>
 
-      <div class="view-toggle" style="display: flex; gap: 4px;">
-        <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View">
-          <i data-lucide="grid"></i>
+      <div class="view-toggle" role="group" aria-label="View mode">
+        <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View" aria-pressed="true">
+          <i data-lucide="grid"></i> Grid
         </button>
-        <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Roadmap View (Drag & Drop Supported)">
-          <i data-lucide="layers"></i>
+        <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Volumes View" aria-pressed="false">
+          <i data-lucide="layers"></i> Volumes
         </button>
       </div>
     </div>
@@ -2162,14 +2214,18 @@
     viewGridBtn.addEventListener('click', () => {
       currentView = 'grid';
       viewGridBtn.classList.add('active');
+      viewGridBtn.setAttribute('aria-pressed', 'true');
       viewRoadmapBtn.classList.remove('active');
+      viewRoadmapBtn.setAttribute('aria-pressed', 'false');
       renderBooks();
     });
 
     viewRoadmapBtn.addEventListener('click', () => {
       currentView = 'roadmap';
       viewRoadmapBtn.classList.add('active');
+      viewRoadmapBtn.setAttribute('aria-pressed', 'true');
       viewGridBtn.classList.remove('active');
+      viewGridBtn.setAttribute('aria-pressed', 'false');
       renderBooks();
     });
 
