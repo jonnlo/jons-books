@@ -1174,8 +1174,7 @@
     /* ===== View-Only (Public Site) =====
        On the published GitHub Pages site the library is read-only: hide all
        editing controls. The owner still edits locally (file:// or localhost). */
-    body.view-only #import-btn,
-    body.view-only #export-btn,
+    body.view-only #import-json-btn,
     body.view-only #export-json-btn,
     body.view-only #reset-btn,
     body.view-only #add-book-btn,
@@ -1224,9 +1223,8 @@
         </button>
 
         <!-- Import / Export Controls -->
-        <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
-        <button class="btn-secondary" id="import-btn" title="Import Library CSV"><i data-lucide="upload"></i> Import CSV</button>
-        <button class="btn-secondary" id="export-btn" title="Export Catalog to CSV"><i data-lucide="download"></i> Export CSV</button>
+        <input type="file" id="json-file-input" accept=".json,application/json" style="display: none;">
+        <button class="btn-secondary" id="import-json-btn" title="Import Library from books.json"><i data-lucide="upload"></i> Import JSON</button>
         <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="file-json"></i> Export JSON</button>
         <button class="btn-secondary" id="reset-btn" title="Reset to Sample Library"><i data-lucide="rotate-ccw"></i> Reset</button>
         
@@ -1245,7 +1243,7 @@
         <i data-lucide="download"></i>
         <span id="export-reminder-message"></span>
       </div>
-      <button class="btn-export-now" id="export-reminder-btn" title="Export Catalog to CSV">
+      <button class="btn-export-now" id="export-reminder-btn" title="Export Catalog to JSON">
         <i data-lucide="file-down"></i> Export Now
       </button>
     </div>
@@ -1593,7 +1591,10 @@
     let dragExpandTimeout = null;
 
     // LocalStorage Operations
-    function loadBooksFromStorage() {
+    // Prefer existing localStorage. On a fresh start (no usable stored data) we
+    // bootstrap from the committed books.json when it's reachable (e.g. served
+    // over http://localhost), and only fall back to the sample seed otherwise.
+    async function loadBooksFromStorage() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         try {
@@ -1605,6 +1606,23 @@
           console.error("Failed to parse books from localStorage:", e);
         }
       }
+
+      try {
+        const response = await fetch('books.json', { cache: 'no-store' });
+        if (response.ok) {
+          const parsed = await response.json();
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const seeded = parsed.map(normalizeBook);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+            // Matches the committed books.json — no export reminder needed.
+            localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
+            return seeded;
+          }
+        }
+      } catch (err) {
+        console.warn('[library] books.json unavailable for first-run bootstrap, using seed:', err);
+      }
+
       saveBooksToStorage(defaultBooksSeed);
       return defaultBooksSeed;
     }
@@ -1752,11 +1770,10 @@
     const inputNotes = document.getElementById('book-notes-input');
 
     // Controls
-    const importBtn = document.getElementById('import-btn');
-    const exportBtn = document.getElementById('export-btn');
+    const importJsonBtn = document.getElementById('import-json-btn');
     const exportJsonBtn = document.getElementById('export-json-btn');
     const resetBtn = document.getElementById('reset-btn');
-    const csvFileInput = document.getElementById('csv-file-input');
+    const jsonFileInput = document.getElementById('json-file-input');
     const copyTitlesBtn = document.getElementById('copy-titles-btn');
 
     // Dropdown Filters
@@ -2786,50 +2803,7 @@
       (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     applyTheme(savedTheme);
 
-    // CSV Import / Export Logic
-    function exportCsv() {
-      if (!books.length) return alert("Catalog is empty.");
-      const headers = ["Title", "Author", "Volume Number", "Volume Name", "Stage Number", "Stage Name", "Reading Order", "Year", "Status", "Engine", "Cover URL", "ISBN", "Notes"];
-      
-      const csvRows = [headers.join(",")];
-
-      // Sort by Volume → Stage → Reading Order before exporting
-      const sortedBooks = [...books].sort((a, b) => {
-        if (a.volumeNumber !== b.volumeNumber) return a.volumeNumber - b.volumeNumber;
-        if (a.stageNumber !== b.stageNumber) return a.stageNumber - b.stageNumber;
-        return a.readingOrder - b.readingOrder;
-      });
-
-      sortedBooks.forEach(b => {
-        const row = [
-          b.title, b.author, b.volumeNumber, b.volumeName, b.stageNumber, b.stageName, b.readingOrder, b.year, b.status, b.engine, b.cover, b.isbn, b.notes
-        ].map(val => {
-          let str = (val || "").toString().replace(/"/g, '""');
-          if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-            str = `"${str}"`;
-          }
-          return str;
-        });
-        csvRows.push(row.join(","));
-      });
-
-      const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `personal_library_catalog_${new Date().toISOString().slice(0, 10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Record export time so the reminder knows changes are now saved to CSV.
-      localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
-      updateExportReminder();
-    }
-
-    exportBtn.addEventListener('click', exportCsv);
-
-    // Export to JSON — books.json is the source of truth for the public site.
+    // JSON Import / Export Logic — books.json is the source of truth for the public site.
     function exportJson() {
       if (!books.length) return alert("Catalog is empty.");
       const blob = new Blob([JSON.stringify(books, null, 2)], { type: "application/json" });
@@ -2878,98 +2852,43 @@
 
       const modifiedLabel = formatTimestamp(lastModified);
       const exportedLabel = lastExported ? formatTimestamp(lastExported) : 'never';
-      messageEl.innerHTML = `You modified your library on <span class="reminder-muted">${modifiedLabel}</span> — no CSV export since <span class="reminder-muted">${exportedLabel}</span>.`;
+      messageEl.innerHTML = `You modified your library on <span class="reminder-muted">${modifiedLabel}</span> — no JSON export since <span class="reminder-muted">${exportedLabel}</span>.`;
       reminder.classList.add('visible');
       if (window.lucide) lucide.createIcons();
     }
 
-    document.getElementById('export-reminder-btn').addEventListener('click', exportCsv);
+    document.getElementById('export-reminder-btn').addEventListener('click', exportJson);
 
-    importBtn.addEventListener('click', () => csvFileInput.click());
+    // Import from books.json (the committed source of truth) — restores localStorage.
+    importJsonBtn.addEventListener('click', () => jsonFileInput.click());
 
-    csvFileInput.addEventListener('change', (e) => {
+    jsonFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function(evt) {
-        const text = evt.target.result;
-        const parsed = parseCSV(text);
-        if (parsed.length > 0) {
-          books = booksFromCsvRows(parsed);
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (!Array.isArray(parsed) || parsed.length === 0) {
+            alert("Invalid books.json — expected a non-empty JSON array.");
+            return;
+          }
+          books = parsed.map(normalizeBook); // ids are preserved from the file.
           saveBooksToStorage(books);
-          // After importing a CSV, the library matches an exported file — no reminder.
+          // After importing books.json, the library matches an exported file — no reminder.
           localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
           updateExportReminder();
           renderBooks();
           alert(`Successfully imported ${books.length} books! Data saved to LocalStorage.`);
+        } catch (err) {
+          console.error("Failed to parse JSON import:", err);
+          alert("Could not read that file — it doesn't look like valid books.json.");
         }
       };
       reader.readAsText(file);
+      e.target.value = ''; // allow re-importing the same file later
     });
-
-    function parseCSV(text) {
-      const lines = text.split(/\r\n|\n/);
-      if (lines.length < 2) return [];
-
-      const parseLine = (line) => {
-        const result = [];
-        let insideQuote = false;
-        let entry = '';
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"') {
-            if (insideQuote && line[i + 1] === '"') {
-              entry += '"';
-              i++;
-            } else {
-              insideQuote = !insideQuote;
-            }
-          } else if (char === ',' && !insideQuote) {
-            result.push(entry.trim());
-            entry = '';
-          } else {
-            entry += char;
-          }
-        }
-        result.push(entry.trim());
-        return result;
-      };
-
-      const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9_]/g, '_'));
-      const data = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        const values = parseLine(lines[i]);
-        const obj = {};
-        headers.forEach((h, idx) => {
-          obj[h] = values[idx] || '';
-        });
-        data.push(obj);
-      }
-      return data;
-    }
-
-    // Map parsed CSV rows to normalized book objects (used by the Import CSV button —
-    // a permanent bridge for old CSV backups)
-    function booksFromCsvRows(parsed) {
-      return parsed.map((row) => normalizeBook({
-        title: row.title || row.book_title || "Untitled",
-        author: row.author || row.authors || "Unknown",
-        volumeNumber: row.volume_number || row.vol_num || row.volume || 1,
-        volumeName: row.volume_name || row.volume_title || row.vol_name || row.vol_title || "General",
-        stageNumber: row.stage_number || row.stage_num || row.stage || 1,
-        stageName: row.stage_name || "Stage 1",
-        readingOrder: row.reading_order || row.order || 1,
-        year: row.year || row.pub_year || "",
-        status: row.status || "To Read",
-        engine: row.engine || "None",
-        cover: row.cover_url || row.cover || row.image || "",
-        isbn: row.isbn || "",
-        notes: row.notes || ""
-      }));
-    }
 
     // Load the published catalog (books.json — the committed source of truth, staged
     // by the deploy workflow). Falls back to localStorage/seed when unreachable
@@ -2996,7 +2915,7 @@
     (async function init() {
       const loadedRemote = await loadCatalogFromRemote();
       if (!loadedRemote) {
-        books = loadBooksFromStorage();
+        books = await loadBooksFromStorage();
         renderBooks();
       }
       if (!isPublic) updateExportReminder();
