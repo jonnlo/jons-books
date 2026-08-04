@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'CSV/**'
+      - 'books.json'
       - 'jons-books.html'
       - 'scripts/**'
       - '.github/workflows/deploy.yml'
@@ -29,14 +29,11 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Sync latest CSV to catalog.csv
-        run: bash scripts/sync-latest-csv.sh
-
-      - name: Stage site (index.html + catalog.csv)
+      - name: Stage site (index.html + books.json)
         run: |
           mkdir -p _site
           cp "jons-books.html" _site/index.html
-          cp catalog.csv _site/catalog.csv
+          cp books.json _site/books.json
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

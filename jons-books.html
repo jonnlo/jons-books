@@ -1176,6 +1176,7 @@
        editing controls. The owner still edits locally (file:// or localhost). */
     body.view-only #import-btn,
     body.view-only #export-btn,
+    body.view-only #export-json-btn,
     body.view-only #reset-btn,
     body.view-only #add-book-btn,
     body.view-only #export-reminder,
@@ -1226,6 +1227,7 @@
         <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
         <button class="btn-secondary" id="import-btn" title="Import Library CSV"><i data-lucide="upload"></i> Import CSV</button>
         <button class="btn-secondary" id="export-btn" title="Export Catalog to CSV"><i data-lucide="download"></i> Export CSV</button>
+        <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="file-json"></i> Export JSON</button>
         <button class="btn-secondary" id="reset-btn" title="Reset to Sample Library"><i data-lucide="rotate-ccw"></i> Reset</button>
         
         <!-- Theme Switcher -->
@@ -1475,8 +1477,8 @@
     const LAST_MODIFIED_KEY = 'personal_library_last_modified';
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
 
-    // Public / View-Only Mode — on the published site we load catalog.csv
-    // (the latest CSV export, staged by the deploy workflow) and hide editing.
+    // Public / View-Only Mode — on the published site we load books.json
+    // (the committed source of truth, staged by the deploy workflow) and hide editing.
     const isPublic = window.location.protocol !== 'file:' &&
       !['localhost', '127.0.0.1'].includes(window.location.hostname);
     if (isPublic) document.body.classList.add('view-only');
@@ -1752,6 +1754,7 @@
     // Controls
     const importBtn = document.getElementById('import-btn');
     const exportBtn = document.getElementById('export-btn');
+    const exportJsonBtn = document.getElementById('export-json-btn');
     const resetBtn = document.getElementById('reset-btn');
     const csvFileInput = document.getElementById('csv-file-input');
     const copyTitlesBtn = document.getElementById('copy-titles-btn');
@@ -2826,6 +2829,25 @@
 
     exportBtn.addEventListener('click', exportCsv);
 
+    // Export to JSON — books.json is the source of truth for the public site.
+    function exportJson() {
+      if (!books.length) return alert("Catalog is empty.");
+      const blob = new Blob([JSON.stringify(books, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "books.json");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Record export time so the reminder knows changes are now saved to JSON.
+      localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
+      updateExportReminder();
+    }
+
+    exportJsonBtn.addEventListener('click', exportJson);
+
     // Export Reminder Logic
     function formatTimestamp(isoString) {
       if (!isoString) return null;
@@ -2929,7 +2951,8 @@
       return data;
     }
 
-    // Map parsed CSV rows to normalized book objects (shared by Import + remote load)
+    // Map parsed CSV rows to normalized book objects (used by the Import CSV button —
+    // a permanent bridge for old CSV backups)
     function booksFromCsvRows(parsed) {
       return parsed.map((row) => normalizeBook({
         title: row.title || row.book_title || "Untitled",
@@ -2948,26 +2971,27 @@
       }));
     }
 
-    // Load the published catalog (catalog.csv — the latest CSV export, staged by the
-    // deploy workflow). Falls back to localStorage/seed when unreachable (file:// or offline).
+    // Load the published catalog (books.json — the committed source of truth, staged
+    // by the deploy workflow). Falls back to localStorage/seed when unreachable
+    // (file:// or offline).
     async function loadCatalogFromRemote() {
-      if (!isPublic) return false; // Local editing keeps using localStorage; only the public site loads the CSV.
+      if (!isPublic) return false; // Local editing keeps using localStorage; only the public site loads books.json.
       try {
-        const response = await fetch('catalog.csv', { cache: 'no-store' });
+        const response = await fetch('books.json', { cache: 'no-store' });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const parsed = parseCSV(await response.text());
-        if (parsed.length > 0) {
-          books = booksFromCsvRows(parsed);
+        const parsed = await response.json();
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          books = parsed.map(normalizeBook); // ids are already stable in books.json.
           renderBooks();
           return true;
         }
       } catch (err) {
-        console.warn('[library] catalog.csv unavailable, using local data:', err);
+        console.warn('[library] books.json unavailable, using local data:', err);
       }
       return false;
     }
 
-    // Initialize App — prefer the published CSV when reachable (public site),
+    // Initialize App — prefer the published books.json when reachable (public site),
     // otherwise fall back to localStorage/seed for local editing use.
     (async function init() {
       const loadedRemote = await loadCatalogFromRemote();
