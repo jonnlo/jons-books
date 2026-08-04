@@ -987,6 +987,13 @@
       outline-offset: 2px;
     }
 
+    /* Remove iPhone/touch focus outline for the modal close button only */
+    .book-detail-modal .modal-content .close-btn:focus,
+    .book-detail-modal .modal-content .close-btn:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
     /* View Toggle Active State */
     .view-toggle .btn-secondary.active {
       background: var(--accent-color);
