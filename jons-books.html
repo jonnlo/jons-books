@@ -61,6 +61,13 @@
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
+    /* Explicit root background — iOS 26 Safari uses html/body as the FALLBACK
+       sampled color when no fixed/sticky element qualifies at the edge. Without
+       it (transparent root) Safari can fall back to a white or black bar. */
+    html {
+      background-color: var(--bg-main);
+    }
+
     body {
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -70,27 +77,6 @@
       /* Safe-area top keeps content clear of the status bar in iOS standalone mode */
       padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 24px;
       line-height: 1.5;
-    }
-
-    /* iOS Safari (26+) browser-UI tint shim — a fixed sliver near the top of the
-       viewport. Safari samples the color of fixed elements inside its detection
-       band (~4px from the top, ≥80% wide, ≥3px tall) to tint the browser chrome.
-       A mask makes this element fully invisible to the user, yet Safari still
-       reads its background, so the status bar / toolbar always matches the theme. */
-    #safari-tint-shim {
-      pointer-events: none;
-      position: fixed;
-      top: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 89%;
-      height: 11px;
-      display: block;
-      background: var(--bg-main);
-      /* Hack to style the browser UI while keeping it invisible to the user. */
-      mask-image: linear-gradient(to right, transparent, transparent);
-      -webkit-mask-image: linear-gradient(to right, transparent, transparent);
-      z-index: 999;
     }
 
     .container {
@@ -685,7 +671,10 @@
       border: 1px solid var(--border-color);
     }
 
-    /* Modal Styling */
+    /* Modal Styling — hidden modals use display:none (NOT opacity:0) so they're
+       fully removed from the render tree. iOS 26 Safari still samples fixed
+       overlays hidden with opacity:0, reading their dark backdrop-filter
+       background and wrongly tinting the status bar / toolbar with it. */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -694,9 +683,6 @@
       height: 100vh;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
-      /* Hidden modals use display:none (not opacity:0) so they aren't painted and
-         can't be sampled by Safari's browser-UI tint detector — otherwise they'd
-         override the #safari-tint-shim color. */
       display: none;
       align-items: center;
       justify-content: center;
@@ -989,7 +975,7 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      background: var(--bg-main);
+      background-color: var(--bg-main);
       padding-top: calc(12px + env(safe-area-inset-top, 0px));
       padding-bottom: 12px;
       margin-bottom: 16px;
@@ -1357,12 +1343,6 @@
   </style>
 </head>
 <body>
-
-  <!-- iOS Safari (26+) browser-UI tint shim — Safari samples the color of fixed
-       elements near the viewport edges to tint its status bar / toolbar. A CSS
-       mask hides this sliver from the user while Safari still reads its
-       background, so the browser chrome always matches the current theme. -->
-  <div id="safari-tint-shim" aria-hidden="true"></div>
 
   <div class="container">
     <!-- Header Navbar -->
