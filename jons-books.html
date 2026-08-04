@@ -61,26 +61,6 @@
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
-    /* Explicit root background — iOS 26 Safari uses html/body as the FALLBACK
-       sampled color when no fixed/sticky element qualifies at the edge. Without
-       it (transparent root) Safari can fall back to a white or black bar. */
-    html {
-      background-color: var(--bg-main);
-    }
-
-    /* Option B — disable the load-time background transition on the elements
-       Safari 26 samples for the status-bar/toolbar tint. The universal `*`
-       transition animates these backgrounds from transparent on first paint; if
-       Safari computes the chrome tint during that 200ms window it can capture a
-       transparent / mid-transition color and render a white or black bar.
-       Their backgrounds must be stable at first paint. */
-    html,
-    body,
-    .volume-header,
-    .stage-header {
-      transition: none;
-    }
-
     body {
       font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
@@ -90,6 +70,27 @@
       /* Safe-area top keeps content clear of the status bar in iOS standalone mode */
       padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 24px;
       line-height: 1.5;
+    }
+
+    /* iOS Safari (26+) browser-UI tint shim — a fixed sliver near the top of the
+       viewport. Safari samples the color of fixed elements inside its detection
+       band (~4px from the top, ≥80% wide, ≥3px tall) to tint the browser chrome.
+       A mask makes this element fully invisible to the user, yet Safari still
+       reads its background, so the status bar / toolbar always matches the theme. */
+    #safari-tint-shim {
+      pointer-events: none;
+      position: fixed;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 89%;
+      height: 11px;
+      display: block;
+      background: var(--bg-main);
+      /* Hack to style the browser UI while keeping it invisible to the user. */
+      mask-image: linear-gradient(to right, transparent, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, transparent);
+      z-index: 999;
     }
 
     .container {
@@ -447,38 +448,12 @@
       padding: 8px 12px;
       color: var(--text-primary);
       font-size: 0.875rem;
-      -webkit-appearance: none;
-      appearance: none;
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 14px;
-      padding-right: 44px; /* room for custom arrow */
-      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    }
-
-    /* Hide IE/Edge native arrow if encountered */
-    .filter-select::-ms-expand {
-      display: none;
-    }
-
-    /* Theme-aware SVG arrows (encoded) */
-    [data-theme="dark"] .filter-select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23ffffff' d='M5.5 7.5l4.5 4.5 4.5-4.5z'/%3E%3C/svg%3E");
-    }
-
-    [data-theme="light"] .filter-select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%230f172a' d='M5.5 7.5l4.5 4.5 4.5-4.5z'/%3E%3C/svg%3E");
-    }
-
-    .filter-select option {
-      background: var(--bg-input);
-      color: var(--text-primary);
     }
 
     .results-count {
       font-size: 0.9rem;
       color: var(--text-secondary);
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
     /* Export Reminder Banner */
@@ -710,18 +685,18 @@
       border: 1px solid var(--border-color);
     }
 
-    /* Modal Styling — hidden modals use display:none (NOT opacity:0) so they're
-       fully removed from the render tree. iOS 26 Safari still samples fixed
-       overlays hidden with opacity:0, reading their dark backdrop-filter
-       background and wrongly tinting the status bar / toolbar with it. */
+    /* Modal Styling */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
+      /* Hidden modals use display:none (not opacity:0) so they aren't painted and
+         can't be sampled by Safari's browser-UI tint detector — otherwise they'd
+         override the #safari-tint-shim color. */
       display: none;
       align-items: center;
       justify-content: center;
@@ -987,13 +962,6 @@
       outline-offset: 2px;
     }
 
-    /* Remove iPhone/touch focus outline for the modal close button only */
-    .book-detail-modal .modal-content .close-btn:focus,
-    .book-detail-modal .modal-content .close-btn:focus-visible {
-      outline: none;
-      box-shadow: none;
-    }
-
     /* View Toggle Active State */
     .view-toggle .btn-secondary.active {
       background: var(--accent-color);
@@ -1005,17 +973,8 @@
     .roadmap-container {
       display: flex;
       flex-direction: column;
+      gap: 24px;
       width: 100%;
-    }
-
-    .roadmap-top-bar {
-      position: relative;
-      z-index: 11;
-      background: var(--bg-main);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
     }
 
     .volume-section {
@@ -1030,7 +989,7 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      background-color: var(--bg-main);
+      background: var(--bg-main);
       padding-top: calc(12px + env(safe-area-inset-top, 0px));
       padding-bottom: 12px;
       margin-bottom: 16px;
@@ -1045,27 +1004,6 @@
       gap: 10px;
       cursor: pointer;
       user-select: none;
-    }
-
-    /* iOS bleed fix: a sticky header pins BELOW the status bar (Safari treats
-       sticky `top: 0` as the visual-viewport top), so the translucent Liquid
-       Glass status bar composites scrolling content through the strip above it.
-       This opaque ::before strip extends above the pinned header and covers
-       that strip with --bg-main. (Pseudo-elements aren't sampled by Safari's
-       chrome-tint logic, but they ARE painted — so the status bar shows
-       --bg-main instead of bleeding content through.) 62px clears the tallest
-       notch / Dynamic-Island inset; on desktop the strip is the page background
-       color, so it's invisible. */
-    .volume-header::before {
-      content: "";
-      position: absolute;
-      top: -62px;
-      left: 0;
-      right: 0;
-      height: 62px;
-      background-color: var(--bg-main);
-      z-index: -1;
-      pointer-events: none;
     }
 
     .volume-title-group {
@@ -1419,6 +1357,12 @@
   </style>
 </head>
 <body>
+
+  <!-- iOS Safari (26+) browser-UI tint shim — Safari samples the color of fixed
+       elements near the viewport edges to tint its status bar / toolbar. A CSS
+       mask hides this sliver from the user while Safari still reads its
+       background, so the browser chrome always matches the current theme. -->
+  <div id="safari-tint-shim" aria-hidden="true"></div>
 
   <div class="container">
     <!-- Header Navbar -->
@@ -2507,7 +2451,7 @@
         : '<button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>';
 
       let html = `
-        <div class="roadmap-top-bar">
+        <div class="roadmap-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">
             <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> ${roadmapHeaderLabel}
           </span>
