@@ -68,7 +68,7 @@
       background-color: var(--bg-main);
       color: var(--text-primary);
       /* Safe-area top keeps content clear of the status bar in iOS standalone mode */
-      padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 24px;
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 24px;
       line-height: 1.5;
     }
 
@@ -1083,10 +1083,8 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 16px;
       min-height: 80px;
-      padding: 8px;
-      border: 1px dashed transparent;
+      /* padding: 8px; */
       border-radius: 8px;
-      transition: all 0.2s ease;
     }
 
     .stage-grid.empty-stage-grid {
@@ -1289,11 +1287,6 @@
       .book-vol-stage {
         font-size: 0.65rem;
         margin-bottom: 2px;
-      }
-
-      .status-pill {
-        font-size: 0.6rem;
-        padding: 1px 4px;
       }
 
       /* Roadmap headers — up to 2-line titles with fixed header height so badges stay stable */
