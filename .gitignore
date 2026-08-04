@@ -1,5 +1,9 @@
 # books.json is the committed source of truth for the public site — do NOT ignore it.
 
+# Legacy CSV backups (kept locally for reference only; books.json is the source of truth)
+CSV/
+catalog.csv
+
 # macOS
 .DS_Store
 
