@@ -77,7 +77,7 @@
     "engine": "None",
     "cover": "https://theregentstore.com/public/products/chinese/3512000001123881001.jpg",
     "notes": "",
-    "isbn": "9786269652891"
+    "isbn": ""
   },
   {
     "id": "1785755389555klhso",
@@ -189,7 +189,7 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": "9789570510270"
+    "isbn": ""
   },
   {
     "id": "1785755389555kyecd",
@@ -221,7 +221,7 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": "9786267804346"
+    "isbn": ""
   },
   {
     "id": "1785755389555aojh5",
@@ -269,7 +269,7 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": "9786267345733"
+    "isbn": ""
   },
   {
     "id": "1785755389555dj0ws",
@@ -285,7 +285,7 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": "9789866443954"
+    "isbn": ""
   },
   {
     "id": "1785755389555kx9xt",
@@ -299,9 +299,9 @@
     "year": "",
     "status": "To Read",
     "engine": "None",
-    "cover": "http://books.google.com/books/content?id=ezY_EQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
+    "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq3icZY0MqTk3vlebQtD-UcII9h9O2HEpa0HPAYOLnn_QT4xbBg38DgnXS&s=10",
     "notes": "",
-    "isbn": "9789860842340"
+    "isbn": ""
   },
   {
     "id": "1785755389555m859b",
@@ -1003,9 +1003,9 @@
     "year": "2020",
     "status": "To Read",
     "engine": "None",
-    "cover": "",
+    "cover": "http://books.google.com/books/content?id=M_CeCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780134196121"
+    "isbn": "9780134196138"
   },
   {
     "id": "1785755389555zl6mm",
@@ -1051,7 +1051,7 @@
     "year": "2012",
     "status": "To Read",
     "engine": "None",
-    "cover": "",
+    "cover": "https://shapeofdesignbook.com/img/cover.svg",
     "notes": "",
     "isbn": "9780985472207"
   },
@@ -1195,7 +1195,7 @@
     "year": "",
     "status": "To Read",
     "engine": "None",
-    "cover": "http://books.google.com/books/content?id=LEbYDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
+    "cover": "https://rm-media.nyc3.digitaloceanspaces.com/wp-content/uploads/2023/04/47-product-management-for-ux-people.jpg",
     "notes": "",
     "isbn": "9781916303027"
   },
@@ -1214,38 +1214,6 @@
     "cover": "http://books.google.com/books/content?id=_zhCtAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781977000422"
-  },
-  {
-    "id": "17857553895558na7s",
-    "title": "8 Step UX Portfolio Blueprint",
-    "author": "Sarah Doody",
-    "volumeNumber": 3,
-    "volumeName": "The Designer",
-    "stageNumber": 3,
-    "stageName": "Product Design and Building",
-    "readingOrder": 8,
-    "year": "",
-    "status": "To Read",
-    "engine": "None",
-    "cover": "",
-    "notes": "",
-    "isbn": ""
-  },
-  {
-    "id": "17857553895558lc8n",
-    "title": "UX Portfolio Workshop Action Sheets",
-    "author": "Sarah Doody",
-    "volumeNumber": 3,
-    "volumeName": "The Designer",
-    "stageNumber": 3,
-    "stageName": "Product Design and Building",
-    "readingOrder": 9,
-    "year": "",
-    "status": "To Read",
-    "engine": "None",
-    "cover": "",
-    "notes": "",
-    "isbn": ""
   },
   {
     "id": "1785755389555fc5pl",
@@ -1275,9 +1243,9 @@
     "year": "2007",
     "status": "To Read",
     "engine": "None",
-    "cover": "",
+    "cover": "http://books.google.com/books/content?id=Qdn9QQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "9780262514231"
   },
   {
     "id": "17857553895556dfvd",
@@ -2491,9 +2459,9 @@
     "year": "1994",
     "status": "To Read",
     "engine": "None",
-    "cover": "",
+    "cover": "http://books.google.com/books/content?id=Dvt7S9fOFRcC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "9781480401983"
   },
   {
     "id": "17857553895552jm2l",
@@ -3243,9 +3211,9 @@
     "year": "1962",
     "status": "To Read",
     "engine": "None",
-    "cover": "",
+    "cover": "http://books.google.com/books/content?id=CfL7PHuLl2YC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780722129760"
+    "isbn": "9780812545302"
   },
   {
     "id": "1785755389555ld64x",

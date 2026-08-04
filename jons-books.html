@@ -819,6 +819,149 @@
       gap: 10px;
     }
 
+    /* Read-Only Book Details Modal (public / view-only) */
+    .book-detail-modal .modal-content {
+      max-width: 780px;
+      overscroll-behavior: contain;
+    }
+
+    /* Within the detail modal, the `hidden` attribute always wins (some
+       sections set their own display, e.g. flex/inline-flex). */
+    .book-detail-modal [hidden] {
+      display: none !important;
+    }
+
+    .book-detail-body {
+      display: flex;
+      gap: 24px;
+    }
+
+    .detail-cover {
+      width: 320px;
+      flex-shrink: 0;
+      aspect-ratio: 2 / 3;
+      background: var(--img-bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      align-self: flex-start;
+      overflow: hidden;
+    }
+
+    .detail-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .detail-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .detail-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
+    }
+
+    .detail-author {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .detail-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .engine-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-main);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .detail-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .detail-meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.85rem;
+    }
+
+    .detail-meta-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .detail-meta-value {
+      color: var(--text-primary);
+      overflow-wrap: anywhere;
+    }
+
+    .detail-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .detail-link {
+      text-decoration: none;
+    }
+
+    .detail-notes,
+    .detail-summary {
+      border-top: 1px solid var(--border-color);
+      padding-top: 14px;
+      margin-top: 4px;
+    }
+
+    .detail-notes h4,
+    .detail-summary h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .detail-notes p,
+    .detail-summary p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      white-space: pre-line;
+      line-height: 1.55;
+    }
+
+    .book-detail-modal .modal-content :focus-visible {
+      outline: 2px solid var(--border-accent);
+      outline-offset: 2px;
+    }
+
     /* View Toggle Active State */
     .view-toggle .btn-secondary.active {
       background: var(--accent-color);
@@ -1169,6 +1312,28 @@
         width: 12px;
         height: 12px;
       }
+
+      /* Read-only detail modal stacks on small screens */
+      .book-detail-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .detail-cover {
+        width: 200px;
+        /* Override the desktop `align-self: flex-start` so the cover centers
+           once the body stacks into a column on small screens. */
+        align-self: center;
+      }
+
+      .detail-info {
+        width: 100%;
+      }
+
+      .detail-meta-row {
+        font-size: 0.8rem;
+      }
     }
 
     /* ===== View-Only (Public Site) =====
@@ -1185,8 +1350,9 @@
     body.view-only .roadmap-top-bar .btn-primary {
       display: none !important;
     }
+    /* Public cards open the read-only detail modal, so they're tappable. */
     body.view-only .book-card {
-      cursor: default;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -1420,6 +1586,62 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Read-Only Book Details Modal (public / view-only) -->
+  <div class="modal-overlay book-detail-modal" id="book-detail-modal" role="dialog" aria-modal="true" aria-labelledby="book-detail-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="book-detail-title">Book Details</h2>
+        <button class="close-btn" id="close-detail-modal" aria-label="Close book details"><i data-lucide="x"></i></button>
+      </div>
+      <div class="book-detail-body">
+        <div class="detail-cover" id="detail-cover"></div>
+        <div class="detail-info">
+          <h3 class="detail-title" id="detail-title"></h3>
+          <p class="detail-author" id="detail-author"></p>
+          <div class="detail-pills">
+            <span class="status-pill" id="detail-status"></span>
+            <span class="engine-pill" id="detail-engine" hidden></span>
+          </div>
+          <div class="detail-meta">
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Volume</span>
+              <span class="detail-meta-value" id="detail-volume"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Stage</span>
+              <span class="detail-meta-value" id="detail-stage"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Reading Order</span>
+              <span class="detail-meta-value" id="detail-order"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Published</span>
+              <span class="detail-meta-value" id="detail-year"></span>
+            </div>
+            <div class="detail-meta-row" id="detail-isbn-row">
+              <span class="detail-meta-label">ISBN</span>
+              <span class="detail-meta-value" id="detail-isbn"></span>
+            </div>
+          </div>
+          <div class="detail-links" id="detail-links" hidden>
+            <a class="btn-secondary detail-link" id="detail-link-google" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Google Books</a>
+            <a class="btn-secondary detail-link" id="detail-link-openlibrary" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Open Library</a>
+          </div>
+          <div class="detail-notes" id="detail-notes" hidden>
+            <h4>Notes</h4>
+            <p id="detail-notes-text"></p>
+          </div>
+          <!-- Reserved for the publisher blurb — filled in the next step. -->
+          <div class="detail-summary" id="detail-summary" hidden>
+            <h4>About this book</h4>
+            <p id="detail-summary-text"></p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1997,7 +2219,7 @@
     function renderEngineSlot(slotElem, book) {
       if (book) {
         slotElem.innerHTML = `
-          <div class="engine-book-container" onclick="openEditModal('${book.id}')" title="Open Book Details" style="cursor: pointer;">
+          <div class="engine-book-container" onclick="openBookDetails('${book.id}', this)" title="Open Book Details" style="cursor: pointer;">
             <div class="engine-cover">
               ${renderCoverHtml(book.cover, book.title, book.author, 'engine-cover-img')}
             </div>
@@ -2042,7 +2264,7 @@
       ` : '';
 
       return `
-        <article class="book-card" data-id="${book.id}" onclick="openEditModal('${book.id}')">
+        <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
             ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img')}
           </div>
@@ -2667,6 +2889,146 @@
     function closeModal() {
       modal.classList.remove('active');
     }
+
+    // --- Read-Only Book Details Modal (public / view-only) ---
+    // Card clicks route here on the public site; locally they open the edit modal.
+    const detailModal = document.getElementById('book-detail-modal');
+    const closeDetailModalBtn = document.getElementById('close-detail-modal');
+    const detailCover = document.getElementById('detail-cover');
+    const detailTitle = document.getElementById('detail-title');
+    const detailAuthor = document.getElementById('detail-author');
+    const detailStatus = document.getElementById('detail-status');
+    const detailEngine = document.getElementById('detail-engine');
+    const detailVolume = document.getElementById('detail-volume');
+    const detailStage = document.getElementById('detail-stage');
+    const detailOrder = document.getElementById('detail-order');
+    const detailYear = document.getElementById('detail-year');
+    const detailIsbnRow = document.getElementById('detail-isbn-row');
+    const detailIsbn = document.getElementById('detail-isbn');
+    const detailLinks = document.getElementById('detail-links');
+    const detailLinkGoogle = document.getElementById('detail-link-google');
+    const detailLinkOpenLibrary = document.getElementById('detail-link-openlibrary');
+    const detailNotes = document.getElementById('detail-notes');
+    const detailNotesText = document.getElementById('detail-notes-text');
+    const detailSummary = document.getElementById('detail-summary');
+
+    const ENGINE_COLORS = {
+      'Engine 1: Deep Focus': 'var(--engine-1)',
+      'Engine 2: Complementary': 'var(--engine-2)',
+      'Engine 3: Exploration': 'var(--engine-3)'
+    };
+
+    let detailTrigger = null;
+
+    function openBookDetails(id, triggerEl) {
+      if (isPublic) {
+        detailTrigger = triggerEl || document.activeElement;
+        openReadOnlyModal(id);
+      } else {
+        openEditModal(id);
+      }
+    }
+
+    function openReadOnlyModal(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+
+      // Cover (renders the CSS jacket fallback if the image fails).
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img');
+
+      detailTitle.textContent = book.title;
+      detailAuthor.textContent = book.author;
+      detailStatus.textContent = book.status;
+
+      // Engine track (only when assigned).
+      const engine = (book.engine && book.engine !== 'None') ? book.engine : '';
+      if (engine) {
+        const shortName = engine.replace(/^Engine \d+: /, '');
+        const dotColor = ENGINE_COLORS[engine] || 'var(--text-muted)';
+        detailEngine.hidden = false;
+        detailEngine.innerHTML = `<span class="dot" style="background: ${dotColor};"></span>${escapeHtml(shortName)}`;
+      } else {
+        detailEngine.hidden = true;
+        detailEngine.innerHTML = '';
+      }
+
+      // Volume / stage — the label carries the "Volume" / "Stage" word, so the
+      // value just shows the number + name.
+      detailVolume.textContent = `${book.volumeNumber} / ${book.volumeName}`;
+      detailStage.textContent = `${book.stageNumber} / ${book.stageName}`;
+      detailOrder.textContent = `#${book.readingOrder} in stage`;
+      detailYear.textContent = book.year || '—';
+
+      // ISBN + find-this-book links (only when an ISBN exists).
+      if (book.isbn) {
+        detailIsbnRow.hidden = false;
+        detailIsbn.textContent = book.isbn;
+        detailLinkGoogle.href = `https://books.google.com/books?vid=ISBN${encodeURIComponent(book.isbn)}`;
+        detailLinkOpenLibrary.href = `https://openlibrary.org/isbn/${encodeURIComponent(book.isbn)}`;
+        detailLinks.hidden = false;
+      } else {
+        detailIsbnRow.hidden = true;
+        detailLinks.hidden = true;
+      }
+
+      // Personal notes (only when present).
+      if (book.notes && book.notes.trim()) {
+        detailNotes.hidden = false;
+        detailNotesText.textContent = book.notes;
+      } else {
+        detailNotes.hidden = true;
+      }
+
+      // Publisher blurb — not implemented yet; hidden until we add it.
+      detailSummary.hidden = true;
+
+      if (window.lucide) lucide.createIcons();
+      detailModal.classList.add('active');
+      // Remove the app behind from tab order / assistive tech while open.
+      const appContainer = document.querySelector('.container');
+      if (appContainer) appContainer.inert = true;
+      closeDetailModalBtn.focus();
+    }
+
+    function closeDetailModal() {
+      detailModal.classList.remove('active');
+      const appContainer = document.querySelector('.container');
+      if (appContainer) appContainer.inert = false;
+      // Return focus to whatever opened the modal (best effort).
+      if (detailTrigger && typeof detailTrigger.focus === 'function') {
+        detailTrigger.focus();
+      }
+      detailTrigger = null;
+    }
+
+    closeDetailModalBtn.addEventListener('click', closeDetailModal);
+
+    detailModal.addEventListener('click', (e) => {
+      if (e.target === detailModal) closeDetailModal();
+    });
+
+    // Escape closes the detail modal.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && detailModal.classList.contains('active')) {
+        closeDetailModal();
+      }
+    });
+
+    // Lightweight focus trap while the detail modal is open.
+    detailModal.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = detailModal.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
 
     bookForm.addEventListener('submit', (e) => {
       e.preventDefault();
