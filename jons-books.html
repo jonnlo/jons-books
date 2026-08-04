@@ -1009,6 +1009,17 @@
       width: 100%;
     }
 
+    .roadmap-top-bar {
+      
+      z-index: 11;
+      background: var(--bg-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+    }
+
     .volume-section {
       background: transparent;
       border: none;
@@ -2498,7 +2509,7 @@
         : '<button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>';
 
       let html = `
-        <div class="roadmap-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="roadmap-top-bar">
           <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">
             <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> ${roadmapHeaderLabel}
           </span>
