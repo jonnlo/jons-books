@@ -13,7 +13,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ho-rEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780525559498"
+    "isbn": "9780525559498",
+    "tags": []
   },
   {
     "id": "1785755389555jgu4l",
@@ -29,7 +30,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=BbuHEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789575987114"
+    "isbn": "9789575987114",
+    "tags": []
   },
   {
     "id": "17857553895551xrze",
@@ -45,7 +47,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=cf5AEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555n9moa",
@@ -61,7 +64,8 @@
     "engine": "None",
     "cover": "https://www.ddc.com.tw/image/product/2004/06/source/59-photo-1718165934.jpg",
     "notes": "",
-    "isbn": "9787101074796"
+    "isbn": "9787101074796",
+    "tags": []
   },
   {
     "id": "1785755389555qqsvg",
@@ -77,7 +81,8 @@
     "engine": "None",
     "cover": "https://theregentstore.com/public/products/chinese/3512000001123881001.jpg",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555klhso",
@@ -93,7 +98,8 @@
     "engine": "Engine 3: Exploration",
     "cover": "http://books.google.com/books/content?id=cVCZAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781401394677"
+    "isbn": "9781401394677",
+    "tags": []
   },
   {
     "id": "1785755389555ceums",
@@ -109,7 +115,8 @@
     "engine": "None",
     "cover": "https://www.godwin.org.hk/images/godwin_1996.jpg",
     "notes": "",
-    "isbn": "9789626441206"
+    "isbn": "9789626441206",
+    "tags": []
   },
   {
     "id": "1785755389555tqcwj",
@@ -125,7 +132,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=fNT7AwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789867033857"
+    "isbn": "9789867033857",
+    "tags": []
   },
   {
     "id": "1785755389555d577l",
@@ -141,7 +149,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=O6nEEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9786269648337"
+    "isbn": "9786269648337",
+    "tags": []
   },
   {
     "id": "1785755389555xii6j",
@@ -157,7 +166,8 @@
     "engine": "None",
     "cover": "https://plumvillage.org/wp-content/uploads/2020/09/%E6%93%81%E6%8A%B1%E7%A6%AA-%E5%85%A8%E6%9B%B8%E5%B0%81-05.jpg",
     "notes": "",
-    "isbn": "9789869894524"
+    "isbn": "9789869894524",
+    "tags": []
   },
   {
     "id": "17857553895555i327",
@@ -173,7 +183,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=3zVjEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789862725429"
+    "isbn": "9789862725429",
+    "tags": []
   },
   {
     "id": "17857553895552nmwi",
@@ -189,7 +200,8 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555kyecd",
@@ -205,7 +217,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=xtT7AwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789866443572"
+    "isbn": "9789866443572",
+    "tags": []
   },
   {
     "id": "17857553895552hfk8",
@@ -221,7 +234,8 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555aojh5",
@@ -237,7 +251,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=cdmDCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555533r3",
@@ -253,7 +268,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=lJdDCwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555amvkd",
@@ -269,7 +285,8 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555dj0ws",
@@ -285,7 +302,8 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555kx9xt",
@@ -301,7 +319,8 @@
     "engine": "None",
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq3icZY0MqTk3vlebQtD-UcII9h9O2HEpa0HPAYOLnn_QT4xbBg38DgnXS&s=10",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555m859b",
@@ -317,7 +336,8 @@
     "engine": "None",
     "cover": "https://www.cosmosbooks.com.hk/image/cache/book_image/other/9785553880088-550x550h.jpg",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555jkcs5",
@@ -333,7 +353,8 @@
     "engine": "None",
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqMCCaNxD6B6ZKucW7hHkfwYDWHQHIWNZbpZup_Y3y5w&s",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555ifvjc",
@@ -349,7 +370,8 @@
     "engine": "None",
     "cover": "https://www.dhalbi.org/wp-content/uploads/2020/10/wzfy_cover-218x300.jpg",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555vqjsk",
@@ -365,7 +387,8 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": "9786267511886"
+    "isbn": "9786267511886",
+    "tags": []
   },
   {
     "id": "1785755389555j0cvs",
@@ -381,7 +404,8 @@
     "engine": "None",
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8Eg_JKygy9Ekwms5aGu3tHKno7Hh2Gl2hEFtlfaCMz4CvQ934aaDZ8DI&s=10",
     "notes": "",
-    "isbn": "9781614294542"
+    "isbn": "9781614294542",
+    "tags": []
   },
   {
     "id": "1785755389555wjai1",
@@ -397,7 +421,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=w5d-EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789575986964"
+    "isbn": "9789575986964",
+    "tags": []
   },
   {
     "id": "17857553895550btez",
@@ -413,7 +438,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=z-7gDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781474273015"
+    "isbn": "9781474273015",
+    "tags": []
   },
   {
     "id": "1785755389555pluhm",
@@ -429,7 +455,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=yzgrS5Q5IpsC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780061800344"
+    "isbn": "9780061800344",
+    "tags": []
   },
   {
     "id": "17857553895552vjbi",
@@ -445,7 +472,8 @@
     "engine": "None",
     "cover": "",
     "notes": "",
-    "isbn": "9787500424956"
+    "isbn": "9787500424956",
+    "tags": []
   },
   {
     "id": "1785755389555dkuah",
@@ -461,7 +489,8 @@
     "engine": "None",
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe-_Uy1M-PovtnV2cmDrvBOCBwmb5Gd3JNSz56-ROyn5xoNROD7c0I8hk&s=10",
     "notes": "",
-    "isbn": "9789864596461"
+    "isbn": "9789864596461",
+    "tags": []
   },
   {
     "id": "1785755389555yjvo9",
@@ -477,7 +506,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=AJMpCwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780226265179"
+    "isbn": "9780226265179",
+    "tags": []
   },
   {
     "id": "17857553895555kxhq",
@@ -493,7 +523,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=bgjGAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780226108353"
+    "isbn": "9780226108353",
+    "tags": []
   },
   {
     "id": "17857553895559iq0c",
@@ -509,7 +540,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=TR2MDAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780735211742"
+    "isbn": "9780735211742",
+    "tags": []
   },
   {
     "id": "17857553895550nm3c",
@@ -525,7 +557,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=VuSPEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780140135152"
+    "isbn": "9780140135152",
+    "tags": []
   },
   {
     "id": "1785755389555yqnk0",
@@ -541,7 +574,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=poaJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781473568075"
+    "isbn": "9781473568075",
+    "tags": []
   },
   {
     "id": "1785755389555o3o58",
@@ -557,7 +591,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Y2NBcaTZH6MC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780307906922"
+    "isbn": "9780307906922",
+    "tags": []
   },
   {
     "id": "17857553895558e8iu",
@@ -573,7 +608,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=tibCDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781474615693"
+    "isbn": "9781474615693",
+    "tags": []
   },
   {
     "id": "1785755389555cccrj",
@@ -589,7 +625,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=LmtQAQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780300151190"
+    "isbn": "9780300151190",
+    "tags": []
   },
   {
     "id": "1785755389555eqomr",
@@ -605,7 +642,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=B8oiEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780744051018"
+    "isbn": "9780744051018",
+    "tags": []
   },
   {
     "id": "1785755389555gcezf",
@@ -621,7 +659,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=mgK5EdIQDL4C&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781101118719"
+    "isbn": "9781101118719",
+    "tags": []
   },
   {
     "id": "178575538955554mja",
@@ -637,7 +676,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=mReMuwEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781907974632"
+    "isbn": "9781907974632",
+    "tags": []
   },
   {
     "id": "178575538955594p6v",
@@ -653,7 +693,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=IJsGogEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781907974229"
+    "isbn": "9781907974229",
+    "tags": []
   },
   {
     "id": "17857553895552hir3",
@@ -669,7 +710,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=DO7kAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781937006501"
+    "isbn": "9781937006501",
+    "tags": []
   },
   {
     "id": "1785755389555ltzsv",
@@ -685,7 +727,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=jW5tEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781838858643"
+    "isbn": "9781838858643",
+    "tags": []
   },
   {
     "id": "1785755389555vfuaw",
@@ -701,7 +744,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=73WqCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9786021606810"
+    "isbn": "9786021606810",
+    "tags": []
   },
   {
     "id": "17857553895554taxs",
@@ -717,7 +761,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=gZ94EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781523507863"
+    "isbn": "9781523507863",
+    "tags": []
   },
   {
     "id": "1785755389555i9pgj",
@@ -733,7 +778,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=W-oSEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781452184159"
+    "isbn": "9781452184159",
+    "tags": []
   },
   {
     "id": "178575538955501zjh",
@@ -749,7 +795,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=zjhDCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781101983546"
+    "isbn": "9781101983546",
+    "tags": []
   },
   {
     "id": "1785755389555sejdd",
@@ -765,7 +812,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=-tTCEHNt_R8C&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780307962379"
+    "isbn": "9780307962379",
+    "tags": []
   },
   {
     "id": "17857553895558oebj",
@@ -781,7 +829,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ESQDsgqfgusC&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781583333334"
+    "isbn": "9781583333334",
+    "tags": []
   },
   {
     "id": "1785755389555yjpva",
@@ -797,7 +846,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=r6nOYYtxzUoC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780226470993"
+    "isbn": "9780226470993",
+    "tags": []
   },
   {
     "id": "178575538955597y7w",
@@ -813,7 +863,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=dnh80QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780063335158"
+    "isbn": "9780063335158",
+    "tags": []
   },
   {
     "id": "1785755389555u1rf1",
@@ -829,7 +880,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=tN3bAwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780698170438"
+    "isbn": "9780698170438",
+    "tags": []
   },
   {
     "id": "1785755389555ib07k",
@@ -845,7 +897,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=oZF_AgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781134381968"
+    "isbn": "9781134381968",
+    "tags": []
   },
   {
     "id": "1785755389555nxcgh",
@@ -861,7 +914,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=nVQPAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780465072996"
+    "isbn": "9780465072996",
+    "tags": []
   },
   {
     "id": "1785755389555md2o3",
@@ -877,7 +931,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=D39vjmLfO3kC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780471125716"
+    "isbn": "9780471125716",
+    "tags": []
   },
   {
     "id": "17857553895553d6cq",
@@ -893,7 +948,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=yODWdMUhkFwC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780132658607"
+    "isbn": "9780132658607",
+    "tags": []
   },
   {
     "id": "17857553895551zunp",
@@ -909,7 +965,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=M_CeCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780134196138"
+    "isbn": "9780134196138",
+    "tags": []
   },
   {
     "id": "1785755389555er7c2",
@@ -925,7 +982,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=5gcPEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780674251915"
+    "isbn": "9780674251915",
+    "tags": []
   },
   {
     "id": "1785755389555tm1xj",
@@ -941,7 +999,8 @@
     "engine": "None",
     "cover": "https://shapeofdesignbook.com/img/cover.svg",
     "notes": "",
-    "isbn": "9780985472207"
+    "isbn": "9780985472207",
+    "tags": []
   },
   {
     "id": "1785755389555g45nw",
@@ -957,7 +1016,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=DfBdAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780133438949"
+    "isbn": "9780133438949",
+    "tags": []
   },
   {
     "id": "17857553895556lt5h",
@@ -973,7 +1033,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=e91bDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781473684683"
+    "isbn": "9781473684683",
+    "tags": []
   },
   {
     "id": "1785755389555tvx41",
@@ -989,7 +1050,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=PAEXEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780062872982"
+    "isbn": "9780062872982",
+    "tags": []
   },
   {
     "id": "1785755389555d9t6p",
@@ -1005,7 +1067,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=L7dQEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781473584136"
+    "isbn": "9781473584136",
+    "tags": []
   },
   {
     "id": "1785755389555kc4ur",
@@ -1021,7 +1084,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=nntJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781250194473"
+    "isbn": "9781250194473",
+    "tags": []
   },
   {
     "id": "1785755389555lt1qe",
@@ -1037,7 +1101,8 @@
     "engine": "None",
     "cover": "https://novelinvestor.com/wp-content/uploads/2023/09/make-something-wonderful-cover.png",
     "notes": "",
-    "isbn": "9798993983806"
+    "isbn": "9798993983806",
+    "tags": []
   },
   {
     "id": "1785755389555uq1yk",
@@ -1053,7 +1118,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=QupUDgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9786022912897"
+    "isbn": "9786022912897",
+    "tags": []
   },
   {
     "id": "1785755389555j578f",
@@ -1069,7 +1135,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=UwkutQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781534873063"
+    "isbn": "9781534873063",
+    "tags": []
   },
   {
     "id": "1785755389555svdx8",
@@ -1085,7 +1152,8 @@
     "engine": "None",
     "cover": "https://rm-media.nyc3.digitaloceanspaces.com/wp-content/uploads/2023/04/47-product-management-for-ux-people.jpg",
     "notes": "",
-    "isbn": "9781916303027"
+    "isbn": "9781916303027",
+    "tags": []
   },
   {
     "id": "17857553895559w0g5",
@@ -1101,7 +1169,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=_zhCtAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781977000422"
+    "isbn": "9781977000422",
+    "tags": []
   },
   {
     "id": "1785755389555fc5pl",
@@ -1117,7 +1186,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=02TgrQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781500615994"
+    "isbn": "9781500615994",
+    "tags": []
   },
   {
     "id": "1785755389555m2ch7",
@@ -1133,7 +1203,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Qdn9QQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780262514231"
+    "isbn": "9780262514231",
+    "tags": []
   },
   {
     "id": "17857553895556dfvd",
@@ -1149,7 +1220,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=MbQQ0QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9798989358786"
+    "isbn": "9798989358786",
+    "tags": []
   },
   {
     "id": "1785755389555e88jy",
@@ -1165,7 +1237,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=KzNwDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780262349635"
+    "isbn": "9780262349635",
+    "tags": []
   },
   {
     "id": "17857553895550upin",
@@ -1181,7 +1254,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=CgR1BgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780133890426"
+    "isbn": "9780133890426",
+    "tags": []
   },
   {
     "id": "1785755389555n3vqv",
@@ -1197,7 +1271,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=qM-QDAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780753556641"
+    "isbn": "9780753556641",
+    "tags": []
   },
   {
     "id": "1785755389555qvdwl",
@@ -1213,7 +1288,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=RBeICwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781101875339"
+    "isbn": "9781101875339",
+    "tags": []
   },
   {
     "id": "1785755389555mst9r",
@@ -1229,7 +1305,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=SNoxEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593467466"
+    "isbn": "9780593467466",
+    "tags": []
   },
   {
     "id": "1785755389555wwnui",
@@ -1245,7 +1322,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=RZjBAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781422188613"
+    "isbn": "9781422188613",
+    "tags": []
   },
   {
     "id": "1785755389555kkb7s",
@@ -1261,7 +1339,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=iblMDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780735219571"
+    "isbn": "9780735219571",
+    "tags": []
   },
   {
     "id": "1785755389555xksjf",
@@ -1277,7 +1356,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=3RjBEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781953953315"
+    "isbn": "9781953953315",
+    "tags": []
   },
   {
     "id": "17857553895553b8i0",
@@ -1293,7 +1373,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=X7fcwAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781581156478"
+    "isbn": "9781581156478",
+    "tags": []
   },
   {
     "id": "1785755389555it4uc",
@@ -1309,7 +1390,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=T0FgEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781544514222"
+    "isbn": "9781544514222",
+    "tags": []
   },
   {
     "id": "1785755389555gn46x",
@@ -1325,7 +1407,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=eaFHDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781473552913"
+    "isbn": "9781473552913",
+    "tags": []
   },
   {
     "id": "1785755389555lpmbu",
@@ -1341,7 +1424,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=g422yyua-P8C&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780061748998"
+    "isbn": "9780061748998",
+    "tags": []
   },
   {
     "id": "1785755389555xgko8",
@@ -1357,7 +1441,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=sBb6DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781984878113"
+    "isbn": "9781984878113",
+    "tags": []
   },
   {
     "id": "1785755389555qq9vd",
@@ -1373,7 +1458,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=B8JyDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780525540830"
+    "isbn": "9780525540830",
+    "tags": []
   },
   {
     "id": "17857553895550agku",
@@ -1389,7 +1475,8 @@
     "engine": "Engine 1: Deep Focus",
     "cover": "http://books.google.com/books/content?id=OMBkDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781612197500"
+    "isbn": "9781612197500",
+    "tags": []
   },
   {
     "id": "1785755389555cjdw4",
@@ -1405,7 +1492,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=88FWDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781108429092"
+    "isbn": "9781108429092",
+    "tags": []
   },
   {
     "id": "1785755389555n2bdx",
@@ -1421,7 +1509,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=uC0rEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593138526"
+    "isbn": "9780593138526",
+    "tags": []
   },
   {
     "id": "1785755389555yjylv",
@@ -1437,7 +1526,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=NZVJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781250196699"
+    "isbn": "9781250196699",
+    "tags": []
   },
   {
     "id": "17857553895555xg02",
@@ -1453,7 +1543,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=_eTACwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781473542105"
+    "isbn": "9781473542105",
+    "tags": []
   },
   {
     "id": "1785755389555irm5i",
@@ -1469,7 +1560,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=LNan8BNXQjYC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780141960883"
+    "isbn": "9780141960883",
+    "tags": []
   },
   {
     "id": "1785755389555zjip6",
@@ -1485,7 +1577,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=eyc4EQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780374619336"
+    "isbn": "9780374619336",
+    "tags": []
   },
   {
     "id": "1785755389555omsxq",
@@ -1501,7 +1594,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=AeJPEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781953953568"
+    "isbn": "9781953953568",
+    "tags": []
   },
   {
     "id": "1785755389555d8fa9",
@@ -1517,7 +1611,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=CcJFDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781524731663"
+    "isbn": "9781524731663",
+    "tags": []
   },
   {
     "id": "178575538955507agp",
@@ -1533,7 +1628,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=PKlMEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781761771446"
+    "isbn": "9781761771446",
+    "tags": []
   },
   {
     "id": "17857553895559v293",
@@ -1549,7 +1645,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=co2RDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781501143335"
+    "isbn": "9781501143335",
+    "tags": []
   },
   {
     "id": "178575538955521q0n",
@@ -1565,7 +1662,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=gMMSzgEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781784744489"
+    "isbn": "9781784744489",
+    "tags": []
   },
   {
     "id": "17857553895554icyv",
@@ -1581,7 +1679,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=YpzJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781788738705"
+    "isbn": "9781788738705",
+    "tags": []
   },
   {
     "id": "1785755389555dtmkx",
@@ -1597,7 +1696,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=hr2iEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780374600914"
+    "isbn": "9780374600914",
+    "tags": []
   },
   {
     "id": "1785755389555iajdz",
@@ -1613,7 +1713,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=WFP2DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780374715243"
+    "isbn": "9780374715243",
+    "tags": []
   },
   {
     "id": "1785755389555iv2bb",
@@ -1629,7 +1730,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=QqfIDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780141991184"
+    "isbn": "9780141991184",
+    "tags": []
   },
   {
     "id": "178575538955541nvx",
@@ -1645,7 +1747,11 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=TZFVEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593655658"
+    "isbn": "9780593655658",
+    "tags": [
+      "philosophy",
+      "games"
+    ]
   },
   {
     "id": "17857553895557l4mk",
@@ -1661,7 +1767,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=E2V6NAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780415289764"
+    "isbn": "9780415289764",
+    "tags": []
   },
   {
     "id": "17857553895555ws4s",
@@ -1677,7 +1784,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=NYrsnQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781907903830"
+    "isbn": "9781907903830",
+    "tags": []
   },
   {
     "id": "178575538955539mn6",
@@ -1693,7 +1801,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=QSiUEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781803414317"
+    "isbn": "9781803414317",
+    "tags": []
   },
   {
     "id": "1785755389555629os",
@@ -1709,7 +1818,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ONJCDvhUTzIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780141930244"
+    "isbn": "9780141930244",
+    "tags": []
   },
   {
     "id": "1785755389555bqlp4",
@@ -1725,7 +1835,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=fovYBQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780141980027"
+    "isbn": "9780141980027",
+    "tags": []
   },
   {
     "id": "1785755389555e8sm5",
@@ -1741,7 +1852,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=XYdgDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780062956569"
+    "isbn": "9780062956569",
+    "tags": []
   },
   {
     "id": "17857553895553q744",
@@ -1757,7 +1869,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=3z7cDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780804190121"
+    "isbn": "9780804190121",
+    "tags": []
   },
   {
     "id": "1785755389555o16a4",
@@ -1773,7 +1886,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=bKmpCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780062300560"
+    "isbn": "9780062300560",
+    "tags": []
   },
   {
     "id": "1785755389555y5ts5",
@@ -1789,7 +1903,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=mcyNEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780451231000"
+    "isbn": "9780451231000",
+    "tags": []
   },
   {
     "id": "1785755389555myn4b",
@@ -1805,7 +1920,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=FmyBAwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780062316103"
+    "isbn": "9780062316103",
+    "tags": []
   },
   {
     "id": "1785755389555933au",
@@ -1821,7 +1937,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=qjf_DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781839763076"
+    "isbn": "9781839763076",
+    "tags": []
   },
   {
     "id": "1785755389555p9jkk",
@@ -1837,7 +1954,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=GCxOEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780691276793"
+    "isbn": "9780691276793",
+    "tags": []
   },
   {
     "id": "17857553895554u8an",
@@ -1853,7 +1971,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=cguW0QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780473453046"
+    "isbn": "9780473453046",
+    "tags": []
   },
   {
     "id": "1785755389555oh22r",
@@ -1869,7 +1988,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=YGPzXWanppcC&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781846140556"
+    "isbn": "9781846140556",
+    "tags": []
   },
   {
     "id": "17857553895555f5xz",
@@ -1885,7 +2005,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=g2MBEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780316451383"
+    "isbn": "9780316451383",
+    "tags": []
   },
   {
     "id": "1785755389555x36fj",
@@ -1901,7 +2022,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=kedqDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781786631077"
+    "isbn": "9781786631077",
+    "tags": []
   },
   {
     "id": "17857553895559h73a",
@@ -1917,7 +2039,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=n6JrDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780062906731"
+    "isbn": "9780062906731",
+    "tags": []
   },
   {
     "id": "17857553895552i2cm",
@@ -1933,7 +2056,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=v4T2DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781782835714"
+    "isbn": "9781782835714",
+    "tags": []
   },
   {
     "id": "1785755389555yutmp",
@@ -1949,7 +2073,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=SQsvDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780316549615"
+    "isbn": "9780316549615",
+    "tags": []
   },
   {
     "id": "17857553895551i3ms",
@@ -1965,7 +2090,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=sJKoDAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780735222786"
+    "isbn": "9780735222786",
+    "tags": []
   },
   {
     "id": "1785755389555hi7wu",
@@ -1981,7 +2107,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=OHuDDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780385539319"
+    "isbn": "9780385539319",
+    "tags": []
   },
   {
     "id": "1785755389555y5koo",
@@ -1997,7 +2124,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=3Q3UAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781697121353"
+    "isbn": "9781697121353",
+    "tags": []
   },
   {
     "id": "17857553895552mbsz",
@@ -2013,7 +2141,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=g2MBEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780316451383"
+    "isbn": "9780316451383",
+    "tags": []
   },
   {
     "id": "1785755389555s37s8",
@@ -2029,7 +2158,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=stNDEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781472294135"
+    "isbn": "9781472294135",
+    "tags": []
   },
   {
     "id": "17857553895555o8aa",
@@ -2045,7 +2175,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ngFCDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781946885296"
+    "isbn": "9781946885296",
+    "tags": []
   },
   {
     "id": "1785755389555usc44",
@@ -2061,7 +2192,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=uCvAEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781802063288"
+    "isbn": "9781802063288",
+    "tags": []
   },
   {
     "id": "1785755389555uopj0",
@@ -2077,7 +2209,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=e8IPDgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780399184406"
+    "isbn": "9780399184406",
+    "tags": []
   },
   {
     "id": "1785755389555qs4o9",
@@ -2093,7 +2226,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=73kyEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781982178468"
+    "isbn": "9781982178468",
+    "tags": []
   },
   {
     "id": "17857553895557akhu",
@@ -2109,7 +2243,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ACG_EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781405958998"
+    "isbn": "9781405958998",
+    "tags": []
   },
   {
     "id": "1785755389555bzhyo",
@@ -2125,7 +2260,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=hDM9DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781101667095"
+    "isbn": "9781101667095",
+    "tags": []
   },
   {
     "id": "1785755389555gyirr",
@@ -2141,7 +2277,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=uyjf3uaQ4TwC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780307452207"
+    "isbn": "9780307452207",
+    "tags": []
   },
   {
     "id": "17857553895557k4eo",
@@ -2157,7 +2294,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=GuAUMQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789388241908"
+    "isbn": "9789388241908",
+    "tags": []
   },
   {
     "id": "17857553895554b4fm",
@@ -2173,7 +2311,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=xBMMEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781668012567"
+    "isbn": "9781668012567",
+    "tags": []
   },
   {
     "id": "1785755389555c2rc6",
@@ -2189,7 +2328,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=yng_CwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780062457738"
+    "isbn": "9780062457738",
+    "tags": []
   },
   {
     "id": "1785755389555n83hj",
@@ -2205,7 +2345,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=TeyaEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593443514"
+    "isbn": "9780593443514",
+    "tags": []
   },
   {
     "id": "17857553895555zdka",
@@ -2221,7 +2362,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=hE3-wQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780316478526"
+    "isbn": "9780316478526",
+    "tags": []
   },
   {
     "id": "1785755389555ucuxv",
@@ -2237,7 +2379,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=A3qACgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781892005540"
+    "isbn": "9781892005540",
+    "tags": []
   },
   {
     "id": "178575538955502cn6",
@@ -2253,7 +2396,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Dvt7S9fOFRcC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781480401983"
+    "isbn": "9781480401983",
+    "tags": []
   },
   {
     "id": "17857553895552jm2l",
@@ -2269,7 +2413,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ZlU3DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781501144318"
+    "isbn": "9781501144318",
+    "tags": []
   },
   {
     "id": "178575538955559c1c",
@@ -2285,7 +2430,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=5oFjDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781846276859"
+    "isbn": "9781846276859",
+    "tags": []
   },
   {
     "id": "1785755389555g31h2",
@@ -2301,7 +2447,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=elG0HvDkIesC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781846275098"
+    "isbn": "9781846275098",
+    "tags": []
   },
   {
     "id": "1785755389555j1you",
@@ -2317,7 +2464,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ZglfBwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781101970478"
+    "isbn": "9781101970478",
+    "tags": []
   },
   {
     "id": "1785755389555otb0g",
@@ -2333,7 +2481,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=nsb71f5EFcIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780307593627"
+    "isbn": "9780307593627",
+    "tags": []
   },
   {
     "id": "1785755389555ydgql",
@@ -2349,7 +2498,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=S5uw0AEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781420514728"
+    "isbn": "9781420514728",
+    "tags": []
   },
   {
     "id": "1785755389555w0vl6",
@@ -2365,7 +2515,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=KbZ9EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593243749"
+    "isbn": "9780593243749",
+    "tags": []
   },
   {
     "id": "17857553895552iczf",
@@ -2381,7 +2532,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=PDJBEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593314487"
+    "isbn": "9780593314487",
+    "tags": []
   },
   {
     "id": "178575538955500ph8",
@@ -2397,7 +2549,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=c-a5EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780374721893"
+    "isbn": "9780374721893",
+    "tags": []
   },
   {
     "id": "17857553895555275g",
@@ -2413,7 +2566,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=wCEuEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780008759407"
+    "isbn": "9780008759407",
+    "tags": []
   },
   {
     "id": "17857553895555q4mn",
@@ -2429,7 +2583,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=XpjwCQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781317437772"
+    "isbn": "9781317437772",
+    "tags": []
   },
   {
     "id": "1785755389555nvfg7",
@@ -2445,7 +2600,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=-6WLswEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781846559495"
+    "isbn": "9781846559495",
+    "tags": []
   },
   {
     "id": "17857553895558jjlt",
@@ -2461,7 +2617,8 @@
     "engine": "Engine 2: Complementary",
     "cover": "http://books.google.com/books/content?id=S7jrDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593318188"
+    "isbn": "9780593318188",
+    "tags": []
   },
   {
     "id": "1785755389555ckhnn",
@@ -2477,7 +2634,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ofceEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593330234"
+    "isbn": "9780593330234",
+    "tags": []
   },
   {
     "id": "1785755389555hqazo",
@@ -2493,7 +2651,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=r1dTEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781529083453"
+    "isbn": "9781529083453",
+    "tags": []
   },
   {
     "id": "17857553895550r4zg",
@@ -2509,7 +2668,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=gy1g0QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781420528077"
+    "isbn": "9781420528077",
+    "tags": []
   },
   {
     "id": "17857553895556asjc",
@@ -2525,7 +2685,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=VSITEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781635424355"
+    "isbn": "9781635424355",
+    "tags": []
   },
   {
     "id": "17857553895553al3x",
@@ -2541,7 +2702,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=kTYYEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780063390805"
+    "isbn": "9780063390805",
+    "tags": []
   },
   {
     "id": "17857553895551l2s6",
@@ -2557,7 +2719,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=g10zEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781646220861"
+    "isbn": "9781646220861",
+    "tags": []
   },
   {
     "id": "1785755389555donkr",
@@ -2573,7 +2736,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=S1BDEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781509550265"
+    "isbn": "9781509550265",
+    "tags": []
   },
   {
     "id": "1785755389555w06qx",
@@ -2589,7 +2753,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=cWdiEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789860625394"
+    "isbn": "9789860625394",
+    "tags": []
   },
   {
     "id": "1785755389555jkg4m",
@@ -2605,7 +2770,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=pBZUEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9787520154697"
+    "isbn": "9787520154697",
+    "tags": []
   },
   {
     "id": "1785755389555vy7op",
@@ -2621,7 +2787,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=qH6TEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780679420262"
+    "isbn": "9780679420262",
+    "tags": []
   },
   {
     "id": "1785755389555p7f9o",
@@ -2637,7 +2804,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=jA_ADwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781529036060"
+    "isbn": "9781529036060",
+    "tags": []
   },
   {
     "id": "1785755389555qj33y",
@@ -2653,7 +2821,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=9kQSjiUX1RIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780307827821"
+    "isbn": "9780307827821",
+    "tags": []
   },
   {
     "id": "17857553895555wc5n",
@@ -2669,7 +2838,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=mZunDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780241988794"
+    "isbn": "9780241988794",
+    "tags": []
   },
   {
     "id": "1785755389555yof1m",
@@ -2685,7 +2855,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=pq_CAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780486114811"
+    "isbn": "9780486114811",
+    "tags": []
   },
   {
     "id": "17857553895553zjtc",
@@ -2701,7 +2872,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ViHQDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780374718794"
+    "isbn": "9780374718794",
+    "tags": []
   },
   {
     "id": "1785755389555251z1",
@@ -2717,7 +2889,10 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=MzyCEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781963108750"
+    "isbn": "9781963108750",
+    "tags": [
+      "fiction"
+    ]
   },
   {
     "id": "1785755389555ke331",
@@ -2733,7 +2908,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=-cjWiI8DEywC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780307378026"
+    "isbn": "9780307378026",
+    "tags": []
   },
   {
     "id": "1785755389555hv8ix",
@@ -2749,7 +2925,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=6WhiEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9789869643597"
+    "isbn": "9789869643597",
+    "tags": []
   },
   {
     "id": "1785755389555y66e4",
@@ -2765,7 +2942,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=MYim_gaQC2gC&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780060959470"
+    "isbn": "9780060959470",
+    "tags": []
   },
   {
     "id": "1785755389555z0x8l",
@@ -2781,7 +2959,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=m-8cEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781537705392"
+    "isbn": "9781537705392",
+    "tags": []
   },
   {
     "id": "1785755389555pz9sv",
@@ -2797,7 +2976,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=9dSMzQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780060916046"
+    "isbn": "9780060916046",
+    "tags": []
   },
   {
     "id": "1785755389555igeb2",
@@ -2813,7 +2993,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=dIcn0AEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781633300125"
+    "isbn": "9781633300125",
+    "tags": []
   },
   {
     "id": "178575538955506ah5",
@@ -2829,7 +3010,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=WoWfCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781449483135"
+    "isbn": "9781449483135",
+    "tags": []
   },
   {
     "id": "1785755389555ys4ao",
@@ -2845,7 +3027,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ifn3EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780735281820"
+    "isbn": "9780735281820",
+    "tags": []
   },
   {
     "id": "17857553895558lb8s",
@@ -2861,7 +3044,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=y6umEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781982153083"
+    "isbn": "9781982153083",
+    "tags": []
   },
   {
     "id": "1785755389555nevjg",
@@ -2877,7 +3061,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=uRC7EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593537626"
+    "isbn": "9780593537626",
+    "tags": []
   },
   {
     "id": "178575538955533u22",
@@ -2893,7 +3078,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=DydGEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9798887075365"
+    "isbn": "9798887075365",
+    "tags": []
   },
   {
     "id": "1785755389555jhl4t",
@@ -2909,7 +3095,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=mLNPEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780783893402"
+    "isbn": "9780783893402",
+    "tags": []
   },
   {
     "id": "1785755389555jltpj",
@@ -2925,7 +3112,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ATKQDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781328662057"
+    "isbn": "9781328662057",
+    "tags": []
   },
   {
     "id": "1785755389555k3be6",
@@ -2941,7 +3129,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=WTBA-wzX7cwC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781931520898"
+    "isbn": "9781931520898",
+    "tags": []
   },
   {
     "id": "1785755389555nlu5h",
@@ -2957,7 +3146,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=MLiXDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781529405248"
+    "isbn": "9781529405248",
+    "tags": []
   },
   {
     "id": "1785755389555q5wzq",
@@ -2973,7 +3163,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=JhJ7cgAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9788498006117"
+    "isbn": "9788498006117",
+    "tags": []
   },
   {
     "id": "17857553895559c9bs",
@@ -2989,7 +3180,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Bd_UZAdvUDIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781101146460"
+    "isbn": "9781101146460",
+    "tags": []
   },
   {
     "id": "1785755389555xhenb",
@@ -3005,7 +3197,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=CfL7PHuLl2YC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780812545302"
+    "isbn": "9780812545302",
+    "tags": []
   },
   {
     "id": "1785755389555ld64x",
@@ -3021,7 +3214,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=CnSJEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9798217299461"
+    "isbn": "9798217299461",
+    "tags": []
   },
   {
     "id": "1785755389555xe2n1",
@@ -3037,7 +3231,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Tb3VEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781668068519"
+    "isbn": "9781668068519",
+    "tags": []
   },
   {
     "id": "1785755389555gcm2b",
@@ -3053,7 +3248,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=4W7TAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780061989940"
+    "isbn": "9780061989940",
+    "tags": []
   },
   {
     "id": "1785755389555a0rcp",
@@ -3069,7 +3265,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=pMTyEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781635868845"
+    "isbn": "9781635868845",
+    "tags": []
   },
   {
     "id": "1785755389555rnc5i",
@@ -3085,7 +3282,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=uq2KzgEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9781948830553"
+    "isbn": "9781948830553",
+    "tags": []
   },
   {
     "id": "1785755389555k1a9i",
@@ -3101,7 +3299,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=AAYpEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781529934984"
+    "isbn": "9781529934984",
+    "tags": []
   },
   {
     "id": "1785755389555refdn",
@@ -3117,7 +3316,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Cl_rEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9786263145375"
+    "isbn": "9786263145375",
+    "tags": []
   },
   {
     "id": "1785755389555dv6q9",
@@ -3133,7 +3333,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=SBEqEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780374721657"
+    "isbn": "9780374721657",
+    "tags": []
   },
   {
     "id": "1785755389555fjbxq",
@@ -3149,7 +3350,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=ltjmwAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9780874776942"
+    "isbn": "9780874776942",
+    "tags": []
   },
   {
     "id": "17857553895551aah2",
@@ -3165,7 +3367,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=d22UqerzutgC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780857862518"
+    "isbn": "9780857862518",
+    "tags": []
   },
   {
     "id": "17857553895558us52",
@@ -3181,7 +3384,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=mUCzDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780978582104"
+    "isbn": "9780978582104",
+    "tags": []
   },
   {
     "id": "17857553895555q0hf",
@@ -3197,7 +3401,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=sR3hAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555eladb",
@@ -3213,7 +3418,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=f2VmPgAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
-    "isbn": "9789571349367"
+    "isbn": "9789571349367",
+    "tags": []
   },
   {
     "id": "1785755389555nazo7",
@@ -3229,7 +3435,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=4UCnDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781524704551"
+    "isbn": "9781524704551",
+    "tags": []
   },
   {
     "id": "1785755389555r6zi0",
@@ -3245,7 +3452,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=8mxuDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781633538290"
+    "isbn": "9781633538290",
+    "tags": []
   },
   {
     "id": "1785755389555dth7w",
@@ -3261,7 +3469,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=PO6jtAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555las7j",
@@ -3277,7 +3486,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=h2lKPwAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555uyifr",
@@ -3293,7 +3503,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=CDdIDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "1785755389555qb77r",
@@ -3309,7 +3520,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=GAcvDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": ""
+    "isbn": "",
+    "tags": []
   },
   {
     "id": "178575538955556vg8",
@@ -3325,7 +3537,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=wU_ZCQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780241235973"
+    "isbn": "9780241235973",
+    "tags": []
   },
   {
     "id": "1785755389555kh742",
@@ -3341,7 +3554,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=YvM3DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780735216129"
+    "isbn": "9780735216129",
+    "tags": []
   },
   {
     "id": "1785755389555yjp4x",
@@ -3357,7 +3571,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=TSk_EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593468296"
+    "isbn": "9780593468296",
+    "tags": []
   },
   {
     "id": "1785755389555wct44",
@@ -3373,7 +3588,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=Qe_RDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780300246759"
+    "isbn": "9780300246759",
+    "tags": []
   },
   {
     "id": "1785755389555x495u",
@@ -3389,7 +3605,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=X8gZEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780241402450"
+    "isbn": "9780241402450",
+    "tags": []
   },
   {
     "id": "1785755389555enlfe",
@@ -3405,7 +3622,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=k8yrEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780593086612"
+    "isbn": "9780593086612",
+    "tags": []
   },
   {
     "id": "1785755389555w59rs",
@@ -3421,7 +3639,8 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=xZ0RAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780745657011"
+    "isbn": "9780745657011",
+    "tags": []
   },
   {
     "id": "1785755389555ab9am",
@@ -3437,6 +3656,7 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=MJ5ADwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781610395700"
+    "isbn": "9781610395700",
+    "tags": []
   }
 ]

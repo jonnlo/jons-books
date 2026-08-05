@@ -489,6 +489,60 @@
       color: var(--text-primary);
     }
 
+    /* Tag filter chips (multi-select, OR) */
+    .tag-filters {
+      flex-basis: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .tag-filters[hidden] {
+      display: none !important; /* display:flex above would override the hidden attribute */
+    }
+    .tag-filter-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 12px;
+      border-radius: 14px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      border: 1px dashed var(--border-color);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .tag-filter-chip:hover {
+      border-color: var(--text-secondary);
+    }
+    .tag-filter-chip[aria-pressed="true"] {
+      background: var(--accent-color);
+      color: white;
+      border: 1px solid var(--accent-color);
+    }
+    .tag-filter-chip:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
+    /* Tag chips on the read-only detail modal */
+    .detail-tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag-chip {
+      display: inline-flex;
+      font-size: 0.72rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      border: 1px dashed var(--border-color);
+    }
+
     .results-count {
       font-size: 0.9rem;
       color: var(--text-secondary);
@@ -1007,6 +1061,7 @@
     }
 
     .detail-notes,
+    .detail-tags,
     .detail-summary {
       border-top: 1px solid var(--border-color);
       padding-top: 14px;
@@ -1014,6 +1069,7 @@
     }
 
     .detail-notes h4,
+    .detail-tags h4,
     .detail-summary h4 {
       font-size: 0.75rem;
       text-transform: uppercase;
@@ -1630,6 +1686,8 @@
           <i data-lucide="layers"></i> Volumes
         </button>
       </div>
+
+      <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag" hidden></div>
     </div>
 
     <!-- Results Count -->
@@ -1717,6 +1775,11 @@
             <label for="book-notes-input">Personal Notes / Quotes</label>
             <textarea id="book-notes-input" placeholder="Add annotations, key concepts, or takeaway notes..."></textarea>
           </div>
+          <div class="form-group full-width">
+            <label for="book-tags-input">Tags</label>
+            <input type="text" id="book-tags-input" list="tag-suggestions" placeholder="e.g. philosophy, reread, favorite — comma separated">
+            <datalist id="tag-suggestions"></datalist>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn-danger" id="delete-book-btn">Delete Book</button>
@@ -1774,6 +1837,10 @@
           <div class="detail-notes" id="detail-notes" hidden>
             <h4>Notes</h4>
             <p id="detail-notes-text"></p>
+          </div>
+          <div class="detail-tags" id="detail-tags" hidden>
+            <h4>Tags</h4>
+            <div class="detail-tags-list" id="detail-tags-list"></div>
           </div>
           <!-- Reserved for the publisher blurb — filled in the next step. -->
           <div class="detail-summary" id="detail-summary" hidden>
@@ -2051,7 +2118,10 @@
         engine: b.engine || "None",
         cover: b.cover || b.cover_url || "",
         notes: b.notes || "",
-        isbn: (b.isbn || "").toString()
+        isbn: (b.isbn || "").toString(),
+        tags: Array.isArray(b.tags)
+          ? [...new Set(b.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean))]
+          : []
       };
     }
 
@@ -2115,6 +2185,11 @@
     const filterVolume = document.getElementById('filter-volume');
     const filterStatus = document.getElementById('filter-status');
     const sortSelect = document.getElementById('sort-select');
+    const tagFilters = document.getElementById('tag-filters');
+    const tagSuggestions = document.getElementById('tag-suggestions');
+
+    // Active tag filter (multi-select, OR).
+    let activeTags = new Set();
 
     // Header Stats
     const statTotal = document.getElementById('stat-total');
@@ -2153,6 +2228,7 @@
     const inputCover = document.getElementById('book-cover-input');
     const inputIsbn = document.getElementById('book-isbn-input');
     const inputNotes = document.getElementById('book-notes-input');
+    const inputTags = document.getElementById('book-tags-input');
 
     // Controls
     const importJsonBtn = document.getElementById('import-json-btn');
@@ -2181,6 +2257,34 @@
 
       filterVolume.innerHTML = optionsHTML;
       filterVolume.value = selectedVal;
+    }
+
+    // Tag filter chips — one toggle per tag in the catalog (multi-select, OR).
+    function updateTagFilters() {
+      const allTags = [...new Set(books.flatMap(b => b.tags || []))].sort((a, b) => a.localeCompare(b));
+
+      // Drop any selected tags that no longer exist in the catalog (e.g. after a reset/import).
+      const tagSet = new Set(allTags);
+      for (const t of [...activeTags]) {
+        if (!tagSet.has(t)) activeTags.delete(t);
+      }
+
+      if (allTags.length === 0) {
+        tagFilters.hidden = true;
+        tagFilters.innerHTML = '';
+        tagSuggestions.innerHTML = '';
+        return;
+      }
+
+      tagFilters.hidden = false;
+      tagFilters.innerHTML = allTags.map(t => `
+        <button type="button" class="tag-filter-chip" data-tag="${escapeHtml(t)}" aria-pressed="${activeTags.has(t) ? 'true' : 'false'}">
+          ${escapeHtml(t)}
+        </button>
+      `).join('');
+
+      // Autocomplete suggestions for the edit form's Tags input.
+      tagSuggestions.innerHTML = allTags.map(t => `<option value="${escapeHtml(t)}"></option>`).join('');
     }
 
     // Modal Volume/Stage Dropdown Helpers
@@ -2709,6 +2813,7 @@
     // Main Render Function
     function renderBooks() {
       updateVolumeFilterDropdown();
+      updateTagFilters();
 
       const query = searchInput.value.toLowerCase().trim();
       const selectedVol = filterVolume.value;
@@ -2727,8 +2832,9 @@
         const matchesVol = !selectedVol || b.volumeNumber === parseInt(selectedVol);
         const matchesStatus = !selectedStatus ||
           (selectedStatus === '__none__' ? !b.status : b.status === selectedStatus);
+        const matchesTag = activeTags.size === 0 || (b.tags || []).some(t => activeTags.has(t));
 
-        return matchesSearch && matchesVol && matchesStatus;
+        return matchesSearch && matchesVol && matchesStatus && matchesTag;
       });
 
       // Sorting Logic
@@ -3052,6 +3158,7 @@
       inputCover.value = book.cover;
       inputIsbn.value = book.isbn;
       inputNotes.value = book.notes;
+      inputTags.value = (book.tags || []).join(', ');
 
       deleteBookBtn.style.display = "block";
       modal.classList.add('active');
@@ -3089,6 +3196,8 @@
     const detailLinkOpenLibrary = document.getElementById('detail-link-openlibrary');
     const detailNotes = document.getElementById('detail-notes');
     const detailNotesText = document.getElementById('detail-notes-text');
+    const detailTags = document.getElementById('detail-tags');
+    const detailTagsList = document.getElementById('detail-tags-list');
     const detailSummary = document.getElementById('detail-summary');
 
     const ENGINE_COLORS = {
@@ -3162,6 +3271,15 @@
         detailNotesText.textContent = book.notes;
       } else {
         detailNotes.hidden = true;
+      }
+
+      // Tags (only when present).
+      if (book.tags && book.tags.length > 0) {
+        detailTags.hidden = false;
+        detailTagsList.innerHTML = book.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+      } else {
+        detailTags.hidden = true;
+        detailTagsList.innerHTML = '';
       }
 
       // Publisher blurb — not implemented yet; hidden until we add it.
@@ -3357,7 +3475,8 @@
         engine: newEngine,
         cover: inputCover.value.trim(),
         isbn: inputIsbn.value.trim(),
-        notes: inputNotes.value.trim()
+        notes: inputNotes.value.trim(),
+        tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
       });
 
       if (id) {
@@ -3392,6 +3511,18 @@
 
     [searchInput, filterVolume, filterStatus, sortSelect].forEach(elem => {
       elem.addEventListener('input', renderBooks);
+    });
+
+    tagFilters.addEventListener('click', (e) => {
+      const chip = e.target.closest('.tag-filter-chip');
+      if (!chip) return;
+      const tag = chip.getAttribute('data-tag');
+      if (activeTags.has(tag)) {
+        activeTags.delete(tag);
+      } else {
+        activeTags.add(tag);
+      }
+      renderBooks();
     });
 
     resetBtn.addEventListener('click', () => {
