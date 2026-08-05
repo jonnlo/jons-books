@@ -705,6 +705,14 @@
       margin-bottom: 4px;
     }
 
+    /* Subtitle / parenthetical tail of a title (inserted by renderTitleHtml).
+       Kept between --text-secondary and --text-muted so it stays legible in
+       both themes while clearly receding behind the main title. */
+    .title-sub {
+      color: color-mix(in srgb, var(--text-secondary) 60%, var(--text-muted));
+      font-weight: 500;
+    }
+
     .book-author {
       font-size: 0.85rem;
       color: var(--text-secondary);
@@ -2022,6 +2030,17 @@
       });
     }
 
+    // Subdued title tail — everything after the first ":", full-width "：", or "("
+    // is wrapped in a muted span so the main title pops in cards/engine slots.
+    // Display-only: stored titles and search/filter (which match book.title) are untouched.
+    function renderTitleHtml(title) {
+      const escaped = escapeHtml(title);
+      // Split on the FIRST of :, ：, ( (whichever comes first). Works on the escaped
+      // string because escapeHtml preserves those characters.
+      const m = escaped.match(/^(.*?)([:：(].*)$/);
+      return m ? `${m[1]}<span class="title-sub">${m[2]}</span>` : escaped;
+    }
+
     // Cover Rendering
     function createJacketHtml(title, author) {
       return `
@@ -2348,7 +2367,7 @@
                   <i data-lucide="x-circle" style="width: 14px; height: 14px;"></i>
                 </button>
               </div>
-              <div class="engine-book-title" title="${escapeHtml(book.title)}">${escapeHtml(book.title)}</div>
+              <div class="engine-book-title" title="${escapeHtml(book.title)}">${renderTitleHtml(book.title)}</div>
               <div class="engine-book-author">${escapeHtml(book.author)}</div>
             </div>
           </div>
@@ -2391,7 +2410,7 @@
               <span>Vol ${book.volumeNumber} · Stage ${book.stageNumber} · <span class="reading-order-number">#${book.readingOrder}</span></span>
               ${reorderHtml}
             </div>
-            <h2 class="book-title" title="${escapeHtml(book.title)}">${escapeHtml(book.title)}</h2>
+            <h2 class="book-title" title="${escapeHtml(book.title)}">${renderTitleHtml(book.title)}</h2>
             <p class="book-author">${escapeHtml(book.author)}</p>
             ${book.status ? `<span class="status-pill">${escapeHtml(book.status)}</span>` : ''}
           </div>
