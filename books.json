@@ -14,7 +14,11 @@
     "cover": "http://books.google.com/books/content?id=ho-rEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780525559498",
-    "tags": []
+    "tags": [
+      "fiction",
+      "philosophy",
+      "death"
+    ]
   },
   {
     "id": "1785755389555jgu4l",
@@ -31,7 +35,10 @@
     "cover": "http://books.google.com/books/content?id=BbuHEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789575987114",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "chinese"
+    ]
   },
   {
     "id": "17857553895551xrze",
@@ -48,7 +55,10 @@
     "cover": "http://books.google.com/books/content?id=cf5AEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555n9moa",
@@ -65,7 +75,11 @@
     "cover": "https://www.ddc.com.tw/image/product/2004/06/source/59-photo-1718165934.jpg",
     "notes": "",
     "isbn": "9787101074796",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "chinese",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555qqsvg",
@@ -82,7 +96,11 @@
     "cover": "https://theregentstore.com/public/products/chinese/3512000001123881001.jpg",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "chinese",
+      "meditation"
+    ]
   },
   {
     "id": "1785755389555klhso",
@@ -99,7 +117,10 @@
     "cover": "http://books.google.com/books/content?id=cVCZAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781401394677",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation"
+    ]
   },
   {
     "id": "1785755389555ceums",
@@ -116,7 +137,11 @@
     "cover": "https://www.godwin.org.hk/images/godwin_1996.jpg",
     "notes": "",
     "isbn": "9789626441206",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555tqcwj",
@@ -133,7 +158,11 @@
     "cover": "http://books.google.com/books/content?id=fNT7AwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789867033857",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555d577l",
@@ -150,7 +179,11 @@
     "cover": "http://books.google.com/books/content?id=O6nEEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9786269648337",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555xii6j",
@@ -167,7 +200,11 @@
     "cover": "https://plumvillage.org/wp-content/uploads/2020/09/%E6%93%81%E6%8A%B1%E7%A6%AA-%E5%85%A8%E6%9B%B8%E5%B0%81-05.jpg",
     "notes": "",
     "isbn": "9789869894524",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "17857553895555i327",
@@ -184,7 +221,11 @@
     "cover": "http://books.google.com/books/content?id=3zVjEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789862725429",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "17857553895552nmwi",
@@ -201,7 +242,11 @@
     "cover": "",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555kyecd",
@@ -218,7 +263,11 @@
     "cover": "http://books.google.com/books/content?id=xtT7AwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789866443572",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "17857553895552hfk8",
@@ -235,7 +284,11 @@
     "cover": "",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555aojh5",
@@ -252,7 +305,11 @@
     "cover": "http://books.google.com/books/content?id=cdmDCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555533r3",
@@ -269,7 +326,11 @@
     "cover": "http://books.google.com/books/content?id=lJdDCwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555amvkd",
@@ -286,7 +347,11 @@
     "cover": "",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555dj0ws",
@@ -303,7 +368,11 @@
     "cover": "",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555kx9xt",
@@ -320,7 +389,11 @@
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSq3icZY0MqTk3vlebQtD-UcII9h9O2HEpa0HPAYOLnn_QT4xbBg38DgnXS&s=10",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555m859b",
@@ -337,7 +410,11 @@
     "cover": "https://www.cosmosbooks.com.hk/image/cache/book_image/other/9785553880088-550x550h.jpg",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "philosophy",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555jkcs5",
@@ -354,7 +431,11 @@
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqMCCaNxD6B6ZKucW7hHkfwYDWHQHIWNZbpZup_Y3y5w&s",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "philosophy",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555ifvjc",
@@ -371,7 +452,11 @@
     "cover": "https://www.dhalbi.org/wp-content/uploads/2020/10/wzfy_cover-218x300.jpg",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "philosophy",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555vqjsk",
@@ -388,7 +473,11 @@
     "cover": "",
     "notes": "",
     "isbn": "9786267511886",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "philosophy",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555j0cvs",
@@ -405,7 +494,9 @@
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8Eg_JKygy9Ekwms5aGu3tHKno7Hh2Gl2hEFtlfaCMz4CvQ934aaDZ8DI&s=10",
     "notes": "",
     "isbn": "9781614294542",
-    "tags": []
+    "tags": [
+      "buddhism"
+    ]
   },
   {
     "id": "1785755389555wjai1",
@@ -422,7 +513,10 @@
     "cover": "http://books.google.com/books/content?id=w5d-EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789575986964",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "chinese"
+    ]
   },
   {
     "id": "17857553895550btez",
@@ -439,7 +533,10 @@
     "cover": "http://books.google.com/books/content?id=z-7gDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781474273015",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "meditation"
+    ]
   },
   {
     "id": "1785755389555pluhm",
@@ -456,7 +553,10 @@
     "cover": "http://books.google.com/books/content?id=yzgrS5Q5IpsC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780061800344",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "death"
+    ]
   },
   {
     "id": "17857553895552vjbi",
@@ -473,7 +573,11 @@
     "cover": "",
     "notes": "",
     "isbn": "9787500424956",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "death",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555dkuah",
@@ -490,7 +594,11 @@
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe-_Uy1M-PovtnV2cmDrvBOCBwmb5Gd3JNSz56-ROyn5xoNROD7c0I8hk&s=10",
     "notes": "",
     "isbn": "9789864596461",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555yjvo9",
@@ -507,7 +615,10 @@
     "cover": "http://books.google.com/books/content?id=AJMpCwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780226265179",
-    "tags": []
+    "tags": [
+      "stoicism",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895555kxhq",
@@ -524,7 +635,10 @@
     "cover": "http://books.google.com/books/content?id=bgjGAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780226108353",
-    "tags": []
+    "tags": [
+      "stoicism",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895559iq0c",
@@ -541,7 +655,10 @@
     "cover": "http://books.google.com/books/content?id=TR2MDAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780735211742",
-    "tags": []
+    "tags": [
+      "stoicism",
+      "self-help"
+    ]
   },
   {
     "id": "17857553895550nm3c",
@@ -558,7 +675,10 @@
     "cover": "http://books.google.com/books/content?id=VuSPEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780140135152",
-    "tags": []
+    "tags": [
+      "creativity",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555yqnk0",
@@ -575,7 +695,10 @@
     "cover": "http://books.google.com/books/content?id=poaJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781473568075",
-    "tags": []
+    "tags": [
+      "creativity",
+      "attention"
+    ]
   },
   {
     "id": "1785755389555o3o58",
@@ -592,7 +715,10 @@
     "cover": "http://books.google.com/books/content?id=Y2NBcaTZH6MC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780307906922",
-    "tags": []
+    "tags": [
+      "creativity",
+      "essays"
+    ]
   },
   {
     "id": "17857553895558e8iu",
@@ -609,7 +735,10 @@
     "cover": "http://books.google.com/books/content?id=tibCDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781474615693",
-    "tags": []
+    "tags": [
+      "essays",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555cccrj",
@@ -626,7 +755,10 @@
     "cover": "http://books.google.com/books/content?id=LmtQAQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780300151190",
-    "tags": []
+    "tags": [
+      "work",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555eqomr",
@@ -643,7 +775,10 @@
     "cover": "http://books.google.com/books/content?id=B8oiEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780744051018",
-    "tags": []
+    "tags": [
+      "creativity",
+      "science"
+    ]
   },
   {
     "id": "1785755389555gcezf",
@@ -660,7 +795,10 @@
     "cover": "http://books.google.com/books/content?id=mgK5EdIQDL4C&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781101118719",
-    "tags": []
+    "tags": [
+      "essays",
+      "attention"
+    ]
   },
   {
     "id": "178575538955554mja",
@@ -677,7 +815,10 @@
     "cover": "http://books.google.com/books/content?id=mReMuwEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781907974632",
-    "tags": []
+    "tags": [
+      "attention",
+      "productivity"
+    ]
   },
   {
     "id": "178575538955594p6v",
@@ -694,7 +835,10 @@
     "cover": "http://books.google.com/books/content?id=IJsGogEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781907974229",
-    "tags": []
+    "tags": [
+      "attention",
+      "self-help"
+    ]
   },
   {
     "id": "17857553895552hir3",
@@ -711,7 +855,10 @@
     "cover": "http://books.google.com/books/content?id=DO7kAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781937006501",
-    "tags": []
+    "tags": [
+      "buddhism",
+      "meditation"
+    ]
   },
   {
     "id": "1785755389555ltzsv",
@@ -728,7 +875,10 @@
     "cover": "http://books.google.com/books/content?id=jW5tEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781838858643",
-    "tags": []
+    "tags": [
+      "creativity",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555vfuaw",
@@ -745,7 +895,10 @@
     "cover": "http://books.google.com/books/content?id=73WqCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9786021606810",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "17857553895554taxs",
@@ -762,7 +915,10 @@
     "cover": "http://books.google.com/books/content?id=gZ94EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781523507863",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555i9pgj",
@@ -779,7 +935,10 @@
     "cover": "http://books.google.com/books/content?id=W-oSEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781452184159",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "178575538955501zjh",
@@ -796,7 +955,10 @@
     "cover": "http://books.google.com/books/content?id=zjhDCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781101983546",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555sejdd",
@@ -813,7 +975,10 @@
     "cover": "http://books.google.com/books/content?id=-tTCEHNt_R8C&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780307962379",
-    "tags": []
+    "tags": [
+      "creativity",
+      "work"
+    ]
   },
   {
     "id": "17857553895558oebj",
@@ -830,7 +995,10 @@
     "cover": "http://books.google.com/books/content?id=ESQDsgqfgusC&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781583333334",
-    "tags": []
+    "tags": [
+      "psychology",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555yjpva",
@@ -847,7 +1015,10 @@
     "cover": "http://books.google.com/books/content?id=r6nOYYtxzUoC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780226470993",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "psychology"
+    ]
   },
   {
     "id": "178575538955597y7w",
@@ -864,7 +1035,10 @@
     "cover": "http://books.google.com/books/content?id=dnh80QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780063335158",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555u1rf1",
@@ -881,7 +1055,10 @@
     "cover": "http://books.google.com/books/content?id=tN3bAwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780698170438",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555ib07k",
@@ -898,7 +1075,10 @@
     "cover": "http://books.google.com/books/content?id=oZF_AgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781134381968",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555nxcgh",
@@ -915,7 +1095,9 @@
     "cover": "http://books.google.com/books/content?id=nVQPAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780465072996",
-    "tags": []
+    "tags": [
+      "design"
+    ]
   },
   {
     "id": "1785755389555md2o3",
@@ -932,7 +1114,10 @@
     "cover": "http://books.google.com/books/content?id=D39vjmLfO3kC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780471125716",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "17857553895553d6cq",
@@ -949,7 +1134,10 @@
     "cover": "http://books.google.com/books/content?id=yODWdMUhkFwC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780132658607",
-    "tags": []
+    "tags": [
+      "design",
+      "psychology"
+    ]
   },
   {
     "id": "17857553895551zunp",
@@ -966,7 +1154,10 @@
     "cover": "http://books.google.com/books/content?id=M_CeCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780134196138",
-    "tags": []
+    "tags": [
+      "design",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555er7c2",
@@ -983,7 +1174,10 @@
     "cover": "http://books.google.com/books/content?id=5gcPEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780674251915",
-    "tags": []
+    "tags": [
+      "design",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555tm1xj",
@@ -1000,7 +1194,10 @@
     "cover": "https://shapeofdesignbook.com/img/cover.svg",
     "notes": "",
     "isbn": "9780985472207",
-    "tags": []
+    "tags": [
+      "design",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555g45nw",
@@ -1017,7 +1214,10 @@
     "cover": "http://books.google.com/books/content?id=DfBdAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780133438949",
-    "tags": []
+    "tags": [
+      "design",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895556lt5h",
@@ -1034,7 +1234,10 @@
     "cover": "http://books.google.com/books/content?id=e91bDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781473684683",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555tvx41",
@@ -1051,7 +1254,10 @@
     "cover": "http://books.google.com/books/content?id=PAEXEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780062872982",
-    "tags": []
+    "tags": [
+      "design",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555d9t6p",
@@ -1068,7 +1274,11 @@
     "cover": "http://books.google.com/books/content?id=L7dQEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781473584136",
-    "tags": []
+    "tags": [
+      "design",
+      "technology",
+      "work"
+    ]
   },
   {
     "id": "1785755389555kc4ur",
@@ -1085,7 +1295,10 @@
     "cover": "http://books.google.com/books/content?id=nntJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781250194473",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555lt1qe",
@@ -1102,7 +1315,10 @@
     "cover": "https://novelinvestor.com/wp-content/uploads/2023/09/make-something-wonderful-cover.png",
     "notes": "",
     "isbn": "9798993983806",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555uq1yk",
@@ -1119,7 +1335,10 @@
     "cover": "http://books.google.com/books/content?id=QupUDgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9786022912897",
-    "tags": []
+    "tags": [
+      "design",
+      "productivity"
+    ]
   },
   {
     "id": "1785755389555j578f",
@@ -1136,7 +1355,10 @@
     "cover": "http://books.google.com/books/content?id=UwkutQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781534873063",
-    "tags": []
+    "tags": [
+      "design",
+      "work"
+    ]
   },
   {
     "id": "1785755389555svdx8",
@@ -1153,7 +1375,10 @@
     "cover": "https://rm-media.nyc3.digitaloceanspaces.com/wp-content/uploads/2023/04/47-product-management-for-ux-people.jpg",
     "notes": "",
     "isbn": "9781916303027",
-    "tags": []
+    "tags": [
+      "design",
+      "work"
+    ]
   },
   {
     "id": "17857553895559w0g5",
@@ -1170,7 +1395,10 @@
     "cover": "http://books.google.com/books/content?id=_zhCtAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781977000422",
-    "tags": []
+    "tags": [
+      "design",
+      "work"
+    ]
   },
   {
     "id": "1785755389555fc5pl",
@@ -1187,7 +1415,10 @@
     "cover": "http://books.google.com/books/content?id=02TgrQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781500615994",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555m2ch7",
@@ -1204,7 +1435,10 @@
     "cover": "http://books.google.com/books/content?id=Qdn9QQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780262514231",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "17857553895556dfvd",
@@ -1221,7 +1455,10 @@
     "cover": "http://books.google.com/books/content?id=MbQQ0QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9798989358786",
-    "tags": []
+    "tags": [
+      "design",
+      "society"
+    ]
   },
   {
     "id": "1785755389555e88jy",
@@ -1238,7 +1475,10 @@
     "cover": "http://books.google.com/books/content?id=KzNwDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780262349635",
-    "tags": []
+    "tags": [
+      "design",
+      "society"
+    ]
   },
   {
     "id": "17857553895550upin",
@@ -1255,7 +1495,10 @@
     "cover": "http://books.google.com/books/content?id=CgR1BgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780133890426",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555n3vqv",
@@ -1272,7 +1515,10 @@
     "cover": "http://books.google.com/books/content?id=qM-QDAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780753556641",
-    "tags": []
+    "tags": [
+      "design",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555qvdwl",
@@ -1289,7 +1535,11 @@
     "cover": "http://books.google.com/books/content?id=RBeICwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781101875339",
-    "tags": []
+    "tags": [
+      "design",
+      "work",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555mst9r",
@@ -1306,7 +1556,10 @@
     "cover": "http://books.google.com/books/content?id=SNoxEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593467466",
-    "tags": []
+    "tags": [
+      "work",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555wwnui",
@@ -1323,7 +1576,10 @@
     "cover": "http://books.google.com/books/content?id=RZjBAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781422188613",
-    "tags": []
+    "tags": [
+      "work",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555kkb7s",
@@ -1340,7 +1596,10 @@
     "cover": "http://books.google.com/books/content?id=iblMDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780735219571",
-    "tags": []
+    "tags": [
+      "work",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555xksjf",
@@ -1357,7 +1616,10 @@
     "cover": "http://books.google.com/books/content?id=3RjBEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781953953315",
-    "tags": []
+    "tags": [
+      "work",
+      "science"
+    ]
   },
   {
     "id": "17857553895553b8i0",
@@ -1374,7 +1636,10 @@
     "cover": "http://books.google.com/books/content?id=X7fcwAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781581156478",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555it4uc",
@@ -1391,7 +1656,10 @@
     "cover": "http://books.google.com/books/content?id=T0FgEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781544514222",
-    "tags": []
+    "tags": [
+      "work",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555gn46x",
@@ -1408,7 +1676,10 @@
     "cover": "http://books.google.com/books/content?id=eaFHDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781473552913",
-    "tags": []
+    "tags": [
+      "productivity",
+      "attention"
+    ]
   },
   {
     "id": "1785755389555lpmbu",
@@ -1425,7 +1696,10 @@
     "cover": "http://books.google.com/books/content?id=g422yyua-P8C&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780061748998",
-    "tags": []
+    "tags": [
+      "psychology",
+      "society"
+    ]
   },
   {
     "id": "1785755389555xgko8",
@@ -1442,7 +1716,10 @@
     "cover": "http://books.google.com/books/content?id=sBb6DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781984878113",
-    "tags": []
+    "tags": [
+      "psychology",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555qq9vd",
@@ -1459,7 +1736,10 @@
     "cover": "http://books.google.com/books/content?id=B8JyDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780525540830",
-    "tags": []
+    "tags": [
+      "work",
+      "design"
+    ]
   },
   {
     "id": "17857553895550agku",
@@ -1476,7 +1756,10 @@
     "cover": "http://books.google.com/books/content?id=OMBkDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781612197500",
-    "tags": []
+    "tags": [
+      "attention",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555cjdw4",
@@ -1493,7 +1776,10 @@
     "cover": "http://books.google.com/books/content?id=88FWDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781108429092",
-    "tags": []
+    "tags": [
+      "attention",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555n2bdx",
@@ -1510,7 +1796,10 @@
     "cover": "http://books.google.com/books/content?id=uC0rEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593138526",
-    "tags": []
+    "tags": [
+      "attention",
+      "technology"
+    ]
   },
   {
     "id": "1785755389555yjylv",
@@ -1527,7 +1816,10 @@
     "cover": "http://books.google.com/books/content?id=NZVJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781250196699",
-    "tags": []
+    "tags": [
+      "technology",
+      "attention"
+    ]
   },
   {
     "id": "17857553895555xg02",
@@ -1544,7 +1836,10 @@
     "cover": "http://books.google.com/books/content?id=_eTACwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781473542105",
-    "tags": []
+    "tags": [
+      "technology",
+      "capitalism"
+    ]
   },
   {
     "id": "1785755389555irm5i",
@@ -1561,7 +1856,10 @@
     "cover": "http://books.google.com/books/content?id=LNan8BNXQjYC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780141960883",
-    "tags": []
+    "tags": [
+      "technology",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555zjip6",
@@ -1578,7 +1876,10 @@
     "cover": "http://books.google.com/books/content?id=eyc4EQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780374619336",
-    "tags": []
+    "tags": [
+      "technology",
+      "capitalism"
+    ]
   },
   {
     "id": "1785755389555omsxq",
@@ -1595,7 +1896,10 @@
     "cover": "http://books.google.com/books/content?id=AeJPEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781953953568",
-    "tags": []
+    "tags": [
+      "technology",
+      "history"
+    ]
   },
   {
     "id": "1785755389555d8fa9",
@@ -1612,7 +1916,10 @@
     "cover": "http://books.google.com/books/content?id=CcJFDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781524731663",
-    "tags": []
+    "tags": [
+      "technology",
+      "capitalism"
+    ]
   },
   {
     "id": "178575538955507agp",
@@ -1629,7 +1936,11 @@
     "cover": "http://books.google.com/books/content?id=PKlMEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781761771446",
-    "tags": []
+    "tags": [
+      "memoir",
+      "work",
+      "technology"
+    ]
   },
   {
     "id": "17857553895559v293",
@@ -1646,7 +1957,10 @@
     "cover": "http://books.google.com/books/content?id=co2RDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781501143335",
-    "tags": []
+    "tags": [
+      "work",
+      "society"
+    ]
   },
   {
     "id": "178575538955521q0n",
@@ -1663,7 +1977,10 @@
     "cover": "http://books.google.com/books/content?id=gMMSzgEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781784744489",
-    "tags": []
+    "tags": [
+      "work",
+      "society"
+    ]
   },
   {
     "id": "17857553895554icyv",
@@ -1680,7 +1997,10 @@
     "cover": "http://books.google.com/books/content?id=YpzJDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781788738705",
-    "tags": []
+    "tags": [
+      "work",
+      "society"
+    ]
   },
   {
     "id": "1785755389555dtmkx",
@@ -1697,7 +2017,10 @@
     "cover": "http://books.google.com/books/content?id=hr2iEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780374600914",
-    "tags": []
+    "tags": [
+      "memoir",
+      "work"
+    ]
   },
   {
     "id": "1785755389555iajdz",
@@ -1714,7 +2037,10 @@
     "cover": "http://books.google.com/books/content?id=WFP2DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780374715243",
-    "tags": []
+    "tags": [
+      "productivity",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555iv2bb",
@@ -1731,7 +2057,10 @@
     "cover": "http://books.google.com/books/content?id=QqfIDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780141991184",
-    "tags": []
+    "tags": [
+      "politics",
+      "society"
+    ]
   },
   {
     "id": "178575538955541nvx",
@@ -1749,8 +2078,7 @@
     "notes": "",
     "isbn": "9780593655658",
     "tags": [
-      "philosophy",
-      "games"
+      "philosophy"
     ]
   },
   {
@@ -1768,7 +2096,11 @@
     "cover": "http://books.google.com/books/content?id=E2V6NAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780415289764",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "society",
+      "capitalism"
+    ]
   },
   {
     "id": "17857553895555ws4s",
@@ -1785,7 +2117,10 @@
     "cover": "http://books.google.com/books/content?id=NYrsnQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781907903830",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "society"
+    ]
   },
   {
     "id": "178575538955539mn6",
@@ -1802,7 +2137,10 @@
     "cover": "http://books.google.com/books/content?id=QSiUEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781803414317",
-    "tags": []
+    "tags": [
+      "capitalism",
+      "society"
+    ]
   },
   {
     "id": "1785755389555629os",
@@ -1819,7 +2157,10 @@
     "cover": "http://books.google.com/books/content?id=ONJCDvhUTzIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780141930244",
-    "tags": []
+    "tags": [
+      "society",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555bqlp4",
@@ -1836,7 +2177,10 @@
     "cover": "http://books.google.com/books/content?id=fovYBQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780141980027",
-    "tags": []
+    "tags": [
+      "society",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555e8sm5",
@@ -1853,7 +2197,10 @@
     "cover": "http://books.google.com/books/content?id=XYdgDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780062956569",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "self-help"
+    ]
   },
   {
     "id": "17857553895553q744",
@@ -1870,7 +2217,10 @@
     "cover": "http://books.google.com/books/content?id=3z7cDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780804190121",
-    "tags": []
+    "tags": [
+      "politics",
+      "history"
+    ]
   },
   {
     "id": "1785755389555o16a4",
@@ -1887,7 +2237,10 @@
     "cover": "http://books.google.com/books/content?id=bKmpCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780062300560",
-    "tags": []
+    "tags": [
+      "memoir",
+      "society"
+    ]
   },
   {
     "id": "1785755389555y5ts5",
@@ -1904,7 +2257,11 @@
     "cover": "http://books.google.com/books/content?id=mcyNEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780451231000",
-    "tags": []
+    "tags": [
+      "fiction",
+      "philosophy",
+      "politics"
+    ]
   },
   {
     "id": "1785755389555myn4b",
@@ -1921,7 +2278,10 @@
     "cover": "http://books.google.com/books/content?id=FmyBAwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780062316103",
-    "tags": []
+    "tags": [
+      "history",
+      "science"
+    ]
   },
   {
     "id": "1785755389555933au",
@@ -1938,7 +2298,10 @@
     "cover": "http://books.google.com/books/content?id=qjf_DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781839763076",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "society"
+    ]
   },
   {
     "id": "1785755389555p9jkk",
@@ -1955,7 +2318,9 @@
     "cover": "http://books.google.com/books/content?id=GCxOEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780691276793",
-    "tags": []
+    "tags": [
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895554u8an",
@@ -1972,7 +2337,10 @@
     "cover": "http://books.google.com/books/content?id=cguW0QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780473453046",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555oh22r",
@@ -1989,7 +2357,10 @@
     "cover": "http://books.google.com/books/content?id=YGPzXWanppcC&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781846140556",
-    "tags": []
+    "tags": [
+      "psychology",
+      "science"
+    ]
   },
   {
     "id": "17857553895555f5xz",
@@ -2006,7 +2377,10 @@
     "cover": "http://books.google.com/books/content?id=g2MBEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780316451383",
-    "tags": []
+    "tags": [
+      "psychology",
+      "science"
+    ]
   },
   {
     "id": "1785755389555x36fj",
@@ -2023,7 +2397,10 @@
     "cover": "http://books.google.com/books/content?id=kedqDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781786631077",
-    "tags": []
+    "tags": [
+      "essays",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895559h73a",
@@ -2040,7 +2417,10 @@
     "cover": "http://books.google.com/books/content?id=n6JrDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780062906731",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895552i2cm",
@@ -2057,7 +2437,10 @@
     "cover": "http://books.google.com/books/content?id=v4T2DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781782835714",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555yutmp",
@@ -2074,7 +2457,10 @@
     "cover": "http://books.google.com/books/content?id=SQsvDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780316549615",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "psychology"
+    ]
   },
   {
     "id": "17857553895551i3ms",
@@ -2091,7 +2477,10 @@
     "cover": "http://books.google.com/books/content?id=sJKoDAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780735222786",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "science"
+    ]
   },
   {
     "id": "1785755389555hi7wu",
@@ -2108,7 +2497,10 @@
     "cover": "http://books.google.com/books/content?id=OHuDDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780385539319",
-    "tags": []
+    "tags": [
+      "science",
+      "health"
+    ]
   },
   {
     "id": "1785755389555y5koo",
@@ -2125,7 +2517,10 @@
     "cover": "http://books.google.com/books/content?id=3Q3UAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781697121353",
-    "tags": []
+    "tags": [
+      "psychology",
+      "health"
+    ]
   },
   {
     "id": "17857553895552mbsz",
@@ -2142,7 +2537,10 @@
     "cover": "http://books.google.com/books/content?id=g2MBEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780316451383",
-    "tags": []
+    "tags": [
+      "psychology",
+      "science"
+    ]
   },
   {
     "id": "1785755389555s37s8",
@@ -2159,7 +2557,10 @@
     "cover": "http://books.google.com/books/content?id=stNDEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781472294135",
-    "tags": []
+    "tags": [
+      "psychology",
+      "health"
+    ]
   },
   {
     "id": "17857553895555o8aa",
@@ -2176,7 +2577,10 @@
     "cover": "http://books.google.com/books/content?id=ngFCDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781946885296",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555usc44",
@@ -2193,7 +2597,11 @@
     "cover": "http://books.google.com/books/content?id=uCvAEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781802063288",
-    "tags": []
+    "tags": [
+      "psychology",
+      "technology",
+      "health"
+    ]
   },
   {
     "id": "1785755389555uopj0",
@@ -2210,7 +2618,10 @@
     "cover": "http://books.google.com/books/content?id=e8IPDgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780399184406",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "meditation"
+    ]
   },
   {
     "id": "1785755389555qs4o9",
@@ -2227,7 +2638,10 @@
     "cover": "http://books.google.com/books/content?id=73kyEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781982178468",
-    "tags": []
+    "tags": [
+      "meditation",
+      "buddhism"
+    ]
   },
   {
     "id": "17857553895557akhu",
@@ -2244,7 +2658,10 @@
     "cover": "http://books.google.com/books/content?id=ACG_EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781405958998",
-    "tags": []
+    "tags": [
+      "neuroscience",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555bzhyo",
@@ -2261,7 +2678,10 @@
     "cover": "http://books.google.com/books/content?id=hDM9DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781101667095",
-    "tags": []
+    "tags": [
+      "psychology",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555gyirr",
@@ -2278,7 +2698,10 @@
     "cover": "http://books.google.com/books/content?id=uyjf3uaQ4TwC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780307452207",
-    "tags": []
+    "tags": [
+      "psychology",
+      "self-help"
+    ]
   },
   {
     "id": "17857553895557k4eo",
@@ -2295,7 +2718,11 @@
     "cover": "http://books.google.com/books/content?id=GuAUMQAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789388241908",
-    "tags": []
+    "tags": [
+      "self-help",
+      "productivity",
+      "psychology"
+    ]
   },
   {
     "id": "17857553895554b4fm",
@@ -2312,7 +2739,10 @@
     "cover": "http://books.google.com/books/content?id=xBMMEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781668012567",
-    "tags": []
+    "tags": [
+      "psychology",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555c2rc6",
@@ -2329,7 +2759,10 @@
     "cover": "http://books.google.com/books/content?id=yng_CwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780062457738",
-    "tags": []
+    "tags": [
+      "self-help",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555n83hj",
@@ -2346,7 +2779,10 @@
     "cover": "http://books.google.com/books/content?id=TeyaEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593443514",
-    "tags": []
+    "tags": [
+      "psychology",
+      "relationships"
+    ]
   },
   {
     "id": "17857553895555zdka",
@@ -2363,7 +2799,10 @@
     "cover": "http://books.google.com/books/content?id=hE3-wQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780316478526",
-    "tags": []
+    "tags": [
+      "psychology",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555ucuxv",
@@ -2380,7 +2819,10 @@
     "cover": "http://books.google.com/books/content?id=A3qACgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781892005540",
-    "tags": []
+    "tags": [
+      "relationships",
+      "self-help"
+    ]
   },
   {
     "id": "178575538955502cn6",
@@ -2397,7 +2839,10 @@
     "cover": "http://books.google.com/books/content?id=Dvt7S9fOFRcC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781480401983",
-    "tags": []
+    "tags": [
+      "psychology",
+      "relationships"
+    ]
   },
   {
     "id": "17857553895552jm2l",
@@ -2414,7 +2859,10 @@
     "cover": "http://books.google.com/books/content?id=ZlU3DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781501144318",
-    "tags": []
+    "tags": [
+      "health",
+      "neuroscience"
+    ]
   },
   {
     "id": "178575538955559c1c",
@@ -2431,7 +2879,10 @@
     "cover": "http://books.google.com/books/content?id=5oFjDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781846276859",
-    "tags": []
+    "tags": [
+      "fiction",
+      "society"
+    ]
   },
   {
     "id": "1785755389555g31h2",
@@ -2448,7 +2899,10 @@
     "cover": "http://books.google.com/books/content?id=elG0HvDkIesC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781846275098",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555j1you",
@@ -2465,7 +2919,10 @@
     "cover": "http://books.google.com/books/content?id=ZglfBwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781101970478",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555otb0g",
@@ -2482,7 +2939,9 @@
     "cover": "http://books.google.com/books/content?id=nsb71f5EFcIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780307593627",
-    "tags": []
+    "tags": [
+      "fiction"
+    ]
   },
   {
     "id": "1785755389555ydgql",
@@ -2499,7 +2958,10 @@
     "cover": "http://books.google.com/books/content?id=S5uw0AEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781420514728",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555w0vl6",
@@ -2516,7 +2978,10 @@
     "cover": "http://books.google.com/books/content?id=KbZ9EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593243749",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "17857553895552iczf",
@@ -2533,7 +2998,10 @@
     "cover": "http://books.google.com/books/content?id=PDJBEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593314487",
-    "tags": []
+    "tags": [
+      "fiction",
+      "work"
+    ]
   },
   {
     "id": "178575538955500ph8",
@@ -2550,7 +3018,10 @@
     "cover": "http://books.google.com/books/content?id=c-a5EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780374721893",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "17857553895555275g",
@@ -2567,7 +3038,10 @@
     "cover": "http://books.google.com/books/content?id=wCEuEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780008759407",
-    "tags": []
+    "tags": [
+      "fiction",
+      "society"
+    ]
   },
   {
     "id": "17857553895555q4mn",
@@ -2584,7 +3058,10 @@
     "cover": "http://books.google.com/books/content?id=XpjwCQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781317437772",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555nvfg7",
@@ -2601,7 +3078,10 @@
     "cover": "http://books.google.com/books/content?id=-6WLswEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781846559495",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "17857553895558jjlt",
@@ -2618,7 +3098,10 @@
     "cover": "http://books.google.com/books/content?id=S7jrDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593318188",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "1785755389555ckhnn",
@@ -2635,7 +3118,10 @@
     "cover": "http://books.google.com/books/content?id=ofceEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593330234",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555hqazo",
@@ -2652,7 +3138,10 @@
     "cover": "http://books.google.com/books/content?id=r1dTEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781529083453",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "17857553895550r4zg",
@@ -2669,7 +3158,10 @@
     "cover": "http://books.google.com/books/content?id=gy1g0QEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781420528077",
-    "tags": []
+    "tags": [
+      "fiction",
+      "psychology"
+    ]
   },
   {
     "id": "17857553895556asjc",
@@ -2686,7 +3178,10 @@
     "cover": "http://books.google.com/books/content?id=VSITEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781635424355",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "17857553895553al3x",
@@ -2703,7 +3198,9 @@
     "cover": "http://books.google.com/books/content?id=kTYYEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780063390805",
-    "tags": []
+    "tags": [
+      "fiction"
+    ]
   },
   {
     "id": "17857553895551l2s6",
@@ -2720,7 +3217,10 @@
     "cover": "http://books.google.com/books/content?id=g10zEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781646220861",
-    "tags": []
+    "tags": [
+      "memoir",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555donkr",
@@ -2737,7 +3237,10 @@
     "cover": "http://books.google.com/books/content?id=S1BDEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781509550265",
-    "tags": []
+    "tags": [
+      "society",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555w06qx",
@@ -2754,7 +3257,10 @@
     "cover": "http://books.google.com/books/content?id=cWdiEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789860625394",
-    "tags": []
+    "tags": [
+      "fiction",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555jkg4m",
@@ -2771,7 +3277,10 @@
     "cover": "http://books.google.com/books/content?id=pBZUEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9787520154697",
-    "tags": []
+    "tags": [
+      "fiction",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555vy7op",
@@ -2788,7 +3297,10 @@
     "cover": "http://books.google.com/books/content?id=qH6TEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780679420262",
-    "tags": []
+    "tags": [
+      "fiction",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555p7f9o",
@@ -2805,7 +3317,10 @@
     "cover": "http://books.google.com/books/content?id=jA_ADwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781529036060",
-    "tags": []
+    "tags": [
+      "fiction",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555qj33y",
@@ -2822,7 +3337,10 @@
     "cover": "http://books.google.com/books/content?id=9kQSjiUX1RIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780307827821",
-    "tags": []
+    "tags": [
+      "essays",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895555wc5n",
@@ -2839,7 +3357,10 @@
     "cover": "http://books.google.com/books/content?id=mZunDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780241988794",
-    "tags": []
+    "tags": [
+      "fiction",
+      "society"
+    ]
   },
   {
     "id": "1785755389555yof1m",
@@ -2856,7 +3377,10 @@
     "cover": "http://books.google.com/books/content?id=pq_CAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780486114811",
-    "tags": []
+    "tags": [
+      "fiction",
+      "philosophy"
+    ]
   },
   {
     "id": "17857553895553zjtc",
@@ -2873,7 +3397,10 @@
     "cover": "http://books.google.com/books/content?id=ViHQDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780374718794",
-    "tags": []
+    "tags": [
+      "philosophy",
+      "stoicism"
+    ]
   },
   {
     "id": "1785755389555251z1",
@@ -2909,7 +3436,11 @@
     "cover": "http://books.google.com/books/content?id=-cjWiI8DEywC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780307378026",
-    "tags": []
+    "tags": [
+      "fiction",
+      "philosophy",
+      "death"
+    ]
   },
   {
     "id": "1785755389555hv8ix",
@@ -2926,7 +3457,10 @@
     "cover": "http://books.google.com/books/content?id=6WhiEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9789869643597",
-    "tags": []
+    "tags": [
+      "fiction",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555y66e4",
@@ -2943,7 +3477,10 @@
     "cover": "http://books.google.com/books/content?id=MYim_gaQC2gC&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780060959470",
-    "tags": []
+    "tags": [
+      "relationships",
+      "society"
+    ]
   },
   {
     "id": "1785755389555z0x8l",
@@ -2960,7 +3497,10 @@
     "cover": "http://books.google.com/books/content?id=m-8cEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781537705392",
-    "tags": []
+    "tags": [
+      "relationships",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555pz9sv",
@@ -2977,7 +3517,10 @@
     "cover": "http://books.google.com/books/content?id=9dSMzQEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780060916046",
-    "tags": []
+    "tags": [
+      "relationships",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555igeb2",
@@ -2994,7 +3537,10 @@
     "cover": "http://books.google.com/books/content?id=dIcn0AEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781633300125",
-    "tags": []
+    "tags": [
+      "poetry",
+      "relationships"
+    ]
   },
   {
     "id": "178575538955506ah5",
@@ -3011,7 +3557,10 @@
     "cover": "http://books.google.com/books/content?id=WoWfCgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781449483135",
-    "tags": []
+    "tags": [
+      "poetry",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555ys4ao",
@@ -3028,7 +3577,10 @@
     "cover": "http://books.google.com/books/content?id=ifn3EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780735281820",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "17857553895558lb8s",
@@ -3045,7 +3597,10 @@
     "cover": "http://books.google.com/books/content?id=y6umEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781982153083",
-    "tags": []
+    "tags": [
+      "fiction",
+      "relationships"
+    ]
   },
   {
     "id": "1785755389555nevjg",
@@ -3062,7 +3617,10 @@
     "cover": "http://books.google.com/books/content?id=uRC7EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593537626",
-    "tags": []
+    "tags": [
+      "fiction",
+      "death"
+    ]
   },
   {
     "id": "178575538955533u22",
@@ -3079,7 +3637,9 @@
     "cover": "http://books.google.com/books/content?id=DydGEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9798887075365",
-    "tags": []
+    "tags": [
+      "fiction"
+    ]
   },
   {
     "id": "1785755389555jhl4t",
@@ -3096,7 +3656,10 @@
     "cover": "http://books.google.com/books/content?id=mLNPEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780783893402",
-    "tags": []
+    "tags": [
+      "memoir",
+      "health"
+    ]
   },
   {
     "id": "1785755389555jltpj",
@@ -3113,7 +3676,10 @@
     "cover": "http://books.google.com/books/content?id=ATKQDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781328662057",
-    "tags": []
+    "tags": [
+      "memoir",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555k3be6",
@@ -3130,7 +3696,10 @@
     "cover": "http://books.google.com/books/content?id=WTBA-wzX7cwC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781931520898",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "1785755389555nlu5h",
@@ -3147,7 +3716,10 @@
     "cover": "http://books.google.com/books/content?id=MLiXDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781529405248",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "1785755389555q5wzq",
@@ -3164,7 +3736,10 @@
     "cover": "http://books.google.com/books/content?id=JhJ7cgAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9788498006117",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "17857553895559c9bs",
@@ -3181,7 +3756,10 @@
     "cover": "http://books.google.com/books/content?id=Bd_UZAdvUDIC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781101146460",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "1785755389555xhenb",
@@ -3198,7 +3776,10 @@
     "cover": "http://books.google.com/books/content?id=CfL7PHuLl2YC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780812545302",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "1785755389555ld64x",
@@ -3215,7 +3796,10 @@
     "cover": "http://books.google.com/books/content?id=CnSJEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9798217299461",
-    "tags": []
+    "tags": [
+      "fiction",
+      "sci-fi"
+    ]
   },
   {
     "id": "1785755389555xe2n1",
@@ -3232,7 +3816,10 @@
     "cover": "http://books.google.com/books/content?id=Tb3VEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781668068519",
-    "tags": []
+    "tags": [
+      "poetry",
+      "fiction"
+    ]
   },
   {
     "id": "1785755389555gcm2b",
@@ -3249,7 +3836,10 @@
     "cover": "http://books.google.com/books/content?id=4W7TAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780061989940",
-    "tags": []
+    "tags": [
+      "poetry",
+      "creativity"
+    ]
   },
   {
     "id": "1785755389555a0rcp",
@@ -3266,7 +3856,10 @@
     "cover": "http://books.google.com/books/content?id=pMTyEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781635868845",
-    "tags": []
+    "tags": [
+      "poetry",
+      "science"
+    ]
   },
   {
     "id": "1785755389555rnc5i",
@@ -3283,7 +3876,10 @@
     "cover": "http://books.google.com/books/content?id=uq2KzgEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9781948830553",
-    "tags": []
+    "tags": [
+      "poetry",
+      "fiction"
+    ]
   },
   {
     "id": "1785755389555k1a9i",
@@ -3300,7 +3896,9 @@
     "cover": "http://books.google.com/books/content?id=AAYpEQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781529934984",
-    "tags": []
+    "tags": [
+      "fiction"
+    ]
   },
   {
     "id": "1785755389555refdn",
@@ -3317,7 +3915,10 @@
     "cover": "http://books.google.com/books/content?id=Cl_rEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9786263145375",
-    "tags": []
+    "tags": [
+      "fiction",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555dv6q9",
@@ -3334,7 +3935,10 @@
     "cover": "http://books.google.com/books/content?id=SBEqEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780374721657",
-    "tags": []
+    "tags": [
+      "music",
+      "history"
+    ]
   },
   {
     "id": "1785755389555fjbxq",
@@ -3351,7 +3955,10 @@
     "cover": "http://books.google.com/books/content?id=ltjmwAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9780874776942",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "17857553895551aah2",
@@ -3368,7 +3975,10 @@
     "cover": "http://books.google.com/books/content?id=d22UqerzutgC&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780857862518",
-    "tags": []
+    "tags": [
+      "music",
+      "creativity"
+    ]
   },
   {
     "id": "17857553895558us52",
@@ -3385,7 +3995,10 @@
     "cover": "http://books.google.com/books/content?id=mUCzDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780978582104",
-    "tags": []
+    "tags": [
+      "music",
+      "fiction"
+    ]
   },
   {
     "id": "17857553895555q0hf",
@@ -3402,7 +4015,10 @@
     "cover": "http://books.google.com/books/content?id=sR3hAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "creativity",
+      "self-help"
+    ]
   },
   {
     "id": "1785755389555eladb",
@@ -3419,7 +4035,11 @@
     "cover": "http://books.google.com/books/content?id=f2VmPgAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&source=gbs_api",
     "notes": "",
     "isbn": "9789571349367",
-    "tags": []
+    "tags": [
+      "memoir",
+      "creativity",
+      "chinese"
+    ]
   },
   {
     "id": "1785755389555nazo7",
@@ -3436,7 +4056,10 @@
     "cover": "http://books.google.com/books/content?id=4UCnDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781524704551",
-    "tags": []
+    "tags": [
+      "self-help",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555r6zi0",
@@ -3453,7 +4076,10 @@
     "cover": "http://books.google.com/books/content?id=8mxuDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781633538290",
-    "tags": []
+    "tags": [
+      "history",
+      "science"
+    ]
   },
   {
     "id": "1785755389555dth7w",
@@ -3470,7 +4096,10 @@
     "cover": "http://books.google.com/books/content?id=PO6jtAEACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "memoir",
+      "essays"
+    ]
   },
   {
     "id": "1785755389555las7j",
@@ -3487,7 +4116,10 @@
     "cover": "http://books.google.com/books/content?id=h2lKPwAACAAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "memoir",
+      "essays"
+    ]
   },
   {
     "id": "1785755389555uyifr",
@@ -3504,7 +4136,10 @@
     "cover": "http://books.google.com/books/content?id=CDdIDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "memoir",
+      "essays"
+    ]
   },
   {
     "id": "1785755389555qb77r",
@@ -3521,7 +4156,10 @@
     "cover": "http://books.google.com/books/content?id=GAcvDQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "",
-    "tags": []
+    "tags": [
+      "memoir",
+      "essays"
+    ]
   },
   {
     "id": "178575538955556vg8",
@@ -3538,7 +4176,10 @@
     "cover": "http://books.google.com/books/content?id=wU_ZCQAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780241235973",
-    "tags": []
+    "tags": [
+      "science",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555kh742",
@@ -3555,7 +4196,10 @@
     "cover": "http://books.google.com/books/content?id=YvM3DwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780735216129",
-    "tags": []
+    "tags": [
+      "science",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555yjp4x",
@@ -3572,7 +4216,10 @@
     "cover": "http://books.google.com/books/content?id=TSk_EAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593468296",
-    "tags": []
+    "tags": [
+      "society",
+      "psychology"
+    ]
   },
   {
     "id": "1785755389555wct44",
@@ -3589,7 +4236,10 @@
     "cover": "http://books.google.com/books/content?id=Qe_RDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780300246759",
-    "tags": []
+    "tags": [
+      "politics",
+      "society"
+    ]
   },
   {
     "id": "1785755389555x495u",
@@ -3606,7 +4256,10 @@
     "cover": "http://books.google.com/books/content?id=X8gZEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780241402450",
-    "tags": []
+    "tags": [
+      "history",
+      "society"
+    ]
   },
   {
     "id": "1785755389555enlfe",
@@ -3623,7 +4276,10 @@
     "cover": "http://books.google.com/books/content?id=k8yrEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780593086612",
-    "tags": []
+    "tags": [
+      "technology",
+      "society"
+    ]
   },
   {
     "id": "1785755389555w59rs",
@@ -3640,7 +4296,10 @@
     "cover": "http://books.google.com/books/content?id=xZ0RAAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9780745657011",
-    "tags": []
+    "tags": [
+      "society",
+      "philosophy"
+    ]
   },
   {
     "id": "1785755389555ab9am",
@@ -3657,6 +4316,10 @@
     "cover": "http://books.google.com/books/content?id=MJ5ADwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
     "isbn": "9781610395700",
-    "tags": []
+    "tags": [
+      "capitalism",
+      "technology",
+      "society"
+    ]
   }
 ]
