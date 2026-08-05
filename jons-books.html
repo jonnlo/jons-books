@@ -1462,7 +1462,13 @@
     body.view-only .section-action-btns,
     body.view-only .card-reorder-toolbar,
     body.view-only .engine-unassign-btn,
-    body.view-only .roadmap-top-bar .btn-primary {
+    body.view-only .roadmap-top-bar .btn-primary,
+    body.view-only .collapsed-stage-hint {
+      display: none !important;
+    }
+    /* Collapsed stages fully collapse on the public site — no slim drop-target bar
+       (drag & drop doesn't exist there). The header's chevron still expands it. */
+    body.view-only .stage-block.collapsed-stage .stage-grid {
       display: none !important;
     }
     /* Public cards open the read-only detail modal, so they're tappable. */
@@ -2638,6 +2644,15 @@
           const isStageCollapsed = collapsedStages.has(`stage-${volNum}-${stageNum}`);
           stageData.books.sort((a, b) => a.readingOrder - b.readingOrder);
 
+          // Drag & drop is an editor-only feature — keep the sortable hook and the
+          // "drop here" hint out of the read-only public markup.
+          const stageGridClass = `stage-grid ${!isPublic ? 'sortable-stage' : ''} ${stageData.books.length === 0 ? 'empty-stage-grid' : ''}`.trim();
+          const collapsedHintHtml = !isPublic
+            ? `<div class="collapsed-stage-hint">
+                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Drop book here to move to Stage ${stageNum}
+                </div>`
+            : '';
+
           html += `
             <div class="stage-block ${isStageCollapsed ? 'collapsed-stage' : ''}" data-vol-num="${volNum}" data-stage-num="${stageNum}">
               <div class="stage-header" onclick="toggleStageCollapse(${volNum}, ${stageNum})">
@@ -2655,14 +2670,12 @@
                 </div>
               </div>
 
-              <div class="stage-grid sortable-stage ${stageData.books.length === 0 ? 'empty-stage-grid' : ''}" 
+              <div class="${stageGridClass}" 
                    data-vol-num="${volNum}" 
                    data-vol-name="${escapeHtml(volData.volumeName)}" 
                    data-stage-num="${stageNum}" 
                    data-stage-name="${escapeHtml(stageData.stageName)}">
-                <div class="collapsed-stage-hint">
-                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Drop book here to move to Stage ${stageNum}
-                </div>
+                ${collapsedHintHtml}
                 ${stageData.books.length > 0 
                   ? stageData.books.map(book => renderBookCardHtml(book, true)).join('') 
                   : '<p class="empty-stage-msg" style="pointer-events:none;">Drag books here into this stage</p>'}
