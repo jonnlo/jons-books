@@ -534,15 +534,22 @@
        strip instead of wrapping into many rows. Desktop wrapping unchanged. */
     @media (max-width: 600px) {
       .tag-filters {
+        /* Full-bleed: widen the strip to offset the body's 20px padding so it
+           scrolls edge-to-edge. The flex/width override matters — with the base
+           flex-basis:100% + negative margins, flexbox absorbs the right margin
+           and the box never actually widens. No viewport units either, which
+           avoids iOS 100vw overflow under viewport-fit=cover. (No scroll-snap:
+           it kept re-snapping the initial position and un-aligning the first chip.) */
+        flex: 0 0 auto;
+        width: calc(100% + 40px);
+        margin-inline: -20px;
         flex-wrap: nowrap;
         overflow-x: auto;
-        scroll-snap-type: x proximity;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
         scrollbar-width: none;
         /* small vertical pad so :focus-visible outlines aren't clipped */
         padding: 2px 0 4px;
-        scroll-padding-inline: 6px;
         /* right-edge fade cue that the strip scrolls */
         -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
         mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
@@ -554,10 +561,18 @@
         flex: 0 0 auto;
         white-space: nowrap;
         scroll-snap-align: start;
-        scroll-margin-inline: 6px;
         min-height: 32px;
         padding: 2px 11px;
         font-size: 0.8125rem;
+      }
+      /* Re-align the end chips with the rest of the page content. Margin-based
+         compensation is robust inside scroll containers (unlike container padding,
+         which some browsers omit from scrollable overflow). */
+      .tag-filter-chip:first-child {
+        margin-left: 20px;
+      }
+      .tag-filter-chip:last-child {
+        margin-right: 20px;
       }
     }
 
