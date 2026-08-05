@@ -214,7 +214,7 @@
     "stageName": "Meditation and Transformation",
     "readingOrder": 3,
     "year": "",
-    "status": "",
+    "status": "Reading",
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=O6nEEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
@@ -235,7 +235,7 @@
     "stageName": "Meditation and Transformation",
     "readingOrder": 4,
     "year": "",
-    "status": "",
+    "status": "Reading",
     "engine": "None",
     "cover": "https://plumvillage.org/wp-content/uploads/2020/09/%E6%93%81%E6%8A%B1%E7%A6%AA-%E5%85%A8%E6%9B%B8%E5%B0%81-05.jpg",
     "notes": "",
@@ -256,7 +256,7 @@
     "stageName": "Meditation and Transformation",
     "readingOrder": 5,
     "year": "",
-    "status": "",
+    "status": "Reading",
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=3zVjEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
@@ -487,7 +487,7 @@
     "stageName": "Prajna, Self, and Consciousness",
     "readingOrder": 3,
     "year": "1983",
-    "status": "",
+    "status": "Reading",
     "engine": "None",
     "cover": "https://www.dhalbi.org/wp-content/uploads/2020/10/wzfy_cover-218x300.jpg",
     "notes": "",
@@ -572,7 +572,7 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=z-7gDwAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9781474273015",
+    "isbn": "9781474272995",
     "tags": [
       "philosophy",
       "meditation"
@@ -633,7 +633,7 @@
     "engine": "None",
     "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe-_Uy1M-PovtnV2cmDrvBOCBwmb5Gd3JNSz56-ROyn5xoNROD7c0I8hk&s=10",
     "notes": "",
-    "isbn": "9789864596461",
+    "isbn": "9789868388017",
     "tags": [
       "buddhism",
       "meditation",
@@ -674,7 +674,7 @@
     "engine": "None",
     "cover": "http://books.google.com/books/content?id=bgjGAgAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
     "notes": "",
-    "isbn": "9780226108353",
+    "isbn": "9780226748337",
     "tags": [
       "stoicism",
       "philosophy"
@@ -3296,7 +3296,7 @@
     "engine": "None",
     "cover": "https://pic.arkread.com/cover/ebook/f/400567059.1657098713.jpg!cover_default.jpg",
     "notes": "",
-    "isbn": "",
+    "isbn": "9787531328209",
     "tags": [
       "fiction",
       "chinese"
