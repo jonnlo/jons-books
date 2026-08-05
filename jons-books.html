@@ -885,6 +885,19 @@
       overscroll-behavior: contain;
     }
 
+    /* The detail card rises up slightly as it appears — the inverse of the
+       drag-down-to-dismiss gesture. Transform only: the overlay's own fade
+       (`modal-fade-in`) already fades the dim + card, so animating opacity
+       here too would double-fade. The card stays centered (no bottom sheet). */
+    .book-detail-modal.active .modal-content {
+      animation: detail-rise-in 0.25s ease-out;
+    }
+
+    @keyframes detail-rise-in {
+      from { transform: translateY(24px); }
+      to { transform: translateY(0); }
+    }
+
     /* Within the detail modal, the `hidden` attribute always wins (some
        sections set their own display, e.g. flex/inline-flex). */
     .book-detail-modal [hidden] {
@@ -1084,6 +1097,10 @@
     @media (prefers-reduced-motion: reduce) {
       .view-toggle::before {
         transition: none;
+      }
+      /* No rise-in for the detail modal — instant open under reduced motion. */
+      .book-detail-modal.active .modal-content {
+        animation: none;
       }
     }
 
@@ -3052,6 +3069,14 @@
     // --- Read-Only Book Details Modal (public / view-only) ---
     // Card clicks route here on the public site; locally they open the edit modal.
     const detailModal = document.getElementById('book-detail-modal');
+    const detailSheet = detailModal.querySelector('.modal-content');
+    // Drag-to-dismiss state (touch devices only; desktop is untouched).
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let dragStartY = 0, dragDy = 0, dragActive = false, dismissing = false;
+    let lastY = 0, lastT = 0, velY = 0;
+    const DRAG_DIST = 140; // px of downward travel to dismiss
+    const DRAG_VEL = 0.9;  // px/ms (~900px/s) flick to dismiss
     const closeDetailModalBtn = document.getElementById('close-detail-modal');
     const detailCover = document.getElementById('detail-cover');
     const detailTitle = document.getElementById('detail-title');
@@ -3148,6 +3173,15 @@
       detailSummary.hidden = true;
 
       if (window.lucide) lucide.createIcons();
+      // Clear any leftover drag state so the sheet never opens stuck translated
+      // and the entrance rise + overlay fade replay on every open.
+      detailSheet.style.transform = '';
+      detailSheet.style.transition = '';
+      detailSheet.style.animation = '';
+      detailModal.style.opacity = '';
+      detailModal.style.transition = '';
+      detailModal.style.animation = '';
+      dismissing = false;
       detailModal.classList.add('active');
       // Remove the app behind from tab order / assistive tech while open.
       const appContainer = document.querySelector('.container');
@@ -3175,6 +3209,93 @@
     // Escape closes the detail modal.
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && detailModal.classList.contains('active')) {
+        closeDetailModal();
+      }
+    });
+
+    // --- Drag-to-dismiss: detail modal (touch only) ---
+    // The centered card follows the finger downward (translateY), then springs
+    // off-screen to close on release past a distance/velocity threshold, or
+    // springs back if released early. Fine-pointer / reduced-motion devices are
+    // handled too. The card stays centered — this is NOT a bottom sheet.
+    detailSheet.addEventListener('touchstart', (e) => {
+      if (finePointer || e.touches.length !== 1) return;
+      dragStartY = e.touches[0].clientY;
+      dragDy = 0; dragActive = false; dismissing = false;
+      lastY = dragStartY; lastT = performance.now(); velY = 0;
+      // Track the finger with zero lag; the release anim re-enables transitions.
+      detailSheet.style.transition = 'none';
+    }, { passive: true });
+
+    detailSheet.addEventListener('touchmove', (e) => {
+      if (finePointer || e.touches.length !== 1) return;
+      const y = e.touches[0].clientY;
+      const t = performance.now();
+      velY = (y - lastY) / Math.max(t - lastT, 1);
+      lastY = y; lastT = t;
+
+      const raw = y - dragStartY;
+      if (!dragActive) {
+        // Take over only when pulling DOWN at the very top of the sheet;
+        // otherwise let native scrolling handle it.
+        if (!(raw > 0 && detailSheet.scrollTop <= 0)) return;
+        dragActive = true;
+        dragStartY = y;                       // re-baseline so the sheet starts at 0
+        detailSheet.style.animation = 'none'; // cancel the entrance rise mid-drag
+        detailModal.style.animation = 'none'; // cancel the overlay fade mid-drag
+      }
+      e.preventDefault();                     // stop native scroll / rubber-band
+
+      // Gentle rubber-band resistance so the sheet doesn't run away from the finger.
+      const dy = Math.pow(y - dragStartY, 0.92);
+      dragDy = dy;
+      detailSheet.style.transform = `translateY(${dy}px) scale(0.99)`;
+      detailModal.style.opacity = String(Math.max(1 - dy / (window.innerHeight * 0.5), 0.4));
+    }, { passive: false });
+
+    function snapSheetBack() {
+      if (reduceMotion) {
+        detailSheet.style.transform = '';
+        detailModal.style.opacity = '';
+        dragActive = false; dismissing = false;
+        return;
+      }
+      detailSheet.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)';
+      detailModal.style.transition = 'opacity 0.25s ease';
+      detailSheet.style.transform = 'translateY(0)';
+      detailModal.style.opacity = '1';
+      dragActive = false; dismissing = false;
+    }
+
+    detailSheet.addEventListener('touchend', () => {
+      if (finePointer || !dragActive) return;
+      const shouldDismiss = dragDy > DRAG_DIST || velY > DRAG_VEL;
+      dragActive = false;
+
+      if (reduceMotion) {
+        if (shouldDismiss) closeDetailModal();
+        else { detailSheet.style.transform = ''; detailModal.style.opacity = ''; }
+        return;
+      }
+
+      dismissing = shouldDismiss;
+      if (dismissing) {
+        detailSheet.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
+        detailModal.style.transition = 'opacity 0.28s ease';
+        detailSheet.style.transform = `translateY(${window.innerHeight}px)`;
+        detailModal.style.opacity = '0';
+      } else {
+        snapSheetBack();
+      }
+    });
+
+    detailSheet.addEventListener('touchcancel', snapSheetBack);
+
+    // Close only after the exit animation finishes — the sheet stays `.active`
+    // (display:flex) during the slide-out, then flips to display:none, which
+    // also keeps Safari 26's browser-chrome tint sampler from reading a ghost.
+    detailSheet.addEventListener('transitionend', (e) => {
+      if (e.target === detailSheet && e.propertyName === 'transform' && dismissing) {
         closeDetailModal();
       }
     });
