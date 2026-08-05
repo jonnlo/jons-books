@@ -3249,21 +3249,18 @@
       // Gentle rubber-band resistance so the sheet doesn't run away from the finger.
       const dy = Math.pow(y - dragStartY, 0.92);
       dragDy = dy;
+      // Position only — no overlay fade while the finger is dragging.
       detailSheet.style.transform = `translateY(${dy}px) scale(0.99)`;
-      detailModal.style.opacity = String(Math.max(1 - dy / (window.innerHeight * 0.5), 0.4));
     }, { passive: false });
 
     function snapSheetBack() {
       if (reduceMotion) {
         detailSheet.style.transform = '';
-        detailModal.style.opacity = '';
         dragActive = false; dismissing = false;
         return;
       }
       detailSheet.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)';
-      detailModal.style.transition = 'opacity 0.25s ease';
       detailSheet.style.transform = 'translateY(0)';
-      detailModal.style.opacity = '1';
       dragActive = false; dismissing = false;
     }
 
@@ -3274,7 +3271,7 @@
 
       if (reduceMotion) {
         if (shouldDismiss) closeDetailModal();
-        else { detailSheet.style.transform = ''; detailModal.style.opacity = ''; }
+        else detailSheet.style.transform = '';
         return;
       }
 
