@@ -530,6 +530,37 @@
       outline-offset: 2px;
     }
 
+    /* Small screens: the tag filter becomes a single horizontal scroll-snap
+       strip instead of wrapping into many rows. Desktop wrapping unchanged. */
+    @media (max-width: 600px) {
+      .tag-filters {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        /* small vertical pad so :focus-visible outlines aren't clipped */
+        padding: 2px 0 4px;
+        scroll-padding-inline: 6px;
+        /* right-edge fade cue that the strip scrolls */
+        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 22px), transparent 100%);
+      }
+      .tag-filters::-webkit-scrollbar {
+        display: none;
+      }
+      .tag-filter-chip {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        scroll-snap-align: start;
+        scroll-margin-inline: 6px;
+        min-height: 32px;
+        padding: 2px 11px;
+        font-size: 0.8125rem;
+      }
+    }
+
     /* Tag chips on the read-only detail modal */
     .detail-tags-list {
       display: flex;
@@ -2283,11 +2314,14 @@
       }
 
       tagFilters.hidden = false;
+      // Keep the horizontal strip where the user left it — re-rendering resets scroll otherwise.
+      const prevScrollLeft = tagFilters.scrollLeft;
       tagFilters.innerHTML = allTags.map(t => `
         <button type="button" class="tag-filter-chip" data-tag="${escapeHtml(t)}" aria-pressed="${activeTags.has(t) ? 'true' : 'false'}">
           ${escapeHtml(t)}
         </button>
       `).join('');
+      tagFilters.scrollLeft = prevScrollLeft;
 
       // Autocomplete suggestions for the edit form's Tags input.
       tagSuggestions.innerHTML = allTags.map(t => `<option value="${escapeHtml(t)}"></option>`).join('');
