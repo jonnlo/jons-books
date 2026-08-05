@@ -570,7 +570,7 @@
     "year": "",
     "status": "",
     "engine": "None",
-    "cover": "",
+    "cover": "https://im2.book.com.tw/image/getImage?i=https://www.books.com.tw/img/001/034/99/0010349957.jpg&v=4fc7683bk",
     "notes": "",
     "isbn": "9787500424956",
     "tags": [
@@ -3264,7 +3264,7 @@
   },
   {
     "id": "1785755389555jkg4m",
-    "title": "江南三部曲（一）：人面桃花",
+    "title": "人面桃花",
     "author": "格非",
     "volumeNumber": 6,
     "volumeName": "Literature & Poetry",
@@ -3274,9 +3274,9 @@
     "year": "2004",
     "status": "",
     "engine": "None",
-    "cover": "http://books.google.com/books/content?id=pBZUEAAAQBAJ&printsec=frontcover&img=1&zoom=1&fife=w800&edge=curl&source=gbs_api",
+    "cover": "https://pic.arkread.com/cover/ebook/f/400567059.1657098713.jpg!cover_default.jpg",
     "notes": "",
-    "isbn": "9787520154697",
+    "isbn": "",
     "tags": [
       "fiction",
       "chinese"
