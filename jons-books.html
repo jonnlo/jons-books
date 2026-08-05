@@ -1569,6 +1569,7 @@
 
       <select class="filter-select" id="filter-status">
         <option value="">All Statuses</option>
+        <option value="__none__">No status</option>
         <option value="To Read">To Read</option>
         <option value="Reading">Reading</option>
         <option value="Completed">Completed</option>
@@ -1647,6 +1648,7 @@
           <div class="form-group">
             <label for="book-status-input">Reading Status</label>
             <select id="book-status-input">
+              <option value="">No status</option>
               <option value="To Read">To Read</option>
               <option value="Reading">Reading</option>
               <option value="Completed">Completed</option>
@@ -1793,6 +1795,7 @@
     const COLLAPSED_STAGES_KEY = 'personal_library_collapsed_stages';
     const LAST_MODIFIED_KEY = 'personal_library_last_modified';
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
+    const STATUS_CLEANUP_KEY = 'personal_library_status_cleanup_v1';
 
     // Public / View-Only Mode — on the published site we load books.json
     // (the committed source of truth, staged by the deploy workflow) and hide editing.
@@ -1816,7 +1819,7 @@
         stageName: "Value Capture & Play",
         readingOrder: 1,
         year: "2026",
-        status: "To Read",
+        status: "",
         engine: "Engine 1: Deep Focus",
         cover: "https://m.media-amazon.com/images/I/71uM3pL4-aL._AC_UF1000,1000_QL80_.jpg",
         notes: "Explores how scoring systems in games and life can narrow agency.",
@@ -1848,7 +1851,7 @@
         stageName: "Mindful Awareness",
         readingOrder: 1,
         year: "2022",
-        status: "To Read",
+        status: "",
         engine: "None",
         cover: "https://m.media-amazon.com/images/I/71Oa-wY+LXL._AC_UF1000,1000_QL80_.jpg",
         notes: "",
@@ -1880,7 +1883,7 @@
         stageName: "Inquiry Frameworks",
         readingOrder: 1,
         year: "2025",
-        status: "To Read",
+        status: "",
         engine: "None",
         cover: "https://m.media-amazon.com/images/I/71I3uX8H5ML._AC_UF1000,1000_QL80_.jpg",
         notes: "",
@@ -1909,6 +1912,16 @@
     let sortableInstances = [];
     let dragExpandTimeout = null;
 
+    // One-time migration: the old model defaulted every book to "To Read". Under
+    // the new opt-in model empty status = "No status" (no pill). Clear legacy
+    // "To Read" values once so only actively-assigned statuses remain visible.
+    function migrateLegacyToRead(booksArray) {
+      if (localStorage.getItem(STATUS_CLEANUP_KEY)) return booksArray;
+      const migrated = booksArray.map(b => (b.status === 'To Read' ? { ...b, status: '' } : b));
+      localStorage.setItem(STATUS_CLEANUP_KEY, '1');
+      return migrated;
+    }
+
     // LocalStorage Operations
     // Prefer existing localStorage. On a fresh start (no usable stored data) we
     // bootstrap from the committed books.json when it's reachable (e.g. served
@@ -1919,7 +1932,10 @@
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map(normalizeBook);
+            const data = migrateLegacyToRead(parsed.map(normalizeBook));
+            // Persist the cleanup so it survives reloads even without a later save.
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            return data;
           }
         } catch (e) {
           console.error("Failed to parse books from localStorage:", e);
@@ -1931,7 +1947,7 @@
         if (response.ok) {
           const parsed = await response.json();
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const seeded = parsed.map(normalizeBook);
+            const seeded = migrateLegacyToRead(parsed.map(normalizeBook));
             localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
             // Matches the committed books.json — no export reminder needed.
             localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -1991,7 +2007,7 @@
         stageName: b.stageName || "General Stage",
         readingOrder: parseInt(b.readingOrder || b.order) || 1,
         year: (b.year || "").toString(),
-        status: b.status || "To Read",
+        status: b.status || "",
         engine: b.engine || "None",
         cover: b.cover || b.cover_url || "",
         notes: b.notes || "",
@@ -2377,7 +2393,7 @@
             </div>
             <h2 class="book-title" title="${escapeHtml(book.title)}">${escapeHtml(book.title)}</h2>
             <p class="book-author">${escapeHtml(book.author)}</p>
-            <span class="status-pill">${escapeHtml(book.status)}</span>
+            ${book.status ? `<span class="status-pill">${escapeHtml(book.status)}</span>` : ''}
           </div>
         </article>
       `;
@@ -2657,7 +2673,8 @@
           b.isbn.toLowerCase().includes(query);
 
         const matchesVol = !selectedVol || b.volumeNumber === parseInt(selectedVol);
-        const matchesStatus = !selectedStatus || b.status === selectedStatus;
+        const matchesStatus = !selectedStatus ||
+          (selectedStatus === '__none__' ? !b.status : b.status === selectedStatus);
 
         return matchesSearch && matchesVol && matchesStatus;
       });
@@ -3040,7 +3057,13 @@
 
       detailTitle.textContent = book.title;
       detailAuthor.textContent = book.author;
-      detailStatus.textContent = book.status;
+      if (book.status) {
+        detailStatus.textContent = book.status;
+        detailStatus.hidden = false;
+      } else {
+        detailStatus.textContent = '';
+        detailStatus.hidden = true;
+      }
 
       // Engine track (only when assigned).
       const engine = (book.engine && book.engine !== 'None') ? book.engine : '';
