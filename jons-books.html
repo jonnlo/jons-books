@@ -2297,8 +2297,17 @@
     }
 
     // Tag filter chips — one toggle per tag in the catalog (multi-select, OR).
+    // Ordered by how many books carry the tag (most first), alphabetical as tiebreak.
     function updateTagFilters() {
-      const allTags = [...new Set(books.flatMap(b => b.tags || []))].sort((a, b) => a.localeCompare(b));
+      const tagCounts = new Map();
+      for (const b of books) {
+        for (const t of (b.tags || [])) {
+          tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+        }
+      }
+      const allTags = [...tagCounts.keys()].sort((a, b) =>
+        (tagCounts.get(b) - tagCounts.get(a)) || a.localeCompare(b)
+      );
 
       // Drop any selected tags that no longer exist in the catalog (e.g. after a reset/import).
       const tagSet = new Set(allTags);
