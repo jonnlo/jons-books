@@ -1362,8 +1362,8 @@
         font-size: 0.78rem;
         line-height: 1.25;
         display: -webkit-box;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
@@ -2392,12 +2392,6 @@
               ${renderCoverHtml(book.cover, book.title, book.author, 'engine-cover-img')}
             </div>
             <div class="engine-book-info">
-              <div class="engine-book-meta">
-                <span>Vol ${book.volumeNumber} · Stage ${book.stageNumber}</span>
-                <button class="engine-unassign-btn" title="Unassign from Engine" onclick="event.stopPropagation(); unassignEngine('${book.id}')">
-                  <i data-lucide="x-circle" style="width: 14px; height: 14px;"></i>
-                </button>
-              </div>
               <div class="engine-book-title" title="${escapeHtml(book.title)}">${renderTitleHtml(book.title)}</div>
               <div class="engine-book-author">${escapeHtml(book.author)}</div>
             </div>
