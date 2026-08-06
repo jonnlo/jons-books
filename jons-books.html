@@ -2307,6 +2307,62 @@
       });
     }
 
+    // --- Covers directory handle persistence (File System Access API) ---
+    // After the user picks the covers/ folder once, we remember the handle in
+    // IndexedDB so later saves reuse it instead of re-opening the folder picker.
+    // Chrome persists the readwrite permission per origin, so after the first
+    // grant, saves write straight into covers/ with no dialog at all.
+    const COVER_DIR_DB = 'jons-books';
+    const COVER_DIR_STORE = 'kv';
+    const COVER_DIR_KEY = 'coversDirHandle';
+
+    function openCoverDirDb() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) { reject(new Error('IndexedDB unavailable')); return; }
+        const req = indexedDB.open(COVER_DIR_DB, 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(COVER_DIR_STORE)) db.createObjectStore(COVER_DIR_STORE);
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function loadCoversDirHandle() {
+      try {
+        const db = await openCoverDirDb();
+        return await new Promise((resolve, reject) => {
+          const get = db.transaction(COVER_DIR_STORE, 'readonly').objectStore(COVER_DIR_STORE).get(COVER_DIR_KEY);
+          get.onsuccess = () => { db.close(); resolve(get.result || null); };
+          get.onerror = () => { db.close(); reject(get.error); };
+        });
+      } catch { return null; }
+    }
+
+    async function saveCoversDirHandle(handle) {
+      try {
+        const db = await openCoverDirDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(COVER_DIR_STORE, 'readwrite');
+          tx.objectStore(COVER_DIR_STORE).put(handle, COVER_DIR_KEY);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      } catch { /* best-effort; picker will just appear next time */ }
+    }
+
+    // True when the saved handle is usable without showing a dialog (permission
+    // already granted); false means the user needs to pick the folder again.
+    async function coversDirPermissionGranted(handle) {
+      try {
+        if (await handle.queryPermission({ mode: 'readwrite' }) === 'granted') return true;
+        if (await handle.requestPermission({ mode: 'readwrite' }) === 'granted') return true;
+      } catch { /* fall through */ }
+      return false;
+    }
+
     // Hybrid write: File System Access API writes straight into covers/ when
     // available (Chrome/Edge); otherwise we download the file for the user to
     // drop into covers/. Either way the stored cover value is "covers/<id>.jpg".
@@ -2314,7 +2370,15 @@
       const fileName = `${id}.jpg`;
       if (window.showDirectoryPicker) {
         try {
-          const dirHandle = await window.showDirectoryPicker();
+          // Reuse the folder chosen last time when its permission is still granted.
+          let dirHandle = await loadCoversDirHandle();
+          if (dirHandle && !(await coversDirPermissionGranted(dirHandle))) {
+            dirHandle = null; // revoked or denied → let the user pick again
+          }
+          if (!dirHandle) {
+            dirHandle = await window.showDirectoryPicker();
+            saveCoversDirHandle(dirHandle); // remember for next time (fire-and-forget)
+          }
           const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
           const writable = await fileHandle.createWritable();
           await writable.write(blob);
@@ -3725,7 +3789,7 @@
         coverPreview.hidden = false;
         coverClearBtn.hidden = false;
         coverHint.textContent = window.showDirectoryPicker
-          ? 'On save, pick the covers/ folder to write it directly — otherwise a cover file downloads for you to drop in.'
+          ? 'On save, pick the covers/ folder once — it will be remembered for future saves.'
           : 'A cover file will download when you save — drop it into the covers/ folder.';
       } catch (err) {
         alert(err.message || 'Could not process that image.');
