@@ -1943,7 +1943,6 @@
             </div>
           </div>
           <div class="detail-links" id="detail-links" hidden>
-            <a class="btn-secondary detail-link" id="detail-link-google" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Google Books</a>
             <a class="btn-secondary detail-link" id="detail-link-goodreads" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Goodreads</a>
           </div>
           <div class="detail-notes" id="detail-notes" hidden>
@@ -3459,7 +3458,6 @@
     const detailIsbnRow = document.getElementById('detail-isbn-row');
     const detailIsbn = document.getElementById('detail-isbn');
     const detailLinks = document.getElementById('detail-links');
-    const detailLinkGoogle = document.getElementById('detail-link-google');
     const detailLinkGoodreads = document.getElementById('detail-link-goodreads');
     const detailNotes = document.getElementById('detail-notes');
     const detailNotesText = document.getElementById('detail-notes-text');
@@ -3524,7 +3522,6 @@
       if (book.isbn) {
         detailIsbnRow.hidden = false;
         detailIsbn.textContent = book.isbn;
-        detailLinkGoogle.href = `https://books.google.com/books?vid=ISBN${encodeURIComponent(book.isbn)}`;
         detailLinkGoodreads.href = `https://www.goodreads.com/search?q=${encodeURIComponent(book.isbn)}`;
         detailLinks.hidden = false;
       } else {
