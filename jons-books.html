@@ -1178,6 +1178,31 @@
       line-height: 1.55;
     }
 
+    #detail-summary-text.clamped {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      overflow: hidden;
+    }
+
+    .detail-summary-toggle {
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: 8px;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent-color);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .detail-summary-toggle:hover {
+      text-decoration: underline;
+    }
+
     .book-detail-modal .modal-content :focus-visible {
       outline: 2px solid var(--border-accent);
       outline-offset: 2px;
@@ -1957,10 +1982,10 @@
             <h4>Tags</h4>
             <div class="detail-tags-list" id="detail-tags-list"></div>
           </div>
-          <!-- Reserved for the publisher blurb — filled in the next step. -->
           <div class="detail-summary" id="detail-summary" hidden>
             <h4>About this book</h4>
-            <p id="detail-summary-text"></p>
+            <p id="detail-summary-text" class="clamped"></p>
+            <button type="button" class="detail-summary-toggle" id="detail-summary-toggle" hidden aria-expanded="false">Read more</button>
           </div>
         </div>
       </div>
@@ -3472,6 +3497,8 @@
     const detailTagsList = document.getElementById('detail-tags-list');
     const detailSummary = document.getElementById('detail-summary');
     const detailSummaryText = document.getElementById('detail-summary-text');
+    const detailSummaryToggle = document.getElementById('detail-summary-toggle');
+    let summaryExpanded = false;
 
     const ENGINE_COLORS = {
       'Engine 1: Deep Focus': 'var(--engine-1)',
@@ -3554,7 +3581,14 @@
         detailTagsList.innerHTML = '';
       }
 
-      // Publisher blurb (from Hardcover) — only when a summary exists.
+      // Publisher blurb (from Hardcover) — only when a summary exists. Always
+      // start collapsed; the rAF / ResizeObserver below re-evaluates the
+      // "Read more" toggle once the sheet is actually visible.
+      summaryExpanded = false;
+      detailSummaryText.classList.add('clamped');
+      detailSummaryToggle.textContent = 'Read more';
+      detailSummaryToggle.setAttribute('aria-expanded', 'false');
+      detailSummaryToggle.hidden = true;
       if (book.summary && book.summary.trim()) {
         detailSummary.hidden = false;
         detailSummaryText.textContent = book.summary;
@@ -3574,10 +3608,29 @@
       detailModal.style.animation = '';
       dismissing = false;
       detailModal.classList.add('active');
+      // The summary text is unmeasurable while the modal is display:none, so
+      // re-evaluate the Read more toggle on the next frame (the ResizeObserver
+      // below also covers later viewport/orientation changes).
+      requestAnimationFrame(updateSummaryToggle);
       // Remove the app behind from tab order / assistive tech while open.
       const appContainer = document.querySelector('.container');
       if (appContainer) appContainer.inert = true;
       closeDetailModalBtn.focus();
+    }
+
+    // Show/hide the summary toggle based on whether the clamped text overflows
+    // its box; while expanded it always shows "Show less".
+    function updateSummaryToggle() {
+      if (summaryExpanded) {
+        detailSummaryToggle.hidden = false;
+        detailSummaryToggle.textContent = 'Show less';
+        detailSummaryToggle.setAttribute('aria-expanded', 'true');
+        return;
+      }
+      const overflowing = detailSummaryText.scrollHeight > detailSummaryText.clientHeight + 1;
+      detailSummaryToggle.hidden = !overflowing;
+      detailSummaryToggle.textContent = 'Read more';
+      detailSummaryToggle.setAttribute('aria-expanded', 'false');
     }
 
     function closeDetailModal() {
@@ -3602,6 +3655,17 @@
       if (e.key === 'Escape' && detailModal.classList.contains('active')) {
         closeDetailModal();
       }
+    });
+
+    // Summary "Read more" toggle: re-evaluate whenever the text is laid out
+    // (fires on open, and on viewport/orientation changes that alter the count).
+    const detailSummaryObserver = new ResizeObserver(updateSummaryToggle);
+    detailSummaryObserver.observe(detailSummaryText);
+
+    detailSummaryToggle.addEventListener('click', () => {
+      summaryExpanded = !summaryExpanded;
+      detailSummaryText.classList.toggle('clamped', !summaryExpanded);
+      updateSummaryToggle();
     });
 
     // --- Drag-to-dismiss: detail modal (touch only) ---
