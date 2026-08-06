@@ -12,3 +12,9 @@ catalog.csv
 
 # Node dev tooling (scripts/migrate-covers.mjs) — sharp is installed locally only
 scripts/node_modules/
+
+# Local secrets (never committed) — scripts/hardcover-summary.mjs reads this when HARDCOVER_TOKEN is unset
+.hardcover-token
+
+# Generated summary-fetch logs (regenerated on each backfill run)
+scripts/hardcover-summary-misses.txt

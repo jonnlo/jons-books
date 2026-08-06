@@ -1888,6 +1888,10 @@
             <textarea id="book-notes-input" placeholder="Add annotations, key concepts, or takeaway notes..."></textarea>
           </div>
           <div class="form-group full-width">
+            <label for="book-summary-input">Summary</label>
+            <textarea id="book-summary-input" rows="5" placeholder="Publisher blurb (from Hardcover) — one paragraph per line. Leave blank if none."></textarea>
+          </div>
+          <div class="form-group full-width">
             <label for="book-tags-input">Tags</label>
             <input type="text" id="book-tags-input" list="tag-suggestions" placeholder="e.g. philosophy, reread, favorite — comma separated">
             <datalist id="tag-suggestions"></datalist>
@@ -2229,6 +2233,7 @@
         engine: b.engine || "None",
         cover: b.cover || b.cover_url || "",
         notes: b.notes || "",
+        summary: b.summary || "",
         isbn: (b.isbn || "").toString(),
         tags: Array.isArray(b.tags)
           ? [...new Set(b.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean))]
@@ -2475,6 +2480,7 @@
     }
     const inputIsbn = document.getElementById('book-isbn-input');
     const inputNotes = document.getElementById('book-notes-input');
+    const inputSummary = document.getElementById('book-summary-input');
     const inputTags = document.getElementById('book-tags-input');
 
     // Controls
@@ -3424,6 +3430,7 @@
       }
       inputIsbn.value = book.isbn;
       inputNotes.value = book.notes;
+      inputSummary.value = book.summary;
       inputTags.value = (book.tags || []).join(', ');
 
       deleteBookBtn.style.display = "block";
@@ -3464,6 +3471,7 @@
     const detailTags = document.getElementById('detail-tags');
     const detailTagsList = document.getElementById('detail-tags-list');
     const detailSummary = document.getElementById('detail-summary');
+    const detailSummaryText = document.getElementById('detail-summary-text');
 
     const ENGINE_COLORS = {
       'Engine 1: Deep Focus': 'var(--engine-1)',
@@ -3546,8 +3554,14 @@
         detailTagsList.innerHTML = '';
       }
 
-      // Publisher blurb — not implemented yet; hidden until we add it.
-      detailSummary.hidden = true;
+      // Publisher blurb (from Hardcover) — only when a summary exists.
+      if (book.summary && book.summary.trim()) {
+        detailSummary.hidden = false;
+        detailSummaryText.textContent = book.summary;
+      } else {
+        detailSummary.hidden = true;
+        detailSummaryText.textContent = '';
+      }
 
       if (window.lucide) lucide.createIcons();
       // Clear any leftover drag state so the sheet never opens stuck translated
@@ -3755,6 +3769,7 @@
         cover,
         isbn: inputIsbn.value.trim(),
         notes: inputNotes.value.trim(),
+        summary: inputSummary.value.trim(),
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
       });
 
