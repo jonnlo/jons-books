@@ -957,6 +957,46 @@
       min-height: 80px;
     }
 
+    /* Cover upload (local editing) */
+    .cover-upload-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .cover-upload-preview {
+      width: 84px;
+      height: 126px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--img-bg);
+      flex: 0 0 auto;
+    }
+    .cover-upload-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .cover-upload-actions .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cover-upload-hint {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .cover-upload-hint code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    @media (max-width: 480px) {
+      .cover-upload-row {
+        flex-direction: column;
+      }
+    }
+
     .modal-footer {
       display: flex;
       justify-content: space-between;
@@ -1816,8 +1856,18 @@
           </div>
 
           <div class="form-group full-width">
-            <label for="book-cover-input">Cover Image URL</label>
-            <input type="url" id="book-cover-input" placeholder="https://example.com/cover.jpg">
+            <label for="book-cover-file">Cover Image</label>
+            <div class="cover-upload-row">
+              <img id="book-cover-preview" class="cover-upload-preview" alt="Cover preview" hidden>
+              <div class="cover-upload-actions">
+                <button type="button" class="btn-secondary" id="book-cover-pick-btn"><i data-lucide="image" style="width: 14px; height: 14px;"></i> Choose image…</button>
+                <button type="button" class="btn-secondary" id="book-cover-clear-btn" hidden>Remove</button>
+                <input type="file" id="book-cover-file" accept="image/*" hidden>
+                <p class="cover-upload-hint" id="book-cover-hint">Saved to <code>covers/</code> in this repo.</p>
+              </div>
+            </div>
+            <!-- Hidden field keeps inputCover.value as the saved cover path (covers/<id>.jpg). -->
+            <input type="hidden" id="book-cover-input">
           </div>
           <div class="form-group full-width">
             <label for="book-isbn-input">ISBN</label>
@@ -1980,7 +2030,7 @@
         year: "2026",
         status: "",
         engine: "Engine 1: Deep Focus",
-        cover: "https://m.media-amazon.com/images/I/71uM3pL4-aL._AC_UF1000,1000_QL80_.jpg",
+        cover: "",
         notes: "Explores how scoring systems in games and life can narrow agency.",
         isbn: "9780197686546"
       },
@@ -1996,7 +2046,7 @@
         year: "2023",
         status: "Reading",
         engine: "Engine 2: Complementary",
-        cover: "https://m.media-amazon.com/images/I/81IAnpThpWL._AC_UF1000,1000_QL80_.jpg",
+        cover: "",
         notes: "Practical insights on awareness and expressive momentum.",
         isbn: "9780593652886"
       },
@@ -2012,7 +2062,7 @@
         year: "2022",
         status: "",
         engine: "None",
-        cover: "https://m.media-amazon.com/images/I/71Oa-wY+LXL._AC_UF1000,1000_QL80_.jpg",
+        cover: "",
         notes: "",
         isbn: "9781982178451"
       },
@@ -2028,7 +2078,7 @@
         year: "2021",
         status: "Reading",
         engine: "Engine 3: Exploration",
-        cover: "https://m.media-amazon.com/images/I/71G1M+qj4mL._AC_UF1000,1000_QL80_.jpg",
+        cover: "",
         notes: "",
         isbn: "9781797206073"
       },
@@ -2044,7 +2094,7 @@
         year: "2025",
         status: "",
         engine: "None",
-        cover: "https://m.media-amazon.com/images/I/71I3uX8H5ML._AC_UF1000,1000_QL80_.jpg",
+        cover: "",
         notes: "",
         isbn: "9781637742111"
       },
@@ -2060,7 +2110,7 @@
         year: "2021",
         status: "Completed",
         engine: "None",
-        cover: "https://m.media-amazon.com/images/I/71k425CThxL._AC_UF1000,1000_QL80_.jpg",
+        cover: "",
         notes: "",
         isbn: "9780393525557"
       }
@@ -2229,6 +2279,63 @@
       return createJacketHtml(title, author);
     }
 
+    // Cover upload — pick a local image, downscale it, and save it into covers/.
+    const MAX_COVER_WIDTH = 800; // max width in px (height uncapped)
+    const COVER_QUALITY = 0.85;
+
+    function processCoverImage(file) {
+      return new Promise((resolve, reject) => {
+        if (!file || !file.type.startsWith('image/')) {
+          reject(new Error('Please choose an image file.'));
+          return;
+        }
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, MAX_COVER_WIDTH / img.naturalWidth);
+          const w = Math.max(1, Math.round(img.naturalWidth * scale));
+          const h = Math.max(1, Math.round(img.naturalHeight * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(objectUrl);
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not encode the image.')), 'image/jpeg', COVER_QUALITY);
+        };
+        img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Could not read that image.')); };
+        img.src = objectUrl;
+      });
+    }
+
+    // Hybrid write: File System Access API writes straight into covers/ when
+    // available (Chrome/Edge); otherwise we download the file for the user to
+    // drop into covers/. Either way the stored cover value is "covers/<id>.jpg".
+    async function writeCoverBlob(blob, id) {
+      const fileName = `${id}.jpg`;
+      if (window.showDirectoryPicker) {
+        try {
+          const dirHandle = await window.showDirectoryPicker();
+          const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          return `covers/${fileName}`;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return null; // user cancelled the folder picker
+          // Any other FS error → fall through to the download path.
+        }
+      }
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      return `covers/${fileName}`;
+    }
+
     // DOM Elements
     const viewGridBtn = document.getElementById('view-grid-btn');
     const viewRoadmapBtn = document.getElementById('view-roadmap-btn');
@@ -2278,6 +2385,21 @@
     const inputStatus = document.getElementById('book-status-input');
     const inputEngine = document.getElementById('book-engine-input');
     const inputCover = document.getElementById('book-cover-input');
+    const coverFileInput = document.getElementById('book-cover-file');
+    const coverPickBtn = document.getElementById('book-cover-pick-btn');
+    const coverClearBtn = document.getElementById('book-cover-clear-btn');
+    const coverPreview = document.getElementById('book-cover-preview');
+    const coverHint = document.getElementById('book-cover-hint');
+    let pendingCoverBlob = null; // downscaled cover chosen but not yet saved
+
+    function resetCoverUploadState() {
+      pendingCoverBlob = null;
+      coverPreview.hidden = true;
+      coverPreview.removeAttribute('src');
+      coverClearBtn.hidden = true;
+      coverFileInput.value = '';
+      coverHint.textContent = 'Saved to covers/ in this repo.';
+    }
     const inputIsbn = document.getElementById('book-isbn-input');
     const inputNotes = document.getElementById('book-notes-input');
     const inputTags = document.getElementById('book-tags-input');
@@ -3182,6 +3304,7 @@
       modalTitle.textContent = "Add New Book";
       inputId.value = "";
       bookForm.reset();
+      resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
 
       const volMap = getVolumeMap();
       const sortedVols = Array.from(volMap.keys()).sort((a, b) => a - b);
@@ -3220,6 +3343,12 @@
       inputStatus.value = book.status;
       inputEngine.value = book.engine;
       inputCover.value = book.cover;
+      resetCoverUploadState();
+      if (book.cover) {
+        coverPreview.src = book.cover;
+        coverPreview.hidden = false;
+        coverClearBtn.hidden = false;
+      }
       inputIsbn.value = book.isbn;
       inputNotes.value = book.notes;
       inputTags.value = (book.tags || []).join(', ');
@@ -3490,7 +3619,7 @@
       }
     });
 
-    bookForm.addEventListener('submit', (e) => {
+    bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = inputId.value;
       const newEngine = inputEngine.value;
@@ -3525,8 +3654,23 @@
         stageName = getStageMap(volumeNumber).get(stageNumber) || `Stage ${stageNumber}`;
       }
 
+      // Resolve id first — it determines the cover filename in covers/.
+      const newId = id || Date.now().toString();
+
+      // Persist any newly picked cover before saving the record.
+      let cover = inputCover.value.trim();
+      if (pendingCoverBlob) {
+        const written = await writeCoverBlob(pendingCoverBlob, newId);
+        if (written) cover = written; // null = user cancelled the folder picker → keep old cover
+        pendingCoverBlob = null;
+        coverPreview.hidden = true;
+        coverPreview.removeAttribute('src');
+        coverClearBtn.hidden = true;
+        coverFileInput.value = '';
+      }
+
       const bookData = normalizeBook({
-        id: id || Date.now().toString(),
+        id: newId,
         title: inputTitle.value.trim(),
         author: inputAuthor.value.trim(),
         volumeNumber,
@@ -3537,7 +3681,7 @@
         year: inputYear.value.trim(),
         status: inputStatus.value,
         engine: newEngine,
-        cover: inputCover.value.trim(),
+        cover,
         isbn: inputIsbn.value.trim(),
         notes: inputNotes.value.trim(),
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
@@ -3567,6 +3711,31 @@
 
     // Event Listeners
     addBookBtn.addEventListener('click', openAddModal);
+
+    // Cover upload: pick → downscale → preview (the blob is written to covers/ on submit).
+    coverPickBtn.addEventListener('click', () => coverFileInput.click());
+    coverFileInput.addEventListener('change', async () => {
+      const file = coverFileInput.files && coverFileInput.files[0];
+      if (!file) return;
+      try {
+        const blob = await processCoverImage(file);
+        pendingCoverBlob = blob;
+        if (coverPreview.src && coverPreview.src.startsWith('blob:')) URL.revokeObjectURL(coverPreview.src);
+        coverPreview.src = URL.createObjectURL(blob);
+        coverPreview.hidden = false;
+        coverClearBtn.hidden = false;
+        coverHint.textContent = window.showDirectoryPicker
+          ? 'On save, pick the covers/ folder to write it directly — otherwise a cover file downloads for you to drop in.'
+          : 'A cover file will download when you save — drop it into the covers/ folder.';
+      } catch (err) {
+        alert(err.message || 'Could not process that image.');
+      }
+      coverFileInput.value = '';
+    });
+    coverClearBtn.addEventListener('click', () => {
+      resetCoverUploadState();
+      inputCover.value = ''; // save as "no cover"
+    });
     closeModalBtn.addEventListener('click', closeModal);
     cancelModalBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {

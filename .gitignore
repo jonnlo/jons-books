@@ -9,3 +9,6 @@ catalog.csv
 
 # VS Code workspace/local settings
 .vscode/
+
+# Node dev tooling (scripts/migrate-covers.mjs) — sharp is installed locally only
+scripts/node_modules/

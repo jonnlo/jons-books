@@ -7,6 +7,7 @@ on:
       - 'books.json'
       - 'jons-books.html'
       - 'scripts/**'
+      - 'covers/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -29,11 +30,12 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Stage site (index.html + books.json)
+      - name: Stage site (index.html + books.json + covers)
         run: |
           mkdir -p _site
           cp "jons-books.html" _site/index.html
           cp books.json _site/books.json
+          [ -d covers ] && cp -r covers _site/covers || true
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
