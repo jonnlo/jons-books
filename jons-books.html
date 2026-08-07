@@ -32,6 +32,8 @@
       --text-muted: #64748b;
       --img-bg: hsl(220, 42%, 13%);
       --img-bg-hover: hsl(220, 42%, 33%);
+      --btn-secondary-bg: hsl(220, 42%, 18%);
+      --btn-secondary-bg-hover: hsl(220, 42%, 24%);
       --engine-1: #3b82f6;
       --engine-2: #06b6d4;
       --engine-3: #f59e0b;
@@ -52,6 +54,8 @@
       --text-muted: #7e8fa7;
       --img-bg: hsl(200, 20%, 97%);
       --img-bg-hover: hsl(200, 21%, 94%);
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-bg-hover: hsl(214, 32%, 95%);
       --accent-color: #4f46e5;
       --success-color: #16a34a;
     }
@@ -117,7 +121,7 @@
       justify-content: space-between;
       align-items: center;
       padding-bottom: 12  px;
-      margin-bottom: 36px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
       gap: 16px;
     }
@@ -174,6 +178,46 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    /* Book Controls Toolbar — full-width bar below the header holding all the
+       library editing buttons in two groups: the data/file utilities pinned
+       left, the primary Add Book action anchored right. Hidden on the public
+       site where the library is view-only (see body.view-only). */
+    .book-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Each group keeps its buttons together. The auto margin sits on the LAST
+       group (not the first) so that if the right group wraps onto its own row
+       on narrow screens it still hugs the right edge instead of falling left. */
+    .book-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .book-controls-group:last-child {
+      margin-left: auto;
+    }
+
+    /* Secondary buttons on the toolbar get their own raised background so they
+       contrast with the bar's --bg-surface (which they otherwise share). */
+    .book-controls .btn-secondary {
+      background: var(--btn-secondary-bg);
+    }
+
+    .book-controls .btn-secondary:hover {
+      background: var(--btn-secondary-bg-hover);
     }
 
     .icon-btn {
@@ -1665,6 +1709,7 @@
     /* ===== View-Only (Public Site) =====
        On the published GitHub Pages site the library is read-only: hide all
        editing controls. The owner still edits locally (file:// or localhost). */
+    body.view-only .book-controls,
     body.view-only #import-json-btn,
     body.view-only #export-json-btn,
     body.view-only #check-newer-btn,
@@ -1717,27 +1762,38 @@
       </div>
 
       <div class="header-actions">
+        <!-- Theme Switcher -->
+        <button class="icon-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
+          <i data-lucide="sun" id="theme-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Book Controls Toolbar (local editing only; hidden on the public site) -->
+    <div class="book-controls">
+      <div class="book-controls-group">
+        <!-- Export / Import Controls -->
+        <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="file-json"></i> Export</button>
+        <input type="file" id="json-file-input" accept=".json,application/json" style="display: none;">
+        <button class="btn-secondary" id="import-json-btn" title="Import Library from books.json"><i data-lucide="upload"></i> Import</button>
+
         <!-- Copy All Book Titles Button -->
         <button class="btn-secondary" id="copy-titles-btn" title="Copy all book titles nested by Volumes and Stages">
           <i data-lucide="copy"></i> Copy Titles
         </button>
 
-        <!-- Import / Export Controls -->
-        <input type="file" id="json-file-input" accept=".json,application/json" style="display: none;">
+        <!-- Check for Updates (compares on-disk books.json) -->
         <input type="file" id="books-check-file-input" accept=".json,application/json" style="display: none;">
-        <button class="btn-secondary" id="import-json-btn" title="Import Library from books.json"><i data-lucide="upload"></i> Import JSON</button>
-        <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="file-json"></i> Export JSON</button>
         <button class="btn-secondary" id="check-newer-btn" title="Check if books.json on disk is newer than this copy"><i data-lucide="refresh-cw"></i> Check for Updates</button>
+
+        <!-- Destructive action: keep last in the group -->
         <button class="btn-secondary" id="reset-btn" title="Reset to Sample Library"><i data-lucide="rotate-ccw"></i> Reset</button>
-        
-        <!-- Theme Switcher -->
-        <button class="icon-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
-          <i data-lucide="sun" id="theme-icon"></i>
-        </button>
-        
+      </div>
+
+      <div class="book-controls-group">
         <button class="btn-primary" id="add-book-btn"><i data-lucide="plus"></i> Add Book</button>
       </div>
-    </header>
+    </div>
 
     <!-- Export Reminder Banner -->
     <div class="export-reminder" id="export-reminder">
