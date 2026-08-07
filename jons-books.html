@@ -1656,10 +1656,12 @@
        editing controls. The owner still edits locally (file:// or localhost). */
     body.view-only #import-json-btn,
     body.view-only #export-json-btn,
+    body.view-only #check-newer-btn,
     body.view-only #reset-btn,
     body.view-only #copy-titles-btn,
     body.view-only #add-book-btn,
     body.view-only #export-reminder,
+    body.view-only #books-newer-reminder,
     body.view-only .section-action-btns,
     body.view-only .card-reorder-toolbar,
     body.view-only .engine-unassign-btn,
@@ -1711,8 +1713,10 @@
 
         <!-- Import / Export Controls -->
         <input type="file" id="json-file-input" accept=".json,application/json" style="display: none;">
+        <input type="file" id="books-check-file-input" accept=".json,application/json" style="display: none;">
         <button class="btn-secondary" id="import-json-btn" title="Import Library from books.json"><i data-lucide="upload"></i> Import JSON</button>
         <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="file-json"></i> Export JSON</button>
+        <button class="btn-secondary" id="check-newer-btn" title="Check if books.json on disk is newer than this copy"><i data-lucide="refresh-cw"></i> Check for Updates</button>
         <button class="btn-secondary" id="reset-btn" title="Reset to Sample Library"><i data-lucide="rotate-ccw"></i> Reset</button>
         
         <!-- Theme Switcher -->
@@ -1732,6 +1736,17 @@
       </div>
       <button class="btn-export-now" id="export-reminder-btn" title="Export Catalog to JSON">
         <i data-lucide="file-down"></i> Export Now
+      </button>
+    </div>
+
+    <!-- Newer books.json Reminder Banner -->
+    <div class="export-reminder" id="books-newer-reminder">
+      <div class="export-reminder-text">
+        <i data-lucide="refresh-cw"></i>
+        <span id="books-newer-message">books.json is newer than your local copy — it may have been edited elsewhere. Import it to update?</span>
+      </div>
+      <button class="btn-export-now" id="books-newer-import-btn" title="Import the newer books.json">
+        <i data-lucide="file-json"></i> Import Now
       </button>
     </div>
 
@@ -4005,6 +4020,193 @@
 
     document.getElementById('export-reminder-btn').addEventListener('click', exportJson);
 
+    // Newer books.json Reminder — on local HTTP use, books.json on disk can be
+    // newer than the browser copy (edited elsewhere, git pull, another machine).
+    // Surface an "Import Now" banner so the user can pick up the newer catalog.
+    function hasUnexportedChanges() {
+      const lastModified = localStorage.getItem(LAST_MODIFIED_KEY);
+      const lastExported = localStorage.getItem(LAST_EXPORTED_KEY);
+      return !!(lastModified && (!lastExported || new Date(lastModified) > new Date(lastExported)));
+    }
+
+    // Shared import pipeline: applies a parsed books.json array to the app.
+    // Used by both the manual file picker and the "newer books.json" reminder.
+    // With confirmOnUnexported, warns before replacing unexported local edits.
+    function importBooksArray(parsed, { confirmOnUnexported = false } = {}) {
+      if (!Array.isArray(parsed) || parsed.length === 0) {
+        throw new Error("Invalid books.json — expected a non-empty JSON array.");
+      }
+      if (confirmOnUnexported && hasUnexportedChanges()) {
+        const ok = confirm(
+          'You have local edits that were never exported to books.json.\n' +
+          'Importing will REPLACE them with the imported file.\n\n' +
+          'Click OK to overwrite your local edits, or Cancel to export them first.'
+        );
+        if (!ok) return false;
+      }
+      books = parsed.map(normalizeBook); // ids are preserved from the file.
+      saveBooksToStorage(books);
+      // After importing books.json, the library matches an exported file — no reminder.
+      localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
+      updateExportReminder();
+      renderBooks();
+      return true;
+    }
+
+    // --- "Newer books.json" check (HTTP + file://) ---
+    // HTTP (localhost): compare the Last-Modified header against the sync anchor.
+    // file://: the browser blocks silent file reads, so we use the File System
+    // Access API — pick books.json once (persisted handle in IndexedDB), then
+    // re-read it automatically on every open. The "Check for Updates" button
+    // enables this on the first pick and re-checks on demand; on browsers
+    // without showOpenFilePicker (Safari/Firefox) it falls back to a manual
+    // file picker (no persistence, so it stays manual there).
+
+    // books.json file-handle persistence — same IndexedDB kv store as covers.
+    const BOOKS_FILE_HANDLE_KEY = 'booksJsonFileHandle';
+
+    async function loadBooksFileHandle() {
+      try {
+        const db = await openCoverDirDb();
+        return await new Promise((resolve, reject) => {
+          const get = db.transaction(COVER_DIR_STORE, 'readonly').objectStore(COVER_DIR_STORE).get(BOOKS_FILE_HANDLE_KEY);
+          get.onsuccess = () => { db.close(); resolve(get.result || null); };
+          get.onerror = () => { db.close(); reject(get.error); };
+        });
+      } catch { return null; }
+    }
+
+    async function saveBooksFileHandle(handle) {
+      try {
+        const db = await openCoverDirDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(COVER_DIR_STORE, 'readwrite');
+          tx.objectStore(COVER_DIR_STORE).put(handle, BOOKS_FILE_HANDLE_KEY);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      } catch { /* best-effort; the picker will just appear next time */ }
+    }
+
+    // Compares a books.json mtime against the localStorage sync anchor and shows
+    // the Import Now banner when the file is newer. Returns true if shown.
+    function evaluateNewerThanAnchor(remoteTime, source) {
+      if (remoteTime == null) return false;
+      const anchor = localStorage.getItem(LAST_EXPORTED_KEY) || localStorage.getItem(LAST_MODIFIED_KEY);
+      if (!anchor) return false; // never synced — bootstrap sets this, so skip
+      // +1s slack: HTTP Last-Modified is second-granularity GMT.
+      const slack = source === 'http' ? 1000 : 0;
+      if (remoteTime <= Date.parse(anchor) + slack) return false;
+
+      const reminder = document.getElementById('books-newer-reminder');
+      if (reminder) reminder.classList.add('visible');
+      if (window.lucide) lucide.createIcons();
+      return true;
+    }
+
+    // Runs the freshness check. On file://, uses the persisted books.json handle
+    // (silently), or the picker when interactive and no handle is saved yet.
+    async function checkBooksJsonNewer({ interactive = false } = {}) {
+      if (isPublic) return false; // public site is view-only — localStorage unused
+
+      if (window.location.protocol === 'file:') {
+        let handle = await loadBooksFileHandle();
+        if (!handle && interactive && window.showOpenFilePicker) {
+          try {
+            const [picked] = await window.showOpenFilePicker({
+              types: [{ description: 'books.json', accept: { 'application/json': ['.json'] } }]
+            });
+            handle = picked;
+            saveBooksFileHandle(handle); // enable automatic checks on later opens
+          } catch (err) {
+            if (err && err.name === 'AbortError') return false; // user cancelled
+          }
+        }
+        if (!handle) return false;
+        try {
+          const file = await handle.getFile();
+          return evaluateNewerThanAnchor(file.lastModified, 'handle');
+        } catch (err) {
+          console.warn('[library] could not read books.json via saved handle:', err);
+          // Interactive click → let the user re-pick if the saved handle is stale.
+          if (interactive && window.showOpenFilePicker) {
+            try {
+              const [picked] = await window.showOpenFilePicker({
+                types: [{ description: 'books.json', accept: { 'application/json': ['.json'] } }]
+              });
+              saveBooksFileHandle(picked);
+              const file = await picked.getFile();
+              return evaluateNewerThanAnchor(file.lastModified, 'handle');
+            } catch (err2) {
+              if (err2 && err2.name === 'AbortError') return false;
+            }
+          }
+          return false;
+        }
+      }
+
+      // HTTP (localhost): fetch the Last-Modified header.
+      try {
+        const response = await fetch('books.json', { method: 'HEAD', cache: 'no-store' });
+        const lm = response.headers.get('Last-Modified');
+        const t = lm ? Date.parse(lm) : NaN;
+        return evaluateNewerThanAnchor(isNaN(t) ? null : t, 'http');
+      } catch (err) {
+        console.warn('[library] could not compare books.json freshness (offline?):', err);
+        return false;
+      }
+    }
+
+    // Reads books.json content wherever we are (HTTP fetch, or the persisted
+    // handle on file://) so the Import Now button works on both.
+    async function readBooksJsonData() {
+      if (window.location.protocol === 'file:') {
+        const handle = await loadBooksFileHandle();
+        if (!handle) return null;
+        const file = await handle.getFile();
+        return JSON.parse(await file.text());
+      }
+      const response = await fetch('books.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }
+
+    document.getElementById('books-newer-import-btn').addEventListener('click', async () => {
+      const reminder = document.getElementById('books-newer-reminder');
+      try {
+        const parsed = await readBooksJsonData();
+        if (!parsed) {
+          alert("Could not import books.json — pick it once via 'Check for Updates' first.");
+          return;
+        }
+        const imported = importBooksArray(parsed, { confirmOnUnexported: true });
+        if (imported && reminder) reminder.classList.remove('visible');
+      } catch (err) {
+        console.error('[library] import from books.json failed:', err);
+        alert("Could not import books.json.");
+      }
+    });
+
+    // "Check for Updates" button: enables the file:// handle on first pick and
+    // re-checks on demand. Browsers without showOpenFilePicker (Safari/Firefox)
+    // use a plain file picker — no handle persistence, manual only.
+    const checkNewerBtn = document.getElementById('check-newer-btn');
+    const booksCheckFileInput = document.getElementById('books-check-file-input');
+    checkNewerBtn.addEventListener('click', () => {
+      if (window.location.protocol === 'file:' && !window.showOpenFilePicker) {
+        booksCheckFileInput.click(); // universal fallback
+      } else {
+        checkBooksJsonNewer({ interactive: true });
+      }
+    });
+
+    booksCheckFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) evaluateNewerThanAnchor(file.lastModified, 'picked');
+      e.target.value = ''; // allow re-picking the same file later
+    });
+
     // Import from books.json (the committed source of truth) — restores localStorage.
     importJsonBtn.addEventListener('click', () => jsonFileInput.click());
 
@@ -4016,17 +4218,10 @@
       reader.onload = function(evt) {
         try {
           const parsed = JSON.parse(evt.target.result);
-          if (!Array.isArray(parsed) || parsed.length === 0) {
-            alert("Invalid books.json — expected a non-empty JSON array.");
-            return;
+          const imported = importBooksArray(parsed, { confirmOnUnexported: true });
+          if (imported) {
+            alert(`Successfully imported ${books.length} books! Data saved to LocalStorage.`);
           }
-          books = parsed.map(normalizeBook); // ids are preserved from the file.
-          saveBooksToStorage(books);
-          // After importing books.json, the library matches an exported file — no reminder.
-          localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
-          updateExportReminder();
-          renderBooks();
-          alert(`Successfully imported ${books.length} books! Data saved to LocalStorage.`);
         } catch (err) {
           console.error("Failed to parse JSON import:", err);
           alert("Could not read that file — it doesn't look like valid books.json.");
@@ -4064,7 +4259,10 @@
         books = await loadBooksFromStorage();
         renderBooks();
       }
-      if (!isPublic) updateExportReminder();
+      if (!isPublic) {
+        updateExportReminder();
+        checkBooksJsonNewer(); // fire-and-forget freshness check (HTTP or file:// handle)
+      }
     })();
   </script>
 </body>
