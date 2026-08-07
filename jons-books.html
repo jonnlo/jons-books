@@ -535,6 +535,44 @@
       color: var(--text-primary);
     }
 
+    /* Random-sort / Surprise buttons (match .filter-select look) */
+    .filter-btn {
+      flex: 0 0 auto;
+      height: 42px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .filter-btn:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+    .filter-btn:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+    .filter-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .filter-btn.active {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
+    }
+    .filter-btn[hidden] {
+      display: none !important; /* inline-flex above would override the hidden attribute */
+    }
+
     /* Tag filter chips (multi-select, OR) */
     .tag-filters {
       flex-basis: 100%;
@@ -1897,7 +1935,11 @@
         <option value="year-desc" selected>Year (Newest First)</option>
         <option value="year-asc">Year (Oldest First)</option>
         <option value="title-asc">Title (A-Z)</option>
+        <option value="random">Random</option>
       </select>
+
+      <button type="button" id="shuffle-btn" class="filter-btn" title="Reshuffle" aria-label="Reshuffle" hidden><i data-lucide="shuffle"></i></button>
+      <button type="button" id="surprise-btn" class="filter-btn" title="Open a random book from the current results" aria-label="Surprise me"><i data-lucide="dices"></i></button>
 
       <div class="view-toggle" role="group" aria-label="View mode">
         <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View" aria-pressed="true">
@@ -2541,11 +2583,16 @@
     const filterVolume = document.getElementById('filter-volume');
     const filterStatus = document.getElementById('filter-status');
     const sortSelect = document.getElementById('sort-select');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const surpriseBtn = document.getElementById('surprise-btn');
     const tagFilters = document.getElementById('tag-filters');
     const tagSuggestions = document.getElementById('tag-suggestions');
 
     // Active tag filter (multi-select, OR).
     let activeTags = new Set();
+
+    // Cached shuffled book-id order for Random sort (stable across renders).
+    let shuffledIds = null;
 
     // Header Stats
     const statTotal = document.getElementById('stat-total');
@@ -3190,11 +3237,20 @@
       if (!isPublic) initRoadmapSortables(); // Read-only on the public site.
     }
 
-    // Main Render Function
-    function renderBooks() {
-      updateVolumeFilterDropdown();
-      updateTagFilters();
+    // Fisher–Yates shuffle (in-place). Random sort uses this once per entry
+    // into Random mode; NEVER put Math.random() in a sort comparator.
+    function fisherYates(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
+    // Filter + sort the library into the order the current view should show.
+    // Extracted from renderBooks() so the Surprise button reuses the exact
+    // same filtered set the grid/roadmap is currently displaying.
+    function computeFilteredBooks() {
       const query = searchInput.value.toLowerCase().trim();
       const selectedVol = filterVolume.value;
       const selectedStatus = filterStatus.value;
@@ -3229,6 +3285,42 @@
         if (sortVal === 'title-asc') return a.title.localeCompare(b.title);
         return 0;
       });
+
+      // Random: stable shuffle — shuffle ONCE on entering Random mode, then
+      // keep that order across renders so search/tag/filter changes narrow it
+      // instead of reshuffling every keystroke. Books that start matching later
+      // (e.g. clearing a search) fall to the end. Leaving Random mode discards
+      // the cached order so re-entering gives a fresh shuffle.
+      if (sortVal === 'random') {
+        if (!shuffledIds) shuffledIds = fisherYates(filtered.map(b => b.id));
+        const pos = new Map(shuffledIds.map((id, i) => [id, i]));
+        filtered.sort((a, b) => (pos.get(a.id) ?? Infinity) - (pos.get(b.id) ?? Infinity));
+      } else {
+        shuffledIds = null;
+      }
+
+      return filtered;
+    }
+
+    // Main Render Function
+    function renderBooks() {
+      updateVolumeFilterDropdown();
+      updateTagFilters();
+
+      const sortVal = sortSelect.value;
+      const filtered = computeFilteredBooks();
+
+      // Random-sort / Surprise button state. The shuffle button is always
+      // available in the grid — clicking it enters Random mode (or reshuffles
+      // if already random); it's hidden in the roadmap, where Random is a
+      // no-op (regroups by Volume → Stage). Its active state + tooltip reflect
+      // whether Random is currently engaged.
+      const inRandom = sortVal === 'random';
+      shuffleBtn.hidden = currentView !== 'grid';
+      shuffleBtn.classList.toggle('active', inRandom);
+      shuffleBtn.title = inRandom ? 'Reshuffle' : 'Shuffle (Random order)';
+      shuffleBtn.setAttribute('aria-label', shuffleBtn.title);
+      surpriseBtn.disabled = filtered.length === 0;
 
       // Update Header Stats
       displayedCount.textContent = filtered.length;
@@ -4017,6 +4109,30 @@
 
     [searchInput, filterVolume, filterStatus, sortSelect].forEach(elem => {
       elem.addEventListener('input', renderBooks);
+    });
+
+    // Shuffle: auto-select Random in the sort dropdown, or reshuffle if already
+    // in Random mode — regenerate the cached order either way.
+    shuffleBtn.addEventListener('click', () => {
+      sortSelect.value = 'random';
+      shuffledIds = null;
+      renderBooks();
+    });
+
+    // Picking Random auto-switches to Grid so the shuffle is actually visible
+    // (Random is a no-op in the roadmap view).
+    sortSelect.addEventListener('change', () => {
+      if (sortSelect.value === 'random' && currentView !== 'grid') {
+        viewGridBtn.click();
+      }
+    });
+
+    // Surprise me: open a random book from the current filtered results.
+    surpriseBtn.addEventListener('click', () => {
+      const results = computeFilteredBooks();
+      if (!results.length) return;
+      const pick = results[Math.floor(Math.random() * results.length)];
+      openBookDetails(pick.id, surpriseBtn);
     });
 
     tagFilters.addEventListener('click', (e) => {
