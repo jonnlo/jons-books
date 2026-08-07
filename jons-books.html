@@ -1721,7 +1721,7 @@
     body.view-only .section-action-btns,
     body.view-only .card-reorder-toolbar,
     body.view-only .engine-unassign-btn,
-    body.view-only .roadmap-top-bar .btn-primary,
+    body.view-only .roadmap-top-bar,
     body.view-only .collapsed-stage-hint {
       display: none !important;
     }
@@ -3082,19 +3082,15 @@
 
       const sortedVolKeys = Array.from(volumeMap.keys()).sort((a, b) => a - b);
 
-      const roadmapHeaderLabel = isPublic
-        ? 'Roadmap View'
-        : 'Roadmap View (Drag & Drop Books Across Stages & Volumes)';
-      const roadmapAddVolumeBtn = isPublic
-        ? ''
-        : '<button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>';
-
+      // The roadmap top bar is editor-only — the whole bar is hidden on the
+      // public site via `body.view-only .roadmap-top-bar` (view-only CSS block),
+      // so there's no read-only variant to render here.
       let html = `
         <div class="roadmap-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">
-            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> ${roadmapHeaderLabel}
+            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> Roadmap View (Drag & Drop Books Across Stages & Volumes)
           </span>
-          ${roadmapAddVolumeBtn}
+          <button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>
         </div>
       `;
 
