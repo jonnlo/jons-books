@@ -2441,9 +2441,18 @@
       }
     }
 
-    function renderCoverHtml(coverUrl, title, author, imgClass = 'cover-img') {
+    // Per-book cover version for cache-busting covers/<id>.jpg. The cover URL
+    // never changes across edits (it's keyed by the book id), so after the file
+    // is re-written the browser would otherwise keep serving the stale cached
+    // bytes. Bumped in writeCoverBlob when the new file lands in covers/;
+    // renderCoverHtml appends ?v=N so the grid re-fetches immediately.
+    const coverVersions = new Map();
+
+    function renderCoverHtml(coverUrl, title, author, imgClass = 'cover-img', bookId) {
       if (coverUrl && coverUrl.trim() !== '') {
-        return `<img src="${escapeHtml(coverUrl)}" 
+        const version = bookId && coverVersions.get(bookId);
+        const src = version ? `${coverUrl}?v=${version}` : coverUrl;
+        return `<img src="${escapeHtml(src)}" 
                      alt="${escapeHtml(title)}" 
                      class="${imgClass}" 
                      loading="lazy" 
@@ -2558,6 +2567,9 @@
           const writable = await fileHandle.createWritable();
           await writable.write(blob);
           await writable.close();
+          // New bytes are on disk at covers/<id>.jpg — bump the version so the
+          // next render's src (covers/<id>.jpg?v=N) bypasses the HTTP cache.
+          coverVersions.set(id, (coverVersions.get(id) || 0) + 1);
           return `covers/${fileName}`;
         } catch (err) {
           if (err && err.name === 'AbortError') return null; // user cancelled the folder picker
@@ -2925,7 +2937,7 @@
         slotElem.innerHTML = `
           <div class="engine-book-container" onclick="openBookDetails('${book.id}', this)" title="Open Book Details" style="cursor: pointer;">
             <div class="engine-cover">
-              ${renderCoverHtml(book.cover, book.title, book.author, 'engine-cover-img')}
+              ${renderCoverHtml(book.cover, book.title, book.author, 'engine-cover-img', book.id)}
             </div>
             <div class="engine-book-info">
               <div class="engine-book-title" title="${escapeHtml(book.title)}">${renderTitleHtml(book.title)}</div>
@@ -2964,7 +2976,7 @@
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img')}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id)}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -3704,7 +3716,7 @@
       if (!book) return;
 
       // Cover (renders the CSS jacket fallback if the image fails).
-      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img');
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id);
 
       detailTitle.textContent = book.title;
       detailAuthor.textContent = book.author;
