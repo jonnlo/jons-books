@@ -1823,9 +1823,9 @@
     <div class="book-controls">
       <div class="book-controls-group">
         <!-- Export / Import Controls -->
-        <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="file-json"></i> Export</button>
+        <button class="btn-secondary" id="export-json-btn" title="Export Catalog to JSON (books.json)"><i data-lucide="upload"></i> Export</button>
         <input type="file" id="json-file-input" accept=".json,application/json" style="display: none;">
-        <button class="btn-secondary" id="import-json-btn" title="Import Library from books.json"><i data-lucide="upload"></i> Import</button>
+        <button class="btn-secondary" id="import-json-btn" title="Import Library from books.json"><i data-lucide="download"></i> Import</button>
 
         <!-- Copy All Book Titles Button -->
         <button class="btn-secondary" id="copy-titles-btn" title="Copy all book titles nested by Volumes and Stages">
@@ -1848,11 +1848,11 @@
     <!-- Export Reminder Banner -->
     <div class="export-reminder" id="export-reminder">
       <div class="export-reminder-text">
-        <i data-lucide="download"></i>
+        <i data-lucide="upload"></i>
         <span id="export-reminder-message" aria-live="polite"></span>
       </div>
       <button class="btn-export-now" id="export-reminder-btn" title="Export Catalog to JSON">
-        <i data-lucide="file-down"></i> Export Now
+        <i data-lucide="upload"></i> Export Now
       </button>
     </div>
 
@@ -1863,7 +1863,7 @@
         <span id="books-newer-message" aria-live="polite">books.json is newer than your local copy — it may have been edited elsewhere. Import it to update?</span>
       </div>
       <button class="btn-export-now" id="books-newer-import-btn" title="Import the newer books.json">
-        <i data-lucide="file-json"></i> Import Now
+        <i data-lucide="download"></i> Import Now
       </button>
     </div>
 
@@ -4298,7 +4298,8 @@
 
       exportSavedTimer = setTimeout(() => {
         reminder.classList.remove('success', 'visible');
-        if (icon) icon.setAttribute('data-lucide', 'download');
+        const liveIcon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+        if (liveIcon) liveIcon.setAttribute('data-lucide', 'upload');
         messageEl.textContent = '';
         if (btn) btn.style.display = '';
         if (window.lucide) lucide.createIcons();
@@ -4330,7 +4331,8 @@
 
       booksUpToDateTimer = setTimeout(() => {
         reminder.classList.remove('success', 'visible');
-        if (icon) icon.setAttribute('data-lucide', 'refresh-cw');
+        const liveIcon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+        if (liveIcon) liveIcon.setAttribute('data-lucide', 'refresh-cw');
         messageEl.textContent = original;
         if (btn) btn.style.display = '';
         if (window.lucide) lucide.createIcons();
@@ -4358,7 +4360,8 @@
 
       localAheadTimer = setTimeout(() => {
         reminder.classList.remove('visible');
-        if (icon) icon.setAttribute('data-lucide', 'refresh-cw');
+        const liveIcon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+        if (liveIcon) liveIcon.setAttribute('data-lucide', 'refresh-cw');
         messageEl.textContent = original;
         if (btn) btn.style.display = '';
         if (window.lucide) lucide.createIcons();
