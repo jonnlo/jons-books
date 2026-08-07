@@ -140,6 +140,35 @@ async function lookupByIsbn(isbn) {
   return pickHit(resultsOf(data), isbn);
 }
 
+// Normalize for a forgiving title comparison (keeps CJK, drops punctuation).
+function normTitle(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\u4e00-\u9fff]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+// Title (book-name) search. Prefer a hit whose title matches the queried
+// title (handles subtitles/colons) instead of blindly taking results[0];
+// returns null when nothing matches so the caller can fall back to ISBN.
+async function lookupByTitle(title) {
+  const data = await fetchGraphQL(SEARCH_QUERY, { q: title });
+  const results = resultsOf(data);
+  if (!results.length) return null;
+  const target = normTitle(title);
+  const match = results.find((r) => {
+    const t = normTitle(r.title);
+    if (!t) return false;
+    // Exact, or the hit title starts with the query (query had a subtitle), or
+    // the query contains the hit's full main title. Never accept a hit whose
+    // title merely CONTAINS the query mid-title — that would match e.g.
+    // "Hold Me Closer, Necromancer" for a book titled "Necromancer".
+    return t === target || t.startsWith(target) || (target.includes(t) && t.length >= 5);
+  });
+  return match || null;
+}
+
 // --- single lookup -------------------------------------------------------
 
 async function runSingle(isbn) {
@@ -176,12 +205,12 @@ async function runBackfill() {
 
     let hit = null;
     try {
-      if (book.isbn) {
+      // Title (book name) first, ISBN as fallback — ISBN-only misses (most of
+      // the no-summary list) get a second chance via a fuzzy title match.
+      hit = await lookupByTitle(book.title);
+      if (!hit && book.isbn) {
+        await sleep(THROTTLE_MS); // keep ~1 req/1.1s even with two lookups
         hit = await lookupByIsbn(book.isbn);
-      } else {
-        // No ISBN (~17 books, mostly Chinese Buddhist titles) — fuzzy title search.
-        const data = await fetchGraphQL(SEARCH_QUERY, { q: book.title });
-        hit = resultsOf(data)[0] || null;
       }
     } catch (e) {
       errored++;
