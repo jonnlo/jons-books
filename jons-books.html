@@ -3698,6 +3698,15 @@
       detailModal.style.animation = '';
       dismissing = false;
       detailModal.classList.add('active');
+      // Reflect the open book in the URL (#book=<id>) so the page is
+      // deep-linkable and Back/Forward toggle the modal. pushState adds a
+      // history entry without firing hashchange (so no recursion), and we skip
+      // the push when the hash already matches (re-clicking the same book, or
+      // opening from a deep link) to avoid stacking duplicate entries.
+      const bookHash = '#book=' + encodeURIComponent(id);
+      if (location.hash !== bookHash) {
+        history.pushState(null, '', bookHash);
+      }
       // The summary text is unmeasurable while the modal is display:none, so
       // re-evaluate the Read more toggle on the next frame (the ResizeObserver
       // below also covers later viewport/orientation changes).
@@ -3724,6 +3733,11 @@
     }
 
     function closeDetailModal() {
+      // Strip the book hash when closing via X / overlay / Escape / drag.
+      // replaceState (not back()) keeps the history entry count stable.
+      if (getBookIdFromHash()) {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
       detailModal.classList.remove('active');
       const appContainer = document.querySelector('.container');
       if (appContainer) appContainer.inert = false;
@@ -3743,6 +3757,25 @@
     // Escape closes the detail modal.
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && detailModal.classList.contains('active')) {
+        closeDetailModal();
+      }
+    });
+
+    // Parse the open-book id from the URL, e.g. "#book=1785948535767".
+    function getBookIdFromHash() {
+      const m = location.hash.match(/^#book=(.+)$/);
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+
+    // Back/Forward (and manual hash edits) open/close the detail modal to match
+    // the URL. The pushState/replaceState above don't fire hashchange, so this
+    // only runs on real navigation — and by then the browser has already set the
+    // hash, so openReadOnlyModal's push is skipped (no duplicate entry).
+    window.addEventListener('hashchange', () => {
+      const id = getBookIdFromHash();
+      if (id && books.find(b => b.id === id)) {
+        openReadOnlyModal(id);
+      } else if (detailModal.classList.contains('active')) {
         closeDetailModal();
       }
     });
@@ -4532,6 +4565,14 @@
       if (!loadedRemote) {
         books = await loadBooksFromStorage();
         renderBooks();
+      }
+      // Deep-link support: if the URL carries a #book=<id> hash, open that book's
+      // detail modal once the catalog is rendered. openReadOnlyModal skips the
+      // pushState because the hash already matches, so the browser's original
+      // history entry is preserved.
+      const deepLinkId = getBookIdFromHash();
+      if (deepLinkId && books.find(b => b.id === deepLinkId)) {
+        openReadOnlyModal(deepLinkId);
       }
       if (!isPublic) {
         updateExportReminder();
