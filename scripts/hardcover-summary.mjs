@@ -8,6 +8,7 @@
  * Usage:
  *   HARDCOVER_TOKEN=... node hardcover-summary.mjs <isbn>                 # single lookup
  *   HARDCOVER_TOKEN=... node hardcover-summary.mjs --backfill             # fill missing summaries in books.json
+ *   HARDCOVER_TOKEN=... node hardcover-summary.mjs --backfill --force     # re-fetch flat summaries (add paragraph breaks)
  *   HARDCOVER_TOKEN=... node hardcover-summary.mjs --backfill --dry-run   # report only, no write
  *
  * The token comes from the HARDCOVER_TOKEN env var — it is never read from
@@ -30,6 +31,7 @@ const MISSES_PATH = path.join(REPO_ROOT, 'scripts', 'hardcover-summary-misses.tx
 const args = process.argv.slice(2);
 const isBackfill = args.includes('--backfill');
 const isDryRun = args.includes('--dry-run');
+const isForce = args.includes('--force');
 const isbnArg = args.find((a) => !a.startsWith('--'));
 
 // Token resolution: HARDCOVER_TOKEN env first, else a gitignored local file
@@ -130,9 +132,28 @@ function pickHit(results, query) {
   return exact || asList(results)[0] || null;
 }
 
+// Normalize a raw description so paragraph breaks survive storage: hard-wrapped
+// lines within a paragraph (lone \n) merge into spaces, while blank-line
+// paragraph breaks are kept as \n\n. The read-only modal renders these via
+// white-space: pre-line, and the edit form's <textarea> shows them too.
 function clean(desc) {
   if (!desc) return '';
-  return String(desc).replace(/\s+/g, ' ').trim();
+  const lines = String(desc)
+    .replace(/\r\n?/g, '\n') // CRLF / CR -> LF
+    .split('\n')
+    .map((l) => l.replace(/[ \t]+/g, ' ').trim());
+  const paras = [];
+  let cur = [];
+  for (const line of lines) {
+    if (line) {
+      cur.push(line);
+    } else if (cur.length) {
+      paras.push(cur.join(' '));
+      cur = [];
+    }
+  }
+  if (cur.length) paras.push(cur.join(' '));
+  return paras.join('\n\n');
 }
 
 async function lookupByIsbn(isbn) {
@@ -197,7 +218,13 @@ async function runBackfill() {
     const book = books[i];
     const label = `[${i + 1}/${total}] ${book.title}`;
 
-    if (book.summary && book.summary.trim()) {
+    const hadSummary = !!(book.summary && book.summary.trim());
+    // Skip books that already have a summary — UNLESS --force is set and the
+    // stored summary is still a flat single line (written by the old clean()),
+    // in which case re-fetch it so paragraph breaks are restored. Summaries
+    // that already contain a newline are treated as manual/paragraph edits and
+    // always preserved.
+    if (hadSummary && !(isForce && !String(book.summary).includes('\n'))) {
       skipped++;
       console.log(`${label} — skip (already has summary)`);
       continue;
@@ -224,7 +251,12 @@ async function runBackfill() {
     if (desc) {
       book.summary = desc;
       fetched++;
-      console.log(`${label} — ✓ ${desc.length} chars`);
+      console.log(`${label} — ✓ ${desc.length} chars${hadSummary ? ' (reprocessed)' : ''}`);
+    } else if (hadSummary) {
+      // Re-fetch found no description — keep the existing summary rather than
+      // blanking a book that already had one.
+      skipped++;
+      console.log(`${label} — ⇢ kept existing summary (no description on re-fetch)`);
     } else {
       missed++;
       misses.push(`${book.title} — ${book.isbn || '(no isbn)'} — no description on Hardcover`);
@@ -235,7 +267,7 @@ async function runBackfill() {
   }
 
   console.log(
-    `\nResult: ${fetched} fetched, ${skipped} skipped, ${missed} no-description, ${errored} errored (of ${total}).`
+    `\nResult: ${fetched} written, ${skipped} skipped/kept, ${missed} no-description, ${errored} errored (of ${total}).`
   );
 
   if (misses.length) {
@@ -247,7 +279,7 @@ async function runBackfill() {
     const tmp = `${BOOKS_PATH}.tmp`;
     writeFileSync(tmp, JSON.stringify(books, null, 2) + '\n');
     renameSync(tmp, BOOKS_PATH);
-    console.log(`Wrote ${BOOKS_PATH} (${fetched} summaries added).`);
+    console.log(`Wrote ${BOOKS_PATH} (${fetched} summaries written).`);
   } else {
     console.log(isDryRun ? 'Dry run — books.json not modified.' : 'No changes to write.');
   }
@@ -260,6 +292,6 @@ if (isBackfill) {
 } else if (isbnArg) {
   await runSingle(isbnArg);
 } else {
-  console.error('usage: node hardcover-summary.mjs <isbn> | --backfill [--dry-run]');
+  console.error('usage: node hardcover-summary.mjs <isbn> | --backfill [--force] [--dry-run]');
   process.exit(1);
 }
