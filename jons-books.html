@@ -1754,7 +1754,7 @@
     <div class="export-reminder" id="books-newer-reminder">
       <div class="export-reminder-text">
         <i data-lucide="refresh-cw"></i>
-        <span id="books-newer-message">books.json is newer than your local copy — it may have been edited elsewhere. Import it to update?</span>
+        <span id="books-newer-message" aria-live="polite">books.json is newer than your local copy — it may have been edited elsewhere. Import it to update?</span>
       </div>
       <button class="btn-export-now" id="books-newer-import-btn" title="Import the newer books.json">
         <i data-lucide="file-json"></i> Import Now
@@ -4080,6 +4080,66 @@
       }, 2500);
     }
 
+    // Tracks whether the last freshness check actually compared a real mtime
+    // (vs. failing/offline/no handle) — lets the Check for Updates button give
+    // feedback only when it truly knows.
+    let lastBooksCheckCompared = false;
+
+    // Transient green "up to date" feedback when Check for Updates finds the
+    // on-disk books.json is NOT newer and the local copy has no unsaved edits.
+    let booksUpToDateTimer = null;
+    function showBooksUpToDateFeedback() {
+      const reminder = document.getElementById('books-newer-reminder');
+      const messageEl = document.getElementById('books-newer-message');
+      const btn = document.getElementById('books-newer-import-btn');
+      if (!reminder || !messageEl) return;
+      const icon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+      const original = messageEl.dataset.original || (messageEl.dataset.original = messageEl.textContent);
+
+      clearTimeout(booksUpToDateTimer);
+      reminder.classList.add('success', 'visible');
+      if (icon) icon.setAttribute('data-lucide', 'circle-check');
+      messageEl.textContent = 'books.json is up to date — no changes to import';
+      if (btn) btn.style.display = 'none';
+      if (window.lucide) lucide.createIcons();
+
+      booksUpToDateTimer = setTimeout(() => {
+        reminder.classList.remove('success', 'visible');
+        if (icon) icon.setAttribute('data-lucide', 'refresh-cw');
+        messageEl.textContent = original;
+        if (btn) btn.style.display = '';
+        if (window.lucide) lucide.createIcons();
+      }, 2500);
+    }
+
+    // Transient amber nudge when Check for Updates finds books.json is NOT
+    // newer but the local copy HAS unsaved edits (browser is ahead of the file)
+    // — the fix is Export JSON, not Import. Uses the default (non-success) style.
+    let localAheadTimer = null;
+    function showLocalAheadFeedback() {
+      const reminder = document.getElementById('books-newer-reminder');
+      const messageEl = document.getElementById('books-newer-message');
+      const btn = document.getElementById('books-newer-import-btn');
+      if (!reminder || !messageEl) return;
+      const icon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+      const original = messageEl.dataset.original || (messageEl.dataset.original = messageEl.textContent);
+
+      clearTimeout(localAheadTimer);
+      reminder.classList.add('visible'); // default amber style — NOT .success
+      if (icon) icon.setAttribute('data-lucide', 'upload');
+      messageEl.textContent = 'books.json is unchanged, but your local copy has unsaved edits — use Export JSON to save them.';
+      if (btn) btn.style.display = 'none';
+      if (window.lucide) lucide.createIcons();
+
+      localAheadTimer = setTimeout(() => {
+        reminder.classList.remove('visible');
+        if (icon) icon.setAttribute('data-lucide', 'refresh-cw');
+        messageEl.textContent = original;
+        if (btn) btn.style.display = '';
+        if (window.lucide) lucide.createIcons();
+      }, 3000);
+    }
+
     // Newer books.json Reminder — on local HTTP use, books.json on disk can be
     // newer than the browser copy (edited elsewhere, git pull, another machine).
     // Surface an "Import Now" banner so the user can pick up the newer catalog.
@@ -4164,6 +4224,8 @@
     // Compares a books.json mtime against the localStorage sync anchor and shows
     // the Import Now banner when the file is newer. Returns true if shown.
     function evaluateNewerThanAnchor(remoteTime, source) {
+      if (remoteTime == null) return false;
+      lastBooksCheckCompared = true; // got a real mtime to compare against
       if (!isNewerThanAnchor(remoteTime, source)) return false;
       const reminder = document.getElementById('books-newer-reminder');
       if (reminder) reminder.classList.add('visible');
@@ -4175,6 +4237,7 @@
     // (silently), or the picker when interactive and no handle is saved yet.
     async function checkBooksJsonNewer({ interactive = false } = {}) {
       if (isPublic) return false; // public site is view-only — localStorage unused
+      lastBooksCheckCompared = false; // fresh check — no "compared" state yet
 
       if (window.location.protocol === 'file:') {
         let handle = await loadBooksFileHandle();
@@ -4322,18 +4385,36 @@
     // use a plain file picker — no handle persistence, manual only.
     const checkNewerBtn = document.getElementById('check-newer-btn');
     const booksCheckFileInput = document.getElementById('books-check-file-input');
-    checkNewerBtn.addEventListener('click', () => {
+    checkNewerBtn.addEventListener('click', async () => {
       if (window.location.protocol === 'file:' && !window.showOpenFilePicker) {
-        booksCheckFileInput.click(); // universal fallback
-      } else {
-        checkBooksJsonNewer({ interactive: true });
+        booksCheckFileInput.click(); // universal fallback — feedback via change handler
+        return;
+      }
+      const shown = await checkBooksJsonNewer({ interactive: true });
+      // `shown` is true only when the Import Now banner was raised (file newer).
+      // Otherwise, if we compared a real mtime, tell the user directionally:
+      // unsaved local edits mean books.json is behind (→ export), else in sync.
+      if (!shown && lastBooksCheckCompared) {
+        if (hasUnexportedChanges()) {
+          showLocalAheadFeedback();
+        } else {
+          showBooksUpToDateFeedback();
+        }
       }
     });
 
     booksCheckFileInput.addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file) evaluateNewerThanAnchor(file.lastModified, 'picked');
+      if (!file) return;
+      const shown = evaluateNewerThanAnchor(file.lastModified, 'picked');
       e.target.value = ''; // allow re-picking the same file later
+      if (!shown) {
+        if (hasUnexportedChanges()) {
+          showLocalAheadFeedback();
+        } else {
+          showBooksUpToDateFeedback();
+        }
+      }
     });
 
     // Import from books.json (the committed source of truth) — restores localStorage.
