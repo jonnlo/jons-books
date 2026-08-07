@@ -36,6 +36,7 @@
       --engine-2: #06b6d4;
       --engine-3: #f59e0b;
       --accent-color: #6366f1;
+      --success-color: #34d399;
     }
 
     [data-theme="light"] {
@@ -52,6 +53,7 @@
       --img-bg: hsl(200, 20%, 97%);
       --img-bg-hover: hsl(200, 21%, 94%);
       --accent-color: #4f46e5;
+      --success-color: #16a34a;
     }
 
     * {
@@ -620,6 +622,15 @@
 
     .export-reminder.visible {
       display: flex;
+    }
+
+    .export-reminder.success {
+      border-left-color: var(--success-color);
+    }
+
+    .export-reminder.success .export-reminder-text svg,
+    .export-reminder.success .export-reminder-text i {
+      color: var(--success-color);
     }
 
     .export-reminder-text {
@@ -1732,7 +1743,7 @@
     <div class="export-reminder" id="export-reminder">
       <div class="export-reminder-text">
         <i data-lucide="download"></i>
-        <span id="export-reminder-message"></span>
+        <span id="export-reminder-message" aria-live="polite"></span>
       </div>
       <button class="btn-export-now" id="export-reminder-btn" title="Export Catalog to JSON">
         <i data-lucide="file-down"></i> Export Now
@@ -3965,9 +3976,33 @@
     applyTheme(savedTheme);
 
     // JSON Import / Export Logic — books.json is the source of truth for the public site.
-    function exportJson() {
+    // Export writes straight to the on-disk books.json via a persisted File
+    // System Access handle when available (Chrome/Edge); otherwise it falls back
+    // to the classic download (Safari/Firefox, or when the write fails).
+    async function exportJson() {
       if (!books.length) return alert("Catalog is empty.");
-      const blob = new Blob([JSON.stringify(books, null, 2)], { type: "application/json" });
+      const json = JSON.stringify(books, null, 2);
+      const result = await writeBooksJsonFile(json);
+
+      if (result === 'written') {
+        // Anchor to the file's ACTUAL mtime (ms precision) so the newer-check
+        // (0ms slack for handles) can't briefly flag our own write.
+        try {
+          const handle = await loadBooksFileHandle();
+          const file = handle ? await handle.getFile() : null;
+          localStorage.setItem(LAST_EXPORTED_KEY, file ? new Date(file.lastModified).toISOString() : new Date().toISOString());
+        } catch {
+          localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
+        }
+        updateExportReminder();
+        showExportSavedFeedback();
+        return;
+      }
+
+      if (result === 'cancelled') return; // user declined the overwrite guard
+
+      // 'download' — classic path (no FS API, cancelled picker, or write failed).
+      const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.setAttribute("href", url);
@@ -4019,6 +4054,31 @@
     }
 
     document.getElementById('export-reminder-btn').addEventListener('click', exportJson);
+
+    // Transient success feedback after writing books.json straight to disk.
+    let exportSavedTimer = null;
+    function showExportSavedFeedback() {
+      const reminder = document.getElementById('export-reminder');
+      const messageEl = document.getElementById('export-reminder-message');
+      const btn = document.getElementById('export-reminder-btn');
+      if (!reminder || !messageEl) return;
+      const icon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+
+      clearTimeout(exportSavedTimer);
+      reminder.classList.add('success', 'visible');
+      if (icon) icon.setAttribute('data-lucide', 'circle-check');
+      messageEl.textContent = 'Saved to books.json ✓';
+      if (btn) btn.style.display = 'none';
+      if (window.lucide) lucide.createIcons();
+
+      exportSavedTimer = setTimeout(() => {
+        reminder.classList.remove('success', 'visible');
+        if (icon) icon.setAttribute('data-lucide', 'download');
+        messageEl.textContent = '';
+        if (btn) btn.style.display = '';
+        if (window.lucide) lucide.createIcons();
+      }, 2500);
+    }
 
     // Newer books.json Reminder — on local HTTP use, books.json on disk can be
     // newer than the browser copy (edited elsewhere, git pull, another machine).
@@ -4089,16 +4149,22 @@
       } catch { /* best-effort; the picker will just appear next time */ }
     }
 
-    // Compares a books.json mtime against the localStorage sync anchor and shows
-    // the Import Now banner when the file is newer. Returns true if shown.
-    function evaluateNewerThanAnchor(remoteTime, source) {
+    // Pure comparison: is a books.json mtime newer than the localStorage sync
+    // anchor? No DOM side effects — shared by the banner check and the export
+    // overwrite guard. Returns true when remoteTime is strictly newer.
+    function isNewerThanAnchor(remoteTime, source) {
       if (remoteTime == null) return false;
       const anchor = localStorage.getItem(LAST_EXPORTED_KEY) || localStorage.getItem(LAST_MODIFIED_KEY);
       if (!anchor) return false; // never synced — bootstrap sets this, so skip
       // +1s slack: HTTP Last-Modified is second-granularity GMT.
       const slack = source === 'http' ? 1000 : 0;
-      if (remoteTime <= Date.parse(anchor) + slack) return false;
+      return remoteTime > Date.parse(anchor) + slack;
+    }
 
+    // Compares a books.json mtime against the localStorage sync anchor and shows
+    // the Import Now banner when the file is newer. Returns true if shown.
+    function evaluateNewerThanAnchor(remoteTime, source) {
+      if (!isNewerThanAnchor(remoteTime, source)) return false;
       const reminder = document.getElementById('books-newer-reminder');
       if (reminder) reminder.classList.add('visible');
       if (window.lucide) lucide.createIcons();
@@ -4170,6 +4236,69 @@
       const response = await fetch('books.json', { cache: 'no-store' });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json();
+    }
+
+    // Hybrid export write: File System Access API writes straight into the
+    // books.json the user picks (persisted handle), else returns 'download' so
+    // exportJson can fall back to the classic save-download. Returns:
+    //   'written'   — wrote the file via the handle
+    //   'download'  — no FS API / user cancelled the picker / write failed
+    //   'cancelled' — user declined the overwrite guard (do nothing)
+    async function writeBooksJsonFile(data) {
+      if (!window.showOpenFilePicker) return 'download'; // Safari/Firefox
+
+      // Reuse the saved handle (from Check for Updates or a prior export) when
+      // its readwrite permission is still granted.
+      let handle = await loadBooksFileHandle();
+      if (handle) {
+        try {
+          const perm = await handle.queryPermission({ mode: 'readwrite' });
+          if (perm !== 'granted' && await handle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+            handle = null; // denied → pick again below
+          }
+        } catch { handle = null; }
+      }
+
+      if (!handle) {
+        try {
+          const [picked] = await window.showOpenFilePicker({
+            types: [{ description: 'books.json', accept: { 'application/json': ['.json'] } }],
+            mode: 'readwrite'
+          });
+          handle = picked;
+          saveBooksFileHandle(handle); // remember for next time
+        } catch (err) {
+          if (err && err.name === 'AbortError') return 'download'; // user cancelled the picker
+          return 'download';
+        }
+      }
+
+      // Overwrite guard: if the on-disk file is newer than our sync anchor it
+      // was edited elsewhere — warn before clobbering those changes.
+      try {
+        const file = await handle.getFile();
+        if (isNewerThanAnchor(file.lastModified, 'handle')) {
+          const timeLabel = formatTimestamp(new Date(file.lastModified).toISOString()) || 'recently';
+          const ok = confirm(
+            `books.json on disk was modified ${timeLabel} — after your last export.\n` +
+            'Exporting will overwrite those changes.\n\n' +
+            'Click OK to overwrite, or Cancel to keep the on-disk file.'
+          );
+          if (!ok) return 'cancelled';
+        }
+      } catch (err) {
+        console.warn('[library] could not read on-disk books.json for the overwrite check:', err);
+      }
+
+      try {
+        const writable = await handle.createWritable();
+        await writable.write(data);
+        await writable.close();
+        return 'written';
+      } catch (err) {
+        console.warn('[library] could not write books.json via handle, falling back to download:', err);
+        return 'download';
+      }
     }
 
     document.getElementById('books-newer-import-btn').addEventListener('click', async () => {
