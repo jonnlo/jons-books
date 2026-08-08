@@ -334,7 +334,7 @@
     "year": "",
     "status": "",
     "engine": "None",
-    "cover": "",
+    "cover": "covers/17857553895552nmwi.jpg",
     "notes": "",
     "summary": "",
     "isbn": "",
@@ -444,7 +444,7 @@
     "year": "",
     "status": "",
     "engine": "None",
-    "cover": "",
+    "cover": "covers/1785755389555amvkd.jpg",
     "notes": "",
     "summary": "",
     "isbn": "",
@@ -3991,6 +3991,27 @@
     ]
   },
   {
+    "id": "1786196514413c0utx",
+    "title": "Strangers: A Memoir of Marriage",
+    "author": "Belle Burden",
+    "volumeNumber": 6,
+    "volumeName": "Literature & Poetry",
+    "stageNumber": 8,
+    "stageName": "Memoir, Essays, and Storytelling",
+    "readingOrder": 12,
+    "year": "2026",
+    "status": "",
+    "engine": "None",
+    "cover": "covers/1786196514413c0utx.jpg",
+    "notes": "",
+    "summary": "A memoir about the sudden, unexplained end of a twenty-year marriage. In early 2020, Belle Burden's husband abruptly announced he was leaving, with no prior warning or discussion. Burden revisits their life together searching for clues she may have missed, while reckoning with her own family history and societal expectations of how women should respond to betrayal. The book traces her transformation from a quiet, compliant woman into someone determined to reclaim her voice and rebuild her life.",
+    "isbn": "9780593733318",
+    "tags": [
+      "memoir",
+      "relationships"
+    ]
+  },
+  {
     "id": "1785755389555k3be6",
     "title": "Stories of Your Life and Others",
     "author": "Ted Chiang",
@@ -4407,6 +4428,27 @@
     "tags": [
       "history",
       "science"
+    ]
+  },
+  {
+    "id": "1786196157399ibwcl",
+    "title": "Maintenance of Everything: Part One",
+    "author": "Stewart Brand",
+    "volumeNumber": 7,
+    "volumeName": "The World",
+    "stageNumber": 3,
+    "stageName": "Civilization & Systems",
+    "readingOrder": 5,
+    "year": "2025",
+    "status": "",
+    "engine": "None",
+    "cover": "covers/1786196157399ibwcl.jpg",
+    "notes": "",
+    "summary": "The first in a multi-volume work, Maintenance of Everything: Part One offers a comprehensive overview of the civilizational importance of maintenance. The book explores the insights that can be gleaned from the maintenance of sailboats, vehicles, and weapons, with absorbing detours into the evolution of precision in manufacturing, the enduring importance of manuals, sustainment in the military, and the never-ending battle against corrosion.\n\nMaintenance of Everything is a wide-ranging and provocative call to expand what we mean by “maintenance.” It invites us to understand not only the profound impact maintenance has on our daily lives but also why taking responsibility for maintaining something—whether a motorcycle, a monument, or our planet—can be a radical act.",
+    "isbn": "9781953953513",
+    "tags": [
+      "technology",
+      "society"
     ]
   },
   {
