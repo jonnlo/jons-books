@@ -1076,6 +1076,12 @@
       align-items: center;
       gap: 6px;
     }
+    /* display:inline-flex above would override the hidden attribute — the
+       "Remove" button must stay hidden until a cover exists (same gotcha as
+       .tag-filters[hidden]/.form-group[hidden]). */
+    .cover-upload-actions .btn-secondary[hidden] {
+      display: none !important;
+    }
     .cover-upload-hint {
       margin: 0;
       font-size: 0.75rem;
