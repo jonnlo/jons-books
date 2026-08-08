@@ -4169,6 +4169,19 @@
       coverFileInput.value = '';
     }
 
+    // A drop can carry an image URL instead of file bytes (e.g. dragging a raw
+    // image from the browser's own image viewer). Fetch it and wrap it as a File.
+    async function fetchImageUrlAsFile(url) {
+      if (!/^https?:\/\//i.test(url)) throw new Error('Not an image URL');
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+      const blob = await res.blob();
+      const looksImage = blob.type.startsWith('image/') || /\.(jpe?g|png|gif|webp|avif|bmp)(\?|#|$)/i.test(url);
+      if (!looksImage) throw new Error('Not an image URL');
+      const name = (url.split('/').pop().split('?')[0].split('#')[0]) || 'cover.jpg';
+      return new File([blob], name, { type: blob.type || 'image/jpeg' });
+    }
+
     coverFileInput.addEventListener('change', () => {
       const file = coverFileInput.files && coverFileInput.files[0];
       if (file) handleCoverFile(file);
@@ -4200,12 +4213,29 @@
         dragDepth = Math.max(0, dragDepth - 1);
         if (dragDepth === 0) coverDropzone.classList.remove('dragging');
       });
-      coverDropzone.addEventListener('drop', (e) => {
+      coverDropzone.addEventListener('drop', async (e) => {
         e.preventDefault(); // stop the browser navigating to a dropped file
         dragDepth = 0;
         coverDropzone.classList.remove('dragging');
-        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) handleCoverFile(file);
+        const dt = e.dataTransfer;
+        if (!dt) return;
+        const file = dt.files && dt.files[0];
+        if (file && file.type.startsWith('image/')) {
+          handleCoverFile(file);
+          return;
+        }
+        // No file bytes → try an image URL dragged from another tab/page.
+        const url = (dt.getData('text/uri-list') || dt.getData('text/plain') || '').trim().split(/\r?\n/)[0];
+        if (!url || !/^https?:\/\//i.test(url)) return;
+        coverHint.textContent = 'Fetching image from URL…';
+        try {
+          handleCoverFile(await fetchImageUrlAsFile(url));
+        } catch (err) {
+          coverHint.textContent = /not an image/i.test(err.message)
+            ? 'That doesn\u2019t look like an image — download it and drop the file instead.'
+            : 'Couldn\u2019t fetch that image — download it and drop the file instead.';
+          console.warn('Cover URL drop failed:', url, err);
+        }
       });
     }
 
