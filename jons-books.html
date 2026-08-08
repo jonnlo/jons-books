@@ -1050,50 +1050,97 @@
       min-height: 80px;
     }
 
-    /* Cover upload (local editing) */
-    .cover-upload-row {
+    /* Cover upload (local editing): click-or-drop cover slot */
+    .cover-dropzone {
+      position: relative;
+      width: 140px;
+      height: 210px;
       display: flex;
-      gap: 12px;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      background: var(--bg-input);
+      color: var(--text-muted);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
     }
-    .cover-upload-preview {
-      width: 84px;
-      height: 126px;
+    .cover-dropzone:hover {
+      border-color: var(--accent-color);
+    }
+    .cover-dropzone:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+      border-color: var(--accent-color);
+    }
+    .cover-dropzone.dragging {
+      border-color: var(--accent-color);
+      background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
+    }
+    .cover-dropzone .cover-upload-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
+      border-radius: inherit;
       background: var(--img-bg);
-      flex: 0 0 auto;
     }
-    .cover-upload-actions {
+    .cover-dropzone-placeholder {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    .cover-upload-actions .btn-secondary {
-      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      padding: 8px;
+      font-size: 0.8rem;
+      line-height: 1.35;
     }
-    /* display:inline-flex above would override the hidden attribute — the
-       "Remove" button must stay hidden until a cover exists (same gotcha as
+    /* flex display above would override the hidden attribute — keep the
+       placeholder/remove badge off until a cover exists (same gotcha as
        .tag-filters[hidden]/.form-group[hidden]). */
-    .cover-upload-actions .btn-secondary[hidden] {
+    .cover-dropzone-placeholder[hidden] {
       display: none !important;
     }
+    .cover-remove-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    .cover-remove-btn:hover {
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+    .cover-remove-btn[hidden] {
+      display: none !important;
+    }
+    .cover-dropzone-placeholder svg {
+      width: 22px;
+      height: 22px;
+    }
+    .cover-remove-btn svg {
+      width: 14px;
+      height: 14px;
+    }
     .cover-upload-hint {
-      margin: 0;
+      margin: 6px 0 0;
       font-size: 0.75rem;
       color: var(--text-muted);
     }
     .cover-upload-hint code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-    @media (max-width: 480px) {
-      .cover-upload-row {
-        flex-direction: column;
-      }
     }
 
     .modal-footer {
@@ -2034,15 +2081,16 @@
 
           <div class="form-group full-width">
             <label for="book-cover-file">Cover Image</label>
-            <div class="cover-upload-row">
+            <div class="cover-dropzone" id="book-cover-dropzone" role="button" tabindex="0" aria-label="Upload cover image: click or drag a file here" title="Click or drag a cover image here">
               <img id="book-cover-preview" class="cover-upload-preview" alt="Cover preview" hidden>
-              <div class="cover-upload-actions">
-                <button type="button" class="btn-secondary" id="book-cover-pick-btn"><i data-lucide="image" style="width: 14px; height: 14px;"></i> Choose image…</button>
-                <button type="button" class="btn-secondary" id="book-cover-clear-btn" hidden>Remove</button>
-                <input type="file" id="book-cover-file" accept="image/*" hidden>
-                <p class="cover-upload-hint" id="book-cover-hint">Saved to <code>covers/</code> in this repo.</p>
-              </div>
+              <span class="cover-dropzone-placeholder" id="cover-dropzone-placeholder" aria-hidden="true">
+                <i data-lucide="image" aria-hidden="true"></i>
+                <span class="cover-dropzone-text">Drop cover here or click to browse</span>
+              </span>
+              <button type="button" class="cover-remove-btn" id="book-cover-clear-btn" title="Remove cover" aria-label="Remove cover" hidden><i data-lucide="x" aria-hidden="true"></i></button>
+              <input type="file" id="book-cover-file" accept="image/*" hidden>
             </div>
+            <p class="cover-upload-hint" id="book-cover-hint">Saved to <code>covers/</code> in this repo.</p>
             <!-- Hidden field keeps inputCover.value as the saved cover path (covers/<id>.jpg). -->
             <input type="hidden" id="book-cover-input">
           </div>
@@ -2648,9 +2696,10 @@
     const inputEngine = document.getElementById('book-engine-input');
     const inputCover = document.getElementById('book-cover-input');
     const coverFileInput = document.getElementById('book-cover-file');
-    const coverPickBtn = document.getElementById('book-cover-pick-btn');
+    const coverDropzone = document.getElementById('book-cover-dropzone');
     const coverClearBtn = document.getElementById('book-cover-clear-btn');
     const coverPreview = document.getElementById('book-cover-preview');
+    const coverPlaceholder = document.getElementById('cover-dropzone-placeholder');
     const coverHint = document.getElementById('book-cover-hint');
     let pendingCoverBlob = null; // downscaled cover chosen but not yet saved
 
@@ -2658,6 +2707,7 @@
       pendingCoverBlob = null;
       coverPreview.hidden = true;
       coverPreview.removeAttribute('src');
+      coverPlaceholder.hidden = false;
       coverClearBtn.hidden = true;
       coverFileInput.value = '';
       coverHint.textContent = 'Saved to covers/ in this repo.';
@@ -3654,6 +3704,7 @@
       if (book.cover) {
         coverPreview.src = book.cover;
         coverPreview.hidden = false;
+        coverPlaceholder.hidden = true;
         coverClearBtn.hidden = false;
       }
       inputIsbn.value = book.isbn;
@@ -4050,6 +4101,7 @@
         pendingCoverBlob = null;
         coverPreview.hidden = true;
         coverPreview.removeAttribute('src');
+        coverPlaceholder.hidden = false;
         coverClearBtn.hidden = true;
         coverFileInput.value = '';
       }
@@ -4098,17 +4150,15 @@
     // Event Listeners
     addBookBtn.addEventListener('click', openAddModal);
 
-    // Cover upload: pick → downscale → preview (the blob is written to covers/ on submit).
-    coverPickBtn.addEventListener('click', () => coverFileInput.click());
-    coverFileInput.addEventListener('change', async () => {
-      const file = coverFileInput.files && coverFileInput.files[0];
-      if (!file) return;
+    // Cover upload: pick or drop → downscale → preview (the blob is written to covers/ on submit).
+    async function handleCoverFile(file) {
       try {
         const blob = await processCoverImage(file);
         pendingCoverBlob = blob;
         if (coverPreview.src && coverPreview.src.startsWith('blob:')) URL.revokeObjectURL(coverPreview.src);
         coverPreview.src = URL.createObjectURL(blob);
         coverPreview.hidden = false;
+        coverPlaceholder.hidden = true;
         coverClearBtn.hidden = false;
         coverHint.textContent = window.showDirectoryPicker
           ? 'On save, pick the covers/ folder once — it will be remembered for future saves.'
@@ -4117,8 +4167,51 @@
         alert(err.message || 'Could not process that image.');
       }
       coverFileInput.value = '';
+    }
+
+    coverFileInput.addEventListener('change', () => {
+      const file = coverFileInput.files && coverFileInput.files[0];
+      if (file) handleCoverFile(file);
     });
-    coverClearBtn.addEventListener('click', () => {
+
+    // The whole cover slot is the click/keyboard target for browsing.
+    coverDropzone.addEventListener('click', () => coverFileInput.click());
+    coverDropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        coverFileInput.click();
+      }
+    });
+
+    // Drag & drop is an enhancement — click/keyboard above stay the universal path.
+    if (window.DragEvent && window.DataTransfer) {
+      let dragDepth = 0; // counter: children fire dragenter/leave, avoid flicker
+      coverDropzone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragDepth++;
+        coverDropzone.classList.add('dragging');
+      });
+      coverDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      });
+      coverDropzone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (dragDepth === 0) coverDropzone.classList.remove('dragging');
+      });
+      coverDropzone.addEventListener('drop', (e) => {
+        e.preventDefault(); // stop the browser navigating to a dropped file
+        dragDepth = 0;
+        coverDropzone.classList.remove('dragging');
+        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) handleCoverFile(file);
+      });
+    }
+
+    // Remove badge (stopPropagation so it doesn't trigger the dropzone click→picker).
+    coverClearBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       resetCoverUploadState();
       inputCover.value = ''; // save as "no cover"
     });
