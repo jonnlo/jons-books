@@ -3493,6 +3493,7 @@
       modalTitle.textContent = "Add New Volume & Book";
       inputId.value = "";
       bookForm.reset();
+      resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
 
       populateVolumeDropdown('__new__');
       inputNewVolName.value = `Volume ${newVolNum}`;
@@ -3568,6 +3569,7 @@
       modalTitle.textContent = `Add Stage to ${volName}`;
       inputId.value = "";
       bookForm.reset();
+      resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
 
       populateVolumeDropdown(volNum);
       populateStageDropdown(volNum, '__new__');
@@ -3587,6 +3589,7 @@
       modalTitle.textContent = `Add Book to Stage ${stageNum}: ${stageName}`;
       inputId.value = "";
       bookForm.reset();
+      resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
 
       populateVolumeDropdown(volNum);
       populateStageDropdown(volNum, stageNum);
