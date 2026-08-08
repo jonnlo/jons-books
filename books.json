@@ -1,5 +1,27 @@
 [
   {
+    "id": "1786189407293",
+    "title": "Stoner",
+    "author": "John Williams",
+    "volumeNumber": 6,
+    "volumeName": "Literature & Poetry",
+    "stageNumber": 1,
+    "stageName": "Ordinary Life, Quiet Loneliness, and Human Observation",
+    "readingOrder": 2,
+    "year": "1965",
+    "status": "",
+    "engine": "None",
+    "cover": "covers/1786189407293.jpg",
+    "notes": "",
+    "summary": "Discover an American masterpiece. This unassuming story about the life of a quiet English professor has earned the admiration of readers all over the globe.\n\n \n\nWilliam Stoner is born at the end of the nineteenth century into a dirt-poor Missouri farming family. Sent to the state university to study agronomy, he instead falls in love with English literature and embraces a scholar’s life, so different from the hardscrabble existence he has known. And yet as the years pass, Stoner encounters a succession of disappointments: marriage into a “proper” family estranges him from his parents; his career is stymied; his wife and daughter turn coldly away from him; a transforming experience of new love ends under threat of scandal. Driven ever deeper within himself, Stoner rediscovers the stoic silence of his forebears and confronts an essential solitude.\n\n \n\nJohn Williams’s luminous and deeply moving novel is a work of quiet perfection. William Stoner emerges from it not only as an archetypal American, but as an unlikely existential hero, standing, like a figure in a painting by Edward Hopper, in stark relief against an unforgiving world.",
+    "isbn": "9781590171998",
+    "tags": [
+      "fiction",
+      "work",
+      "relationships"
+    ]
+  },
+  {
     "id": "1786171495955",
     "title": "Tools for Conviviality",
     "author": "Ivan Illich",
@@ -1806,6 +1828,27 @@
     ]
   },
   {
+    "id": "1786147200000k3m9x",
+    "title": "How To Start: Discovering Your Life's Work",
+    "author": "Jodi Kantor",
+    "volumeNumber": 3,
+    "volumeName": "The Designer",
+    "stageNumber": 5,
+    "stageName": "Design, Work, and Career",
+    "readingOrder": 8,
+    "year": "2026",
+    "status": "",
+    "engine": "None",
+    "cover": "covers/1786147200000k3m9x.jpg",
+    "notes": "",
+    "summary": "With warmth, honesty, and inspired wisdom, Pulitzer Prize winning journalist Jodi Kantor expands on her triumphant Columbia University commencement address, tackling the question, \"How, in this environment, is anyone supposed to find and start their life's work?”\n\nJodi Kantor’s groundbreaking reporting has toppled media magnates, sparked reform worldwide, and foretold many of the unsettling changes we see in the workplace today. But before all of this, Kantor was kicked off her college newspaper. Society expects perfection, but Kantor knows those first professional steps are often rocky. She also knows that young people are facing new and frightening terrain, with political upheaval, skyrocketing costs of living, and the unknowns of AI.\n \nKantor casts aside platitudes and false hope to offer tangible help. Work is how we spend much of our time. It’s our engine of progress: how cancer therapies are invented, political campaigns won, thrilling art created and matched with an audience. Instead of letting cynicism take over, Kantor identifies two principles to help young people discover their life’s work: craft and need. By pairing the two, they can navigate tough, sensitive choices: how to think about money. How much risk to take on. When to buck what others are saying.\n \nPowerful and provocative, How to Start is a statement of faith for young people as they make their way through uncertain times, offering wisdom, strategy, and a set of aspirations to launch their careers and last their whole lives.",
+    "isbn": "9780316609555",
+    "tags": [
+      "work",
+      "self-help"
+    ]
+  },
+  {
     "id": "1785755389555gn46x",
     "title": "Make Time: How to Focus on What Matters Every Day",
     "author": "Jake Knapp & John Zeratsky",
@@ -3254,6 +3297,27 @@
     "tags": [
       "philosophy",
       "psychology"
+    ]
+  },
+  {
+    "id": "1786190400000b3e5t",
+    "title": "The Bee Sting",
+    "author": "Paul Murray",
+    "volumeNumber": 6,
+    "volumeName": "Literature & Poetry",
+    "stageNumber": 1,
+    "stageName": "Ordinary Life, Quiet Loneliness, and Human Observation",
+    "readingOrder": 11,
+    "year": "2023",
+    "status": "",
+    "engine": "None",
+    "cover": "covers/1786190400000b3e5t.jpg",
+    "notes": "",
+    "summary": "From the author of Skippy Dies comes Paul Murray's The Bee Sting, an irresistibly funny, wise, and thought-provoking tour de force about family, fortune, and the struggle to be a good person when the world is falling apart.\n\nThe Barnes family is in trouble. Dickie’s once-lucrative car business is going under―but Dickie is spending his days in the woods, building an apocalypse-proof bunker with a renegade handyman. His wife, Imelda, is selling off her jewelry on eBay and half-heartedly dodging the attention of fast-talking cattle farmer Big Mike, while their teenage daughter, Cass, formerly top of her class, seems determined to binge drink her way through her final exams. As for twelve-year-old PJ, he’s on the brink of running away.\n\nIf you wanted to change this story, how far back would you have to go? To the infamous bee sting that ruined Imelda’s wedding day? To the car crash one year before Cass was born? All the way back to Dickie at ten years old, standing in the summer garden with his father, learning how to be a real man?\n\nThe Bee Sting, Paul Murray’s exuberantly entertaining new novel, is a tour de force: a portrait of postcrash Ireland, a tragicomic family saga, and a dazzling story about the struggle to be good at the end of the world.",
+    "isbn": "9780374600310",
+    "tags": [
+      "fiction",
+      "relationships"
     ]
   },
   {
