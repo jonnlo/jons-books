@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="debug-html-bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Android Chrome/Edge/Samsung Internet — colors the browser chrome to match the theme -->
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f19">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <!-- iOS — only applies when added to the Home Screen (standalone mode) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>jon's books — modal debug</title>
+  <!-- Inter Font (variable, weights 400-800) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons (needed for the modal close x + jacket book icon) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-main: hsl(223, 39%, 7%);
+      --bg-surface: hsl(220, 42%, 13%);
+      --bg-card: #172136;
+      --bg-card-hover: #1e2c45;
+      --bg-input: #0f172a;
+      --border-color: #233148;
+      --border-accent: #3b82f6;
+      --text-primary: #f8fafc;
+      --text-secondary: hsl(215, 20%, 85%);
+      --text-muted: #64748b;
+      --img-bg: hsl(220, 42%, 13%);
+      --img-bg-hover: hsl(220, 42%, 33%);
+      --btn-secondary-bg: hsl(220, 42%, 18%);
+      --btn-secondary-bg-hover: hsl(220, 42%, 24%);
+      --engine-1: #3b82f6;
+      --engine-2: #06b6d4;
+      --engine-3: #f59e0b;
+      --accent-color: #6366f1;
+      --success-color: #34d399;
+    }
+
+    [data-theme="light"] {
+      --bg-main: #fff;
+      --bg-surface: hsl(200, 20%, 97%);
+      --bg-card: #f1f5f9;
+      --bg-card-hover: hsl(214, 32%, 91%);
+      --bg-input: #ffffff;
+      --border-color: #cbd5e1;
+      --border-accent: #3b82f6;
+      --text-primary: #0f172a;
+      --text-secondary: hsl(215, 8%, 45%);
+      --text-muted: #7e8fa7;
+      --img-bg: hsl(200, 20%, 97%);
+      --img-bg-hover: hsl(200, 21%, 94%);
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-bg-hover: hsl(214, 32%, 95%);
+      --accent-color: #4f46e5;
+      --success-color: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      /* Safe-area top keeps content clear of the status bar in iOS standalone mode */
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 24px;
+      line-height: 1.5;
+    }
+
+    /* Global Lucide icon defaults for buttons & button-styled controls. */
+    button svg,
+    .btn-secondary svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.5;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* Slim debug header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    /* ===== DEBUG-ONLY test levers (not part of the app; defaults match jons-books.html) =====
+       The toolbar + lever classes below exist purely to A/B the iOS Safari
+       "white status bar / URL bar" bug in isolation (no #safari-tint-shim). */
+    .debug-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      font-size: 0.78rem;
+    }
+
+    .debug-toolbar .dt-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .debug-toolbar .dt-label {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.66rem;
+    }
+
+    .debug-toolbar button {
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .debug-toolbar button:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .debug-toolbar button.on {
+      background: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    .debug-toolbar .dt-current {
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* Lever: html background fallback. Safari samples the html/body as the
+       FALLBACK chrome color when no fixed/sticky element qualifies at the edge;
+       a transparent root falls back to WHITE/BLACK. jons-books.html currently
+       has NO html bg rule (only body), so this is OFF by default. */
+    html.debug-html-bg {
+      background-color: var(--bg-main);
+    }
+
+    /* Lever: overlay geometry. Default (no class) = top:0 + width:100vw +
+       height:100dvh, matching main — the dvh box only spans the VISUAL
+       viewport, which sits below the status bar, so the overlay stops before
+       the chrome and Safari falls back to the root color (white if html is
+       transparent). The variants try to make the overlay itself reach the
+       physical edges:
+       - 100lvh: large viewport height (URL bar collapsed -> taller).
+       - inset 0: spans the layout viewport, which under viewport-fit=cover
+         extends into the safe areas (behind the status bar + home indicator).
+       - inset bleed: explicitly extends past the safe areas so it definitely
+         covers the status bar / bottom toolbar regions. */
+    .modal-overlay.overlay-h-lvh { height: 100lvh; }
+    .modal-overlay.overlay-inset {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: auto;
+      height: auto;
+    }
+    .modal-overlay.overlay-inset-bleed {
+      top: calc(-1 * env(safe-area-inset-top, 0px));
+      right: 0;
+      bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+      left: 0;
+      width: auto;
+      height: auto;
+    }
+    /* Devon Govett: absolute-backdrop fix — use position:absolute so the
+       backdrop is positioned relative to the page instead of the inner
+       viewport (fixed elements are clipped to the inner viewport on iOS).
+       When enabled the JS sets the overlay height to the document scrollHeight
+       so it always covers the full page. The overlay keeps NO backdrop-filter
+       (Safari 26's BOTTOM toolbar shows frosted-glass material when a blurred
+       element sits behind it) but DOES carry a VISIBLE accent tint by
+       default: the html root is also bg-main, so a bg-main-derived tint would
+       be invisible — the accent wash lets you SEE whether the overlay really
+       reaches behind the status bar (top) and bottom toolbar. The sticky
+       viewport below covers the middle with solid theme bg, so the only
+       places the accent tint can show are the strips above/below it = exactly
+       the chrome areas under test. Toggle the Overlay bg lever to 'solid' for
+       the real-world (opaque) look. */
+    .modal-overlay.absolute-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto; /* calculated via JS on open */
+      background-color: color-mix(in srgb, var(--accent-color) 35%, transparent);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    /* Lever 'solid' (opaque): beats the accent tint above (higher specificity
+       than .absolute-backdrop, order-independent). */
+    .modal-overlay.absolute-backdrop.overlay-bg-solid {
+      background-color: var(--bg-main);
+    }
+    /* The base .modal-overlay.active is display:flex + align-items:center,
+       which would center the sticky viewport at the DOCUMENT's vertical
+       midpoint once this overlay spans the full page. This later, higher-
+       specificity rule forces block flow so the sticky viewport's static
+       position is the document top and it pins to the viewport instead. */
+    .modal-overlay.absolute-backdrop.active {
+      display: block;
+    }
+    /* When using an absolute backdrop, the overlay's full document height
+       would center its flex children in the page's midpoint. Wrap the
+       .modal-content in a sticky viewport-sized container so the card stays
+       centered in the current visual viewport while the backdrop covers the
+       entire document. In 'tinted' mode the viewport is transparent so the
+       overlay's accent wash shows edge-to-edge — that's the diagnostic: does
+       the wash hug the status bar (top) and bottom toolbar (bottom)? In
+       'solid' mode (rule below) the viewport turns opaque theme bg, and since
+       Safari samples sticky elements at the TOP and BOTTOM edges, both bars
+       get tinted to the theme color (the v7 fix). */
+    .modal-overlay.absolute-backdrop .modal-viewport {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none; /* let the inner card receive pointer events */
+      background-color: transparent;
+    }
+    /* Lever 'solid': opaque sticky viewport — Safari samples this sticky
+       element at the top AND bottom edges, so a solid theme bg keeps both
+       bars tinted to the theme. */
+    .modal-overlay.absolute-backdrop.overlay-bg-solid .modal-viewport {
+      background-color: var(--bg-main);
+    }
+    .modal-overlay.absolute-backdrop .modal-viewport .modal-content {
+      pointer-events: auto;
+    }
+
+    /* Lever: solid opaque overlay (vs the default color-mix 80% + blur). */
+    .modal-overlay.overlay-bg-solid {
+      background-color: var(--bg-main);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    /* Lever: transparent fixed parent + absolute child (1ar.io rule #7 / the
+       top-bar fix). Safari reads background-color + backdrop-filter on the
+       FIXED element itself, and the default translucent color-mix + blur can
+       make it compute a wrong (white) tint for the status bar. Moving the
+       dim/blur to an absolute ::before child makes the fixed element
+       transparent to Safari, so it falls back to the root color — pair this
+       with "html bg ON". (Pseudo-elements/absolute children are NOT sampled.) */
+    .modal-overlay.overlay-glass-child {
+      background-color: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    .modal-overlay.overlay-glass-child::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: color-mix(in srgb, var(--bg-main) 80%, transparent);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+    /* Keep the card above the ::before dim layer (positioned > static). */
+    .modal-overlay.overlay-glass-child .modal-content {
+      position: relative;
+    }
+
+    /* Main Book Grid Layout */
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      column-gap: 28px;
+      row-gap: 16px;
+      width: 100%;
+    }
+
+    .book-card {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      background-color: var(--bg-main);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .book-card:active {
+      cursor: grabbing;
+    }
+
+    .book-card:hover {
+      border-color: var(--border-accent);
+    }
+
+    .book-card:hover .cover-container {
+      background-color: var(--img-bg-hover);
+    }
+
+    .book-card:hover .cover-img,
+    .book-card:hover .book-jacket {
+      transform: scale(1.05);
+    }
+
+    .cover-container {
+      border-radius: 12px;
+      width: 100%;
+      max-height: 340px;
+      aspect-ratio: 2 / 3;
+      background-color: var(--img-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .cover-img {
+      height: 80%;
+      width: 85%;
+      object-fit: contain;
+      border-radius: 0px;
+      transition: all 0.2s ease;
+    }
+
+    /* CSS Book Jacket Fallback Styles */
+    .book-jacket {
+      width: 80%;
+      height: 80%;
+      background: linear-gradient(145deg, var(--bg-card-hover) 0%, var(--bg-surface) 100%);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-color);
+      border-radius: 6px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      box-shadow: inset 3px 0 5px -2px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .jacket-header {
+      display: flex;
+      justify-content: center;
+      color: var(--accent-color);
+      opacity: 0.85;
+    }
+
+    .jacket-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin: auto 0;
+    }
+
+    .jacket-author {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .book-info {
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-height: 120px;
+    }
+
+    .book-vol-stage {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Hide the volume/stage meta row in grid view only (kept in roadmap view) */
+    .book-grid .book-vol-stage {
+      display: none;
+    }
+
+    .reading-order-number {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .book-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.28;
+      margin-bottom: 4px;
+    }
+
+    /* Subtitle / parenthetical tail of a title (inserted by renderTitleHtml). */
+    .title-sub {
+      color: color-mix(in srgb, var(--text-secondary) 60%, var(--text-muted));
+      font-weight: 500;
+    }
+
+    .book-author {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-width: 0;
+      flex: 0 0 auto;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-self: flex-start;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-main);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    /* ===== Modal Styling (verbatim from jons-books.html) =====
+       Hidden modals use display:none (not opacity:0) so they aren't painted and
+       can't be sampled by Safari's browser-UI tint detector. */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      background-color: color-mix(in srgb, var(--bg-main) 80%, transparent);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: modal-fade-in 0.2s ease-out;
+    }
+
+    @keyframes modal-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      --elevation: 10px;
+      --shadow-color: 220deg 20% 20%;
+      --shadow-opacity: 0.20;
+      --x: calc(var(--elevation) * 0.25);
+      --y: calc(var(--elevation) * 0.9);
+      --blur: calc(var(--elevation) * 1.6 + 6px);
+      --spread: calc(var(--elevation) * -0.15);
+      box-shadow: var(--x) var(--y) var(--blur) var(--spread) hsl(var(--shadow-color) / var(--shadow-opacity));
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+    }
+
+    /* Read-Only Book Details Modal (public / view-only) */
+    .book-detail-modal .modal-content {
+      max-width: 780px;
+      overscroll-behavior: contain;
+    }
+
+    /* The detail card rises up slightly as it appears. Transform only: the
+       overlay's own fade (modal-fade-in) already fades the dim + card. */
+    .book-detail-modal.active .modal-content {
+      animation: detail-rise-in 0.25s ease-out;
+    }
+
+    @keyframes detail-rise-in {
+      from { transform: translateY(24px); }
+      to { transform: translateY(0); }
+    }
+
+    /* Within the detail modal, the `hidden` attribute always wins (some
+       sections set their own display, e.g. flex/inline-flex). */
+    .book-detail-modal [hidden] {
+      display: none !important;
+    }
+
+    .book-detail-body {
+      display: flex;
+      gap: 24px;
+    }
+
+    .detail-cover {
+      width: 320px;
+      flex-shrink: 0;
+      aspect-ratio: 2 / 3;
+      background: var(--img-bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      align-self: flex-start;
+      overflow: hidden;
+      position: sticky;
+      top: 24px;
+    }
+
+    .detail-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .detail-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .detail-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      margin-bottom: 2px;
+    }
+
+    .detail-author {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .detail-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .engine-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-main);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .detail-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .detail-meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.85rem;
+    }
+
+    .detail-meta-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .detail-meta-value {
+      color: var(--text-primary);
+      overflow-wrap: anywhere;
+    }
+
+    .detail-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .detail-link {
+      text-decoration: none;
+    }
+
+    .detail-notes,
+    .detail-tags,
+    .detail-summary {
+      margin-bottom: 24px;
+    }
+
+    .detail-notes h4,
+    .detail-tags h4,
+    .detail-summary h4 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .detail-notes p,
+    .detail-summary p {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      white-space: pre-line;
+      line-height: 1.55;
+    }
+
+    #detail-summary-text.clamped {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      overflow: hidden;
+    }
+
+    .detail-summary-toggle {
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: 8px;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent-color);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .detail-summary-toggle:hover {
+      text-decoration: underline;
+    }
+
+    .book-detail-modal .modal-content :focus-visible {
+      outline: 2px solid var(--border-accent);
+      outline-offset: 2px;
+    }
+
+    /* Remove iPhone/touch focus outline for the modal close button only */
+    .book-detail-modal .modal-content .close-btn:focus,
+    .book-detail-modal .modal-content .close-btn:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
+    /* Tag chips on the read-only detail modal */
+    .detail-tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.875rem;
+      padding: 2px 10px;
+      border-radius: 18px;
+      min-height: 36px;
+      text-transform: capitalize;
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Read-only detail modal stacks on small screens */
+    @media (max-width: 600px) {
+      .book-detail-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .detail-cover {
+        width: 200px;
+        /* Override the desktop `align-self: flex-start` so the cover centers
+           once the body stacks into a column. Also drop the sticky pin. */
+        align-self: center;
+        position: static;
+      }
+
+      .detail-info {
+        width: 100%;
+      }
+
+      .detail-meta-row {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .book-detail-modal.active .modal-content {
+        animation: none;
+      }
+    }
+
+    /* ===== Native <dialog> variant (DEBUG) =====
+       1ar.io "known issues": Safari 26.2 FIXED fullscreen dialog backdrops not
+       extending below the address bar, so a real <dialog> + ::backdrop is a
+       strong candidate for the white-chrome bug. The dialog reuses the same
+       inner markup (ids prefixed d2-) and also carries the book-detail-modal
+       class so every .book-detail-modal ... descendant rule (card, [hidden],
+       focus, ≤600px stack) applies unchanged. */
+    dialog.book-detail-dialog {
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      width: min(90vw, 780px);
+      max-width: none;
+      max-height: 90vh;
+      overflow: visible;
+    }
+    dialog.book-detail-dialog::backdrop {
+      background-color: color-mix(in srgb, var(--bg-main) 80%, transparent);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+    /* Let the inner card (already .book-detail-modal .modal-content) fill the
+       dialog instead of being 90% of it. Placed after the base rule so the
+       later rule wins the specificity tie. */
+    dialog.book-detail-dialog .modal-content {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    /* Build badge so we can confirm the phone loaded the current build. */
+    .debug-toolbar .dt-version {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      opacity: 0.85;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <!-- DEBUG toolbar (not part of the app) — A/B levers for the Safari tint bug.
+       v8 default test: blurry overlay REACHES top+bottom bars — fixed backdrop,
+       inset-bleed geometry (bleeds into safe areas), tinted color-mix + blur,
+       html-bg fallback ON, scroll probe ON. -->
+  <div class="debug-toolbar" role="group" aria-label="Debug test levers">
+    <div class="dt-group">
+      <span class="dt-label">Theme</span>
+      <button type="button" id="lever-theme"><i data-lucide="moon"></i><span id="lever-theme-label">Dark</span></button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">html bg</span>
+      <button type="button" id="lever-htmlbg" class="on" title="html { background-color: var(--bg-main) } fallback for Safari chrome sampling">On</button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">Overlay size</span>
+      <button type="button" id="lever-size" title="cycles 100dvh → 100lvh → inset 0 → inset bleed">inset bleed</button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">Overlay bg</span>
+      <button type="button" id="lever-bg" title="cycles tinted (accent diag in absolute) → solid opaque">tinted</button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">Glass on child</span>
+      <button type="button" id="lever-glass" title="1ar.io top-bar fix: transparent fixed parent + blur on an absolute ::before child (Safari then falls back to the root color) — pair with html bg ON">off</button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">Modal impl</span>
+      <button type="button" id="lever-dialog" title="switch the detail modal between the div overlay and a native <dialog> + ::backdrop (Safari 26.2 fixed dialog backdrops)">div</button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">Backdrop mode</span>
+      <button type="button" id="lever-backdrop" title="toggle backdrop positioning: fixed (viewport) vs absolute (page-height)">fixed</button>
+    </div>
+    <div class="dt-group">
+      <span class="dt-label">Scroll probe</span>
+      <button type="button" id="lever-scroll" class="on" title="when on, scrolls to y=1px while a modal is open so Safari composites real pixels behind the top bar">on</button>
+    </div>
+    <span class="dt-current">Build 8 — blurry overlay reaches top+bottom: fixed + inset-bleed + tinted blur, html bg ON</span>
+    <span class="dt-version">v8</span>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div>
+          <h1>jon's books <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">— modal debug</span></h1>
+        </div>
+      </div>
+    </header>
+    <main id="book-grid" class="book-grid"></main>
+  </div>
+
+  <!-- Read-Only Book Details Modal (public / view-only) — markup verbatim from jons-books.html -->
+  <div class="modal-overlay book-detail-modal overlay-inset-bleed" id="book-detail-modal" role="dialog" aria-modal="true" aria-labelledby="book-detail-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="book-detail-title">Book Details</h2>
+        <button class="close-btn" id="close-detail-modal" aria-label="Close book details"><i data-lucide="x"></i></button>
+      </div>
+      <div class="book-detail-body">
+        <div class="detail-cover" id="detail-cover"></div>
+        <div class="detail-info">
+          <h3 class="detail-title" id="detail-title"></h3>
+          <p class="detail-author" id="detail-author"></p>
+          <div class="detail-pills">
+            <span class="status-pill" id="detail-status"></span>
+            <span class="engine-pill" id="detail-engine" hidden></span>
+          </div>
+          <div class="detail-meta">
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Volume</span>
+              <span class="detail-meta-value" id="detail-volume"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Stage</span>
+              <span class="detail-meta-value" id="detail-stage"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Reading Order</span>
+              <span class="detail-meta-value" id="detail-order"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Published</span>
+              <span class="detail-meta-value" id="detail-year"></span>
+            </div>
+            <div class="detail-meta-row" id="detail-isbn-row">
+              <span class="detail-meta-label">ISBN</span>
+              <span class="detail-meta-value" id="detail-isbn"></span>
+            </div>
+          </div>
+          <div class="detail-links" id="detail-links" hidden>
+            <a class="btn-secondary detail-link" id="detail-link-goodreads" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Goodreads</a>
+          </div>
+          <div class="detail-notes" id="detail-notes" hidden>
+            <h4>Notes</h4>
+            <p id="detail-notes-text"></p>
+          </div>
+          <div class="detail-tags" id="detail-tags" hidden>
+            <h4>Tags</h4>
+            <div class="detail-tags-list" id="detail-tags-list"></div>
+          </div>
+          <div class="detail-summary" id="detail-summary" hidden>
+            <h4>About this book</h4>
+            <p id="detail-summary-text" class="clamped"></p>
+            <button type="button" class="detail-summary-toggle" id="detail-summary-toggle" hidden aria-expanded="false">Read more</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Native <dialog> variant (DEBUG) — same detail fields, ids prefixed d2-.
+       Safari 26.2 fixed fullscreen dialog backdrops not extending below the
+       address bar, so this tests whether a real <dialog> + ::backdrop paints
+       behind the status bar and bottom toolbar. Toggle with "Modal impl". -->
+  <dialog id="book-detail-dialog" class="book-detail-dialog book-detail-modal active" aria-labelledby="d2-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="d2-title">Book Details</h2>
+        <button class="close-btn" id="d2-close" aria-label="Close book details"><i data-lucide="x"></i></button>
+      </div>
+      <div class="book-detail-body">
+        <div class="detail-cover" id="d2-cover"></div>
+        <div class="detail-info">
+          <h3 class="detail-title" id="d2-title-text"></h3>
+          <p class="detail-author" id="d2-author"></p>
+          <div class="detail-pills">
+            <span class="status-pill" id="d2-status"></span>
+            <span class="engine-pill" id="d2-engine" hidden></span>
+          </div>
+          <div class="detail-meta">
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Volume</span>
+              <span class="detail-meta-value" id="d2-volume"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Stage</span>
+              <span class="detail-meta-value" id="d2-stage"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Reading Order</span>
+              <span class="detail-meta-value" id="d2-order"></span>
+            </div>
+            <div class="detail-meta-row">
+              <span class="detail-meta-label">Published</span>
+              <span class="detail-meta-value" id="d2-year"></span>
+            </div>
+            <div class="detail-meta-row" id="d2-isbn-row">
+              <span class="detail-meta-label">ISBN</span>
+              <span class="detail-meta-value" id="d2-isbn"></span>
+            </div>
+          </div>
+          <div class="detail-links" id="d2-links" hidden>
+            <a class="btn-secondary detail-link" id="d2-link-goodreads" href="#" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Goodreads</a>
+          </div>
+          <div class="detail-notes" id="d2-notes" hidden>
+            <h4>Notes</h4>
+            <p id="d2-notes-text"></p>
+          </div>
+          <div class="detail-tags" id="d2-tags" hidden>
+            <h4>Tags</h4>
+            <div class="detail-tags-list" id="d2-tags-list"></div>
+          </div>
+          <div class="detail-summary" id="d2-summary" hidden>
+            <h4>About this book</h4>
+            <p id="d2-summary-text" class="clamped"></p>
+            <button type="button" class="detail-summary-toggle" id="d2-summary-toggle" hidden aria-expanded="false">Read more</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    'use strict';
+
+    // =====================================================================
+    // Static seed data — 10 real books from books.json, chosen to exercise
+    // every detail-modal section: covers + jacket fallback, summaries +
+    // empty-summary, status pills, all three engine colors, ISBN/no-ISBN,
+    // Chinese titles, and a personal note.
+    // =====================================================================
+    const books = [
+      {
+        id: '1785948535767',
+        title: 'Dungeon Crawler Carl',
+        author: 'Matt Dinniman',
+        volumeNumber: 6,
+        volumeName: 'Literature & Poetry',
+        stageNumber: 5,
+        stageName: 'Science Fiction, Time, and Alternative Human Possibilities',
+        readingOrder: 10,
+        year: '2020',
+        status: '',
+        engine: 'None',
+        cover: 'covers/1785948535767.jpg',
+        notes: '',
+        isbn: '',
+        tags: ['fiction', 'sci-fi'],
+        summary: `A man. His ex-girlfriend's cat. A sadistic game show unlike anything in the universe: a dungeon crawl where survival depends on killing your prey in the most entertaining way possible.
+
+In a flash, every human-erected construction on Earth—from Buckingham Palace to the tiniest of sheds—collapses in a heap, sinking into the ground.
+
+The buildings and all the people inside have all been atomized and transformed into the dungeon: an 18-level labyrinth filled with traps, monsters, and loot. A dungeon so enormous, it circles the entire globe.
+
+Only a few dare venture inside. But once you're in, you can't get out. And what's worse, each level has a time limit. You have but days to find a staircase to the next level down, or it's game over. In this game, it's not about your strength or your dexterity. It's about your followers, your views. Your clout. It's about building an audience and killing those goblins with style.
+
+You can't just survive here. You gotta survive big.
+
+You gotta fight with vigor, with excitement. You gotta make them stand up and cheer. And if you do have that "it" factor, you may just find yourself with a following. That's the only way to truly survive in this game—with the help of the loot boxes dropped upon you by the generous benefactors watching from across the galaxy.
+
+They call it Dungeon Crawler World. But for Carl, it's anything but a game.`
+      },
+      {
+        id: '1785948133744',
+        title: 'Doom Guy: Life in First Person: Building DOOM and a Gaming Revolution',
+        author: 'John Romero',
+        volumeNumber: 6,
+        volumeName: 'Literature & Poetry',
+        stageNumber: 7,
+        stageName: 'Creative Lives and Artists',
+        readingOrder: 8,
+        year: '2024',
+        status: '',
+        engine: 'None',
+        cover: 'covers/1785948133744.jpg',
+        notes: '',
+        isbn: '9781647005368',
+        tags: ['creativity', 'technology'],
+        summary: `The inspiring, long-awaited autobiography of video game designer and DOOM cocreator John Romero DOOM Guy: Life in First Person is the long-awaited autobiography of John Romero, gaming's original rock star and the cocreator of DOOM, Quake, and Wolfenstein—some of the most recognizable and important titles in video game history. Credited with the invention of the first-person shooter, a genre that continues dominate the market today, he is gaming royalty. Told in remarkable detail, a byproduct of his hyperthymesia, Romero recounts his storied career—from his early days submitting Apple II code to computer magazines and sneaking computers out of the back door of his day job to do programming projects at night in his garage to a high-profile falling out with his id Software cofounder John Carmack, as well as his continued role in the gaming industry today as the managing director of Romero Games Ltd. His story is truly one of a self-made man, founding multiple companies after a childhood filled with violence and abuse drove him to video game design where he could create new worlds and places to escape to. An alcoholic father, a racist grandfather who did not approve of Romero's parents' mixed-race coupling, and a grandmother who once ran a brothel in Mexico combine for an illuminating story his youth—a story that has never before been revealed. After years in the gaming spotlight, Romero is now telling his story—THE WHOLE STORY—in his own words.`
+      },
+      {
+        id: '1785840339946',
+        title: 'The Midnight Library',
+        author: 'Matt Haig',
+        volumeNumber: 6,
+        volumeName: 'Literature & Poetry',
+        stageNumber: 3,
+        stageName: 'Existential Literature',
+        readingOrder: 6,
+        year: '2020',
+        status: '',
+        engine: 'None',
+        cover: 'covers/1785840339946.jpg',
+        notes: '',
+        isbn: '9780525559498',
+        tags: ['fiction', 'philosophy', 'death'],
+        summary: `Somewhere out beyond the edge of the universe there is a library that contains an infinite number of books, each one the story of another reality. One tells the story of your life as it is, along with another book for the other life you could have lived if you had made a different choice at any point in your life. While we all wonder how our lives might have been, what if you had the chance to go to the library and see for yourself? Would any of these other lives truly be better?
+
+In The Midnight Library, Matt Haig's enchanting blockbuster novel, Nora Seed finds herself faced with this decision. Faced with the possibility of changing her life for a new one, following a different career, undoing old breakups, realizing her dreams of becoming a glaciologist; she must search within herself as she travels through the Midnight Library to decide what is truly fulfilling in life, and what makes it worth living in the first place.`
+      },
+      {
+        id: '1785755389555klhso',
+        title: 'Wherever You Go, There You Are: Mindfulness Meditation in Everyday Life',
+        author: 'Jon Kabat-Zinn',
+        volumeNumber: 1,
+        volumeName: 'The Contemplative',
+        stageNumber: 1,
+        stageName: 'Foundations',
+        readingOrder: 5,
+        year: '1994',
+        status: 'Reading',
+        engine: 'Engine 3: Exploration',
+        cover: 'covers/1785755389555klhso.jpg',
+        notes: '',
+        isbn: '9781401394677',
+        tags: ['buddhism', 'meditation'],
+        summary: `The time-honored national bestseller, updated with a new afterword, celebrating 10 years of influencing the way we live.When Wherever You Go, There You Are was first published in 1994, no one could have predicted that the book would launch itself onto bestseller lists nationwide and sell over 750,000 copies to date. Ten years later, the book continues to change lives. In honor of the book's 10th anniversary, Hyperion is proud to be releasing the book with a new afterword by the author, and to share this wonderful book with an even larger audience.`
+      },
+      {
+        id: '17857553895550agku',
+        title: 'How to Do Nothing: Resisting the Attention Economy',
+        author: 'Jenny Odell',
+        volumeNumber: 4,
+        volumeName: 'The Critic of Modernity',
+        stageNumber: 1,
+        stageName: 'Attention, Technology, and the Loss of Agency',
+        readingOrder: 1,
+        year: '2019',
+        status: 'Reading',
+        engine: 'Engine 1: Deep Focus',
+        cover: 'covers/17857553895550agku.jpg',
+        notes: 'The bioregion exercise from chapter 6 is a great prompt for a slow Sunday walk.',
+        isbn: '9781612197500',
+        tags: ['attention', 'technology'],
+        summary: `Nothing is harder to do these days than nothing. But in a world where our value is determined by our 24/7 data productivity . . . doing nothing may be our most important form of resistance.
+
+So argues artist and critic Jenny Odell in this field guide to doing nothing (at least as capitalism defines it). Odell sees our attention as the most precious—and overdrawn—resource we have. Once we can start paying a new kind of attention, she writes, we can undertake bolder forms of political action, reimagine humankind's role in the environment, and arrive at more meaningful understandings of happiness and progress.
+
+Far from the simple anti-technology screed, or the back-to-nature meditation we read so often, How to do Nothing is an action plan for thinking outside of capitalist narratives of efficiency and techno-determinism. Provocative, timely, and utterly persuasive, this book is a four-course meal in the age of Soylent.`
+      },
+      {
+        id: '17857553895558jjlt',
+        title: 'Klara and the Sun',
+        author: 'Kazuo Ishiguro',
+        volumeNumber: 6,
+        volumeName: 'Literature & Poetry',
+        stageNumber: 2,
+        stageName: 'Memory, Loss, and Identity',
+        readingOrder: 2,
+        year: '2021',
+        status: 'Reading',
+        engine: 'Engine 2: Complementary',
+        cover: 'covers/17857553895558jjlt.jpg',
+        notes: '',
+        isbn: '9780593318188',
+        tags: ['fiction', 'sci-fi'],
+        summary: `"Klara and the Sun, the first novel by Kazuo Ishiguro since he was awarded the Nobel Prize in Literature, tells the story of Klara, an Artificial Friend with outstanding observational qualities, who, from her place in the store, watches carefully the behavior of those who come in to browse, and of those who pass on the street outside. She remains hopeful that a customer will soon choose her.
+
+Klara and the Sun is a thrilling book that offers a look at our changing world through the eyes of an unforgettable narrator, and one that explores the fundamental question: what does it mean to love?
+
+In its award citation in 2017, the Nobel committee described Ishiguro's books as "novels of great emotional force" and said he has "uncovered the abyss beneath our illusory sense of connection with the world.""`
+      },
+      {
+        id: '1785755389555ld64x',
+        title: 'Project Hail Mary',
+        author: 'Andy Weir',
+        volumeNumber: 6,
+        volumeName: 'Literature & Poetry',
+        stageNumber: 5,
+        stageName: 'Science Fiction, Time, and Alternative Human Possibilities',
+        readingOrder: 6,
+        year: '2021',
+        status: 'Completed',
+        engine: 'None',
+        cover: 'covers/1785755389555ld64x.jpg',
+        notes: '',
+        isbn: '9798217299461',
+        tags: ['fiction', 'sci-fi'],
+        summary: `Ryland Grace is the sole survivor on a desperate, last-chance mission—and if he fails, humanity and the earth itself will perish.
+
+Except that right now, he doesn't know that. He can't even remember his own name, let alone the nature of his assignment or how to complete it.
+
+All he knows is that he's been asleep for a very, very long time. And he's just been awakened to find himself millions of miles from home, with nothing but two corpses for company.
+
+His crewmates dead, his memories fuzzily returning, Ryland realizes that an impossible task now confronts him. Hurtling through space on this tiny ship, it's up to him to puzzle out an impossible scientific mystery—and conquer an extinction-level threat to our species.
+
+And with the clock ticking down and the nearest human being light-years away, he's got to do it all alone.
+
+Or does he?`
+      },
+      {
+        id: '17857553895552nmwi',
+        title: '阿贊耀－鬆入式禪法',
+        author: '阿贊耀',
+        volumeNumber: 1,
+        volumeName: 'The Contemplative',
+        stageNumber: 2,
+        stageName: 'Meditation and Transformation',
+        readingOrder: 6,
+        year: '',
+        status: '',
+        engine: 'None',
+        cover: '', // empty cover → CSS jacket fallback
+        notes: '',
+        isbn: '',
+        tags: ['buddhism', 'meditation', 'chinese'],
+        summary: ''
+      },
+      {
+        id: '1785755389555jgu4l',
+        title: '佛教入門',
+        author: '聖嚴法師',
+        volumeNumber: 1,
+        volumeName: 'The Contemplative',
+        stageNumber: 1,
+        stageName: 'Foundations',
+        readingOrder: 1,
+        year: '1996',
+        status: '',
+        engine: 'None',
+        cover: 'covers/1785755389555jgu4l.jpg',
+        notes: '',
+        isbn: '9789575987114',
+        tags: ['buddhism', 'chinese'],
+        summary: ''
+      },
+      {
+        id: '1785755389555myn4b',
+        title: 'Sapiens: A Brief History of Humankind',
+        author: 'Yuval Noah Harari',
+        volumeNumber: 4,
+        volumeName: 'The Critic of Modernity',
+        stageNumber: 4,
+        stageName: 'Society, Ideology, and Modern Life',
+        readingOrder: 10,
+        year: '2011',
+        status: 'To Read',
+        engine: 'None',
+        cover: 'covers/1785755389555myn4b.jpg',
+        notes: '',
+        isbn: '9780062316103',
+        tags: ['history', 'science'],
+        summary: `From a renowned historian comes a groundbreaking narrative of humanity's creation and evolution—a #1 international bestseller—that explores the ways in which biology and history have defined us and enhanced our understanding of what it means to be "human." One hundred thousand years ago, at least six different species of humans inhabited Earth. Yet today there is only one—homo sapiens. What happened to the others? And what may happen to us? Most books about the history of humanity pursue either a historical or a biological approach, but Dr. Yuval Noah Harari breaks the mold with this highly original book that begins about 70,000 years ago with the appearance of modern cognition. From examining the role evolving humans have played in the global ecosystem to charting the rise of empires, Sapiens integrates history and science to reconsider accepted narratives, connect past developments with contemporary concerns, and examine specific events within the context of larger ideas. Dr. Harari also compels us to look ahead, because over the last few decades humans have begun to bend laws of natural selection that have governed life for the past four billion years. We are acquiring the ability to design not only the world around us, but also ourselves. Where is this leading us, and what do we want to become? Featuring 27 photographs, 6 maps, and 25 illustrations/diagrams, this provocative and insightful work is sure to spark debate and is essential reading for aficionados of Jared Diamond, James Gleick, Matt Ridley, Robert Wright, and Sharon Moalem.`
+      }
+    ];
+
+    // =====================================================================
+    // Helpers (ported from jons-books.html)
+    // =====================================================================
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
+
+    // Subdued title tail — everything after the first ":", full-width "：", or "("
+    // is wrapped in a muted span so the main title pops in cards.
+    function renderTitleHtml(title) {
+      const escaped = escapeHtml(title);
+      const m = escaped.match(/^(.*?)([:：(].*)$/);
+      return m ? `${m[1]}<span class="title-sub">${m[2]}</span>` : escaped;
+    }
+
+    // Cover Rendering
+    function createJacketHtml(title, author) {
+      return `
+        <div class="book-jacket">
+          <div class="jacket-header"><i data-lucide="book" style="width: 16px; height: 16px;"></i></div>
+          <div class="jacket-title">${escapeHtml(title)}</div>
+          <div class="jacket-author">${escapeHtml(author)}</div>
+        </div>
+      `;
+    }
+
+    function handleCoverError(imgElement) {
+      const title = imgElement.getAttribute('data-title') || 'Untitled';
+      const author = imgElement.getAttribute('data-author') || 'Unknown Author';
+      const container = imgElement.parentElement;
+      if (container) {
+        container.innerHTML = createJacketHtml(title, author);
+        lucide.createIcons();
+      }
+    }
+
+    function renderCoverHtml(coverUrl, title, author, imgClass = 'cover-img') {
+      if (coverUrl && coverUrl.trim() !== '') {
+        return `<img src="${escapeHtml(coverUrl)}"
+                     alt="${escapeHtml(title)}"
+                     class="${imgClass}"
+                     loading="lazy"
+                     data-title="${escapeHtml(title)}"
+                     data-author="${escapeHtml(author)}"
+                     onerror="handleCoverError(this)" />`;
+      }
+      return createJacketHtml(title, author);
+    }
+
+    // =====================================================================
+    // Grid rendering
+    // =====================================================================
+    const bookGrid = document.getElementById('book-grid');
+
+    function renderBookCardHtml(book) {
+      return `
+        <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
+          <div class="cover-container">
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img')}
+          </div>
+          <div class="book-info">
+            <div class="book-vol-stage">
+              <span>Vol ${book.volumeNumber} · Stage ${book.stageNumber} · <span class="reading-order-number">#${book.readingOrder}</span></span>
+            </div>
+            <h2 class="book-title" title="${escapeHtml(book.title)}">${renderTitleHtml(book.title)}</h2>
+            <p class="book-author">${escapeHtml(book.author)}</p>
+            ${book.status ? `<span class="status-pill">${escapeHtml(book.status)}</span>` : ''}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderBooks() {
+      bookGrid.innerHTML = books.map(renderBookCardHtml).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // =====================================================================
+    // Read-Only Book Details Modal (public / view-only behavior)
+    // =====================================================================
+    const detailModal = document.getElementById('book-detail-modal');
+    const detailSheet = detailModal.querySelector('.modal-content');
+    const closeDetailModalBtn = document.getElementById('close-detail-modal');
+    const detailCover = document.getElementById('detail-cover');
+    const detailTitle = document.getElementById('detail-title');
+    const detailAuthor = document.getElementById('detail-author');
+    const detailStatus = document.getElementById('detail-status');
+    const detailEngine = document.getElementById('detail-engine');
+    const detailVolume = document.getElementById('detail-volume');
+    const detailStage = document.getElementById('detail-stage');
+    const detailOrder = document.getElementById('detail-order');
+    const detailYear = document.getElementById('detail-year');
+    const detailIsbnRow = document.getElementById('detail-isbn-row');
+    const detailIsbn = document.getElementById('detail-isbn');
+    const detailLinks = document.getElementById('detail-links');
+    const detailLinkGoodreads = document.getElementById('detail-link-goodreads');
+    const detailNotes = document.getElementById('detail-notes');
+    const detailNotesText = document.getElementById('detail-notes-text');
+    const detailTags = document.getElementById('detail-tags');
+    const detailTagsList = document.getElementById('detail-tags-list');
+    const detailSummary = document.getElementById('detail-summary');
+    const detailSummaryText = document.getElementById('detail-summary-text');
+    const detailSummaryToggle = document.getElementById('detail-summary-toggle');
+    let summaryExpanded = false;
+
+    const ENGINE_COLORS = {
+      'Engine 1: Deep Focus': 'var(--engine-1)',
+      'Engine 2: Complementary': 'var(--engine-2)',
+      'Engine 3: Exploration': 'var(--engine-3)'
+    };
+
+    let detailTrigger = null;
+
+    let useDialog = false; // toggled by the "Modal impl" debug lever
+
+    function openBookDetails(id, triggerEl) {
+      detailTrigger = triggerEl || document.activeElement;
+      if (useDialog) openReadOnlyDialog(id);
+      else openReadOnlyModal(id);
+    }
+
+    function openReadOnlyModal(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+
+      // Cover (renders the CSS jacket fallback if the image fails or is empty).
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img');
+
+      detailTitle.textContent = book.title;
+      detailAuthor.textContent = book.author;
+      if (book.status) {
+        detailStatus.textContent = book.status;
+        detailStatus.hidden = false;
+      } else {
+        detailStatus.textContent = '';
+        detailStatus.hidden = true;
+      }
+
+      // Engine track (only when assigned).
+      const engine = (book.engine && book.engine !== 'None') ? book.engine : '';
+      if (engine) {
+        const shortName = engine.replace(/^Engine \d+: /, '');
+        const dotColor = ENGINE_COLORS[engine] || 'var(--text-muted)';
+        detailEngine.hidden = false;
+        detailEngine.innerHTML = `<span class="dot" style="background: ${dotColor};"></span>${escapeHtml(shortName)}`;
+      } else {
+        detailEngine.hidden = true;
+        detailEngine.innerHTML = '';
+      }
+
+      detailVolume.textContent = `${book.volumeNumber} / ${book.volumeName}`;
+      detailStage.textContent = `${book.stageNumber} / ${book.stageName}`;
+      detailOrder.textContent = `#${book.readingOrder} in stage`;
+      detailYear.textContent = book.year || '—';
+
+      // ISBN + find-this-book link (only when an ISBN exists).
+      if (book.isbn) {
+        detailIsbnRow.hidden = false;
+        detailIsbn.textContent = book.isbn;
+        detailLinkGoodreads.href = `https://www.goodreads.com/search?q=${encodeURIComponent(book.isbn)}`;
+        detailLinks.hidden = false;
+      } else {
+        detailIsbnRow.hidden = true;
+        detailLinks.hidden = true;
+      }
+
+      // Personal notes (only when present).
+      if (book.notes && book.notes.trim()) {
+        detailNotes.hidden = false;
+        detailNotesText.textContent = book.notes;
+      } else {
+        detailNotes.hidden = true;
+      }
+
+      // Tags (only when present).
+      if (book.tags && book.tags.length > 0) {
+        detailTags.hidden = false;
+        detailTagsList.innerHTML = book.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+      } else {
+        detailTags.hidden = true;
+        detailTagsList.innerHTML = '';
+      }
+
+      // Publisher blurb — only when a summary exists. Always start collapsed.
+      summaryExpanded = false;
+      detailSummaryText.classList.add('clamped');
+      detailSummaryToggle.textContent = 'Read more';
+      detailSummaryToggle.setAttribute('aria-expanded', 'false');
+      detailSummaryToggle.hidden = true;
+      if (book.summary && book.summary.trim()) {
+        detailSummary.hidden = false;
+        detailSummaryText.textContent = book.summary;
+      } else {
+        detailSummary.hidden = true;
+        detailSummaryText.textContent = '';
+      }
+
+      if (window.lucide) lucide.createIcons();
+      // Clear any leftover state so the entrance rise + overlay fade replay.
+      detailSheet.style.transform = '';
+      detailSheet.style.transition = '';
+      detailSheet.style.animation = '';
+      detailModal.style.opacity = '';
+      detailModal.style.transition = '';
+      detailModal.style.animation = '';
+      detailModal.classList.add('active');
+      // If Devon Govett's absolute-backdrop mode is ON, size and position the
+      // overlay so it spans the full document instead of being clipped to the
+      // inner viewport. We set body position:relative so absolute positioned
+      // overlay references the page root.
+      if (backdropAbsolute) {
+        document.body.style.position = 'relative';
+        detailModal.classList.add('absolute-backdrop');
+        detailModal.style.position = 'absolute';
+        // Ensure the overlay is at least the visual viewport height.
+        const docH = Math.max(document.documentElement.scrollHeight || 0, window.innerHeight || 0);
+        detailModal.style.height = docH + 'px';
+        // Safari samples fixed/sticky elements (not absolute) for its status /
+        // bottom-bar tint, so an absolute backdrop alone falls back to the root
+        // color (transparent -> white/black bars). Give the root the theme bg so
+        // the bars match the theme while absolute mode is active.
+        document.documentElement.style.backgroundColor = 'var(--bg-main)';
+        // Ensure the modal content sits centered in the visual viewport
+        // instead of the document's midpoint. Wrap it in a sticky
+        // `.modal-viewport` sized to the visual viewport.
+        if (!detailModal.querySelector('.modal-viewport')) {
+          const vp = document.createElement('div');
+          vp.className = 'modal-viewport';
+          // Move the modal-content into the viewport wrapper.
+          vp.appendChild(detailSheet);
+          detailModal.appendChild(vp);
+        }
+      } else {
+        // Restore default fixed positioning (CSS rule is position:fixed).
+        detailModal.classList.remove('absolute-backdrop');
+        detailModal.style.position = '';
+        detailModal.style.height = '';
+        document.body.style.position = '';
+      }
+      // Scroll probe: flip Safari out of its scrollY=0 root-fallback state.
+      if (scrollProbeOn) window.scrollTo(0, 1);
+      // The summary text is unmeasurable while the modal is display:none, so
+      // re-evaluate the Read more toggle on the next frame.
+      requestAnimationFrame(updateSummaryToggle);
+      // Remove the app behind from tab order / assistive tech while open.
+      const appContainer = document.querySelector('.container');
+      if (appContainer) appContainer.inert = true;
+      closeDetailModalBtn.focus();
+    }
+
+    // Show/hide the summary toggle based on whether the clamped text overflows.
+    function updateSummaryToggle() {
+      if (summaryExpanded) {
+        detailSummaryToggle.hidden = false;
+        detailSummaryToggle.textContent = 'Show less';
+        detailSummaryToggle.setAttribute('aria-expanded', 'true');
+        return;
+      }
+      const overflowing = detailSummaryText.scrollHeight > detailSummaryText.clientHeight + 1;
+      detailSummaryToggle.hidden = !overflowing;
+      detailSummaryToggle.textContent = 'Read more';
+      detailSummaryToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    function closeDetailModal() {
+      detailModal.classList.remove('active');
+      // Restore absolute-backdrop mutations when closing.
+      if (backdropAbsolute) {
+        // Unwrap any .modal-viewport we added and restore the original
+        // document structure so subsequent opens work predictably.
+        const vp = detailModal.querySelector('.modal-viewport');
+        if (vp) {
+          // Move modal-content back into the overlay and remove wrapper.
+          const mc = vp.querySelector('.modal-content');
+          if (mc) detailModal.appendChild(mc);
+          vp.remove();
+        }
+        detailModal.classList.remove('absolute-backdrop');
+        detailModal.style.position = '';
+        detailModal.style.height = '';
+        document.body.style.position = '';
+        document.documentElement.style.backgroundColor = '';
+      }
+      if (scrollProbeOn) window.scrollTo(0, 0);
+      const appContainer = document.querySelector('.container');
+      if (appContainer) appContainer.inert = false;
+      // Return focus to whatever opened the modal (best effort).
+      if (detailTrigger && typeof detailTrigger.focus === 'function') {
+        detailTrigger.focus();
+      }
+      detailTrigger = null;
+    }
+
+    closeDetailModalBtn.addEventListener('click', closeDetailModal);
+
+    detailModal.addEventListener('click', (e) => {
+      if (e.target === detailModal) closeDetailModal();
+    });
+
+    // Escape closes the detail modal.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && detailModal.classList.contains('active')) {
+        closeDetailModal();
+      }
+    });
+
+    // Summary "Read more" toggle: re-evaluate on layout changes.
+    const detailSummaryObserver = new ResizeObserver(updateSummaryToggle);
+    detailSummaryObserver.observe(detailSummaryText);
+
+    detailSummaryToggle.addEventListener('click', () => {
+      summaryExpanded = !summaryExpanded;
+      detailSummaryText.classList.toggle('clamped', !summaryExpanded);
+      updateSummaryToggle();
+    });
+
+    // =====================================================================
+    // Native <dialog> variant (DEBUG) — same detail fields, ids prefixed d2-.
+    // =====================================================================
+    const detailDialog = document.getElementById('book-detail-dialog');
+    const d2 = {
+      close: document.getElementById('d2-close'),
+      cover: document.getElementById('d2-cover'),
+      title: document.getElementById('d2-title-text'),
+      author: document.getElementById('d2-author'),
+      status: document.getElementById('d2-status'),
+      engine: document.getElementById('d2-engine'),
+      volume: document.getElementById('d2-volume'),
+      stage: document.getElementById('d2-stage'),
+      order: document.getElementById('d2-order'),
+      year: document.getElementById('d2-year'),
+      isbnRow: document.getElementById('d2-isbn-row'),
+      isbn: document.getElementById('d2-isbn'),
+      links: document.getElementById('d2-links'),
+      goodreads: document.getElementById('d2-link-goodreads'),
+      notes: document.getElementById('d2-notes'),
+      notesText: document.getElementById('d2-notes-text'),
+      tags: document.getElementById('d2-tags'),
+      tagsList: document.getElementById('d2-tags-list'),
+      summary: document.getElementById('d2-summary'),
+      summaryText: document.getElementById('d2-summary-text'),
+      summaryToggle: document.getElementById('d2-summary-toggle')
+    };
+    let d2SummaryExpanded = false;
+
+    function openReadOnlyDialog(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+
+      // Mirror openReadOnlyModal, writing to the dialog's d2-* fields.
+      d2.cover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img');
+      d2.title.textContent = book.title;
+      d2.author.textContent = book.author;
+      if (book.status) {
+        d2.status.textContent = book.status;
+        d2.status.hidden = false;
+      } else {
+        d2.status.textContent = '';
+        d2.status.hidden = true;
+      }
+      const engine = (book.engine && book.engine !== 'None') ? book.engine : '';
+      if (engine) {
+        const shortName = engine.replace(/^Engine \d+: /, '');
+        const dotColor = ENGINE_COLORS[engine] || 'var(--text-muted)';
+        d2.engine.hidden = false;
+        d2.engine.innerHTML = `<span class="dot" style="background: ${dotColor};"></span>${escapeHtml(shortName)}`;
+      } else {
+        d2.engine.hidden = true;
+        d2.engine.innerHTML = '';
+      }
+      d2.volume.textContent = `${book.volumeNumber} / ${book.volumeName}`;
+      d2.stage.textContent = `${book.stageNumber} / ${book.stageName}`;
+      d2.order.textContent = `#${book.readingOrder} in stage`;
+      d2.year.textContent = book.year || '—';
+      if (book.isbn) {
+        d2.isbnRow.hidden = false;
+        d2.isbn.textContent = book.isbn;
+        d2.goodreads.href = `https://www.goodreads.com/search?q=${encodeURIComponent(book.isbn)}`;
+        d2.links.hidden = false;
+      } else {
+        d2.isbnRow.hidden = true;
+        d2.links.hidden = true;
+      }
+      if (book.notes && book.notes.trim()) {
+        d2.notes.hidden = false;
+        d2.notesText.textContent = book.notes;
+      } else {
+        d2.notes.hidden = true;
+      }
+      if (book.tags && book.tags.length > 0) {
+        d2.tags.hidden = false;
+        d2.tagsList.innerHTML = book.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+      } else {
+        d2.tags.hidden = true;
+        d2.tagsList.innerHTML = '';
+      }
+      d2SummaryExpanded = false;
+      d2.summaryText.classList.add('clamped');
+      d2.summaryToggle.textContent = 'Read more';
+      d2.summaryToggle.setAttribute('aria-expanded', 'false');
+      d2.summaryToggle.hidden = true;
+      if (book.summary && book.summary.trim()) {
+        d2.summary.hidden = false;
+        d2.summaryText.textContent = book.summary;
+      } else {
+        d2.summary.hidden = true;
+        d2.summaryText.textContent = '';
+      }
+
+      if (window.lucide) lucide.createIcons();
+      if (!detailDialog.open) detailDialog.showModal();
+      if (scrollProbeOn) window.scrollTo(0, 1);
+      requestAnimationFrame(updateD2SummaryToggle);
+      const appContainer = document.querySelector('.container');
+      if (appContainer) appContainer.inert = true;
+      d2.close.focus();
+    }
+
+    function updateD2SummaryToggle() {
+      if (d2SummaryExpanded) {
+        d2.summaryToggle.hidden = false;
+        d2.summaryToggle.textContent = 'Show less';
+        d2.summaryToggle.setAttribute('aria-expanded', 'true');
+        return;
+      }
+      const overflowing = d2.summaryText.scrollHeight > d2.summaryText.clientHeight + 1;
+      d2.summaryToggle.hidden = !overflowing;
+      d2.summaryToggle.textContent = 'Read more';
+      d2.summaryToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    const d2SummaryObserver = new ResizeObserver(updateD2SummaryToggle);
+    d2SummaryObserver.observe(d2.summaryText);
+
+    d2.summaryToggle.addEventListener('click', () => {
+      d2SummaryExpanded = !d2SummaryExpanded;
+      d2.summaryText.classList.toggle('clamped', !d2SummaryExpanded);
+      updateD2SummaryToggle();
+    });
+
+    function closeReadOnlyDialog() {
+      if (detailDialog.open) detailDialog.close();
+    }
+
+    d2.close.addEventListener('click', closeReadOnlyDialog);
+    // Clicking the ::backdrop (outside the card) closes the dialog.
+    detailDialog.addEventListener('click', (e) => {
+      if (e.target === detailDialog) closeReadOnlyDialog();
+    });
+    // Restore the app + scroll probe when the dialog actually closes.
+    detailDialog.addEventListener('close', () => {
+      if (scrollProbeOn) window.scrollTo(0, 0);
+      const appContainer = document.querySelector('.container');
+      if (appContainer) appContainer.inert = false;
+      if (detailTrigger && typeof detailTrigger.focus === 'function') detailTrigger.focus();
+      detailTrigger = null;
+    });
+    // Escape fires the native 'cancel'; keep behavior consistent with the div modal.
+    detailDialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeReadOnlyDialog();
+    });
+
+    // =====================================================================
+    // DEBUG levers (not part of the app)
+    // =====================================================================
+    const themeBtn = document.getElementById('lever-theme');
+    const themeLabel = document.getElementById('lever-theme-label');
+
+    themeBtn.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      themeLabel.textContent = next === 'dark' ? 'Dark' : 'Light';
+      themeBtn.innerHTML = `<i data-lucide="${next === 'dark' ? 'moon' : 'sun'}"></i><span id="lever-theme-label">${next === 'dark' ? 'Dark' : 'Light'}</span>`;
+      if (window.lucide) lucide.createIcons();
+    });
+
+    const htmlBgBtn = document.getElementById('lever-htmlbg');
+    htmlBgBtn.addEventListener('click', () => {
+      const on = document.documentElement.classList.toggle('debug-html-bg');
+      htmlBgBtn.textContent = on ? 'On' : 'Off';
+      htmlBgBtn.classList.toggle('on', on);
+    });
+
+    const sizeBtn = document.getElementById('lever-size');
+    const SIZES = [
+      { cls: '', label: '100dvh' },
+      { cls: 'overlay-h-lvh', label: '100lvh' },
+      { cls: 'overlay-inset', label: 'inset 0' },
+      { cls: 'overlay-inset-bleed', label: 'inset bleed' }
+    ];
+    let sizeIdx = 3;
+    sizeBtn.addEventListener('click', () => {
+      detailModal.classList.remove('overlay-h-vh', 'overlay-h-lvh', 'overlay-inset', 'overlay-inset-bleed');
+      sizeIdx = (sizeIdx + 1) % SIZES.length;
+      const opt = SIZES[sizeIdx];
+      if (opt.cls) detailModal.classList.add(opt.cls);
+      sizeBtn.textContent = opt.label;
+    });
+
+    // Scroll probe (from the 1ar.io article): Safari often uses the FALLBACK
+    // root color at scrollY = 0 and only composites real page pixels behind the
+    // top status area once the document has non-zero scroll. This flips the
+    // page to y=1px while a modal is open (imperceptible) to test that behavior.
+    const scrollBtn = document.getElementById('lever-scroll');
+    let scrollProbeOn = true;
+    scrollBtn.addEventListener('click', () => {
+      scrollProbeOn = !scrollProbeOn;
+      scrollBtn.textContent = scrollProbeOn ? 'on' : 'off';
+      scrollBtn.classList.toggle('on', scrollProbeOn);
+    });
+
+    // Backdrop positioning (Devon Govett): toggle between fixed and absolute
+    // backdrops. Fixed elements are clipped to the inner viewport on iOS; an
+    // absolute backdrop sized to document scrollHeight covers the whole page.
+    const backdropBtn = document.getElementById('lever-backdrop');
+    let backdropAbsolute = false;
+    backdropBtn.addEventListener('click', () => {
+      backdropAbsolute = !backdropAbsolute;
+      backdropBtn.textContent = backdropAbsolute ? 'absolute' : 'fixed';
+      backdropBtn.classList.toggle('on', backdropAbsolute);
+    });
+    // If the user switches the backdrop mode while the modal is closed, we
+    // proactively prepare or remove the sticky viewport wrapper so the modal
+    // will be centered correctly when opened.
+    backdropBtn.addEventListener('change', () => {});
+    backdropBtn.addEventListener('click', () => {
+      // create or remove wrapper immediately so openReadOnlyModal doesn't
+      // race against a late DOM mutation.
+      if (backdropAbsolute) {
+        if (!detailModal.querySelector('.modal-viewport')) {
+          const vp = document.createElement('div');
+          vp.className = 'modal-viewport';
+          vp.appendChild(detailSheet);
+          detailModal.appendChild(vp);
+        }
+        // Keep the root tint in sync so the bars match even before open.
+        document.documentElement.style.backgroundColor = 'var(--bg-main)';
+      } else {
+        const vp = detailModal.querySelector('.modal-viewport');
+        if (vp) {
+          const mc = vp.querySelector('.modal-content');
+          if (mc) detailModal.appendChild(mc);
+          vp.remove();
+        }
+        document.documentElement.style.backgroundColor = '';
+      }
+    });
+
+    const bgBtn = document.getElementById('lever-bg');
+    bgBtn.addEventListener('click', () => {
+      const on = detailModal.classList.toggle('overlay-bg-solid');
+      bgBtn.textContent = on ? 'solid' : 'tinted';
+      bgBtn.classList.toggle('on', on);
+    });
+
+    const glassBtn = document.getElementById('lever-glass');
+    glassBtn.addEventListener('click', () => {
+      const on = detailModal.classList.toggle('overlay-glass-child');
+      glassBtn.textContent = on ? 'on' : 'off';
+      glassBtn.classList.toggle('on', on);
+    });
+
+    const dialogBtn = document.getElementById('lever-dialog');
+    dialogBtn.addEventListener('click', () => {
+      useDialog = !useDialog;
+      dialogBtn.textContent = useDialog ? 'dialog' : 'div';
+      dialogBtn.classList.toggle('on', useDialog);
+    });
+
+    // Boot
+    renderBooks();
+  </script>
+</body>
+</html>
