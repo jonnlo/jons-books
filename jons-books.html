@@ -180,6 +180,72 @@
       flex-wrap: wrap;
     }
 
+    /* Edit / View Mode Toggle — compact segmented switch in the header (local
+       only). Mirrors the .view-toggle sliding-pill look but smaller. Hidden on
+       the published site via body.site-public (NOT body.view-only, so it stays
+       reachable in manual View mode and can switch back to editing). */
+    .mode-toggle {
+      position: relative;
+      display: inline-flex;
+      gap: 0;
+      height: 38px;
+      border: 1px solid var(--border-color);
+      border-radius: 9px;
+      overflow: hidden;
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    /* The sliding active pill (inset 3px, rounded) */
+    .mode-toggle::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 3px;
+      width: calc(50% - 6px);
+      border-radius: 6px;
+      background: var(--accent-color);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+      z-index: 1;
+    }
+
+    /* View segment active → slide the pill to the right half */
+    .mode-toggle:has(#mode-view-btn.active)::before {
+      transform: translateX(calc(100% + 6px));
+    }
+
+    .mode-toggle .btn-secondary {
+      position: relative;
+      z-index: 2; /* keep icon + label above the pill */
+      flex: 1 1 0;
+      min-width: 74px;
+      justify-content: center;
+      white-space: nowrap;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    .mode-toggle .btn-secondary.active {
+      background: transparent;
+      color: white;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mode-toggle::before {
+        transition: none;
+      }
+    }
+
+    /* Hide the switch on the real published site (always view-only there). */
+    body.site-public .mode-toggle {
+      display: none !important;
+    }
+
     /* Book Controls Toolbar — full-width bar below the header holding all the
        library editing buttons in two groups: the data/file utilities pinned
        left, the primary Add Book action anchored right. Hidden on the public
@@ -1865,6 +1931,15 @@
       </div>
 
       <div class="header-actions">
+        <!-- Edit / View Mode (local only; hidden on the published site) -->
+        <div class="mode-toggle" id="mode-toggle" role="group" aria-label="Edit or View mode">
+          <button class="btn-secondary" id="mode-edit-btn" type="button" title="Edit mode — add, remove, and reorganize books" aria-pressed="true">
+            <i data-lucide="pencil"></i> Edit
+          </button>
+          <button class="btn-secondary" id="mode-view-btn" type="button" title="View mode — read-only browsing" aria-pressed="false">
+            <i data-lucide="eye"></i> View
+          </button>
+        </div>
         <!-- Theme Switcher -->
         <button class="icon-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
           <i data-lucide="sun" id="theme-icon"></i>
@@ -1919,6 +1994,20 @@
         <i data-lucide="download"></i> Import Now
       </button>
     </div>
+
+    <!-- First-run file:// banner — a downloaded repo can't fetch books.json
+         (browsers block local file reads), so ask the user to pick it once.
+         Visible in BOTH modes (it's not an editing control). -->
+    <div class="export-reminder" id="first-run-banner">
+      <div class="export-reminder-text">
+        <i data-lucide="folder-open"></i>
+        <span id="first-run-message" aria-live="polite">No saved library found. Choose books.json from this folder to load the catalog.</span>
+      </div>
+      <button class="btn-export-now" id="first-run-pick-btn" title="Load books.json from this folder">
+        <i data-lucide="download"></i> Choose books.json
+      </button>
+    </div>
+    <input type="file" id="books-firstrun-file-input" accept=".json,application/json" style="display: none;">
 
     <!-- Active Reading Engines -->
      <div class="engines-heading">
@@ -2238,7 +2327,37 @@
     // (the committed source of truth, staged by the deploy workflow) and hide editing.
     const isPublic = window.location.protocol !== 'file:' &&
       !['localhost', '127.0.0.1'].includes(window.location.hostname);
-    if (isPublic) document.body.classList.add('view-only');
+    // Local Edit/View mode key — remembers whether the owner chose the
+    // read-only "View" browsing surface. Only meaningful when !isPublic: the
+    // published site is always view-only and never writes this key.
+    const VIEW_MODE_KEY = 'personal_library_view_mode';
+    let viewOnly = isPublic || localStorage.getItem(VIEW_MODE_KEY) === 'view';
+    if (viewOnly) document.body.classList.add('view-only');
+    // Distinguishes the real published site (toggle hidden) from a manual
+    // View-mode toggle (toggle stays visible so you can switch back to editing).
+    if (isPublic) document.body.classList.add('site-public');
+
+    // Switches between local Edit mode (full editing controls) and local View
+    // mode (public-style read-only browsing). Both sides read the SAME working
+    // copy (in-memory `books` + localStorage) — toggling is presentation-only,
+    // so unexported edits always remain visible and nothing is ever lost.
+    function setViewOnly(v) {
+      viewOnly = v;
+      document.body.classList.toggle('view-only', v);
+      if (!isPublic) localStorage.setItem(VIEW_MODE_KEY, v ? 'view' : 'edit');
+      const editBtn = document.getElementById('mode-edit-btn');
+      const viewBtn = document.getElementById('mode-view-btn');
+      if (editBtn) {
+        editBtn.classList.toggle('active', !v);
+        editBtn.setAttribute('aria-pressed', String(!v));
+      }
+      if (viewBtn) {
+        viewBtn.classList.toggle('active', v);
+        viewBtn.setAttribute('aria-pressed', String(v));
+      }
+      renderBooks(); // re-render current view (roadmap re-render swaps sortables/stage classes)
+      if (!v) updateExportReminder(); // back in edit mode — refresh the export nudge
+    }
 
     // Collapsible States
     let collapsedVolumes = new Set(JSON.parse(localStorage.getItem(COLLAPSED_VOLUMES_KEY) || '[]'));
@@ -2379,6 +2498,32 @@
         }
       }
 
+      // file:// first-run: browsers block fetch of local files (CORS "null"
+      // origin), so a downloaded repo can't pull books.json over HTTP. Reuse the
+      // persisted File System Access handle if one is saved (silent), otherwise
+      // fall through to the seed + a first-run banner that lets the user pick it.
+      if (window.location.protocol === 'file:') {
+        const handle = await loadBooksFileHandle();
+        if (handle) {
+          try {
+            const data = await readBooksJsonData();
+            if (Array.isArray(data) && data.length > 0) {
+              const seeded = migrateLegacyToRead(data.map(normalizeBook));
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
+              localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
+              return seeded;
+            }
+          } catch (err) {
+            console.warn('[library] could not read books.json via saved handle:', err);
+          }
+        }
+        // No usable catalog yet — seed so the page isn't blank, and surface the
+        // banner (picking books.json needs a user click).
+        showFirstRunBanner();
+        saveBooksToStorage(defaultBooksSeed);
+        return defaultBooksSeed;
+      }
+
       try {
         const response = await fetch('books.json', { cache: 'no-store' });
         if (response.ok) {
@@ -2400,7 +2545,7 @@
     }
 
     function saveBooksToStorage(data) {
-      if (isPublic) return; // Public site is read-only — never persist visitor edits.
+      if (viewOnly) return; // Read-only modes never persist visitor edits.
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       localStorage.setItem(LAST_MODIFIED_KEY, new Date().toISOString());
       updateExportReminder();
@@ -3256,9 +3401,9 @@
           stageData.books.sort((a, b) => a.readingOrder - b.readingOrder);
 
           // Drag & drop is an editor-only feature — keep the sortable hook and the
-          // "drop here" hint out of the read-only public markup.
-          const stageGridClass = `stage-grid ${!isPublic ? 'sortable-stage' : ''} ${stageData.books.length === 0 ? 'empty-stage-grid' : ''}`.trim();
-          const collapsedHintHtml = !isPublic
+          // "drop here" hint out of the read-only view markup.
+          const stageGridClass = `stage-grid ${!viewOnly ? 'sortable-stage' : ''} ${stageData.books.length === 0 ? 'empty-stage-grid' : ''}`.trim();
+          const collapsedHintHtml = !viewOnly
             ? `<div class="collapsed-stage-hint">
                   <i data-lucide="download" style="width: 14px; height: 14px;"></i> Drop book here to move to Stage ${stageNum}
                 </div>`
@@ -3302,7 +3447,7 @@
       });
 
       bookGrid.innerHTML = html;
-      if (!isPublic) initRoadmapSortables(); // Read-only on the public site.
+      if (!viewOnly) initRoadmapSortables(); // Read-only in view mode.
     }
 
     // Fisher–Yates shuffle (in-place). Random sort uses this once per entry
@@ -3657,7 +3802,7 @@
 
     // Modal Control Functions
     function openAddModal() {
-      if (isPublic) return; // View-only on the public site.
+      if (viewOnly) return; // View-only mode — no editing.
       modalTitle.textContent = "Add New Book";
       inputId.value = "";
       bookForm.reset();
@@ -3683,7 +3828,7 @@
     }
 
     function openEditModal(id) {
-      if (isPublic) return; // View-only on the public site.
+      if (viewOnly) return; // View-only mode — no editing.
       const book = books.find(b => b.id === id);
       if (!book) return;
 
@@ -3763,7 +3908,7 @@
     let detailTrigger = null;
 
     function openBookDetails(id, triggerEl) {
-      if (isPublic) {
+      if (viewOnly) {
         detailTrigger = triggerEl || document.activeElement;
         openReadOnlyModal(id);
       } else {
@@ -4332,6 +4477,22 @@
       (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
     applyTheme(savedTheme);
 
+    // Edit / View Mode Toggle (local only — the switch is hidden on the
+    // published site via body.site-public). Reflect the persisted/initial mode
+    // on the segmented control, then wire the two segments to setViewOnly.
+    const modeEditBtn = document.getElementById('mode-edit-btn');
+    const modeViewBtn = document.getElementById('mode-view-btn');
+    if (modeEditBtn) {
+      modeEditBtn.classList.toggle('active', !viewOnly);
+      modeEditBtn.setAttribute('aria-pressed', String(!viewOnly));
+      modeEditBtn.addEventListener('click', () => setViewOnly(false));
+    }
+    if (modeViewBtn) {
+      modeViewBtn.classList.toggle('active', viewOnly);
+      modeViewBtn.setAttribute('aria-pressed', String(viewOnly));
+      modeViewBtn.addEventListener('click', () => setViewOnly(true));
+    }
+
     // JSON Import / Export Logic — books.json is the source of truth for the public site.
     // Export writes straight to the on-disk books.json via a persisted File
     // System Access handle when available (Chrome/Edge); otherwise it falls back
@@ -4596,7 +4757,7 @@
     // Runs the freshness check. On file://, uses the persisted books.json handle
     // (silently), or the picker when interactive and no handle is saved yet.
     async function checkBooksJsonNewer({ interactive = false } = {}) {
-      if (isPublic) return false; // public site is view-only — localStorage unused
+      if (viewOnly) return false; // view mode is read-only — sync checks are an edit concern
       lastBooksCheckCompared = false; // fresh check — no "compared" state yet
 
       if (window.location.protocol === 'file:') {
@@ -4801,6 +4962,76 @@
       e.target.value = ''; // allow re-importing the same file later
     });
 
+    // First-run file:// bootstrap — when a fresh open (no localStorage, no saved
+    // handle) can't reach books.json, surface a banner asking the user to pick it
+    // once. Visible in both Edit and View modes (it's not an editing control).
+    const firstRunBanner = document.getElementById('first-run-banner');
+    const firstRunPickBtn = document.getElementById('first-run-pick-btn');
+    const firstRunFileInput = document.getElementById('books-firstrun-file-input');
+
+    function showFirstRunBanner() {
+      if (!firstRunBanner) return;
+      firstRunBanner.classList.add('visible');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function hideFirstRunBanner() {
+      if (firstRunBanner) firstRunBanner.classList.remove('visible');
+    }
+
+    // Applies a parsed books.json array from the first-run pick. Seeds
+    // localStorage DIRECTLY (bypasses saveBooksToStorage, which is viewOnly-gated
+    // so it would silently no-op in View mode) — the bootstrap must persist
+    // regardless of the current mode.
+    function applyFirstRunData(data) {
+      try {
+        if (!Array.isArray(data) || data.length === 0) throw new Error('empty catalog');
+        books = data.map(normalizeBook);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+        localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
+        hideFirstRunBanner();
+        renderBooks();
+        updateExportReminder();
+      } catch (err) {
+        console.error('[library] invalid books.json in first-run pick:', err);
+        alert("Could not read that file — it doesn't look like valid books.json.");
+      }
+    }
+
+    async function handleFirstRunPick() {
+      if (window.showOpenFilePicker) {
+        try {
+          const [handle] = await window.showOpenFilePicker({
+            types: [{ description: 'books.json', accept: { 'application/json': ['.json'] } }]
+          });
+          saveBooksFileHandle(handle); // enable silent loading on later opens
+          const data = await readBooksJsonData();
+          applyFirstRunData(data);
+        } catch (err) {
+          if (err && err.name === 'AbortError') return; // user cancelled — banner stays
+          alert("Could not read that file — it doesn't look like valid books.json.");
+        }
+      } else {
+        firstRunFileInput.click(); // Safari/Firefox fallback — change listener handles it
+      }
+    }
+
+    if (firstRunPickBtn) firstRunPickBtn.addEventListener('click', handleFirstRunPick);
+    if (firstRunFileInput) firstRunFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          applyFirstRunData(JSON.parse(evt.target.result));
+        } catch (err) {
+          alert("Could not read that file — it doesn't look like valid books.json.");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = ''; // allow re-picking the same file later
+    });
+
     // Load the published catalog (books.json — the committed source of truth, staged
     // by the deploy workflow). Falls back to localStorage/seed when unreachable
     // (file:// or offline).
@@ -4837,7 +5068,7 @@
       if (deepLinkId && books.find(b => b.id === deepLinkId)) {
         openReadOnlyModal(deepLinkId);
       }
-      if (!isPublic) {
+      if (!viewOnly) {
         updateExportReminder();
         checkBooksJsonNewer(); // fire-and-forget freshness check (HTTP or file:// handle)
       }
