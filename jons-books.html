@@ -3012,6 +3012,7 @@
 
     function resetCoverUploadState() {
       pendingCoverBlob = null;
+      inputCover.value = ''; // hidden source-of-truth — don't rely on bookForm.reset() to clear it
       coverPreview.hidden = true;
       coverPreview.removeAttribute('src');
       coverPlaceholder.hidden = false;
@@ -4191,8 +4192,8 @@
       inputYear.value = book.year;
       inputStatus.value = book.status;
       inputEngine.value = book.engine;
-      inputCover.value = book.cover;
       resetCoverUploadState();
+      inputCover.value = book.cover; // re-prefill AFTER the reset clears it
       if (book.cover) {
         coverPreview.src = book.cover;
         coverPreview.hidden = false;
