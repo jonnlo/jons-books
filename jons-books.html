@@ -772,6 +772,11 @@
     .tag-editor:focus-within {
       border-color: var(--accent-color);
     }
+    .tag-editor-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
     .tag-editor-chip {
       display: inline-flex;
       align-items: center;
@@ -824,48 +829,68 @@
     .tag-editor-input::placeholder {
       color: var(--text-muted);
     }
-    /* Suggestion chips (edit modal) — tap to toggle */
-    .tag-suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+    /* Tag type-ahead dropdown (edit modal) — replaces the native datalist popup */
+    .tag-editor-wrap {
+      position: relative;
     }
-    .tag-suggestions[hidden] {
+    .tag-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 4px;
+      max-height: 240px;
+      overflow-y: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+    .tag-dropdown[hidden] {
       display: none !important; /* display:flex above would override the hidden attribute */
     }
-    .tag-suggestion-chip {
-      display: inline-flex;
+    .tag-dropdown-option {
+      display: flex;
       align-items: center;
-      gap: 5px;
-      min-height: 30px;
-      font-weight: 500;
-      padding: 2px 10px;
-      border-radius: 18px;
-      font-size: 0.8125rem;
+      gap: 8px;
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 8px 10px;
+      border-radius: 7px;
       font-family: inherit;
-      text-transform: capitalize;
-      background: var(--bg-surface);
+      font-size: 0.875rem;
       color: var(--text-secondary);
-      border: 1px solid var(--border-color);
+      text-transform: capitalize;
+      text-align: left;
       cursor: pointer;
-      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     }
-    .tag-suggestion-chip:hover {
-      border-color: var(--accent-color);
+    .tag-dropdown-option:hover,
+    .tag-dropdown-option.highlighted {
+      background: color-mix(in srgb, var(--accent-color) 12%, transparent);
       color: var(--accent-color);
     }
-    .tag-suggestion-chip[aria-pressed="true"] {
-      background: var(--accent-color);
-      color: white;
-      border: 1px solid var(--accent-color);
-    }
-    .tag-suggestion-chip:focus-visible {
+    .tag-dropdown-option:focus-visible {
       outline: 2px solid var(--accent-color);
-      outline-offset: 2px;
+      outline-offset: -2px;
     }
-    .tag-suggestion-chip .tag-count {
-      font-size: 0.7rem;
-      opacity: 0.7;
+    /* Tags already on this book: muted text + a check so you know it's a no-op. */
+    .tag-dropdown-option.is-added {
+      color: var(--text-muted);
+    }
+    .tag-dropdown-option .dd-check {
+      display: inline-flex;
+      align-items: center;
+      margin-left: auto;
+      color: var(--accent-color);
+    }
+    .tag-dropdown-option .dd-check svg {
+      width: 16px;
+      height: 16px;
     }
     .form-hint {
       font-size: 0.75rem;
@@ -2325,13 +2350,16 @@
           </div>
           <div class="form-group full-width">
             <label for="tag-editor-input">Tags</label>
-            <div class="tag-editor" id="tag-editor">
-              <div class="tag-editor-chips" id="tag-editor-chips"></div>
-              <input type="text" id="tag-editor-input" list="tag-datalist" placeholder="Add a tag…" autocomplete="off">
+            <div class="tag-editor-wrap">
+              <div class="tag-editor" id="tag-editor">
+                <div class="tag-editor-chips" id="tag-editor-chips"></div>
+                <input type="text" id="tag-editor-input" placeholder="Add a tag…" autocomplete="off"
+                       role="combobox" aria-expanded="false" aria-controls="tag-dropdown" aria-autocomplete="list">
+              </div>
+              <!-- Custom type-ahead dropdown (the native <datalist> popup can't be styled). -->
+              <div class="tag-dropdown" id="tag-dropdown" role="listbox" aria-label="Tag suggestions" hidden></div>
             </div>
-            <datalist id="tag-datalist"></datalist>
-            <div class="tag-suggestions" id="tag-suggestions" role="group" aria-label="Suggested tags" hidden></div>
-            <p class="form-hint">Type a tag and press Enter, or tap suggestions below.</p>
+            <p class="form-hint">Click to see all tags, or type to filter. Pick a tag or press Enter to add.</p>
             <!-- Hidden field keeps inputTags.value as the saved tag list (comma-separated). -->
             <input type="hidden" id="book-tags-input">
           </div>
@@ -2932,7 +2960,6 @@
     const shuffleBtn = document.getElementById('shuffle-btn');
     const surpriseBtn = document.getElementById('surprise-btn');
     const tagFilters = document.getElementById('tag-filters');
-    const tagSuggestions = document.getElementById('tag-suggestions');
 
     // Active tag filter (multi-select, OR).
     let activeTags = new Set();
@@ -2997,7 +3024,7 @@
     const inputSummary = document.getElementById('book-summary-input');
     const inputTags = document.getElementById('book-tags-input');
 
-    // --- Tag editor (edit modal): chip input + vocabulary suggestion chips. ---
+    // --- Tag editor (edit modal): chip input + type-ahead tag picker. ---
     // #book-tags-input is a hidden field that stays the single source of truth
     // for the submit handler; the chip editor syncs its value on every change.
     const tagEditor = document.getElementById('tag-editor');
@@ -3030,17 +3057,15 @@
         `<span class="tag-editor-chip">${escapeHtml(t)}` +
         `<button type="button" class="tag-chip-remove" data-remove="${escapeHtml(t)}" aria-label="Remove ${escapeHtml(t)} tag">×</button></span>`
       ).join('');
-      // Toggle pressed state on the suggestion chips without re-rendering the row.
-      tagSuggestions.querySelectorAll('.tag-suggestion-chip').forEach(chip => {
-        const pressed = tagEditorTags.includes(chip.dataset.tag);
-        chip.setAttribute('aria-pressed', pressed ? 'true' : 'false');
-      });
+      // Keep the open type-ahead dropdown's ✓ states in sync (add/remove/Backspace/×).
+      if (!tagDropdown.hidden) renderTagDropdown();
     }
 
     function resetTagEditor() {
       tagEditorTags = [];
       tagEditorInput.value = '';
       renderTagEditor();
+      closeTagDropdown();
     }
 
     // Click a chip's × to remove it (refocus the input so typing can continue).
@@ -3060,11 +3085,40 @@
     });
 
     // Enter / comma commit the typed value; Backspace on empty removes the last chip.
+    // ArrowDown/ArrowUp move through the type-ahead dropdown; Escape closes it.
     tagEditorInput.addEventListener('keydown', (e) => {
+      const dropdownOpts = () => [...tagDropdown.querySelectorAll('.tag-dropdown-option')];
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const opts = dropdownOpts();
+        if (!tagDropdown.hidden && opts.length > 0) {
+          e.preventDefault();
+          const dir = e.key === 'ArrowDown' ? 1 : -1;
+          dropdownIndex = (dropdownIndex + dir + opts.length) % opts.length;
+          renderTagDropdown();
+        }
+        return;
+      }
+      if (e.key === 'Escape' && !tagDropdown.hidden) {
+        e.preventDefault();
+        closeTagDropdown();
+        return;
+      }
+      if (e.key === 'Enter' && !tagDropdown.hidden && dropdownIndex >= 0) {
+        const opts = dropdownOpts();
+        const opt = opts[dropdownIndex];
+        if (opt) {
+          e.preventDefault();
+          addTag(opt.dataset.tag);
+          tagEditorInput.value = '';
+          renderTagDropdown(); // stay open — pick more, or Escape/blur to close
+          return;
+        }
+      }
       if (e.key === 'Enter' || e.key === ',' || e.key === '，') {
         e.preventDefault();
         addTag(tagEditorInput.value);
         tagEditorInput.value = '';
+        renderTagDropdown(); // show the full list again (new tag now ✓)
       } else if (e.key === 'Backspace' && tagEditorInput.value === '' && tagEditorTags.length > 0) {
         removeTag(tagEditorTags[tagEditorTags.length - 1]);
       }
@@ -3076,19 +3130,79 @@
         addTag(tagEditorInput.value);
         tagEditorInput.value = '';
       }
+      closeTagDropdown();
     });
 
-    // Tap a suggestion chip to toggle it on/off for this book.
-    tagSuggestions.addEventListener('click', (e) => {
-      const chip = e.target.closest('.tag-suggestion-chip');
-      if (!chip) return;
-      const t = chip.dataset.tag;
-      if (!t) return;
+    // --- Tag type-ahead dropdown (edit modal) ---
+    // Replaces the browser's native <datalist> popup (which can't be styled) with
+    // a custom dropdown that matches the app. It opens on focus showing every tag;
+    // typing filters the list, picking toggles a tag on/off, and it stays open so
+    // you can add several in one go (Escape/blur/click-outside closes it).
+    const tagDropdown = document.getElementById('tag-dropdown');
+    let dropdownIndex = -1;
+    let catalogTags = [];
+
+    function closeTagDropdown() {
+      tagDropdown.hidden = true;
+      tagDropdown.innerHTML = '';
+      dropdownIndex = -1;
+      tagEditorInput.setAttribute('aria-expanded', 'false');
+      tagEditorInput.removeAttribute('aria-activedescendant');
+    }
+
+    const DD_CHECK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+    function renderTagDropdown() {
+      const q = tagEditorInput.value.trim().toLowerCase();
+      // Empty field → show the whole vocabulary; typing narrows it by prefix.
+      const matches = q ? catalogTags.filter(t => t.startsWith(q)).slice(0, 12) : catalogTags;
+      if (matches.length === 0) {
+        closeTagDropdown();
+        return;
+      }
+      tagDropdown.hidden = false;
+      tagDropdown.innerHTML = matches.map((t, i) => {
+        const added = tagEditorTags.includes(t);
+        const highlighted = i === dropdownIndex;
+        return `<button type="button" class="tag-dropdown-option${added ? ' is-added' : ''}${highlighted ? ' highlighted' : ''}" role="option" data-tag="${escapeHtml(t)}" ${highlighted ? `id="tag-dd-opt-${i}"` : ''} aria-selected="${highlighted ? 'true' : 'false'}">` +
+          `${escapeHtml(t)}${added ? `<span class="dd-check" aria-hidden="true">${DD_CHECK_SVG}</span>` : ''}` +
+          `</button>`;
+      }).join('');
+      tagEditorInput.setAttribute('aria-expanded', 'true');
+      if (dropdownIndex >= 0) {
+        tagEditorInput.setAttribute('aria-activedescendant', `tag-dd-opt-${dropdownIndex}`);
+      } else {
+        tagEditorInput.removeAttribute('aria-activedescendant');
+      }
+    }
+
+    // Clicking the field opens the full tag list.
+    tagEditorInput.addEventListener('focus', () => {
+      renderTagDropdown();
+    });
+
+    // Re-filter the dropdown as the user types.
+    tagEditorInput.addEventListener('input', () => {
+      renderTagDropdown();
+    });
+
+    // Selecting an option: mousedown preventDefault keeps focus in the input (so
+    // the blur handler doesn't commit/clear first), then the click adds the tag.
+    tagDropdown.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.tag-dropdown-option')) e.preventDefault();
+    });
+    tagDropdown.addEventListener('click', (e) => {
+      const opt = e.target.closest('.tag-dropdown-option');
+      if (!opt) return;
+      const t = opt.dataset.tag;
+      // Toggle: click an unchecked tag to add it, a checked one to remove it.
       if (tagEditorTags.includes(t)) {
         removeTag(t);
       } else {
         addTag(t);
       }
+      tagEditorInput.value = '';
+      renderTagDropdown(); // stay open with updated ✓ states
       tagEditorInput.focus();
     });
 
@@ -3140,17 +3254,12 @@
         if (!tagSet.has(t)) activeTags.delete(t);
       }
 
-      // Autocomplete options for the edit form's tag editor input.
-      const tagDatalist = document.getElementById('tag-datalist');
-      if (tagDatalist) {
-        tagDatalist.innerHTML = allTags.map(t => `<option value="${escapeHtml(t)}"></option>`).join('');
-      }
+      // Vocabulary for the edit form's tag type-ahead dropdown (filtered per keystroke).
+      catalogTags = allTags;
 
       if (allTags.length === 0) {
         tagFilters.hidden = true;
         tagFilters.innerHTML = '';
-        tagSuggestions.hidden = true;
-        tagSuggestions.innerHTML = '';
         return;
       }
 
@@ -3163,14 +3272,6 @@
         </button>
       `).join('');
       tagFilters.scrollLeft = prevScrollLeft;
-
-      // Suggestion chips for the edit form's tag editor (tap to toggle, with counts).
-      tagSuggestions.hidden = false;
-      tagSuggestions.innerHTML = allTags.map(t => `
-        <button type="button" class="tag-suggestion-chip" data-tag="${escapeHtml(t)}" aria-pressed="${tagEditorTags.includes(t) ? 'true' : 'false'}">
-          ${escapeHtml(t)}<span class="tag-count">${tagCounts.get(t)}</span>
-        </button>
-      `).join('');
     }
 
     // Modal Volume/Stage Dropdown Helpers
