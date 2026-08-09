@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -4935,8 +4935,9 @@
       applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
     });
 
-    const savedTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    // First-time visitors (no saved preference) default to light; a saved
+    // choice still wins on subsequent visits.
+    const savedTheme = localStorage.getItem('theme') || 'light';
     applyTheme(savedTheme);
 
     // Edit / View Mode Toggle (local only — the switch is hidden on the
