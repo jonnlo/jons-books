@@ -3023,6 +3023,7 @@
     const coverPlaceholder = document.getElementById('cover-dropzone-placeholder');
     const coverHint = document.getElementById('book-cover-hint');
     let pendingCoverBlob = null; // downscaled cover chosen but not yet saved
+    let formBaseline = null; // form snapshot taken on open — for unsaved-change detection
 
     function resetCoverUploadState() {
       pendingCoverBlob = null;
@@ -3115,6 +3116,7 @@
       }
       if (e.key === 'Escape' && !tagDropdown.hidden) {
         e.preventDefault();
+        e.stopPropagation(); // keep the edit modal's document Escape handler from firing
         closeTagDropdown();
         return;
       }
@@ -4062,6 +4064,7 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
     // Stage CRUD
@@ -4139,6 +4142,7 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
     function addNewBookToStage(volNum, stageNum) {
@@ -4159,6 +4163,7 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
     // Modal Control Functions
@@ -4187,6 +4192,7 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
     function openEditModal(id) {
@@ -4224,10 +4230,58 @@
 
       deleteBookBtn.style.display = "block";
       modal.classList.add('active');
+      formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
     function closeModal() {
       modal.classList.remove('active');
+    }
+
+    // Snapshot the book form's current values so we can detect unsaved changes
+    // when the modal is dismissed. Cover state is tracked separately below.
+    function snapshotFormState() {
+      return {
+        title: inputTitle.value,
+        author: inputAuthor.value,
+        volume: inputVolSelect.value,
+        stage: inputStageSelect.value,
+        newVol: inputNewVolName.value,
+        newStage: inputNewStageName.value,
+        readingOrder: inputReadingOrder.value,
+        year: inputYear.value,
+        status: inputStatus.value,
+        engine: inputEngine.value,
+        cover: inputCover.value,
+        isbn: inputIsbn.value,
+        notes: inputNotes.value,
+        summary: inputSummary.value,
+        tags: inputTags.value
+      };
+    }
+
+    // True when the form differs from the baseline captured when it opened.
+    // A cover picked but not yet saved counts as a change even though the
+    // hidden input value may still match the baseline.
+    function hasUnsavedChanges() {
+      if (!formBaseline) return false;
+      const cur = snapshotFormState();
+      for (const key in formBaseline) {
+        if (cur[key] !== formBaseline[key]) return true;
+      }
+      if (pendingCoverBlob !== null) return true;
+      return false;
+    }
+
+    // Dismiss path for X / Cancel / backdrop / Escape: confirm before closing
+    // when there are unsaved changes. Save and delete call closeModal()
+    // directly and bypass this prompt.
+    function requestCloseModal() {
+      if (hasUnsavedChanges()) {
+        if (!confirm("You have unsaved changes. Are you sure you want to close without saving?")) {
+          return; // stay open — keep the user's edits
+        }
+      }
+      closeModal();
     }
 
     // --- Read-Only Book Details Modal (public / view-only) ---
@@ -4767,10 +4821,21 @@
       resetCoverUploadState();
       inputCover.value = ''; // save as "no cover"
     });
-    closeModalBtn.addEventListener('click', closeModal);
-    cancelModalBtn.addEventListener('click', closeModal);
+    closeModalBtn.addEventListener('click', requestCloseModal);
+    cancelModalBtn.addEventListener('click', requestCloseModal);
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
+      if (e.target === modal) requestCloseModal();
+    });
+
+    // Escape closes the edit modal too — but only after confirming unsaved
+    // changes. The tagDropdown.hidden guard keeps Escape from closing the whole
+    // modal while the tag type-ahead dropdown is open (its own handler closes
+    // that dropdown and stops propagation). The read-only detail modal already
+    // closes on Escape via its own document handler, so the two coexist.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active') && tagDropdown.hidden) {
+        requestCloseModal();
+      }
     });
 
     [searchInput, filterVolume, filterStatus, sortSelect].forEach(elem => {
