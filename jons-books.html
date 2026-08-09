@@ -743,6 +743,134 @@
       background: var(--bg-surface);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .tag-chip:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+    .tag-chip:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
+    /* Tag editor (edit modal): chip input + vocabulary suggestions */
+    .tag-editor {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 8px;
+      cursor: text;
+      transition: border-color 0.15s ease;
+    }
+    .tag-editor:focus-within {
+      border-color: var(--accent-color);
+    }
+    .tag-editor-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.875rem;
+      padding: 2px 6px 2px 10px;
+      border-radius: 18px;
+      min-height: 30px;
+      text-transform: capitalize;
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+    .tag-chip-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1;
+      padding: 0;
+    }
+    .tag-chip-remove:hover {
+      background: color-mix(in srgb, var(--accent-color) 15%, transparent);
+      color: var(--accent-color);
+    }
+    .tag-chip-remove:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 1px;
+    }
+    .tag-editor-input {
+      flex: 1 1 120px;
+      min-width: 120px;
+      border: none;
+      background: transparent;
+      padding: 4px 2px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+    .tag-editor-input:focus {
+      outline: none;
+    }
+    .tag-editor-input::placeholder {
+      color: var(--text-muted);
+    }
+    /* Suggestion chips (edit modal) — tap to toggle */
+    .tag-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag-suggestions[hidden] {
+      display: none !important; /* display:flex above would override the hidden attribute */
+    }
+    .tag-suggestion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 30px;
+      font-weight: 500;
+      padding: 2px 10px;
+      border-radius: 18px;
+      font-size: 0.8125rem;
+      font-family: inherit;
+      text-transform: capitalize;
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .tag-suggestion-chip:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+    .tag-suggestion-chip[aria-pressed="true"] {
+      background: var(--accent-color);
+      color: white;
+      border: 1px solid var(--accent-color);
+    }
+    .tag-suggestion-chip:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+    .tag-suggestion-chip .tag-count {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
     }
 
     .results-count {
@@ -2196,9 +2324,16 @@
             <textarea id="book-summary-input" rows="5" placeholder="Publisher blurb (from Hardcover) — one paragraph per line. Leave blank if none."></textarea>
           </div>
           <div class="form-group full-width">
-            <label for="book-tags-input">Tags</label>
-            <input type="text" id="book-tags-input" list="tag-suggestions" placeholder="e.g. philosophy, reread, favorite — comma separated">
-            <datalist id="tag-suggestions"></datalist>
+            <label for="tag-editor-input">Tags</label>
+            <div class="tag-editor" id="tag-editor">
+              <div class="tag-editor-chips" id="tag-editor-chips"></div>
+              <input type="text" id="tag-editor-input" list="tag-datalist" placeholder="Add a tag…" autocomplete="off">
+            </div>
+            <datalist id="tag-datalist"></datalist>
+            <div class="tag-suggestions" id="tag-suggestions" role="group" aria-label="Suggested tags" hidden></div>
+            <p class="form-hint">Type a tag and press Enter, or tap suggestions below.</p>
+            <!-- Hidden field keeps inputTags.value as the saved tag list (comma-separated). -->
+            <input type="hidden" id="book-tags-input">
           </div>
         </div>
         <div class="modal-footer">
@@ -2862,6 +2997,101 @@
     const inputSummary = document.getElementById('book-summary-input');
     const inputTags = document.getElementById('book-tags-input');
 
+    // --- Tag editor (edit modal): chip input + vocabulary suggestion chips. ---
+    // #book-tags-input is a hidden field that stays the single source of truth
+    // for the submit handler; the chip editor syncs its value on every change.
+    const tagEditor = document.getElementById('tag-editor');
+    const tagEditorInput = document.getElementById('tag-editor-input');
+    const tagEditorChips = document.getElementById('tag-editor-chips');
+    let tagEditorTags = [];
+
+    function normalizeTag(str) {
+      return String(str).trim().toLowerCase();
+    }
+
+    function addTag(raw) {
+      const t = normalizeTag(raw);
+      if (!t) return false;
+      if (tagEditorTags.includes(t)) return false; // dedupe — no-op if already selected
+      tagEditorTags.push(t);
+      renderTagEditor();
+      return true;
+    }
+
+    function removeTag(tag) {
+      tagEditorTags = tagEditorTags.filter(t => t !== tag);
+      renderTagEditor();
+    }
+
+    function renderTagEditor() {
+      // Sync the hidden source-of-truth field (submit handler reads this value).
+      inputTags.value = tagEditorTags.join(', ');
+      tagEditorChips.innerHTML = tagEditorTags.map(t =>
+        `<span class="tag-editor-chip">${escapeHtml(t)}` +
+        `<button type="button" class="tag-chip-remove" data-remove="${escapeHtml(t)}" aria-label="Remove ${escapeHtml(t)} tag">×</button></span>`
+      ).join('');
+      // Toggle pressed state on the suggestion chips without re-rendering the row.
+      tagSuggestions.querySelectorAll('.tag-suggestion-chip').forEach(chip => {
+        const pressed = tagEditorTags.includes(chip.dataset.tag);
+        chip.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+      });
+    }
+
+    function resetTagEditor() {
+      tagEditorTags = [];
+      tagEditorInput.value = '';
+      renderTagEditor();
+    }
+
+    // Click a chip's × to remove it (refocus the input so typing can continue).
+    tagEditorChips.addEventListener('click', (e) => {
+      const btn = e.target.closest('.tag-chip-remove');
+      if (btn) {
+        removeTag(btn.dataset.remove);
+        tagEditorInput.focus();
+      }
+    });
+
+    // Clicking anywhere in the editor box focuses the text input (feels like a real input).
+    tagEditor.addEventListener('click', (e) => {
+      if (e.target === tagEditorInput) return;
+      if (e.target.closest('.tag-chip-remove')) return; // don't steal focus from remove buttons
+      tagEditorInput.focus();
+    });
+
+    // Enter / comma commit the typed value; Backspace on empty removes the last chip.
+    tagEditorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ',' || e.key === '，') {
+        e.preventDefault();
+        addTag(tagEditorInput.value);
+        tagEditorInput.value = '';
+      } else if (e.key === 'Backspace' && tagEditorInput.value === '' && tagEditorTags.length > 0) {
+        removeTag(tagEditorTags[tagEditorTags.length - 1]);
+      }
+    });
+
+    // Commit any trailing text on blur so a typed tag isn't silently dropped.
+    tagEditorInput.addEventListener('blur', () => {
+      if (tagEditorInput.value.trim()) {
+        addTag(tagEditorInput.value);
+        tagEditorInput.value = '';
+      }
+    });
+
+    // Tap a suggestion chip to toggle it on/off for this book.
+    tagSuggestions.addEventListener('click', (e) => {
+      const chip = e.target.closest('.tag-suggestion-chip');
+      if (!chip) return;
+      const t = chip.dataset.tag;
+      if (!t) return;
+      if (tagEditorTags.includes(t)) {
+        removeTag(t);
+      } else {
+        addTag(t);
+      }
+      tagEditorInput.focus();
+    });
+
     // Controls
     const importJsonBtn = document.getElementById('import-json-btn');
     const exportJsonBtn = document.getElementById('export-json-btn');
@@ -2910,9 +3140,16 @@
         if (!tagSet.has(t)) activeTags.delete(t);
       }
 
+      // Autocomplete options for the edit form's tag editor input.
+      const tagDatalist = document.getElementById('tag-datalist');
+      if (tagDatalist) {
+        tagDatalist.innerHTML = allTags.map(t => `<option value="${escapeHtml(t)}"></option>`).join('');
+      }
+
       if (allTags.length === 0) {
         tagFilters.hidden = true;
         tagFilters.innerHTML = '';
+        tagSuggestions.hidden = true;
         tagSuggestions.innerHTML = '';
         return;
       }
@@ -2927,8 +3164,13 @@
       `).join('');
       tagFilters.scrollLeft = prevScrollLeft;
 
-      // Autocomplete suggestions for the edit form's Tags input.
-      tagSuggestions.innerHTML = allTags.map(t => `<option value="${escapeHtml(t)}"></option>`).join('');
+      // Suggestion chips for the edit form's tag editor (tap to toggle, with counts).
+      tagSuggestions.hidden = false;
+      tagSuggestions.innerHTML = allTags.map(t => `
+        <button type="button" class="tag-suggestion-chip" data-tag="${escapeHtml(t)}" aria-pressed="${tagEditorTags.includes(t) ? 'true' : 'false'}">
+          ${escapeHtml(t)}<span class="tag-count">${tagCounts.get(t)}</span>
+        </button>
+      `).join('');
     }
 
     // Modal Volume/Stage Dropdown Helpers
@@ -3695,6 +3937,7 @@
       inputId.value = "";
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
+      resetTagEditor();       // ...or the tag chips/editor.
 
       populateVolumeDropdown('__new__');
       inputNewVolName.value = `Volume ${newVolNum}`;
@@ -3771,6 +4014,7 @@
       inputId.value = "";
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
+      resetTagEditor();       // ...or the tag chips/editor.
 
       populateVolumeDropdown(volNum);
       populateStageDropdown(volNum, '__new__');
@@ -3791,6 +4035,7 @@
       inputId.value = "";
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
+      resetTagEditor();       // ...or the tag chips/editor.
 
       populateVolumeDropdown(volNum);
       populateStageDropdown(volNum, stageNum);
@@ -3807,6 +4052,7 @@
       inputId.value = "";
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
+      resetTagEditor();       // ...or the tag chips/editor.
 
       const volMap = getVolumeMap();
       const sortedVols = Array.from(volMap.keys()).sort((a, b) => a - b);
@@ -3855,7 +4101,10 @@
       inputIsbn.value = book.isbn;
       inputNotes.value = book.notes;
       inputSummary.value = book.summary;
-      inputTags.value = (book.tags || []).join(', ');
+      // Tags — initialize the chip editor from the book's tags.
+      tagEditorTags = [...(book.tags || [])];
+      tagEditorInput.value = '';
+      renderTagEditor();
 
       deleteBookBtn.style.display = "block";
       modal.classList.add('active');
@@ -3898,6 +4147,16 @@
     const detailSummaryText = document.getElementById('detail-summary-text');
     const detailSummaryToggle = document.getElementById('detail-summary-toggle');
     let summaryExpanded = false;
+
+    // Clicking a tag chip in the read-only detail modal filters the grid to it.
+    detailTagsList.addEventListener('click', (e) => {
+      const chip = e.target.closest('.tag-chip');
+      if (!chip || !chip.dataset.tag) return;
+      activeTags.clear();
+      activeTags.add(chip.dataset.tag);
+      closeDetailModal();
+      renderBooks();
+    });
 
     const ENGINE_COLORS = {
       'Engine 1: Deep Focus': 'var(--engine-1)',
@@ -3971,10 +4230,10 @@
         detailNotes.hidden = true;
       }
 
-      // Tags (only when present).
+      // Tags (only when present) — click a chip to filter the grid by that tag.
       if (book.tags && book.tags.length > 0) {
         detailTags.hidden = false;
-        detailTagsList.innerHTML = book.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+        detailTagsList.innerHTML = book.tags.map(t => `<button type="button" class="tag-chip" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('');
       } else {
         detailTags.hidden = true;
         detailTagsList.innerHTML = '';
