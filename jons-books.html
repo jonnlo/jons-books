@@ -4490,8 +4490,15 @@
 
     closeDetailModalBtn.addEventListener('click', closeDetailModal);
 
+    // Backdrop dismissal only when the press STARTS on the overlay too — same
+    // common-ancestor click issue as the edit modal (see there).
+    let detailOverlayPointerDown = false;
+    detailModal.addEventListener('mousedown', (e) => {
+      detailOverlayPointerDown = (e.target === detailModal);
+    });
     detailModal.addEventListener('click', (e) => {
-      if (e.target === detailModal) closeDetailModal();
+      if (detailOverlayPointerDown && e.target === detailModal) closeDetailModal();
+      detailOverlayPointerDown = false;
     });
 
     // Escape closes the detail modal.
@@ -4823,8 +4830,17 @@
     });
     closeModalBtn.addEventListener('click', requestCloseModal);
     cancelModalBtn.addEventListener('click', requestCloseModal);
+    // Backdrop dismissal only when the press STARTS on the overlay too: a press
+    // inside the modal (selecting text, starting a scroll) that is released on
+    // the overlay would otherwise fire a click on the overlay (the mousedown /
+    // mouseup common ancestor) and dismiss the modal mid-interaction.
+    let overlayPointerDown = false;
+    modal.addEventListener('mousedown', (e) => {
+      overlayPointerDown = (e.target === modal);
+    });
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) requestCloseModal();
+      if (overlayPointerDown && e.target === modal) requestCloseModal();
+      overlayPointerDown = false;
     });
 
     // Escape closes the edit modal too — but only after confirming unsaved
