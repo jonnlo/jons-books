@@ -1148,11 +1148,25 @@
       display: inline-flex;
       align-self: flex-start;
       font-size: 0.7rem;
+      font-weight: 600;
       padding: 2px 8px;
       border-radius: 12px;
       background: var(--bg-main);
       color: var(--text-secondary);
       border: 1px solid var(--border-color);
+    }
+
+    /* Reading: accent-colored border + text (neutral background). */
+    .status-pill[data-status="Reading"] {
+      color: var(--accent-color);
+      border-color: color-mix(in srgb, var(--accent-color) 70%, var(--bg-input));
+    }
+
+    /* Completed: solid accent fill with white text. */
+    .status-pill[data-status="Completed"] {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      color: #ffffff;
     }
 
     /* Modal Styling */
@@ -3530,7 +3544,7 @@
             </div>
             <h2 class="book-title" title="${escapeHtml(book.title)}">${renderTitleHtml(book.title)}</h2>
             <p class="book-author">${escapeHtml(book.author)}</p>
-            ${book.status ? `<span class="status-pill">${escapeHtml(book.status)}</span>` : ''}
+            ${book.status ? `<span class="status-pill" data-status="${escapeHtml(book.status)}">${escapeHtml(book.status)}</span>` : ''}
           </div>
         </article>
       `;
@@ -4288,9 +4302,11 @@
       detailAuthor.textContent = book.author;
       if (book.status) {
         detailStatus.textContent = book.status;
+        detailStatus.dataset.status = book.status;
         detailStatus.hidden = false;
       } else {
         detailStatus.textContent = '';
+        delete detailStatus.dataset.status;
         detailStatus.hidden = true;
       }
 
