@@ -1,58 +1,42 @@
 # jon's books
 
-A personal library — a single-file, no-build web app for browsing and curating a private book collection. Lightweight, no dependencies beyond three CDNs, and deployed to GitHub Pages.
+A personal book-library web app — built for my own reading collection, but free for anyone to download, run, and customize. It's a single static HTML file with no build step: the same file is a full editor locally and a read-only site when deployed.
 
 **Live site:** https://jonnlo.github.io/jons-books/
 
-## Features
+## About
+
+This started as a personal project to track and browse my reading — 223 books organized into reading volumes and stages, with tags, publisher summaries, and cover images. You can browse the collection on the live site above, or clone this repo and run your own copy locally, where you get the full editing UI to add, organize, and reorder books in your own catalog.
+
+### Features
 
 - **Two views:** a visual **Grid** of cover cards and a **Volumes** ("roadmap") view that groups books into reading volumes and stages.
 - **Active Books:** three "reading engine" tracks — Deep Focus, Complementary, Exploration — that pin currently-read books.
-- **Search & filter:** full-text search (title, author, stage, notes, ISBN), a status filter, and a multi-select **tag** filter.
-- **Sorting:** title, author, status, volume/stage order, year — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
+- **Search & filter:** full-text search (title, author, stage, notes, ISBN), plus **volume**, **status**, and multi-select **tag** filters.
+- **Sorting:** reading order (volume → stage → order), year (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
+- **Edit / View modes:** flip between maintaining the library and read-only browsing on the same data.
 - **Book details modal:** cover, volume/stage, reading order, publisher **summary** (collapsible), notes, tags, and ISBN links to Google Books and Goodreads.
-- **Status tracking:** opt-in *To Read / Reading / Completed*.
-- **Covers:** local JPEGs in `covers/` with a generated CSS-jacket fallback when a book has none.
+- **Status tracking:** opt-in *To Read / Reading / Completed*, with distinct pill styles — To Read neutral, Reading accent outline, Completed solid accent fill.
+- **Covers:** local JPEGs in `covers/`, uploaded via a click-or-drop zone (drag in a cover image file or even a raw image URL).
 - **Dark / light themes**, with browser-chrome tinting tuned for iOS Safari 26.
 - **Accessibility:** focus-trapped modals, ARIA labels, keyboard/Escape support, touch drag-to-dismiss on mobile, and `prefers-reduced-motion` support.
 
-## How it works: one file, two modes
+### How it works: one file, two modes
 
 `jons-books.html` is the whole app — HTML, CSS, and JavaScript in a single static file. There's no build step, no bundler, and no server code. The same file behaves differently depending on where it's opened:
 
 | | Local (`file://` or localhost) | Public (any other host) |
 |---|---|---|
-| Data | `localStorage`, bootstrapped from `books.json` on first run | `books.json` fetched at runtime |
-| Editing | **Full editor** — add/edit/delete, reorder, upload covers, tags | **View-only** — all edit UI hidden |
-| Clicks on a book | Opens the edit modal | Opens a read-only details modal |
+| Data | `localStorage`, bootstrapped from `books.json` | `books.json` fetched at runtime |
+| Mode | **Edit | View** toggle in the header | Always view-only; toggle hidden |
+| Clicks on a book | Edit mode → edit modal; View mode → read-only details | Read-only details modal |
 
-- **Local mode** is where the library is maintained. Everything you edit lives in `localStorage`; **Export** writes it back to `books.json` (Chrome/Edge can write the file directly via the File System Access API; other browsers download it).
-- **Public mode** is what visitors see at the live URL — a read-only render of the committed `books.json`. No edit chrome renders at all.
+## Download & run it locally
 
-`books.json` is the committed source of truth. `catalog.csv` and `CSV/` are legacy backups and are gitignored.
-
-## Repository layout
-
-```
-.
-├── jons-books.html             # The entire app (HTML + CSS + JS, no build)
-├── books.json                  # Committed source of truth (the catalog)
-├── covers/                     # Local cover images (covers/<book-id>.jpg)
-├── scripts/                    # One-time dev tooling (Node)
-│   ├── migrate-covers.mjs          # External cover URLs → local cover files
-│   └── hardcover-summary.mjs       # Fetch publisher summaries from Hardcover
-├── .github/workflows/deploy.yml    # GitHub Pages deployment
-├── modal-debug.html            # DEBUG ONLY: iOS Safari modal-overlay experiments
-├── bkup/                       # Old one-off backups (not part of the app)
-└── CSV/, catalog.csv           # Legacy CSV backups (gitignored)
-```
-
-## Running locally
-
-Serve the repo root with any static server:
+Clone or download this repo to your machine, then serve the folder:
 
 ```sh
-# 1. Go to your project root — the folder that contains jons-books.html
+# 1. Go to the project root — the folder that contains jons-books.html
 #    (change this to your actual path)
 cd /your/project/root
 
@@ -62,21 +46,24 @@ python3 -m http.server 8123
 
 - **http://localhost:8123** → local (editor) mode.
 - **http://localtest.me:8123** → exercises *public* mode (the hostname resolves to 127.0.0.1 without being "localhost"), handy for verifying the view-only behavior before pushing.
-- Opening `jons-books.html` directly via `file://` also works in local mode.
+- Opening `jons-books.html` directly via `file://` also works in local mode: browsers block fetching `books.json` there, so on first run the app shows a **"Choose books.json"** banner — pick the file once to load the catalog.
 
-## Using the app (local mode)
+Everything you edit lives in `localStorage`; **Export** writes it back to `books.json` (Chrome/Edge can write the file directly via the File System Access API; other browsers download it). An **Edit | View** toggle switches between maintaining the library and read-only browsing — both modes share the same in-memory data, so unsaved edits still show in View.
 
-- **Add a book:** `+ Add Book` in the toolbar → fill in title/author/year/ISBN, volume & stage, status, engine, tags, notes, and summary; optionally upload a cover.
-- **Edit a book:** click any card in Grid view → the edit modal opens prefilled (with a **Delete Book** button for removal).
+### Using the app
+
+- **Add a book:** `+ Add Book` in the toolbar → fill in title/author/year/ISBN, volume & stage, status, engine, tags, notes, and summary; optionally upload a cover via the click-or-drop zone (drag in an image file or a raw image URL).
+- **Edit a book:** click any card in Grid view (in Edit mode) → the edit modal opens prefilled (with a **Delete Book** button for removal). Closing it with unsaved changes prompts a confirmation first.
 - **Reorder:** switch to the **Volumes** view and drag & drop books between volumes and stages.
 - **Assign status / engine:** via the add/edit form. A status pill only renders on cards that have one — status is opt-in.
+- **Tags:** added in the edit form via a type-ahead dropdown with suggestions (Enter or comma commits a tag; the list is pre-filled with existing tags).
 - **Save your changes:** **Export** writes the current `localStorage` state back to `books.json`. The app shows an **Export Now** reminder when you have unsaved changes, and **Check for Updates** compares your local copy against the on-disk/remote `books.json` (it can read the file directly via the File System Access API when opened from `file://`).
 
 All editing controls live in the toolbar and are hidden on the public site.
 
-## Data model (`books.json`)
+### Data model (`books.json`)
 
-`books.json` is an array of book objects. A complete book looks like:
+`books.json` is the committed source of truth (`catalog.csv` and `CSV/` are legacy backups and are gitignored). It's an array of book objects; a complete book looks like:
 
 ```json
 {
@@ -116,13 +103,13 @@ All editing controls live in the toolbar and are hidden on the public site.
 | `notes` | string | Free-text notes |
 | `summary` | string | Publisher blurb (`""` when none) |
 
-Current catalog: **217 books** across **7 volumes** and **41 stages**, with a **28-tag** vocabulary. Imports and the public fetch both normalize records through the same code path, so optional fields get sensible defaults on load.
+Current catalog: **223 books** across **7 volumes** and **41 stages**, with a **28-tag** vocabulary. Imports and the public fetch both normalize records through the same code path, so optional fields get sensible defaults on load.
 
-## Scripts (dev tooling)
+### Scripts (dev tooling)
 
 Both scripts are Node ESM and run from the repo root. Neither is part of the app itself — they were used for one-time data migrations and backfills.
 
-### `scripts/migrate-covers.mjs`
+#### `scripts/migrate-covers.mjs`
 
 Downloads external cover URLs from `books.json` into local `covers/<id>.jpg` (downscaled JPEG, ≤800px wide, height uncapped), then rewrites each book's `cover` field to the local path. Idempotent — skips covers that already start with `covers/`.
 
@@ -133,7 +120,7 @@ node scripts/migrate-covers.mjs --force --source <old-books.json>        # re-do
 
 Requires **Node 18+** and the `sharp` dependency (`npm install` in `scripts/`).
 
-### `scripts/hardcover-summary.mjs`
+#### `scripts/hardcover-summary.mjs`
 
 Fetches publisher blurbs from the [Hardcover GraphQL API](https://docs.hardcover.app/api/getting-started) and backfills the `summary` field in `books.json`.
 
@@ -146,19 +133,12 @@ HARDCOVER_TOKEN=... node scripts/hardcover-summary.mjs --backfill --dry-run  # r
 
 The token is read from the `HARDCOVER_TOKEN` env var or a gitignored `.hardcover-token` file (never committed). Requests are throttled to ~1/second to stay under Hardcover's 60/min limit. Misses are logged to `scripts/hardcover-summary-misses.txt` (gitignored).
 
-## Deployment
+## Deploy it publicly
 
-GitHub Pages, driven by `.github/workflows/deploy.yml`:
+The public site is served from GitHub Pages, driven by `.github/workflows/deploy.yml`:
 
 - Stages `_site/` = `index.html` (a copy of `jons-books.html`) + `books.json` + the `covers/` folder.
 - Deploys via `actions/deploy-pages`, with `workflow_dispatch` available for manual runs.
 - Triggers on pushes to `main` touching `books.json`, `jons-books.html`, `scripts/**`, `covers/**`, or the workflow file.
 
 Live: **https://jonnlo.github.io/jons-books/** — the deploy turns this same file into the public, view-only site.
-
-## Troubleshooting
-
-- **Port already in use:** 8123 is often taken on this machine — use another port (e.g. `8130`).
-- **`npm install` fails with EPERM on the npm cache:** install with a fresh cache dir, e.g. `npm install --cache "$TMPDIR/npm-cache"`.
-- **`sharp` build step:** on npm 11+, approve the install script (`npm install-scripts approve sharp`) and rebuild (`npm rebuild sharp`).
-- **Local edits not showing on the site:** local mode reads `localStorage`, not `books.json` directly — **Export** (then commit) to sync your edits to the deployed catalog.
