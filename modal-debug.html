@@ -111,7 +111,7 @@
       letter-spacing: -0.03em;
     }
 
-    /* ===== DEBUG-ONLY test levers (not part of the app; defaults match jons-books.html) =====
+    /* ===== DEBUG-ONLY test levers (not part of the app; defaults match index.html) =====
        The toolbar + lever classes below exist purely to A/B the iOS Safari
        "white status bar / URL bar" bug in isolation (no #safari-tint-shim). */
     .debug-toolbar {
@@ -173,7 +173,7 @@
 
     /* Lever: html background fallback. Safari samples the html/body as the
        FALLBACK chrome color when no fixed/sticky element qualifies at the edge;
-       a transparent root falls back to WHITE/BLACK. jons-books.html currently
+       a transparent root falls back to WHITE/BLACK. index.html currently
        has NO html bg rule (only body), so this is OFF by default. */
     html.debug-html-bg {
       background-color: var(--bg-main);
@@ -486,7 +486,7 @@
       border: 1px solid var(--border-color);
     }
 
-    /* ===== Modal Styling (verbatim from jons-books.html) =====
+    /* ===== Modal Styling (verbatim from index.html) =====
        Hidden modals use display:none (not opacity:0) so they aren't painted and
        can't be sampled by Safari's browser-UI tint detector. */
     .modal-overlay {
@@ -914,7 +914,7 @@
     <main id="book-grid" class="book-grid"></main>
   </div>
 
-  <!-- Read-Only Book Details Modal (public / view-only) — markup verbatim from jons-books.html -->
+  <!-- Read-Only Book Details Modal (public / view-only) — markup verbatim from index.html -->
   <div class="modal-overlay book-detail-modal overlay-inset-bleed" id="book-detail-modal" role="dialog" aria-modal="true" aria-labelledby="book-detail-title">
     <div class="modal-content">
       <div class="modal-header">
@@ -1260,7 +1260,7 @@ Or does he?`
     ];
 
     // =====================================================================
-    // Helpers (ported from jons-books.html)
+    // Helpers (ported from index.html)
     // =====================================================================
     function escapeHtml(str) {
       if (!str) return '';

@@ -5,7 +5,7 @@ on:
     branches: [main, master]
     paths:
       - 'books.json'
-      - 'jons-books.html'
+      - 'index.html'
       - 'scripts/**'
       - 'covers/**'
       - '.github/workflows/deploy.yml'
@@ -33,7 +33,7 @@ jobs:
       - name: Stage site (index.html + books.json + covers)
         run: |
           mkdir -p _site
-          cp "jons-books.html" _site/index.html
+          cp index.html _site/index.html
           cp books.json _site/books.json
           [ -d covers ] && cp -r covers _site/covers || true
 

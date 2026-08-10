@@ -23,7 +23,7 @@ This started as a personal project to track and browse my reading — 223 books 
 
 ### How it works: one file, two modes
 
-`jons-books.html` is the whole app — HTML, CSS, and JavaScript in a single static file. There's no build step, no bundler, and no server code. The same file behaves differently depending on where it's opened:
+`index.html` is the whole app — HTML, CSS, and JavaScript in a single static file. There's no build step, no bundler, and no server code. The same file behaves differently depending on where it's opened:
 
 | | Local (`file://` or localhost) | Public (any other host) |
 |---|---|---|
@@ -36,7 +36,7 @@ This started as a personal project to track and browse my reading — 223 books 
 Clone or download this repo to your machine, then serve the folder:
 
 ```sh
-# 1. Go to the project root — the folder that contains jons-books.html
+# 1. Go to the project root — the folder that contains index.html
 #    (change this to your actual path)
 cd /your/project/root
 
@@ -46,7 +46,7 @@ python3 -m http.server 8123
 
 - **http://localhost:8123** → local (editor) mode.
 - **http://localtest.me:8123** → exercises *public* mode (the hostname resolves to 127.0.0.1 without being "localhost"), handy for verifying the view-only behavior before pushing.
-- Opening `jons-books.html` directly via `file://` also works in local mode: browsers block fetching `books.json` there, so on first run the app shows a **"Choose books.json"** banner — pick the file once to load the catalog.
+- Opening `index.html` directly via `file://` also works in local mode: browsers block fetching `books.json` there, so on first run the app shows a **"Choose books.json"** banner — pick the file once to load the catalog.
 
 Everything you edit lives in `localStorage`; **Export** writes it back to `books.json` (Chrome/Edge can write the file directly via the File System Access API; other browsers download it). An **Edit | View** toggle switches between maintaining the library and read-only browsing — both modes share the same in-memory data, so unsaved edits still show in View.
 
@@ -137,8 +137,8 @@ The token is read from the `HARDCOVER_TOKEN` env var or a gitignored `.hardcover
 
 The public site is served from GitHub Pages, driven by `.github/workflows/deploy.yml`:
 
-- Stages `_site/` = `index.html` (a copy of `jons-books.html`) + `books.json` + the `covers/` folder.
+- Stages `_site/` = `index.html` + `books.json` + the `covers/` folder.
 - Deploys via `actions/deploy-pages`, with `workflow_dispatch` available for manual runs.
-- Triggers on pushes to `main` touching `books.json`, `jons-books.html`, `scripts/**`, `covers/**`, or the workflow file.
+- Triggers on pushes to `main` touching `books.json`, `index.html`, `scripts/**`, `covers/**`, or the workflow file.
 
 Live: **https://jonnlo.github.io/jons-books/** — the deploy turns this same file into the public, view-only site.
