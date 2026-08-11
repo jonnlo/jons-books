@@ -347,11 +347,11 @@
     }
 
     .engines-heading {
-      font-size: 1rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      letter-spacing: -0.01em;
-      /* text-transform: uppercase; */
-      color: var(--text-secondary);
+      /* letter-spacing: -0.01em; */
+      text-transform: uppercase;
+      color: var(--text-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1695,7 +1695,7 @@
       margin-bottom: 16px;
       border-bottom: 1px solid var(--text-muted);
       font-size: 1.35rem;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--text-primary);
       letter-spacing: -0.01em;
       display: flex;
@@ -1891,6 +1891,43 @@
 
     /* Mobile Responsive Adjustments */
     @media (max-width: 600px) {
+      /* Header: keep the title and the Edit/View + theme controls on one row
+         (brand grows, actions pinned right); the stats pill drops to its own
+         full-width row below. */
+      header {
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .brand {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .brand h1 {
+        font-size: 1.1rem;
+        white-space: nowrap;
+      }
+
+      .header-actions {
+        flex-shrink: 0;
+        gap: 8px;
+      }
+
+      .mode-toggle .btn-secondary {
+        min-width: 64px;
+        padding: 6px 8px;
+        font-size: 0.78rem;
+      }
+
+      .header-stats {
+        order: 2;
+        justify-content: center;
+        gap: 12px;
+        padding: 7px 14px;
+        font-size: 0.8rem;
+      }
+
       /* Active Books → compact horizontal carousel: the ORIGINAL mobile card
          (100px cover, title/author right) swiped through at ~80vw each, leaving
          a peek of the next card. CSS scroll-snap (mandatory) re-enabled
@@ -1949,6 +1986,17 @@
         margin-bottom: 8px;
       }
 
+      .engine-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+
       .engine-tag {
         font-size: 0.65rem;
         padding: 1px 6px;
@@ -1984,7 +2032,12 @@
       }
       
       .engines-section {
-      margin-bottom: 24px;
+        margin-bottom: 24px;
+      }
+      
+      .engines-heading {
+        margin-top:24px;
+        margin-bottom: 8px;
       }
 
       .modal-content{
@@ -2241,7 +2294,7 @@
     <!-- Active Reading Engines -->
     <div class="engines-wrap">
       <div class="engines-heading">
-        <span>Active Books</span>
+        <span>Active books</span>
       </div>
       <section class="engines-section">
 
