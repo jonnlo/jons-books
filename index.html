@@ -2202,22 +2202,25 @@
 
       /* ===== Phase 2: Sticky filter bar + Filters panel (mobile) ===== */
 
-      /* Sticky in Grid view only — the roadmap has its own sticky volume/stage
-         headers. Solid --bg-main background (matches the page, so no seam)
-         keeps Safari from tinting the browser chrome; no backdrop-filter/blur. */
-      body:not(.view-roadmap) .filter-bar {
-        position: sticky;
-        top: 0;
-        z-index: 50;
+      /* Shared look & spacing for BOTH views so the rhythm around the bar
+         (engines → bar → results count) never shifts when toggling views.
+         Solid --bg-main background (matches the page, so no seam) keeps Safari
+         from tinting the browser chrome; no backdrop-filter/blur. */
+      .filter-bar {
+        position: relative; /* anchors the absolutely-positioned Filters panel in both views (sticky in grid, static in roadmap) */
+        gap: 8px;
         background: var(--bg-main);
         margin-bottom: 14px;
         padding: 10px 0 8px;
         padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
       }
 
-      .filter-bar {
-        position: relative; /* anchors the absolutely-positioned Filters panel in both views (sticky in grid, static in roadmap) */
-        gap: 8px;
+      /* Sticky in Grid view only — the roadmap has its own sticky volume/stage
+         headers. */
+      body:not(.view-roadmap) .filter-bar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
       }
 
       /* Row 1: search (grows) + Surprise + Grid/Volumes + Filters toggle */
