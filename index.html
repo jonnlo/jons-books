@@ -2226,6 +2226,9 @@
         flex: 1 1 0; /* basis 0 so all four row-1 controls fit on one line; search grows to fill */
         min-width: 0; /* was 240px — let it shrink to share row 1 with the buttons */
       }
+      .search-input {
+        font-size: 16px; /* >=16px stops iOS Safari auto-zooming the input on focus */
+      }
       #shuffle-btn,
       #surprise-btn,
       #filter-toggle {
