@@ -5252,6 +5252,10 @@
       sortSelect.value = 'random';
       shuffledIds = null;
       renderBooks();
+      // If the user has scrolled past the sticky point, land at the new first
+      // book so the reshuffle is actually visible (no-op near the top, and
+      // mobile-only — same guard as the view-switch scroll).
+      scrollToFirstBooks();
     });
 
     // Picking Random auto-switches to Grid so the shuffle is actually visible
