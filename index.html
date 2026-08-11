@@ -606,6 +606,7 @@
 
     /* Random-sort / Surprise buttons (match .filter-select look) */
     .filter-btn {
+      position: relative; /* anchors the active-filter count badge (corner dot) */
       flex: 0 0 auto;
       height: 42px;
       padding: 0 14px;
@@ -675,16 +676,20 @@
     }
     /* Active-filter count badge on the mobile "Filters" toggle */
     .filter-badge {
+      position: absolute; /* corner dot on the icon-only Filters toggle */
+      top: -5px;
+      right: -5px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border: 2px solid var(--bg-main); /* notch ring so the dot reads as a bubble */
       border-radius: 999px;
       background: var(--accent-color);
       color: white;
-      font-size: 0.7rem;
+      font-size: 0.62rem;
       font-weight: 600;
       line-height: 1;
     }
@@ -2211,10 +2216,11 @@
       }
 
       .filter-bar {
+        position: relative; /* anchors the absolutely-positioned Filters panel in both views (sticky in grid, static in roadmap) */
         gap: 8px;
       }
 
-      /* Row 1: search (grows) + Shuffle + Surprise + Filters toggle */
+      /* Row 1: search (grows) + Surprise + Grid/Volumes + Filters toggle */
       .search-input-wrap {
         order: 1;
         flex: 1 1 0; /* basis 0 so all four row-1 controls fit on one line; search grows to fill */
@@ -2228,15 +2234,10 @@
         padding: 0 12px;
       }
 
-      /* Row 2: tag strip (full-bleed, existing rule above) */
-      .tag-filters {
-        order: 2;
-      }
-
-      /* Row 3: slim icon-only Grid / Volumes toggle, centered */
+      /* Row 1 (cont.): slim icon-only Grid / Volumes toggle */
       .view-toggle {
-        order: 3;
-        margin-inline: auto;
+        order: 1;
+        flex: 0 0 auto;
       }
       .view-toggle .btn-secondary {
         min-width: 0;
@@ -2246,16 +2247,30 @@
         display: none;
       }
 
-      /* Row 4: Filters panel — Volume | Status 2-col, Sort, Clear all */
+      /* Row 2: tag strip (full-bleed, existing rule above) */
+      .tag-filters {
+        order: 2;
+      }
+
+      /* Row 3: Filters panel — Volume | Status 2-col, Sort, Clear all.
+         Overlays the grid (absolute, just below the bar) instead of pushing
+         it down, so opening filters never shifts the grid's position.
+         Solid bg + shadow read it as a floating dropdown; no backdrop-filter
+         (Safari tint rule). */
       .filter-panel {
-        order: 4;
-        flex-basis: 100%;
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        z-index: 10;
         display: none;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
-        padding: 12px 0 2px;
-        margin-top: 2px;
-        border-top: 1px solid var(--border-color);
+        padding: 14px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       }
       .filter-bar.filters-open .filter-panel {
         display: grid;
@@ -2291,10 +2306,6 @@
         border-color: var(--accent-color);
         color: var(--accent-color);
         background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
-      }
-
-      .filter-badge {
-        font-size: 0.68rem;
       }
     }
 
@@ -2524,9 +2535,9 @@
       </div>
 
       <button type="button" id="shuffle-btn" class="filter-btn" title="Reshuffle" aria-label="Reshuffle" hidden><i data-lucide="shuffle"></i></button>
-      <button type="button" id="surprise-btn" class="filter-btn" title="Open a random book from the current results" aria-label="Surprise me"><i data-lucide="dices"></i></button>
-      <button type="button" id="filter-toggle" class="filter-btn" title="Toggle filters" aria-expanded="false" aria-controls="filter-panel">
-        <i data-lucide="sliders-horizontal"></i> Filters
+      <button type="button" id="surprise-btn" class="filter-btn" title="Open a random book from the current results" aria-label="Surprise me"><i data-lucide="sparkles"></i></button>
+      <button type="button" id="filter-toggle" class="filter-btn" title="Toggle filters" aria-label="Toggle filters" aria-expanded="false" aria-controls="filter-panel">
+        <i data-lucide="sliders-horizontal"></i>
         <span class="filter-badge" id="filter-badge" hidden></span>
       </button>
 
