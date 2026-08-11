@@ -1891,8 +1891,58 @@
 
     /* Mobile Responsive Adjustments */
     @media (max-width: 600px) {
+      /* Active Books → compact horizontal carousel: the ORIGINAL mobile card
+         (100px cover, title/author right) swiped through at ~80vw each, leaving
+         a peek of the next card. CSS scroll-snap (mandatory) re-enabled
+         2026-08-12 to test on device: scroll-padding-left:20px keeps card 1's
+         content inset, and padding-right:40px keeps the last card's snap point
+         reachable (the missing trailing pad was the original "snap back"
+         cause). Empty slots dropped; the whole section (heading included)
+         hides when nothing is assigned. */
+      .engines-wrap[data-active-count="0"] {
+        display: none;
+      }
+
+      .engine-card.empty {
+        display: none;
+      }
+
       .engines-grid {
-        gap: 10px;
+        flex: 0 0 auto;
+        width: calc(100% + 40px);
+        margin-inline: -20px;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        padding: 2px 0 4px; /* room for :focus-visible rings */
+        scroll-snap-type: x mandatory;
+        /* 20px so snapping card 1 lands at scrollLeft 0 (offsetLeft 20 minus
+           this padding), keeping the card's page-content inset. */
+        scroll-padding-left: 20px;
+      }
+
+      .engines-grid::-webkit-scrollbar {
+        display: none;
+      }
+
+      .engine-card {
+        flex: 0 0 auto;
+        width: 80vw;
+        scroll-snap-align: start;
+      }
+      /* Re-align the first/last card with the rest of the page content (20px
+         inset) instead of bleeding to the screen edge. Margin-based
+         compensation is robust inside scroll containers (unlike container
+         padding, which some browsers omit from scrollable overflow). */
+      .engine-card:first-child {
+        margin-left: 20px;
+      }
+      .engine-card:last-child {
+        margin-right: 20px;
       }
 
       .engine-header {
@@ -1915,7 +1965,7 @@
       }
 
       .engine-cover {
-        height: 84px;
+        height: 100px;
       }
 
       .engine-book-meta {
@@ -1933,6 +1983,10 @@
         overflow: hidden;
       }
       
+      .engines-section {
+      margin-bottom: 24px;
+      }
+
       .modal-content{
         max-height: 95dvh;
       }
@@ -2185,11 +2239,12 @@
     <input type="file" id="books-firstrun-file-input" accept=".json,application/json" style="display: none;">
 
     <!-- Active Reading Engines -->
-     <div class="engines-heading">
-      <span>Active Books</span>
+    <div class="engines-wrap">
+      <div class="engines-heading">
+        <span>Active Books</span>
       </div>
-    <section class="engines-section">
-      
+      <section class="engines-section">
+
       <div class="engines-grid">
         <div class="engine-card">
           <div class="engine-header">
@@ -2227,7 +2282,8 @@
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </div>
 
     <!-- Filters & Controls -->
     <div class="filter-bar">
@@ -3499,9 +3555,16 @@
       renderEngineSlot(slot1, activeE1);
       renderEngineSlot(slot2, activeE2);
       renderEngineSlot(slot3, activeE3);
+
+      // data-active-count lets mobile CSS hide the whole section (heading
+      // included) when no engine has a book. Inert on desktop.
+      const filled = [activeE1, activeE2, activeE3].filter(Boolean).length;
+      const wrap = document.querySelector('.engines-wrap');
+      if (wrap) wrap.setAttribute('data-active-count', filled);
     }
 
     function renderEngineSlot(slotElem, book) {
+      const card = slotElem.closest('.engine-card');
       if (book) {
         slotElem.innerHTML = `
           <div class="engine-book-container" onclick="openBookDetails('${book.id}', this)" title="Open Book Details" style="cursor: pointer;">
@@ -3514,8 +3577,10 @@
             </div>
           </div>
         `;
+        if (card) card.classList.remove('empty');
       } else {
         slotElem.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>`;
+        if (card) card.classList.add('empty');
       }
       if (window.lucide) lucide.createIcons();
     }
