@@ -653,6 +653,45 @@
     .tag-filters[hidden] {
       display: none !important; /* display:flex above would override the hidden attribute */
     }
+
+    /* Filters panel: display:contents on desktop so the Volume / Status / Sort
+       selects keep flowing inline between the search box and the action buttons
+       exactly as before. The mobile-only "Filters" toggle, its badge, the panel
+       labels and the Clear-all button are hidden on desktop. */
+    .filter-panel,
+    .filter-panel .filter-field {
+      display: contents;
+    }
+    .filter-panel label {
+      display: none;
+    }
+    /* Desktop only: hide the mobile "Filters" toggle and the panel's
+       Clear-all button (they only make sense in the compact mobile bar). */
+    @media (min-width: 601px) {
+      #filter-toggle,
+      #filter-clear {
+        display: none;
+      }
+    }
+    /* Active-filter count badge on the mobile "Filters" toggle */
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: var(--accent-color);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .filter-badge[hidden] {
+      display: none !important; /* inline-flex above would override the hidden attribute */
+    }
+
     .tag-filter-chip {
       display: inline-flex;
       align-items: center;
@@ -2155,6 +2194,108 @@
       .detail-meta-row {
         font-size: 0.8rem;
       }
+
+      /* ===== Phase 2: Sticky filter bar + Filters panel (mobile) ===== */
+
+      /* Sticky in Grid view only — the roadmap has its own sticky volume/stage
+         headers. Solid --bg-main background (matches the page, so no seam)
+         keeps Safari from tinting the browser chrome; no backdrop-filter/blur. */
+      body:not(.view-roadmap) .filter-bar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--bg-main);
+        margin-bottom: 14px;
+        padding: 10px 0 8px;
+        padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+      }
+
+      .filter-bar {
+        gap: 8px;
+      }
+
+      /* Row 1: search (grows) + Shuffle + Surprise + Filters toggle */
+      .search-input-wrap {
+        order: 1;
+        flex: 1 1 0; /* basis 0 so all four row-1 controls fit on one line; search grows to fill */
+        min-width: 0; /* was 240px — let it shrink to share row 1 with the buttons */
+      }
+      #shuffle-btn,
+      #surprise-btn,
+      #filter-toggle {
+        order: 1;
+        flex: 0 0 auto;
+        padding: 0 12px;
+      }
+
+      /* Row 2: tag strip (full-bleed, existing rule above) */
+      .tag-filters {
+        order: 2;
+      }
+
+      /* Row 3: slim icon-only Grid / Volumes toggle, centered */
+      .view-toggle {
+        order: 3;
+        margin-inline: auto;
+      }
+      .view-toggle .btn-secondary {
+        min-width: 0;
+        padding: 6px 10px;
+      }
+      .view-toggle .toggle-label {
+        display: none;
+      }
+
+      /* Row 4: Filters panel — Volume | Status 2-col, Sort, Clear all */
+      .filter-panel {
+        order: 4;
+        flex-basis: 100%;
+        display: none;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 12px 0 2px;
+        margin-top: 2px;
+        border-top: 1px solid var(--border-color);
+      }
+      .filter-bar.filters-open .filter-panel {
+        display: grid;
+      }
+      .filter-panel .filter-field {
+        display: grid;
+        gap: 5px;
+      }
+      .filter-panel .filter-field-wide {
+        grid-column: 1 / -1;
+      }
+      .filter-panel label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .filter-panel .filter-select {
+        flex: none;
+        width: 100%;
+        min-width: 0;
+      }
+      #filter-clear {
+        grid-column: 1 / -1;
+        justify-content: center;
+        height: 40px;
+      }
+
+      /* Highlight the toggle when any filter is active (mirrors
+         .filter-btn.active so it reads as an engaged control). */
+      #filter-toggle:has(.filter-badge:not([hidden])),
+      .filter-bar.filters-open #filter-toggle {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+        background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
+      }
+
+      .filter-badge {
+        font-size: 0.68rem;
+      }
     }
 
     /* ===== View-Only (Public Site) =====
@@ -2339,40 +2480,62 @@
     </div>
 
     <!-- Filters & Controls -->
-    <div class="filter-bar">
+    <div class="filter-bar" id="filter-bar">
       <div class="search-input-wrap">
         <i data-lucide="search"></i>
         <input type="text" id="search-input" class="search-input" placeholder="Search Title, Author, Stage, Notes, ISBN...">
       </div>
-      <select class="filter-select" id="filter-volume">
-        <option value="">All Volumes</option>
-      </select>
 
-      <select class="filter-select" id="filter-status">
-        <option value="">All Statuses</option>
-        <option value="__none__">No status</option>
-        <option value="To Read">To Read</option>
-        <option value="Reading">Reading</option>
-        <option value="Completed">Completed</option>
-      </select>
+      <!-- Volume / Status / Sort + Clear all. On desktop the panel is
+           display:contents, so these flow inline right after the search box
+           exactly as before. On mobile it becomes the bottom sheet opened by
+           the "Filters" toggle (row 4). -->
+      <div class="filter-panel" id="filter-panel">
+        <div class="filter-field">
+          <label for="filter-volume">Volume</label>
+          <select class="filter-select" id="filter-volume">
+            <option value="">All Volumes</option>
+          </select>
+        </div>
 
-      <select class="filter-select" id="sort-select">
-        <option value="reading-order">Reading Order (Volume → Stage → Order)</option>
-        <option value="year-desc" selected>Year (Newest First)</option>
-        <option value="year-asc">Year (Oldest First)</option>
-        <option value="title-asc">Title (A-Z)</option>
-        <option value="random">Random</option>
-      </select>
+        <div class="filter-field">
+          <label for="filter-status">Status</label>
+          <select class="filter-select" id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="__none__">No status</option>
+            <option value="To Read">To Read</option>
+            <option value="Reading">Reading</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+
+        <div class="filter-field filter-field-wide">
+          <label for="sort-select">Sort</label>
+          <select class="filter-select" id="sort-select">
+            <option value="reading-order">Reading Order (Volume → Stage → Order)</option>
+            <option value="year-desc" selected>Year (Newest First)</option>
+            <option value="year-asc">Year (Oldest First)</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+
+        <button type="button" id="filter-clear" class="btn-secondary"><i data-lucide="rotate-ccw"></i> Clear all</button>
+      </div>
 
       <button type="button" id="shuffle-btn" class="filter-btn" title="Reshuffle" aria-label="Reshuffle" hidden><i data-lucide="shuffle"></i></button>
       <button type="button" id="surprise-btn" class="filter-btn" title="Open a random book from the current results" aria-label="Surprise me"><i data-lucide="dices"></i></button>
+      <button type="button" id="filter-toggle" class="filter-btn" title="Toggle filters" aria-expanded="false" aria-controls="filter-panel">
+        <i data-lucide="sliders-horizontal"></i> Filters
+        <span class="filter-badge" id="filter-badge" hidden></span>
+      </button>
 
       <div class="view-toggle" role="group" aria-label="View mode">
         <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View" aria-pressed="true">
-          <i data-lucide="grid"></i> Grid
+          <i data-lucide="grid"></i> <span class="toggle-label">Grid</span>
         </button>
         <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Volumes View" aria-pressed="false">
-          <i data-lucide="layers"></i> Volumes
+          <i data-lucide="layers"></i> <span class="toggle-label">Volumes</span>
         </button>
       </div>
 
@@ -3091,6 +3254,11 @@
     const shuffleBtn = document.getElementById('shuffle-btn');
     const surpriseBtn = document.getElementById('surprise-btn');
     const tagFilters = document.getElementById('tag-filters');
+    const filterBar = document.getElementById('filter-bar');
+    const filterPanel = document.getElementById('filter-panel');
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterBadge = document.getElementById('filter-badge');
+    const filterClear = document.getElementById('filter-clear');
 
     // Active tag filter (multi-select, OR).
     let activeTags = new Set();
@@ -3519,6 +3687,9 @@
     // View Toggles
     viewGridBtn.addEventListener('click', () => {
       currentView = 'grid';
+      // Phase 2: sticky filter bar is Grid-only — this class flips it off in
+      // the roadmap (Phase 3 reuses it for scroll-reset on view switch).
+      document.body.classList.remove('view-roadmap');
       viewGridBtn.classList.add('active');
       viewGridBtn.setAttribute('aria-pressed', 'true');
       viewRoadmapBtn.classList.remove('active');
@@ -3528,10 +3699,61 @@
 
     viewRoadmapBtn.addEventListener('click', () => {
       currentView = 'roadmap';
+      document.body.classList.add('view-roadmap');
+      closeFilterPanel();
       viewRoadmapBtn.classList.add('active');
       viewRoadmapBtn.setAttribute('aria-pressed', 'true');
       viewGridBtn.classList.remove('active');
       viewGridBtn.setAttribute('aria-pressed', 'false');
+      renderBooks();
+    });
+
+    // --- Filters panel (mobile "Filters" sheet) ---
+    // Badge counts the active filters: Volume / Status set, Sort changed from
+    // the default (year-desc), and any active tags. Search is deliberately not
+    // counted (it's always visible in row 1).
+    function updateFilterBadge() {
+      let count = 0;
+      if (filterVolume.value !== '') count++;
+      if (filterStatus.value !== '') count++;
+      if (sortSelect.value !== 'year-desc') count++;
+      count += activeTags.size;
+      filterBadge.textContent = String(count);
+      filterBadge.hidden = count === 0;
+    }
+
+    function closeFilterPanel() {
+      filterBar.classList.remove('filters-open');
+      filterToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    filterToggle.addEventListener('click', (e) => {
+      e.stopPropagation(); // keep the document outside-tap handler from closing it
+      const open = filterBar.classList.toggle('filters-open');
+      filterToggle.setAttribute('aria-expanded', String(open));
+    });
+
+    // Outside tap (anywhere outside the whole bar) closes the panel.
+    document.addEventListener('click', (e) => {
+      if (filterBar.classList.contains('filters-open') && !filterBar.contains(e.target)) {
+        closeFilterPanel();
+      }
+    });
+
+    // Escape closes the panel.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && filterBar.classList.contains('filters-open')) {
+        closeFilterPanel();
+      }
+    });
+
+    // Clear all resets the panel filters, tags, and search.
+    filterClear.addEventListener('click', () => {
+      filterVolume.value = '';
+      filterStatus.value = '';
+      sortSelect.value = 'year-desc';
+      searchInput.value = '';
+      activeTags.clear();
       renderBooks();
     });
 
@@ -4005,6 +4227,7 @@
     function renderBooks() {
       updateVolumeFilterDropdown();
       updateTagFilters();
+      updateFilterBadge();
 
       const sortVal = sortSelect.value;
       const filtered = computeFilteredBooks();
