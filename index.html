@@ -3713,7 +3713,13 @@
       if (!target) return;
       const docTop = target.getBoundingClientRect().top + window.scrollY;
       const offset = currentView === 'grid' ? (filterBar.offsetHeight || 0) + 8 : 4;
-      window.scrollTo(0, Math.max(0, Math.round(docTop - offset)));
+      const landingY = Math.max(0, Math.round(docTop - offset));
+      // Only touch the scroll when the first books have already scrolled past
+      // the top — i.e. when the filter bar (Grid) / first volume (Volumes)
+      // anchor is pinned or floating. If they're still on screen, leave the
+      // scroll exactly where it is.
+      if (window.scrollY <= landingY) return;
+      window.scrollTo(0, landingY);
     }
 
     viewGridBtn.addEventListener('click', () => {
