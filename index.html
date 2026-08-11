@@ -523,10 +523,6 @@
 
     /* Filter Controls UI */
     .filter-bar {
-      /* background: var(--bg-surface); */
-      /* border: 1px solid var(--border-color); */
-      border-radius: 12px;
-      /* padding: 12px; */
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
@@ -2262,13 +2258,14 @@
          Overlays the grid (absolute, just below the bar) instead of pushing
          it down, so opening filters never shifts the grid's position.
          Solid bg + shadow read it as a floating dropdown; no backdrop-filter
-         (Safari tint rule). */
+         (Safari tint rule). z-index must clear the roadmap's sticky
+         volume/stage headers (z-index 10 / 9) in Volumes view. */
       .filter-panel {
         position: absolute;
         top: calc(100% + 4px);
         left: 0;
         right: 0;
-        z-index: 10;
+        z-index: 15;
         display: none;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
