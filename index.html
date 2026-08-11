@@ -3273,6 +3273,8 @@
     const filterToggle = document.getElementById('filter-toggle');
     const filterBadge = document.getElementById('filter-badge');
     const filterClear = document.getElementById('filter-clear');
+    // Mobile-only: view switches land at the first books (see scrollToFirstBooks).
+    const mobileView = window.matchMedia('(max-width: 600px)');
 
     // Active tag filter (multi-select, OR).
     let activeTags = new Set();
@@ -3699,16 +3701,32 @@
     inputStageSelect.addEventListener('change', onStageChange);
 
     // View Toggles
+    // On mobile, switching views lands at the FIRST BOOKS of the new view
+    // (top of the grid / top of the first volume) rather than wherever the
+    // other view left the scroll — and rather than the very top of the page.
+    // In Grid the sticky filter bar sits above the first books, so we offset
+    // by its height; in Volumes the bar is static (scrolls away), so the
+    // first volume lands flush at the top.
+    function scrollToFirstBooks() {
+      if (!mobileView.matches) return;
+      const target = document.getElementById('book-grid');
+      if (!target) return;
+      const docTop = target.getBoundingClientRect().top + window.scrollY;
+      const offset = currentView === 'grid' ? (filterBar.offsetHeight || 0) + 8 : 4;
+      window.scrollTo(0, Math.max(0, Math.round(docTop - offset)));
+    }
+
     viewGridBtn.addEventListener('click', () => {
       currentView = 'grid';
       // Phase 2: sticky filter bar is Grid-only — this class flips it off in
-      // the roadmap (Phase 3 reuses it for scroll-reset on view switch).
+      // the roadmap.
       document.body.classList.remove('view-roadmap');
       viewGridBtn.classList.add('active');
       viewGridBtn.setAttribute('aria-pressed', 'true');
       viewRoadmapBtn.classList.remove('active');
       viewRoadmapBtn.setAttribute('aria-pressed', 'false');
       renderBooks();
+      scrollToFirstBooks();
     });
 
     viewRoadmapBtn.addEventListener('click', () => {
@@ -3720,6 +3738,7 @@
       viewGridBtn.classList.remove('active');
       viewGridBtn.setAttribute('aria-pressed', 'false');
       renderBooks();
+      scrollToFirstBooks();
     });
 
     // --- Filters panel (mobile "Filters" sheet) ---
@@ -5273,7 +5292,6 @@
 
     // Theme Switcher
     const themeToggleBtn = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
 
     function applyTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
@@ -5281,11 +5299,11 @@
       // Keep the Android status-bar color in sync with the current theme.
       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
       if (themeColorMeta) themeColorMeta.content = theme === 'light' ? '#ffffff' : '#0b0f19';
-      if (theme === 'light') {
-        themeIcon.setAttribute('data-lucide', 'moon');
-      } else {
-        themeIcon.setAttribute('data-lucide', 'sun');
-      }
+      // The icon shows the theme the button will SWITCH TO (moon in light, sun
+      // in dark). Re-query it each time: lucide.createIcons() replaces the <i>
+      // with an <svg>, so a cached reference would silently stop updating.
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) themeIcon.setAttribute('data-lucide', theme === 'light' ? 'moon' : 'sun');
       if (window.lucide) lucide.createIcons();
     }
 
