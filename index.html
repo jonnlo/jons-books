@@ -4053,7 +4053,8 @@
       }
     });
 
-    // Clear all resets the panel filters, tags, and search.
+    // Clear all resets the panel filters, tags, and search. On mobile the
+    // panel auto-collapses after a reset so the full results are visible.
     filterClear.addEventListener('click', () => {
       filterVolume.value = '';
       filterStatus.value = '';
@@ -4061,6 +4062,7 @@
       searchInput.value = '';
       activeTags.clear();
       renderBooks();
+      if (mobileView.matches) closeFilterPanel();
       // Land at the first book when filters are cleared (both breakpoints).
       scrollToFirstBooks();
     });
@@ -5516,9 +5518,13 @@
     });
 
     // Changing the volume/status filter resets the scroll to the new first
-    // book on both breakpoints (fires after 'input' re-renders).
+    // book on both breakpoints (fires after 'input' re-renders). On mobile the
+    // panel auto-collapses after a pick so the new results are visible.
     [filterVolume, filterStatus].forEach(el => {
-      el.addEventListener('change', scrollToFirstBooks);
+      el.addEventListener('change', () => {
+        if (mobileView.matches) closeFilterPanel();
+        scrollToFirstBooks();
+      });
     });
 
     // Shuffle: auto-select Random in the sort dropdown, or reshuffle if already
@@ -5534,11 +5540,13 @@
     });
 
     // Picking Random auto-switches to Grid so the shuffle is actually visible
-    // (Random is a no-op in the roadmap view).
+    // (Random is a no-op in the roadmap view). On mobile the panel auto-
+    // collapses after a pick so the new results are visible.
     sortSelect.addEventListener('change', () => {
       if (sortSelect.value === 'random' && currentView !== 'grid') {
         viewGridBtn.click();
       }
+      if (mobileView.matches) closeFilterPanel();
       // Changing the sort reorders the grid, so if the user has scrolled past
       // the first books, land at the new first book — same as the shuffle
       // button (no-op near the top, mobile-only via scrollToFirstBooks).
