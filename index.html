@@ -3402,7 +3402,6 @@
     const statReading = document.getElementById('stat-reading');
     const statCompleted = document.getElementById('stat-completed');
     const displayedCount = document.getElementById('displayed-count');
-    const resultsCount = document.querySelector('.results-count');
 
     // Engine Slots
     const slot1 = document.getElementById('engine-slot-1');
@@ -3817,39 +3816,52 @@
     inputStageSelect.addEventListener('change', onStageChange);
 
     // View Toggles
-    // On mobile, switching views lands at the FIRST BOOKS of the new view
-    // (top of the grid / top of the first volume) rather than wherever the
-    // other view left the scroll — and rather than the very top of the page.
-    // In Grid the sticky filter bar sits above the first books, so we offset
-    // by its height; in Volumes the bar is static (scrolls away), so the
-    // first volume lands flush at the top. On desktop the bar is static too
-    // (the compact pinned bar only exists once the grid's first book has
-    // already scrolled past it), so the first book lands at the top of the
-    // viewport with the results count above it.
+    // Switching views (and sort/filter changes) lands at the FIRST BOOKS of
+    // the current view (top of the grid / top of the first volume) rather
+    // than wherever the other view left the scroll — and rather than the very
+    // top of the page.
+    // MOBILE Grid: the always-sticky filter bar sits above the first books,
+    // so we offset by its height. DESKTOP Grid: the compact pinned bar can
+    // coexist with the first book — we reveal it and land the first book just
+    // below it. VOLUMES (both breakpoints): the bar is static (scrolls away),
+    // so the first volume lands flush at the top.
     function scrollToFirstBooks() {
       const target = document.getElementById('book-grid');
       if (!target) return;
       const docTop = target.getBoundingClientRect().top + window.scrollY;
-      let offset;
-      if (currentView === 'grid' && mobileView.matches) {
-        // Mobile Grid: the sticky filter bar stays above the first books.
-        offset = (filterBar.offsetHeight || 0) + 8;
-      } else if (currentView === 'grid') {
-        // Desktop Grid: land the results count + first book at the top, with
-        // the full bar scrolled away naturally above. Release any compact
-        // pinned bar too, otherwise it would sit on top of the first book.
-        offset = (resultsCount.offsetHeight || 0) + 8;
-        filterBar.classList.remove('is-pinned', 'is-revealed');
-      } else {
+
+      if (currentView !== 'grid') {
         // Volumes: the bar is static (scrolls away) on both breakpoints.
-        offset = 4;
+        const landingY = Math.max(0, Math.round(docTop - 4));
+        if (window.scrollY <= landingY) return;
+        scrollSamples.length = 0;
+        lastScrollY = window.scrollY;
+        window.scrollTo(0, landingY);
+        return;
       }
-      const landingY = Math.max(0, Math.round(docTop - offset));
-      // Only touch the scroll when the first books have already scrolled past
-      // the top — i.e. when the filter bar (Grid) / first volume (Volumes)
-      // anchor is pinned or floating. If they're still on screen, leave the
-      // scroll exactly where it is.
-      if (window.scrollY <= landingY) return;
+
+      if (mobileView.matches) {
+        // Mobile Grid: the sticky filter bar stays above the first books.
+        const landingY = Math.max(0, Math.round(docTop - ((filterBar.offsetHeight || 0) + 8)));
+        if (window.scrollY <= landingY) return;
+        scrollSamples.length = 0;
+        lastScrollY = window.scrollY;
+        window.scrollTo(0, landingY);
+        return;
+      }
+
+      // Desktop Grid: only touch the scroll when the first book has actually
+      // scrolled off the top (grid top above the viewport).
+      if (window.scrollY <= docTop) return;
+      // Reveal the compact pinned bar so it coexists with the first book:
+      // force the reveal (barTopGone + scroll-up). NOTE: pinning compacts the
+      // tags to a single row, which shifts the grid UP in the layout — so
+      // re-measure the grid's document top AFTER the reveal, then land the
+      // first book just below the (now compact) bar.
+      lastScrollDir = 'up';
+      applyStickyBarState();
+      const docTopCompacted = target.getBoundingClientRect().top + window.scrollY;
+      const landingY = Math.max(0, Math.round(docTopCompacted - ((filterBar.offsetHeight || 0) + 8)));
       // Reset the velocity baseline so the programmatic jump isn't read as a
       // user flick (otherwise the up-scroll would wrongly reveal the bar).
       scrollSamples.length = 0;
@@ -3876,27 +3888,45 @@
     // re-reveals pinned on scroll-up (.is-past / .is-revealed).
     function applyStickyBarState() {
       if (!mobileView.matches) {
-        // Desktop: full bar never tucks; drive the compact pinned state.
-        // .is-pinned = bar is in its sticky spot (hidden above, -110%).
-        // .is-revealed = it has slid down to top:0 (visible). They are applied
-        // on separate scroll events (pin when the bar first scrolls off, reveal
-        // when scrolling back up), so the transform transition animates.
+        // Desktop: the compact bar may engage as soon as its OWN top reaches
+        // the viewport top (barTopGone), so it can pin while the first book is
+        // still visible below it (they coexist). It engages on scroll-up (or
+        // the filter-panel lock), or once the WHOLE bar has scrolled past on
+        // the way down (preserving the natural scroll-away). Once engaged
+        // (is-pinned = sticky) it stays latched until the bar returns to its
+        // natural spot, so browsing down just tucks it (-110%) instead of
+        // leaving a partial-bar sliver.
+        // .is-pinned = bar is sticky, hidden above (translateY -110%).
+        // .is-revealed = it has slid down to top:0 (visible).
+        const barTopGone = filterBarSentinel.getBoundingClientRect().bottom <= 0;
         const fullBarGone = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
         const wasPinned = filterBar.classList.contains('is-pinned');
-        const reveal = fullBarGone && (barPanelLocked || lastScrollDir === 'up');
-        // On the FIRST pin (just scrolled past the full bar), the transform
-        // would otherwise transition from visible (none) to hidden (-110%) and
-        // flash the compact bar in at top:0 while scrolling down. Disable the
-        // transition just for this initial hide so it snaps out instantly, then
-        // restore it so later reveal/hide still slide.
-        if (fullBarGone && !wasPinned) {
-          filterBar.style.transition = 'none';
-        }
-        filterBar.classList.toggle('is-pinned', fullBarGone);
-        filterBar.classList.toggle('is-revealed', reveal);
-        if (fullBarGone && !wasPinned) {
-          void filterBar.offsetHeight; // force reflow: commit the hidden state
-          filterBar.style.transition = '';
+        if (!barTopGone) {
+          // Bar back at its natural spot → release sticky entirely.
+          filterBar.classList.remove('is-pinned', 'is-revealed');
+        } else if (barPanelLocked || lastScrollDir === 'up') {
+          // Scroll up (or panel locked): reveal pinned at top.
+          if (!wasPinned) filterBar.style.transition = 'none';
+          filterBar.classList.add('is-pinned');
+          filterBar.classList.add('is-revealed');
+          if (!wasPinned) {
+            void filterBar.offsetHeight; // commit the initial pin state
+            filterBar.style.transition = '';
+          }
+        } else if (fullBarGone) {
+          // Scrolled fully past on the way down: engage sticky (hidden above).
+          if (!wasPinned) filterBar.style.transition = 'none';
+          filterBar.classList.add('is-pinned');
+          filterBar.classList.remove('is-revealed');
+          if (!wasPinned) {
+            void filterBar.offsetHeight;
+            filterBar.style.transition = '';
+          }
+        } else {
+          // Scrolling down but not fully past: keep any latched sticky state,
+          // just tuck it. If never pinned the bar stays static and scrolls
+          // away naturally (its in-flow spot is already above the viewport).
+          filterBar.classList.remove('is-revealed');
         }
         filterBar.classList.remove('is-past');
         return;
