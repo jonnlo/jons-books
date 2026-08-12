@@ -530,6 +530,63 @@
       margin-bottom: 36px;
     }
 
+    /* ===== Unified sticky filter bar (desktop + mobile, Grid + Volumes) =====
+       The bar sits normally at the top of the page; once you scroll past it it
+       tucks off-screen (translateY(-110%)); scrolling UP re-reveals it pinned
+       at the top, scrolling DOWN hides it again. Sticky (not fixed) keeps it in
+       flow, so toggling never shifts the layout. While the mobile Filters panel
+       is open (.filters-open) the bar is forced revealed so the panel can't
+       ride away. JS toggles .is-past / .is-revealed (see syncStickyBar). */
+    .filter-bar.is-past {
+      transform: translateY(-110%);
+      transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .filter-bar.is-past.is-revealed {
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .filter-bar.is-past {
+        transition: none;
+      }
+    }
+
+    /* Desktop: sticky + solid bg in both views. In Volumes the revealed bar
+       overlays the volume/stage sticky headers (z 60 > their 10 / 9). Tags
+       keep wrapping at the top of the page, but while the bar is revealed they
+       compact to a single horizontal-scroll strip so the pinned overlay stays
+       short (mobile's strip is single-row already, so this is desktop-only). */
+    @media (min-width: 601px) {
+      .filter-bar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: var(--bg-main);
+      }
+      body.view-roadmap .filter-bar {
+        z-index: 60;
+      }
+      .filter-bar.is-revealed .tag-filters {
+        flex: 0 0 100%;
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        padding: 2px 0 4px;
+        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+      }
+      .filter-bar.is-revealed .tag-filters::-webkit-scrollbar {
+        display: none;
+      }
+      .filter-bar.is-revealed .tag-filter-chip {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+    }
+
     .search-input-wrap {
       flex: 2;
       min-width: 240px;
@@ -2203,7 +2260,13 @@
          Solid --bg-main background (matches the page, so no seam) keeps Safari
          from tinting the browser chrome; no backdrop-filter/blur. */
       .filter-bar {
-        position: relative; /* anchors the absolutely-positioned Filters panel in both views (sticky in grid, static in roadmap) */
+        /* Sticky in BOTH views now (the unified reveal bar) — sticky still
+           anchors the absolutely-positioned Filters panel. z 50 in Grid; the
+           roadmap override below bumps it to 60 to clear the volume/stage
+           sticky headers when revealed. */
+        position: sticky;
+        top: 0;
+        z-index: 50;
         gap: 8px;
         background: var(--bg-main);
         margin-bottom: 14px;
@@ -2211,12 +2274,10 @@
         padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
       }
 
-      /* Sticky in Grid view only — the roadmap has its own sticky volume/stage
-         headers. */
-      body:not(.view-roadmap) .filter-bar {
-        position: sticky;
-        top: 0;
-        z-index: 50;
+      /* Roadmap: the revealed bar overlays the volume/stage sticky headers
+         (z 10 / 9), so it needs to sit above them. */
+      body.view-roadmap .filter-bar {
+        z-index: 60;
       }
 
       /* Row 1: search (grows) + Surprise + Grid/Volumes + Filters toggle */
@@ -3276,6 +3337,23 @@
     // Mobile-only: view switches land at the first books (see scrollToFirstBooks).
     const mobileView = window.matchMedia('(max-width: 600px)');
 
+    // Unified sticky filter bar (desktop + mobile, Grid + Volumes): the bar
+    // tucks off-screen once you scroll past it and re-reveals pinned at the
+    // top when you scroll up (see the .is-past / .is-revealed CSS). A zero-
+    // height sentinel sits just above the bar — while it's on screen the bar
+    // is at its natural spot; once it scrolls out of view the bar has reached
+    // its sticky point.
+    const filterBarSentinel = document.createElement('div');
+    filterBarSentinel.style.height = '0px';
+    filterBarSentinel.setAttribute('aria-hidden', 'true');
+    filterBar.parentNode.insertBefore(filterBarSentinel, filterBar);
+
+    // Scroll state for the reveal-on-scroll-up bar.
+    let barPastTop = false;
+    let lastScrollY = window.scrollY || 0;
+    let lastScrollDir = 'down';
+    let barPanelLocked = false; // mobile Filters panel open → keep the bar revealed
+
     // Active tag filter (multi-select, OR).
     let activeTags = new Set();
 
@@ -3722,6 +3800,42 @@
       window.scrollTo(0, landingY);
     }
 
+    // --- Sticky filter bar: tuck-away on scroll-down, reveal-on-scroll-up ---
+    // Grid + Volumes, desktop + mobile. .is-past = scrolled past the bar
+    // (default tucked off-screen); .is-revealed = pinned at the top. Sticky
+    // keeps it in flow, so toggling never shifts the layout.
+    function applyStickyBarState() {
+      const reveal = barPastTop && (barPanelLocked || lastScrollDir === 'up');
+      filterBar.classList.toggle('is-past', barPastTop);
+      filterBar.classList.toggle('is-revealed', reveal);
+    }
+
+    // Re-read the sentinel directly: the IntersectionObserver only fires on
+    // intersection CHANGES, so a view switch while scrolled deep wouldn't
+    // re-fire it — sync after any structural change (view switch, etc.).
+    function syncStickyBar() {
+      barPastTop = filterBarSentinel.getBoundingClientRect().bottom <= 0;
+      applyStickyBarState();
+    }
+
+    const barSentinelObserver = new IntersectionObserver(([entry]) => {
+      const past = !entry.isIntersecting;
+      if (past === barPastTop) return;
+      barPastTop = past;
+      applyStickyBarState();
+    }, { threshold: 0 });
+    barSentinelObserver.observe(filterBarSentinel);
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY || 0;
+      if (y === lastScrollY) return;
+      const dir = y > lastScrollY ? 'down' : 'up';
+      lastScrollY = y;
+      if (barPanelLocked) return; // panel open → the bar stays revealed
+      lastScrollDir = dir;
+      applyStickyBarState();
+    }, { passive: true });
+
     viewGridBtn.addEventListener('click', () => {
       currentView = 'grid';
       // Phase 2: sticky filter bar is Grid-only — this class flips it off in
@@ -3732,6 +3846,10 @@
       viewRoadmapBtn.classList.remove('active');
       viewRoadmapBtn.setAttribute('aria-pressed', 'false');
       renderBooks();
+      // View switch reveals the bar in Grid so the mobile first-books landing
+      // (offset = bar height + 8) matches the visible pinned bar.
+      lastScrollDir = 'up';
+      syncStickyBar();
       scrollToFirstBooks();
     });
 
@@ -3744,6 +3862,10 @@
       viewGridBtn.classList.remove('active');
       viewGridBtn.setAttribute('aria-pressed', 'false');
       renderBooks();
+      // In Volumes the first volume lands flush (offset 4) with the bar hidden,
+      // so leave it tucked until the user scrolls up.
+      lastScrollDir = 'down';
+      syncStickyBar();
       scrollToFirstBooks();
     });
 
@@ -3764,12 +3886,18 @@
     function closeFilterPanel() {
       filterBar.classList.remove('filters-open');
       filterToggle.setAttribute('aria-expanded', 'false');
+      // Unlock the bar so normal hide/reveal resumes once the panel closes.
+      barPanelLocked = false;
+      applyStickyBarState();
     }
 
     filterToggle.addEventListener('click', (e) => {
       e.stopPropagation(); // keep the document outside-tap handler from closing it
       const open = filterBar.classList.toggle('filters-open');
       filterToggle.setAttribute('aria-expanded', String(open));
+      // While the panel is open keep the bar revealed so it can't ride away.
+      barPanelLocked = open;
+      applyStickyBarState();
     });
 
     // Outside tap (anywhere outside the whole bar) closes the panel.
