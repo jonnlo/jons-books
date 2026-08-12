@@ -3869,15 +3869,6 @@
       window.scrollTo(0, landingY);
     }
 
-    // Desktop-only scroll reset for filter changes: sorting is wired to the
-    // plain scrollToFirstBooks() above (it already covers both breakpoints),
-    // while volume/status/tag/clear changes reset only on desktop — mobile's
-    // scroll reset stays scoped to the sort change.
-    function scrollToFirstBooksDesktop() {
-      if (mobileView.matches) return;
-      scrollToFirstBooks();
-    }
-
     // --- Filter bar: natural scroll-away (desktop) / tuck+reveal (mobile) ---
     // DESKTOP (>600px): the FULL bar sits in normal flow (static) and scrolls
     // away naturally like any content. Once the WHOLE bar has scrolled off and
@@ -4070,8 +4061,8 @@
       searchInput.value = '';
       activeTags.clear();
       renderBooks();
-      // Desktop: land at the first book when filters are cleared.
-      scrollToFirstBooksDesktop();
+      // Land at the first book when filters are cleared (both breakpoints).
+      scrollToFirstBooks();
     });
 
     // 1) FIX: Copy All Titles Functionality (Nested under Volumes & Stages)
@@ -5524,11 +5515,10 @@
       elem.addEventListener('input', renderBooks);
     });
 
-    // Desktop: changing the volume/status filter resets the scroll to the new
-    // first book (fires after 'input' re-renders). Mobile is unchanged — its
-    // scroll reset stays scoped to the sort change.
+    // Changing the volume/status filter resets the scroll to the new first
+    // book on both breakpoints (fires after 'input' re-renders).
     [filterVolume, filterStatus].forEach(el => {
-      el.addEventListener('change', scrollToFirstBooksDesktop);
+      el.addEventListener('change', scrollToFirstBooks);
     });
 
     // Shuffle: auto-select Random in the sort dropdown, or reshuffle if already
@@ -5573,8 +5563,8 @@
         activeTags.add(tag);
       }
       renderBooks();
-      // Desktop: land at the new first book when a tag filter changes.
-      scrollToFirstBooksDesktop();
+      // Land at the new first book when a tag filter changes (both breakpoints).
+      scrollToFirstBooks();
     });
 
     resetBtn.addEventListener('click', () => {
