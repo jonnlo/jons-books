@@ -4420,6 +4420,20 @@
       });
     }
 
+    // Arrow buttons scroll the stage row sideways by ~80% of its visible width.
+    // The buttons live in the stage header, which is a SIBLING of the row
+    // (header → arrows; row is a sibling div in the same .stage-block), so
+    // climb via the block instead of closest('.stage-row'). Smooth scrolling;
+    // only fall back to an instant jump in hidden tabs, where Chromium
+    // suppresses smooth-scroll animation (making the arrows appear dead).
+    function scrollStageRow(btn, dir) {
+      const block = btn.closest('.stage-block');
+      const row = block ? block.querySelector('.stage-row') : null;
+      if (!row) return;
+      const behavior = document.hidden ? 'auto' : 'smooth';
+      row.scrollBy({ left: dir * row.clientWidth * 0.8, behavior });
+    }
+
     // Initialize SortableJS on Roadmap Stages
     function initRoadmapSortables() {
       destroySortables();
