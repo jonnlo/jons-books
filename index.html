@@ -1348,8 +1348,9 @@
     }
 
     .modal-header h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-secondary);
     }
 
     .close-btn {
@@ -1673,6 +1674,7 @@
     .detail-tags h4,
     .detail-summary h4 {
       font-size: 0.75rem;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
@@ -1810,9 +1812,9 @@
       padding-top: calc(12px + env(safe-area-inset-top, 0px));
       padding-bottom: 12px;
       margin-bottom: 16px;
-      border-bottom: 1px solid var(--text-muted);
+      border-bottom: 1px solid var(--text-secondary);
       font-size: 1.35rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-primary);
       letter-spacing: -0.01em;
       display: flex;
@@ -1838,15 +1840,15 @@
     }
 
     .stage-header {
-      position: sticky;
-      top: calc(52px + env(safe-area-inset-top, 0px));
-      z-index: 9;
+      /* Scrolls away naturally — only the volume header stays sticky now that
+         stages are compact horizontal rows (no long scroll through a stage). */
+      position: static;
       background: var(--bg-main);
       padding-top: calc(12px + env(safe-area-inset-top, 0px));
       padding-bottom: 8px;
       margin-bottom: 14px;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 600;
       /* text-transform: uppercase; */
       /* letter-spacing: 0.08em; */
       color: var(--text-primary);
@@ -1908,43 +1910,8 @@
       font-size: 0.85rem;
     }
 
-    /* Collapsed States & Drop Targets */
+    /* Collapsed Volume (drop target for drag & drop) */
     .volume-section.collapsed-volume .volume-content {
-      display: none !important;
-    }
-
-    .stage-block.collapsed-stage .stage-row {
-      -webkit-mask-image: none;
-      mask-image: none;
-      min-height: 44px !important;
-      height: 44px !important;
-      padding: 8px 16px !important;
-      border: 1px dashed var(--border-accent) !important;
-      background: rgba(59, 130, 246, 0.08) !important;
-      border-radius: 8px;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      transition: all 0.2s ease;
-    }
-
-    .stage-block.collapsed-stage .stage-row .book-card,
-    .stage-block.collapsed-stage .stage-row .empty-stage-msg {
-      display: none !important;
-    }
-
-    .stage-block.collapsed-stage .stage-row .collapsed-stage-hint {
-      display: flex !important;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      font-weight: 500;
-      pointer-events: none;
-    }
-
-    .stage-block:not(.collapsed-stage) .stage-row .collapsed-stage-hint {
       display: none !important;
     }
 
@@ -1992,6 +1959,7 @@
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
       line-clamp: 3;
+      overflow: hidden; /* hide the clipped text behind the ellipsis */
     }
     
     .stage-row .book-author {
@@ -2375,24 +2343,7 @@
 
       .stage-header {
         font-size: 0.85rem;
-        top: calc(64px + env(safe-area-inset-top, 0px));
         min-height: 56px;
-        isolation: isolate;
-        background: transparent;
-      }
-
-      /* Stage rows are full-bleed on mobile, so their sticky headers need the
-         same viewport-wide opaque backdrop as the Volume header. */
-      .stage-header::before {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        inset-block: 0;
-        left: 50%;
-        width: 100vw;
-        transform: translateX(-50%);
-        background: var(--bg-main);
-        pointer-events: none;
       }
 
       .volume-title-group,
@@ -2615,13 +2566,7 @@
     body.view-only .section-action-btns,
     body.view-only .card-reorder-toolbar,
     body.view-only .engine-unassign-btn,
-    body.view-only .roadmap-top-bar,
-    body.view-only .collapsed-stage-hint {
-      display: none !important;
-    }
-    /* Collapsed stages fully collapse on the public site — no slim drop-target bar
-       (drag & drop doesn't exist there). The header's chevron still expands it. */
-    body.view-only .stage-block.collapsed-stage .stage-row {
+    body.view-only .roadmap-top-bar {
       display: none !important;
     }
     /* Public cards open the read-only detail modal, so they're tappable. */
@@ -3077,7 +3022,6 @@
     // LocalStorage Keys
     const STORAGE_KEY = 'personal_library_books_v2';
     const COLLAPSED_VOLUMES_KEY = 'personal_library_collapsed_volumes';
-    const COLLAPSED_STAGES_KEY = 'personal_library_collapsed_stages';
     const LAST_MODIFIED_KEY = 'personal_library_last_modified';
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
     const STATUS_CLEANUP_KEY = 'personal_library_status_cleanup_v1';
@@ -3118,9 +3062,9 @@
       if (!v) updateExportReminder(); // back in edit mode — refresh the export nudge
     }
 
-    // Collapsible States
+    // Collapsible States (volumes only — stages are compact rows now, so they
+    // aren't collapsible; dragging between rows is easy enough.)
     let collapsedVolumes = new Set(JSON.parse(localStorage.getItem(COLLAPSED_VOLUMES_KEY) || '[]'));
-    let collapsedStages = new Set(JSON.parse(localStorage.getItem(COLLAPSED_STAGES_KEY) || '[]'));
 
     // Default Seed Dataset
     const defaultBooksSeed = [
@@ -3312,7 +3256,6 @@
 
     function saveCollapsedStates() {
       localStorage.setItem(COLLAPSED_VOLUMES_KEY, JSON.stringify(Array.from(collapsedVolumes)));
-      localStorage.setItem(COLLAPSED_STAGES_KEY, JSON.stringify(Array.from(collapsedStages)));
     }
 
     function toggleVolumeCollapse(volNum) {
@@ -3321,17 +3264,6 @@
         collapsedVolumes.delete(key);
       } else {
         collapsedVolumes.add(key);
-      }
-      saveCollapsedStates();
-      renderBooks();
-    }
-
-    function toggleStageCollapse(volNum, stageNum) {
-      const key = `stage-${volNum}-${stageNum}`;
-      if (collapsedStages.has(key)) {
-        collapsedStages.delete(key);
-      } else {
-        collapsedStages.add(key);
       }
       saveCollapsedStates();
       renderBooks();
@@ -4459,7 +4391,6 @@
           dragExpandTimeout = setTimeout(() => {
             dragExpandTimeout = null;
             const volSection = header.closest('.volume-section');
-            const stageBlock = header.closest('.stage-block');
 
             if (header.classList.contains('volume-header') && volSection && volSection.classList.contains('collapsed-volume')) {
               const volNum = volSection.getAttribute('data-vol-num');
@@ -4467,17 +4398,6 @@
               collapsedVolumes.delete(`vol-${volNum}`);
               saveCollapsedStates();
               const icon = header.querySelector('.vol-expand-icon');
-              if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-down');
-                lucide.createIcons();
-              }
-            } else if (header.classList.contains('stage-header') && stageBlock && stageBlock.classList.contains('collapsed-stage')) {
-              const volNum = stageBlock.getAttribute('data-vol-num');
-              const stageNum = stageBlock.getAttribute('data-stage-num');
-              stageBlock.classList.remove('collapsed-stage');
-              collapsedStages.delete(`stage-${volNum}-${stageNum}`);
-              saveCollapsedStates();
-              const icon = header.querySelector('.stage-expand-icon');
               if (icon) {
                 icon.setAttribute('data-lucide', 'chevron-down');
                 lucide.createIcons();
@@ -4645,23 +4565,14 @@
 
         sortedStageKeys.forEach(stageNum => {
           const stageData = volData.stages.get(stageNum);
-          const isStageCollapsed = collapsedStages.has(`stage-${volNum}-${stageNum}`);
           stageData.books.sort((a, b) => a.readingOrder - b.readingOrder);
 
-          // Drag & drop is an editor-only feature — keep the sortable hook and the
-          // "drop here" hint out of the read-only view markup.
           const stageGridClass = `stage-row ${!viewOnly ? 'sortable-row' : ''} ${stageData.books.length === 0 ? 'empty-stage-row' : ''}`.trim();
-          const collapsedHintHtml = !viewOnly
-            ? `<div class="collapsed-stage-hint">
-                  <i data-lucide="download" style="width: 14px; height: 14px;"></i> Drop book here to move to Stage ${stageNum}
-                </div>`
-            : '';
 
           html += `
-            <div class="stage-block ${isStageCollapsed ? 'collapsed-stage' : ''}" data-vol-num="${volNum}" data-stage-num="${stageNum}">
-              <div class="stage-header" onclick="toggleStageCollapse(${volNum}, ${stageNum})">
+            <div class="stage-block" data-vol-num="${volNum}" data-stage-num="${stageNum}">
+              <div class="stage-header">
                 <div class="stage-title-group">
-                  <i data-lucide="${isStageCollapsed ? 'chevron-right' : 'chevron-down'}" class="stage-expand-icon" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
                   <span>Stage ${stageNum}: ${escapeHtml(stageData.stageName)}</span>
                   <span class="count-badge">${stageData.books.length}</span>
                 </div>
@@ -4683,7 +4594,6 @@
                    data-vol-name="${escapeHtml(volData.volumeName)}" 
                    data-stage-num="${stageNum}" 
                    data-stage-name="${escapeHtml(stageData.stageName)}">
-                ${collapsedHintHtml}
                 ${stageData.books.length > 0 
                   ? stageData.books.map(book => renderRowCardHtml(book)).join('') 
                   : '<p class="empty-stage-msg" style="pointer-events:none;">Drag books here into this stage</p>'}
@@ -5813,7 +5723,6 @@
       if (confirm("Reset catalog to sample default dataset? (This will override current localStorage)")) {
         books = [...defaultBooksSeed];
         collapsedVolumes.clear();
-        collapsedStages.clear();
         saveCollapsedStates();
         saveBooksToStorage(books);
         // After a reset, the library is back to a fresh known state — no export reminder.
