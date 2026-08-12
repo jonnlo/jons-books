@@ -550,22 +550,42 @@
       }
     }
 
-    /* Desktop: sticky + solid bg in both views. In Volumes the revealed bar
-       overlays the volume/stage sticky headers (z 60 > their 10 / 9). Tags
-       keep wrapping at the top of the page, but while the bar is revealed they
-       compact to a single horizontal-scroll strip so the pinned overlay stays
-       short (mobile's strip is single-row already, so this is desktop-only). */
+    /* Desktop: the FULL bar is NOT sticky — it sits in normal flow (static)
+       and scrolls away naturally like any content. Once the whole bar has
+       scrolled off and the user scrolls back up, .is-pinned makes it sticky
+       at top:0 with ALL controls and the tags compacted to a single scrollable
+       row (so the pinned bar stays short). Sticky keeps it in flow, so
+       toggling never shifts the layout. In Volumes the pinned bar overlays
+       the volume/stage sticky headers (z 60 > their 10 / 9). */
     @media (min-width: 601px) {
       .filter-bar {
+        position: static; /* full bar scrolls away naturally */
+      }
+      /* Defensive: desktop never tucks the full bar (JS removes is-past). */
+      .filter-bar.is-past {
+        transform: none;
+      }
+      .filter-bar.is-pinned {
         position: sticky;
         top: 0;
-        z-index: 50;
-        background: var(--bg-main);
-      }
-      body.view-roadmap .filter-bar {
         z-index: 60;
+        background: var(--bg-main);
+        /* Slide in/out: hidden above (translateY -110%), slides down to
+           top:0 when .is-revealed is added. Explicit transition lists ONLY
+           transform — the universal * rule would otherwise fade the
+           background in when .is-pinned applies. */
+        transform: translateY(-110%);
+        transition: transform 0.25s ease;
       }
-      .filter-bar.is-revealed .tag-filters {
+      .filter-bar.is-pinned.is-revealed {
+        transform: translateY(0);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .filter-bar.is-pinned {
+          transition: none;
+        }
+      }
+      .filter-bar.is-pinned .tag-filters {
         flex: 0 0 100%;
         min-width: 0;
         max-width: 100%;
@@ -574,14 +594,13 @@
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
         scrollbar-width: none;
-        padding: 2px 0 4px;
         -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
         mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
       }
-      .filter-bar.is-revealed .tag-filters::-webkit-scrollbar {
+      .filter-bar.is-pinned .tag-filters::-webkit-scrollbar {
         display: none;
       }
-      .filter-bar.is-revealed .tag-filter-chip {
+      .filter-bar.is-pinned .tag-filter-chip {
         flex: 0 0 auto;
         white-space: nowrap;
       }
@@ -3347,6 +3366,14 @@
     filterBarSentinel.style.height = '0px';
     filterBarSentinel.setAttribute('aria-hidden', 'true');
     filterBar.parentNode.insertBefore(filterBarSentinel, filterBar);
+    // Desktop-only: a zero-height sentinel BELOW the bar marks when the WHOLE
+    // bar (its natural in-flow spot) has scrolled off the top. Used to decide
+    // when the compact pinned bar may appear — it stays accurate even while
+    // the bar is sticky-pinned (see applyStickyBarState).
+    const filterBarGoneSentinel = document.createElement('div');
+    filterBarGoneSentinel.style.height = '0px';
+    filterBarGoneSentinel.setAttribute('aria-hidden', 'true');
+    filterBar.parentNode.insertBefore(filterBarGoneSentinel, filterBar.nextSibling);
 
     // Scroll state for the reveal-on-scroll-up bar.
     let barPastTop = false;
@@ -3813,11 +3840,42 @@
       window.scrollTo(0, landingY);
     }
 
-    // --- Sticky filter bar: tuck-away on scroll-down, reveal-on-scroll-up ---
-    // Grid + Volumes, desktop + mobile. .is-past = scrolled past the bar
-    // (default tucked off-screen); .is-revealed = pinned at the top. Sticky
-    // keeps it in flow, so toggling never shifts the layout.
+    // --- Filter bar: natural scroll-away (desktop) / tuck+reveal (mobile) ---
+    // DESKTOP (>600px): the FULL bar sits in normal flow (static) and scrolls
+    // away naturally like any content. Once the WHOLE bar has scrolled off and
+    // the user scrolls back up (velocity-tuned), .is-pinned makes it sticky at
+    // top:0 with ALL controls and the tags compacted to a single scrollable
+    // row. Sticky keeps it in flow, so toggling never shifts the layout.
+    // MOBILE (≤600px): unchanged — the bar tucks away on scroll-down and
+    // re-reveals pinned on scroll-up (.is-past / .is-revealed).
     function applyStickyBarState() {
+      if (!mobileView.matches) {
+        // Desktop: full bar never tucks; drive the compact pinned state.
+        // .is-pinned = bar is in its sticky spot (hidden above, -110%).
+        // .is-revealed = it has slid down to top:0 (visible). They are applied
+        // on separate scroll events (pin when the bar first scrolls off, reveal
+        // when scrolling back up), so the transform transition animates.
+        const fullBarGone = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
+        const wasPinned = filterBar.classList.contains('is-pinned');
+        const reveal = fullBarGone && (barPanelLocked || lastScrollDir === 'up');
+        // On the FIRST pin (just scrolled past the full bar), the transform
+        // would otherwise transition from visible (none) to hidden (-110%) and
+        // flash the compact bar in at top:0 while scrolling down. Disable the
+        // transition just for this initial hide so it snaps out instantly, then
+        // restore it so later reveal/hide still slide.
+        if (fullBarGone && !wasPinned) {
+          filterBar.style.transition = 'none';
+        }
+        filterBar.classList.toggle('is-pinned', fullBarGone);
+        filterBar.classList.toggle('is-revealed', reveal);
+        if (fullBarGone && !wasPinned) {
+          void filterBar.offsetHeight; // force reflow: commit the hidden state
+          filterBar.style.transition = '';
+        }
+        filterBar.classList.remove('is-past');
+        return;
+      }
+      // Mobile: existing tuck-away / reveal-on-scroll-up.
       const reveal = barPastTop && (barPanelLocked || lastScrollDir === 'up');
       filterBar.classList.toggle('is-past', barPastTop);
       filterBar.classList.toggle('is-revealed', reveal);
@@ -3861,6 +3919,11 @@
         : lastScrollDir;
       if (dir !== lastScrollDir) {
         lastScrollDir = dir;
+        applyStickyBarState();
+      } else if (!mobileView.matches) {
+        // Desktop: also re-evaluate when the full bar scrolls back into view
+        // (or out of it) without a direction change, so the compact pinned bar
+        // tracks the full bar's gone/visible state.
         applyStickyBarState();
       }
     }, { passive: true });
