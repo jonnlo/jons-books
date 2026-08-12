@@ -579,6 +579,7 @@
       }
       .filter-bar.is-pinned.is-revealed {
         transform: translateY(0);
+        padding: 12px 0px;
       }
       @media (prefers-reduced-motion: reduce) {
         .filter-bar.is-pinned {
@@ -721,8 +722,8 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 4px;
     }
+
     .tag-filters[hidden] {
       display: none !important; /* display:flex above would override the hidden attribute */
     }
@@ -3401,6 +3402,7 @@
     const statReading = document.getElementById('stat-reading');
     const statCompleted = document.getElementById('stat-completed');
     const displayedCount = document.getElementById('displayed-count');
+    const resultsCount = document.querySelector('.results-count');
 
     // Engine Slots
     const slot1 = document.getElementById('engine-slot-1');
@@ -3820,13 +3822,28 @@
     // other view left the scroll — and rather than the very top of the page.
     // In Grid the sticky filter bar sits above the first books, so we offset
     // by its height; in Volumes the bar is static (scrolls away), so the
-    // first volume lands flush at the top.
+    // first volume lands flush at the top. On desktop the bar is static too
+    // (the compact pinned bar only exists once the grid's first book has
+    // already scrolled past it), so the first book lands at the top of the
+    // viewport with the results count above it.
     function scrollToFirstBooks() {
-      if (!mobileView.matches) return;
       const target = document.getElementById('book-grid');
       if (!target) return;
       const docTop = target.getBoundingClientRect().top + window.scrollY;
-      const offset = currentView === 'grid' ? (filterBar.offsetHeight || 0) + 8 : 4;
+      let offset;
+      if (currentView === 'grid' && mobileView.matches) {
+        // Mobile Grid: the sticky filter bar stays above the first books.
+        offset = (filterBar.offsetHeight || 0) + 8;
+      } else if (currentView === 'grid') {
+        // Desktop Grid: land the results count + first book at the top, with
+        // the full bar scrolled away naturally above. Release any compact
+        // pinned bar too, otherwise it would sit on top of the first book.
+        offset = (resultsCount.offsetHeight || 0) + 8;
+        filterBar.classList.remove('is-pinned', 'is-revealed');
+      } else {
+        // Volumes: the bar is static (scrolls away) on both breakpoints.
+        offset = 4;
+      }
       const landingY = Math.max(0, Math.round(docTop - offset));
       // Only touch the scroll when the first books have already scrolled past
       // the top — i.e. when the filter bar (Grid) / first volume (Volumes)
@@ -3838,6 +3855,15 @@
       scrollSamples.length = 0;
       lastScrollY = window.scrollY;
       window.scrollTo(0, landingY);
+    }
+
+    // Desktop-only scroll reset for filter changes: sorting is wired to the
+    // plain scrollToFirstBooks() above (it already covers both breakpoints),
+    // while volume/status/tag/clear changes reset only on desktop — mobile's
+    // scroll reset stays scoped to the sort change.
+    function scrollToFirstBooksDesktop() {
+      if (mobileView.matches) return;
+      scrollToFirstBooks();
     }
 
     // --- Filter bar: natural scroll-away (desktop) / tuck+reveal (mobile) ---
@@ -4014,6 +4040,8 @@
       searchInput.value = '';
       activeTags.clear();
       renderBooks();
+      // Desktop: land at the first book when filters are cleared.
+      scrollToFirstBooksDesktop();
     });
 
     // 1) FIX: Copy All Titles Functionality (Nested under Volumes & Stages)
@@ -5466,6 +5494,13 @@
       elem.addEventListener('input', renderBooks);
     });
 
+    // Desktop: changing the volume/status filter resets the scroll to the new
+    // first book (fires after 'input' re-renders). Mobile is unchanged — its
+    // scroll reset stays scoped to the sort change.
+    [filterVolume, filterStatus].forEach(el => {
+      el.addEventListener('change', scrollToFirstBooksDesktop);
+    });
+
     // Shuffle: auto-select Random in the sort dropdown, or reshuffle if already
     // in Random mode — regenerate the cached order either way.
     shuffleBtn.addEventListener('click', () => {
@@ -5484,6 +5519,10 @@
       if (sortSelect.value === 'random' && currentView !== 'grid') {
         viewGridBtn.click();
       }
+      // Changing the sort reorders the grid, so if the user has scrolled past
+      // the first books, land at the new first book — same as the shuffle
+      // button (no-op near the top, mobile-only via scrollToFirstBooks).
+      scrollToFirstBooks();
     });
 
     // Surprise me: open a random book from the current filtered results.
@@ -5504,6 +5543,8 @@
         activeTags.add(tag);
       }
       renderBooks();
+      // Desktop: land at the new first book when a tag filter changes.
+      scrollToFirstBooksDesktop();
     });
 
     resetBtn.addEventListener('click', () => {
