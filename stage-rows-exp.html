@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Stage Rows — Experiment</title>
+  <!--
+    EXPERIMENT ONLY — NOT DEPLOYED.
+    The deploy workflow stages ONLY index.html + books.json + covers/, so this
+    file can never reach the published site. Delete it when the experiment ends.
+
+    What it tests: the "section → horizontal scrolling row" pattern (Amazon /
+    Spotify) applied to the roadmap. Volumes stay vertical sections; each STAGE
+    becomes a single horizontal scrolling row of book covers.
+
+    Sandboxing guarantees:
+      * Loads the real books.json over HTTP (real covers, real order).
+      * Drag-reorders persist ONLY to localStorage key `experiment_stage_rows_v1`.
+      * The real app keys (personal_library_books_v2, ...) and books.json are
+        NEVER read or written by this page.
+      * "Reset data" clears the experiment key and reloads books.json.
+  -->
+  <!-- Inter Font (matches the app) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
+  <!-- SortableJS for Drag-and-Drop between rows -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    :root {
+      --bg-main: hsl(223, 39%, 7%);
+      --bg-surface: hsl(220, 42%, 13%);
+      --bg-card: #172136;
+      --bg-card-hover: #1e2c45;
+      --bg-input: #0f172a;
+      --border-color: #233148;
+      --border-accent: #3b82f6;
+      --text-primary: #f8fafc;
+      --text-secondary: hsl(215, 20%, 85%);
+      --text-muted: #64748b;
+      --img-bg: hsl(220, 42%, 13%);
+      --img-bg-hover: hsl(220, 42%, 33%);
+      --accent-color: #6366f1;
+    }
+    [data-theme="light"] {
+      --bg-main: hsl(220, 10%, 99%);
+      --bg-surface: hsl(200, 25%, 96%);
+      --bg-card: #f1f5f9;
+      --bg-card-hover: hsl(214, 32%, 91%);
+      --bg-input: #ffffff;
+      --border-color: #cbd5e1;
+      --border-accent: #3b82f6;
+      --text-primary: #0f172a;
+      --text-secondary: hsl(215, 8%, 45%);
+      --text-muted: #7e8fa7;
+      --img-bg: hsl(200, 25%, 96%);
+      --img-bg-hover: hsl(200, 21%, 94%);
+      --accent-color: #4f46e5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background-color: var(--bg-main); }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 32px;
+      line-height: 1.5;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .container { max-width: 1600px; margin: 0 auto; }
+
+    /* Header */
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 14px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .brand h1 {
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .exp-tag {
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #fff; background: var(--accent-color); padding: 3px 9px; border-radius: 999px;
+    }
+    .brand p { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn {
+      background: var(--bg-surface); color: var(--text-primary);
+      border: 1px solid var(--border-color); padding: 7px 13px; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer; font-family: inherit;
+    }
+    .btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+    .note {
+      font-size: 0.75rem; color: var(--text-muted);
+      background: var(--bg-surface); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 8px 12px; margin-bottom: 16px;
+    }
+    .note code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; }
+
+    /* Toolbar: search + count */
+    .toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .search-wrap { position: relative; flex: 1; min-width: 220px; }
+    .search-wrap::before {
+      content: ""; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      width: 15px; height: 15px; opacity: 0.55;
+      background: var(--text-muted);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center/contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") center/contain no-repeat;
+    }
+    .search-wrap input {
+      width: 100%; height: 40px; background: var(--bg-input);
+      border: 1px solid var(--border-color); border-radius: 10px;
+      padding: 8px 12px 8px 36px; color: var(--text-primary); font-size: 0.875rem; font-family: inherit;
+    }
+    .search-wrap input:focus { outline: 2px solid var(--accent-color); outline-offset: 1px; }
+    .results-count { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; }
+
+    /* ===== Roadmap: Volume (vertical section) → Stage (horizontal row) ===== */
+    .roadmap-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+    .volume-section { margin-bottom: 28px; }
+
+    .volume-header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg-main);
+      padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      padding-bottom: 10px; margin-bottom: 12px;
+      border-bottom: 1px solid var(--text-muted);
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em;
+      color: var(--text-primary);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .volume-title-group { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .volume-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .volume-section.collapsed-volume .volume-content { display: none !important; }
+
+    .stage-block { margin-bottom: 18px; }
+    .stage-header {
+      position: sticky; top: calc(52px + env(safe-area-inset-top, 0px));
+      z-index: 9; background: var(--bg-main);
+      padding-top: 8px; padding-bottom: 8px; margin-bottom: 6px;
+      font-size: 0.98rem; font-weight: 700; color: var(--text-primary);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .stage-title-group { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .stage-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .chevron { color: var(--text-muted); font-size: 0.8em; transition: transform 0.15s ease; }
+    .count-badge {
+      font-size: 0.72rem; background: var(--bg-surface); border: 1px solid var(--border-color);
+      color: var(--text-secondary); padding: 1px 8px; border-radius: 12px; font-weight: 500; flex-shrink: 0;
+    }
+
+    /* Stage row arrows (desktop only — swipe on mobile) */
+    .stage-arrows { display: flex; gap: 4px; flex-shrink: 0; }
+    .arrow-btn {
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--bg-surface); border: 1px solid var(--border-color);
+      color: var(--text-secondary); font-size: 1rem; line-height: 1; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; font-family: inherit;
+    }
+    .arrow-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+    /* ===== The horizontal scrolling row =====
+       Flex nowrap + overflow-x:auto + hidden scrollbar + right-edge fade cue
+       (same recipe the app uses for the tag strip / engines carousel). */
+    .stage-row {
+      display: flex; flex-wrap: nowrap; gap: 14px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain; scrollbar-width: none;
+      padding: 6px 2px 14px;
+      -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
+      mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
+    }
+    .stage-row::-webkit-scrollbar { display: none; }
+
+    /* Collapsed stage → slim drop-target bar (still a valid Sortable target) */
+    .stage-block.collapsed-stage .stage-row {
+      min-height: 44px; height: 44px; padding: 8px 16px;
+      border: 1px dashed var(--border-accent);
+      background: rgba(59, 130, 246, 0.08);
+      border-radius: 8px;
+      display: flex !important; align-items: center; justify-content: center;
+      overflow: hidden; gap: 6px; width: 100%; margin-inline: 0;
+    }
+    .stage-block.collapsed-stage .stage-row .book-card { display: none !important; }
+    .stage-block.collapsed-stage .stage-row .collapsed-stage-hint {
+      display: inline-flex !important; align-items: center; gap: 6px;
+      color: var(--text-secondary); font-size: 0.8rem; font-weight: 500; pointer-events: none;
+    }
+    .stage-row .collapsed-stage-hint { display: none !important; }
+
+    /* Compact cover card inside a row */
+    .stage-row .book-card {
+      flex: 0 0 132px; min-width: 0; overflow: hidden;
+      cursor: grab; user-select: none;
+      display: flex; flex-direction: column; border-radius: 10px;
+    }
+    .stage-row .book-card:active { cursor: grabbing; }
+    .stage-row .cover-container {
+      position: relative; width: 100%; aspect-ratio: 2 / 3; border-radius: 10px;
+      background: var(--img-bg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 5px; transition: background-color 0.2s ease;
+    }
+    .stage-row .book-card:hover .cover-container { background: var(--img-bg-hover); }
+    .stage-row .cover-img,
+    .stage-row .book-jacket {
+      width: 94%; height: 94%; object-fit: contain;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .stage-row .book-card:hover .cover-img,
+    .stage-row .book-card:hover .book-jacket {
+      transform: scale(1.04);
+      filter: drop-shadow(0 6px 10px hsla(220, 30%, 25%, 0.18));
+    }
+    .stage-row .book-jacket {
+      border: 1px solid var(--border-color); border-left: 3px solid var(--accent-color);
+      border-radius: 6px; padding: 8px 6px; display: flex; flex-direction: column;
+      justify-content: space-between; text-align: center;
+      background: linear-gradient(145deg, var(--bg-card-hover) 0%, var(--bg-surface) 100%);
+      box-shadow: inset 3px 0 5px -2px rgba(0,0,0,0.35);
+    }
+    .stage-row .jacket-title { font-size: 0.62rem; font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 4; line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .stage-row .jacket-author { font-size: 0.56rem; font-style: italic; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 3px; }
+    .stage-row .jacket-header { display: none; }
+
+    /* Reading-order badge — makes the row read as a numbered list */
+    .order-badge {
+      position: absolute; top: 6px; left: 6px; z-index: 2;
+      min-width: 20px; height: 20px; padding: 0 5px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--bg-main) 82%, transparent);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary); font-size: 0.66rem; font-weight: 600;
+      backdrop-filter: blur(2px);
+    }
+    .row-title {
+      min-width: 0; margin-top: 6px; font-size: 0.82rem; font-weight: 600; line-height: 1.3;
+      color: var(--text-primary);
+      display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .row-author {
+      font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* Drag & Drop visual states */
+    .sortable-ghost { opacity: 0.35 !important; border: 2px dashed var(--accent-color) !important; border-radius: 10px; background: var(--bg-surface) !important; }
+    .sortable-drag { opacity: 0.95 !important; transform: scale(1.03); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5); }
+
+    /* Detail modal (compact, read-only) */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background-color: color-mix(in srgb, var(--bg-main) 80%, transparent);
+      backdrop-filter: blur(5px);
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      position: relative; background: var(--bg-surface); border: 1px solid var(--border-color);
+      border-radius: 16px; width: 90%; max-width: 620px; max-height: 90vh; overflow-y: auto; padding: 24px;
+    }
+    .modal-close {
+      position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-secondary);
+      font-size: 1.15rem; line-height: 1; cursor: pointer;
+    }
+    .modal-close:hover { color: var(--text-primary); border-color: var(--accent-color); }
+    .modal-body { display: flex; gap: 22px; }
+    .modal-cover {
+      width: 200px; flex-shrink: 0; aspect-ratio: 2 / 3; border-radius: 10px;
+      background: var(--img-bg); display: flex; align-items: center; justify-content: center;
+      padding: 6px; overflow: hidden;
+    }
+    .modal-cover .detail-cover-img { width: 100%; height: 100%; object-fit: contain; }
+    .modal-info { flex: 1; min-width: 0; }
+    .modal-info h2 { font-size: 1.35rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; margin-bottom: 2px; }
+    .m-author { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px; }
+    .m-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 14px; }
+    .m-meta label { display: block; font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+    .m-meta span { font-size: 0.86rem; color: var(--text-primary); overflow-wrap: anywhere; }
+    .m-section label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    .m-section { margin-top: 12px; }
+    .m-section p { font-size: 0.86rem; line-height: 1.55; white-space: pre-line; }
+    .m-tags-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .m-tag { font-size: 0.78rem; padding: 2px 9px; border-radius: 999px; background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-secondary); text-transform: capitalize; }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      /* Full-bleed row: margin-based compensation (robust inside scroll
+         containers — same recipe as the app's tag strip). */
+      .stage-row {
+        width: calc(100% + 40px); margin-inline: -20px;
+      }
+      /* :first-of-type / :last-of-type (not :first-child) — the collapsed-stage
+         hint <div> is the row's real first child, so card-typed :first-child
+         never matched and the 20px inset/trailing pad were dropped. */
+      .stage-row .book-card:first-of-type { margin-left: 20px; }
+      .stage-row .book-card:last-of-type { margin-right: 20px; }
+      .stage-arrows { display: none; }
+      .stage-row .book-card { flex-basis: 108px; }
+      .stage-header { font-size: 0.86rem; }
+      .volume-header { font-size: 1.02rem; }
+      .modal-body { flex-direction: column; align-items: center; }
+      .modal-cover { width: 150px; }
+      .modal-info { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <h1>Stage Rows <span class="exp-tag">experiment</span></h1>
+        <p>Volume → Stage → horizontal row of covers · drag between rows to reorder</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="reset-btn" title="Discard sandboxed reorders and reload books.json">↺ Reset data</button>
+        <button class="btn" id="theme-toggle" title="Toggle light/dark">◐ Theme</button>
+      </div>
+    </header>
+
+    <div class="note">
+      Sandboxed: reads <code>books.json</code>; reorders save only to
+      <code>experiment_stage_rows_v1</code> in this browser. Your real library
+      (<code>personal_library_books_v2</code> / <code>books.json</code>) is never modified.
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="Search title, author, notes, tags, ISBN…">
+      </div>
+      <span class="results-count">Showing <b id="count">0</b> books</span>
+    </div>
+
+    <main id="book-grid" class="roadmap-container"></main>
+  </div>
+
+  <!-- Compact read-only detail modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+      <div class="modal-body">
+        <div class="modal-cover" id="m-cover"></div>
+        <div class="modal-info">
+          <h2 id="m-title"></h2>
+          <p class="m-author" id="m-author"></p>
+          <div class="m-meta">
+            <div><label>Volume</label><span id="m-vol"></span></div>
+            <div><label>Stage</label><span id="m-stage"></span></div>
+            <div><label>Order</label><span id="m-order"></span></div>
+            <div><label>Year</label><span id="m-year"></span></div>
+          </div>
+          <div class="m-section" id="m-notes-wrap" hidden>
+            <label>Notes</label>
+            <p id="m-notes"></p>
+          </div>
+          <div class="m-section" id="m-tags-wrap" hidden>
+            <label>Tags</label>
+            <div class="m-tags-list" id="m-tags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // EXPERIMENT-SCOPED keys — deliberately namespaced so they can
+    // never collide with the real app's personal_library_* keys.
+    // ============================================================
+    const EXP_BOOKS_KEY = 'experiment_stage_rows_v1';
+    const EXP_VOL_KEY = 'experiment_stage_rows_collapsed_volumes';
+    const EXP_STAGE_KEY = 'experiment_stage_rows_collapsed_stages';
+    const EXP_THEME_KEY = 'experiment_stage_rows_theme';
+
+    let books = [];
+    let collapsedVols = new Set(JSON.parse(localStorage.getItem(EXP_VOL_KEY) || '[]'));
+    let collapsedStages = new Set(JSON.parse(localStorage.getItem(EXP_STAGE_KEY) || '[]'));
+    let sortableInstances = [];
+    let dragExpandTimer = null;
+
+    const grid = document.getElementById('book-grid');
+    const searchInput = document.getElementById('search');
+    const countEl = document.getElementById('count');
+
+    // ---- Helpers (mirror the app) ----
+    function normalizeBook(b) {
+      return {
+        id: b.id,
+        title: b.title || 'Untitled',
+        author: b.author || 'Unknown Author',
+        volumeNumber: parseInt(b.volumeNumber) || 1,
+        volumeName: b.volumeName || 'General',
+        stageNumber: parseInt(b.stageNumber) || 1,
+        stageName: b.stageName || 'General Stage',
+        readingOrder: parseInt(b.readingOrder) || 1,
+        year: (b.year || '').toString(),
+        status: b.status || '',
+        engine: b.engine || 'None',
+        cover: b.cover || '',
+        notes: b.notes || '',
+        summary: b.summary || '',
+        isbn: (b.isbn || '').toString(),
+        tags: Array.isArray(b.tags) ? b.tags : []
+      };
+    }
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, function (m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+      });
+    }
+    function createJacketHtml(title, author) {
+      return `
+        <div class="book-jacket">
+          <div class="jacket-header"></div>
+          <div class="jacket-title">${escapeHtml(title)}</div>
+          <div class="jacket-author">${escapeHtml(author)}</div>
+        </div>`;
+    }
+    function handleCoverError(img) {
+      const title = img.getAttribute('data-title') || 'Untitled';
+      const author = img.getAttribute('data-author') || 'Unknown Author';
+      const container = img.parentElement;
+      if (container) container.innerHTML = createJacketHtml(title, author);
+    }
+    function renderCoverHtml(coverUrl, title, author, imgClass) {
+      if (coverUrl && coverUrl.trim()) {
+        return `<img src="${escapeHtml(coverUrl)}" alt="${escapeHtml(title)}" class="${imgClass}" loading="lazy"
+          data-title="${escapeHtml(title)}" data-author="${escapeHtml(author)}" onerror="handleCoverError(this)">`;
+      }
+      return createJacketHtml(title, author);
+    }
+
+    // ---- Persistence (sandboxed) ----
+    function saveBooks() { localStorage.setItem(EXP_BOOKS_KEY, JSON.stringify(books)); }
+    function saveCollapsed() {
+      localStorage.setItem(EXP_VOL_KEY, JSON.stringify([...collapsedVols]));
+      localStorage.setItem(EXP_STAGE_KEY, JSON.stringify([...collapsedStages]));
+    }
+
+    // ---- Load: prefer the sandboxed copy, else real books.json ----
+    async function load() {
+      const saved = localStorage.getItem(EXP_BOOKS_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) { books = parsed.map(normalizeBook); render(); return; }
+        } catch (e) { /* fall through to books.json */ }
+      }
+      try {
+        const res = await fetch('books.json', { cache: 'no-store' });
+        if (res.ok) {
+          const parsed = await res.json();
+          if (Array.isArray(parsed) && parsed.length > 0) { books = parsed.map(normalizeBook); render(); return; }
+        }
+      } catch (e) { console.warn('could not load books.json:', e); }
+      grid.innerHTML = '<p style="color: var(--text-muted);">Could not load books.json — open this page over http://localhost (same server as the app).</p>';
+    }
+
+    // ---- Card markup ----
+    function cardHtml(b) {
+      return `
+        <article class="book-card" data-id="${escapeHtml(b.id)}">
+          <div class="cover-container">
+            <span class="order-badge" title="Reading order">${b.readingOrder}</span>
+            ${renderCoverHtml(b.cover, b.title, b.author, 'cover-img')}
+          </div>
+          <h3 class="row-title" title="${escapeHtml(b.title)}">${escapeHtml(b.title)}</h3>
+          <p class="row-author">${escapeHtml(b.author)}</p>
+        </article>`;
+    }
+
+    // ---- Render: Volume (vertical) → Stage (horizontal row) ----
+    function render() {
+      const q = searchInput.value.trim().toLowerCase();
+      const filtered = books.filter(b =>
+        !q || [b.title, b.author, b.notes, b.isbn, b.stageName, b.volumeName, (b.tags || []).join(' ')]
+          .join(' ').toLowerCase().includes(q)
+      );
+      countEl.textContent = filtered.length;
+
+      const volMap = new Map();
+      filtered.forEach(b => {
+        if (!volMap.has(b.volumeNumber)) volMap.set(b.volumeNumber, { name: b.volumeName, stages: new Map() });
+        const st = volMap.get(b.volumeNumber).stages;
+        if (!st.has(b.stageNumber)) st.set(b.stageNumber, { name: b.stageName, books: [] });
+        st.get(b.stageNumber).books.push(b);
+      });
+
+      let html = '';
+      [...volMap.keys()].sort((a, b) => a - b).forEach(volNum => {
+        const v = volMap.get(volNum);
+        const volCollapsed = collapsedVols.has(`v${volNum}`);
+        const volCount = [...v.stages.values()].reduce((n, s) => n + s.books.length, 0);
+        html += `
+          <section class="volume-section${volCollapsed ? ' collapsed-volume' : ''}" data-vol="${volNum}">
+            <div class="volume-header">
+              <div class="volume-title-group">
+                <span class="chevron">${volCollapsed ? '▸' : '▾'}</span>
+                <span class="volume-title">Volume ${volNum}: ${escapeHtml(v.name)}</span>
+                <span class="count-badge">${volCount}</span>
+              </div>
+            </div>
+            <div class="volume-content">`;
+
+        [...v.stages.keys()].sort((a, b) => a - b).forEach(stageNum => {
+          const s = v.stages.get(stageNum);
+          s.books.sort((a, b) => a.readingOrder - b.readingOrder);
+          const stCollapsed = collapsedStages.has(`v${volNum}s${stageNum}`);
+          html += `
+            <div class="stage-block${stCollapsed ? ' collapsed-stage' : ''}" data-vol="${volNum}" data-stage="${stageNum}">
+              <div class="stage-header">
+                <div class="stage-title-group">
+                  <span class="chevron">${stCollapsed ? '▸' : '▾'}</span>
+                  <span class="stage-title">Stage ${stageNum}: ${escapeHtml(s.name)}</span>
+                  <span class="count-badge">${s.books.length}</span>
+                </div>
+                <div class="stage-arrows">
+                  <button class="arrow-btn" data-dir="-1" title="Scroll left">‹</button>
+                  <button class="arrow-btn" data-dir="1" title="Scroll right">›</button>
+                </div>
+              </div>
+              <div class="stage-row sortable-row"
+                   data-vol="${volNum}" data-vol-name="${escapeHtml(v.name)}"
+                   data-stage="${stageNum}" data-stage-name="${escapeHtml(s.name)}">
+                <div class="collapsed-stage-hint">Drop book here to move to Stage ${stageNum}</div>
+                ${s.books.map(cardHtml).join('')}
+              </div>
+            </div>`;
+        });
+
+        html += `</div></section>`;
+      });
+
+      grid.innerHTML = html;
+      initSortables();
+      attachDragAutoExpand();
+    }
+
+    // ---- SortableJS: reorder within / between stage rows ----
+    function destroySortables() {
+      sortableInstances.forEach(inst => { try { inst.destroy(); } catch (e) {} });
+      sortableInstances = [];
+    }
+    function initSortables() {
+      destroySortables();
+      document.querySelectorAll('.sortable-row').forEach(row => {
+        const inst = new Sortable(row, {
+          group: 'exp-stage-rows',
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          dragClass: 'sortable-drag',
+          delay: 50,
+          delayOnTouchOnly: true,
+          onStart: () => document.body.classList.add('is-dragging'),
+          onEnd: (evt) => {
+            document.body.classList.remove('is-dragging');
+            finalizeMove(evt);
+          }
+        });
+        sortableInstances.push(inst);
+      });
+    }
+    function finalizeMove(evt) {
+      const bookId = evt.item.getAttribute('data-id');
+      if (!bookId) return;
+      const to = evt.to, from = evt.from;
+      const tVol = parseInt(to.getAttribute('data-vol'));
+      const tStage = parseInt(to.getAttribute('data-stage'));
+      const tVolName = to.getAttribute('data-vol-name');
+      const tStageName = to.getAttribute('data-stage-name');
+
+      [...to.querySelectorAll('.book-card')].forEach((c, i) => {
+        const b = books.find(x => x.id === c.getAttribute('data-id'));
+        if (b) { b.readingOrder = i + 1; b.volumeNumber = tVol; b.volumeName = tVolName; b.stageNumber = tStage; b.stageName = tStageName; }
+      });
+      if (from !== to) {
+        [...from.querySelectorAll('.book-card')].forEach((c, i) => {
+          const b = books.find(x => x.id === c.getAttribute('data-id'));
+          if (b) b.readingOrder = i + 1;
+        });
+      }
+      saveBooks();
+      render();
+    }
+
+    // ---- Auto-expand collapsed sections while dragging over a header ----
+    function attachDragAutoExpand() {
+      document.querySelectorAll('.volume-header, .stage-header').forEach(h => {
+        const onOver = () => {
+          if (!document.body.classList.contains('is-dragging') || dragExpandTimer) return;
+          dragExpandTimer = setTimeout(() => {
+            dragExpandTimer = null;
+            const vol = h.closest('.volume-section');
+            const stage = h.closest('.stage-block');
+            if (h.classList.contains('volume-header') && vol.classList.contains('collapsed-volume')) {
+              collapsedVols.delete(`v${vol.getAttribute('data-vol')}`); saveCollapsed(); render();
+            } else if (h.classList.contains('stage-header') && stage.classList.contains('collapsed-stage')) {
+              collapsedStages.delete(`v${stage.getAttribute('data-vol')}s${stage.getAttribute('data-stage')}`); saveCollapsed(); render();
+            }
+          }, 250);
+        };
+        const onLeave = () => { if (dragExpandTimer) { clearTimeout(dragExpandTimer); dragExpandTimer = null; } };
+        h.addEventListener('pointerover', onOver);
+        h.addEventListener('pointerleave', onLeave);
+        h.addEventListener('dragover', onOver);
+        h.addEventListener('dragleave', onLeave);
+      });
+    }
+
+    // ---- Delegated clicks: card / arrows / collapse ----
+    grid.addEventListener('click', (e) => {
+      const card = e.target.closest('.book-card');
+      if (card) { openModal(card.getAttribute('data-id')); return; }
+      const arrow = e.target.closest('.arrow-btn');
+      if (arrow) {
+        const row = arrow.closest('.stage-block').querySelector('.stage-row');
+        row.scrollBy({ left: parseInt(arrow.dataset.dir) * row.clientWidth * 0.8, behavior: 'smooth' });
+        return;
+      }
+      const volH = e.target.closest('.volume-header');
+      if (volH) {
+        const key = `v${volH.closest('.volume-section').getAttribute('data-vol')}`;
+        collapsedVols.has(key) ? collapsedVols.delete(key) : collapsedVols.add(key);
+        saveCollapsed(); render(); return;
+      }
+      const stageH = e.target.closest('.stage-header');
+      if (stageH) {
+        const sb = stageH.closest('.stage-block');
+        const key = `v${sb.getAttribute('data-vol')}s${sb.getAttribute('data-stage')}`;
+        collapsedStages.has(key) ? collapsedStages.delete(key) : collapsedStages.add(key);
+        saveCollapsed(); render(); return;
+      }
+    });
+
+    // ---- Detail modal ----
+    const modal = document.getElementById('modal');
+    const mCover = document.getElementById('m-cover');
+    const mTitle = document.getElementById('m-title');
+    const mAuthor = document.getElementById('m-author');
+    const mVol = document.getElementById('m-vol');
+    const mStage = document.getElementById('m-stage');
+    const mOrder = document.getElementById('m-order');
+    const mYear = document.getElementById('m-year');
+    const mNotesWrap = document.getElementById('m-notes-wrap');
+    const mNotes = document.getElementById('m-notes');
+    const mTagsWrap = document.getElementById('m-tags-wrap');
+    const mTags = document.getElementById('m-tags');
+
+    function openModal(id) {
+      const b = books.find(x => x.id === id);
+      if (!b) return;
+      mCover.innerHTML = renderCoverHtml(b.cover, b.title, b.author, 'detail-cover-img');
+      mTitle.textContent = b.title;
+      mAuthor.textContent = b.author;
+      mVol.textContent = `${b.volumeNumber} / ${b.volumeName}`;
+      mStage.textContent = `${b.stageNumber} / ${b.stageName}`;
+      mOrder.textContent = `#${b.readingOrder} in stage`;
+      mYear.textContent = b.year || '—';
+      if (b.notes && b.notes.trim()) { mNotesWrap.hidden = false; mNotes.textContent = b.notes; }
+      else { mNotesWrap.hidden = true; mNotes.textContent = ''; }
+      if (b.tags && b.tags.length) { mTagsWrap.hidden = false; mTags.innerHTML = b.tags.map(t => `<span class="m-tag">${escapeHtml(t)}</span>`).join(''); }
+      else { mTagsWrap.hidden = true; mTags.innerHTML = ''; }
+      modal.classList.add('active');
+    }
+    function closeModal() { modal.classList.remove('active'); }
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
+
+    // ---- Search ----
+    searchInput.addEventListener('input', render);
+
+    // ---- Theme ----
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem(EXP_THEME_KEY, theme);
+    }
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    // ---- Reset: drop the sandboxed copy, reload books.json ----
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+      if (!confirm('Discard sandboxed reorders and reload books.json?')) return;
+      localStorage.removeItem(EXP_BOOKS_KEY);
+      collapsedVols.clear(); collapsedStages.clear(); saveCollapsed();
+      books = [];
+      await load();
+    });
+
+    // ---- Init ----
+    applyTheme(localStorage.getItem(EXP_THEME_KEY) || 'dark');
+    load();
+  </script>
+</body>
+</html>
