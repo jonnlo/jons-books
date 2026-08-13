@@ -846,6 +846,22 @@
       }
     }
 
+    /* Right-edge fade cue hidden once the tag strip is at its end (the last
+       chip is fully in view) so the fade never masks the last chip — same rule
+       as the stage rows. Toggled by JS in updateTagFiltersFade: applies when
+       the strip is scrolled to its max OR when it never overflows. Specificity:
+       the plain rule beats the mobile MQ `.tag-filters` mask; the .is-pinned
+       variant beats the desktop compact bar's `.filter-bar.is-pinned
+       .tag-filters` mask. */
+    .tag-filters.at-end {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .filter-bar.is-pinned .tag-filters.at-end {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
     /* Tag chips on the read-only detail modal */
     .detail-tags-list {
       display: flex;
@@ -1897,6 +1913,15 @@
       mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
     }
     .stage-row::-webkit-scrollbar { display: none; }
+
+    /* Right-edge fade cue — hidden once the row is at its end (the last book
+       is fully in view) so the fade never masks the last book. Toggled by JS
+       in updateStageRowFade: applies when the row is scrolled to its max OR
+       when it never overflows (nothing to scroll). */
+    .stage-row.at-end {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
 
     /* Empty stage (only reachable via filters): a slim centered drop target.
        No edge fade — there's nothing to scroll. */
@@ -3867,6 +3892,24 @@
       tagFilters.scrollLeft = prevScrollLeft;
     }
 
+    // Right-edge fade cue on the tag strip: the mask-image fade should not
+    // mask the last chip once it's fully in view — same rule as the stage rows.
+    // The strip is "at its end" when scrolled to its max OR when it never
+    // overflows (nothing to scroll → the last chip is already fully visible).
+    // The .at-end class clears the mask in CSS (mobile MQ + pinned-bar masks).
+    function updateTagFiltersFade() {
+      if (tagFilters.hidden) return;
+      const atEnd = tagFilters.scrollWidth - tagFilters.clientWidth - tagFilters.scrollLeft <= 1;
+      tagFilters.classList.toggle('at-end', atEnd);
+    }
+
+    // updateTagFilters() re-renders the chips (preserving scrollLeft), so the
+    // fade state is re-synced after every render (see renderBooks). Scroll
+    // doesn't bubble, so listen directly on the strip; a window resize can
+    // change how many chips fit, so re-check on resize too.
+    tagFilters.addEventListener('scroll', updateTagFiltersFade);
+    window.addEventListener('resize', updateTagFiltersFade);
+
     // Modal Volume/Stage Dropdown Helpers
     function getVolumeMap() {
       const map = new Map();
@@ -4098,10 +4141,16 @@
                 filterBar.classList.remove('is-pinned');
                 filterBarFlowShim.style.height = '0px';
                 desktopBarNaturalHeight = filterBar.offsetHeight;
+                updateTagFiltersFade();
               }
             }, 260);
           }
         }
+        // Pinning/unpinning changes the tag strip's overflow (the compact bar
+        // switches it to nowrap + scrollable), so re-evaluate its fade state
+        // on desktop too — otherwise a stale .at-end from the wrapped bar would
+        // suppress the fade at scroll 0 of the compact strip.
+        updateTagFiltersFade();
         filterBar.classList.remove('is-past');
         return;
       }
@@ -4122,6 +4171,10 @@
         filterBar.style.transition = '';
       }
       filterBarFlowShim.style.height = '0px';
+      // Pinning/unpinning the bar changes the tag strip's overflow (desktop
+      // compact bar switches it to nowrap + scrollable), so re-evaluate the
+      // strip's fade state after every state change.
+      updateTagFiltersFade();
     }
 
     // Re-read the sentinel directly: the IntersectionObserver only fires on
@@ -4506,6 +4559,35 @@
       row.scrollBy({ left: dir * row.clientWidth * 0.8, behavior });
     }
 
+    // Right-edge fade cue on stage rows: the mask-image fade should not mask
+    // the last book once it's fully in view. A row is "at its end" when it's
+    // scrolled to its max (scrollLeft at scrollWidth - clientWidth) OR when it
+    // never overflows at all — then the last book is already fully visible and
+    // there's nothing to scroll for. The .at-end class clears the mask in CSS.
+    function updateStageRowFade(row) {
+      if (!row || !row.classList.contains('stage-row')) return;
+      const atEnd = row.scrollWidth - row.clientWidth - row.scrollLeft <= 1;
+      row.classList.toggle('at-end', atEnd);
+    }
+
+    function updateAllStageRowFades() {
+      if (currentView !== 'roadmap') return;
+      bookGrid.querySelectorAll('.stage-row').forEach(updateStageRowFade);
+    }
+
+    // Stage rows re-render on every renderBooks, so after rendering we
+    // re-evaluate every row (updateAllStageRowFades is called at the end of
+    // renderBooks). Scroll doesn't bubble, so the delegated listener uses the
+    // capture phase to catch each row's own scroll event; a window resize can
+    // change how many books fit, so re-check on resize too.
+    bookGrid.addEventListener('scroll', (e) => {
+      if (currentView !== 'roadmap') return;
+      const row = e.target && e.target.closest ? e.target.closest('.stage-row') : null;
+      if (row) updateStageRowFade(row);
+    }, true);
+
+    window.addEventListener('resize', updateAllStageRowFades);
+
     // Initialize SortableJS on Roadmap Stages
     function initRoadmapSortables() {
       destroySortables();
@@ -4767,6 +4849,9 @@
     function renderBooks() {
       updateVolumeFilterDropdown();
       updateTagFilters();
+      // Tag chips were just (re)built — sync the right-edge fade state so a
+      // strip that's already at its end (or never overflows) has no fade.
+      updateTagFiltersFade();
       updateFilterBadge();
 
       const sortVal = sortSelect.value;
@@ -4802,6 +4887,9 @@
 
       lucide.createIcons();
       updateActiveEngines();
+      // Stage rows were just (re)built — sync the right-edge fade state so a
+      // row that's already at its end (or never overflows) has no fade.
+      updateAllStageRowFades();
     }
 
     // --- Volume & Stage Reordering & CRUD Functions ---
