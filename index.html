@@ -2423,12 +2423,11 @@
          Solid --bg-main background (matches the page, so no seam) keeps Safari
          from tinting the browser chrome; no backdrop-filter/blur. */
       .filter-bar {
-        /* Sticky in BOTH views now (the unified reveal bar) — sticky still
-           anchors the absolutely-positioned Filters panel. z 50 in Grid; the
-           roadmap override below bumps it to 60 to clear the volume/stage
-           sticky headers when revealed. */
-        position: sticky;
-        top: 0;
+        /* Sits in natural flow (no reserved space). Once it has fully scrolled
+           off it becomes sticky and hidden above; the reveal slides it back
+           down to top:0. Because the sticky point equals the bar's natural
+           spot, engaging it never shifts the layout. */
+        position: relative;
         z-index: 50;
         gap: 8px;
         isolation: isolate;
@@ -2436,6 +2435,19 @@
         margin-bottom: 14px;
         padding: 10px 0 8px;
         padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+      }
+
+      /* Hidden above the viewport once scrolled past; revealed slides back
+         down to top:0. The transition animates the reveal/dismiss while
+         scrolling. */
+      .filter-bar.is-past {
+        position: sticky;
+        top: 0;
+        transform: translateY(-110%);
+        transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+      .filter-bar.is-past.is-revealed {
+        transform: translateY(0);
       }
 
       /* Keep the filter controls aligned to the page gutter while its sticky
@@ -4095,17 +4107,34 @@
         filterBar.classList.remove('is-past');
         return;
       }
-      // Mobile: existing tuck-away / reveal-on-scroll-up.
+      // Mobile: existing tuck-away / reveal-on-scroll-up. The bar is in
+      // natural flow (no reserved space); its sticky point equals its natural
+      // spot, so engaging is-past never shifts the layout. The first hide is
+      // snapped (transition off) — like the desktop first-pin guard — so a
+      // down-scroll dismissal never animates through a visible position, and
+      // the up-scroll reveal still slides in.
+      const wasPast = filterBar.classList.contains('is-past');
       const reveal = barPastTop && (barPanelLocked || lastScrollDir === 'up');
+      const hideNow = barPastTop && !reveal;
+      if (hideNow && !wasPast) filterBar.style.transition = 'none';
       filterBar.classList.toggle('is-past', barPastTop);
       filterBar.classList.toggle('is-revealed', reveal);
+      if (hideNow && !wasPast) {
+        void filterBar.offsetHeight; // commit the snapped-hide state
+        filterBar.style.transition = '';
+      }
+      filterBarFlowShim.style.height = '0px';
     }
 
     // Re-read the sentinel directly: the IntersectionObserver only fires on
     // intersection CHANGES, so a view switch while scrolled deep wouldn't
     // re-fire it — sync after any structural change (view switch, etc.).
+    // The mobile bar is ALWAYS sticky (its flow space is reserved by the shim),
+    // and the below-bar sentinel marks its natural BOTTOM — the true trigger
+    // for sliding it up (the bar must be fully above the viewport). Desktop
+    // uses the same below-bar sentinel for its compact-pin logic.
     function syncStickyBar() {
-      barPastTop = filterBarSentinel.getBoundingClientRect().bottom <= 0;
+      barPastTop = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
       applyStickyBarState();
     }
 
@@ -4115,7 +4144,7 @@
       barPastTop = past;
       applyStickyBarState();
     }, { threshold: 0 });
-    barSentinelObserver.observe(filterBarSentinel);
+    barSentinelObserver.observe(filterBarGoneSentinel);
 
     window.addEventListener('scroll', () => {
       const y = window.scrollY || 0;
@@ -4130,6 +4159,16 @@
         scrollSamples.shift();
       }
       if (barPanelLocked) return; // panel open → the bar stays revealed
+      // Re-read the sentinel on every scroll. The below-bar sentinel marks
+      // the natural BOTTOM of the always-sticky mobile bar (its flow space is
+      // reserved by the shim), so it is stable and flips exactly when the bar
+      // is fully above the viewport. Desktop uses the same sentinel for its
+      // compact-pin logic.
+      const pastNow = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
+      if (pastNow !== barPastTop) {
+        barPastTop = pastNow;
+        applyStickyBarState();
+      }
       // px/ms over the window (+ down / − up). In the dead zone the previous
       // direction (and so the bar state) is left untouched.
       const first = scrollSamples[0];
@@ -6403,6 +6442,7 @@
         updateExportReminder();
         checkBooksJsonNewer(); // fire-and-forget freshness check (HTTP or file:// handle)
       }
+      // Mobile keeps the bar in natural flow — no flow-shim space needed.
     })();
   </script>
 </body>
