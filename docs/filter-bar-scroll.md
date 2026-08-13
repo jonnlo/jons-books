@@ -4,7 +4,7 @@
 > so it can be referenced (and debugged) later without re-deriving everything.
 > All behavior lives in a single static file: **`index.html`** (no build system).
 
-Last verified: 2026-08-12 (commits `65bbea7`, `a9716c5`, `116cc29`, `d25b1ce`).
+Last verified: 2026-08-13 (desktop first-load reveal guard; not yet committed).
 Line numbers drift — reference by **function/class names**.
 
 ---
@@ -103,7 +103,7 @@ returns to its natural spot):
 | Condition | Action |
 |---|---|
 | `!barTopGone` (bar back at natural spot) | remove `is-pinned` + `is-revealed` (release sticky entirely) |
-| `barPanelLocked \|\| lastScrollDir === 'up'` | add `is-pinned` + `is-revealed` (reveal pinned at top) |
+| `barPanelLocked \|\| lastScrollDir === 'up'` **and the latest scroll delta is upward** | add `is-pinned` + `is-revealed` (reveal pinned at top) |
 | `fullBarGone` (down-scroll, whole bar past) | add `is-pinned`, remove `is-revealed` (sticky but hidden above) |
 | else (down-scroll, not fully past) | remove `is-revealed` (keep any latched sticky, just tuck; if never pinned the bar stays static and scrolls away naturally) |
 
@@ -112,6 +112,13 @@ Also always `filterBar.classList.remove('is-past')` (desktop never uses the mobi
 **First-pin guard:** when `is-pinned` is first applied, `filterBar.style.transition = 'none'`
 is set, `void filterBar.offsetHeight` forces a reflow, then the transition is restored —
 so the bar snaps into its hidden-above state instead of animating a visible flash.
+
+**Downward first-load guard:** a downward scroll can engage the compact pinned state,
+but it cannot reveal that state. The wrapped natural bar and the compact bar have
+different in-flow heights; revealing while moving down can move the sentinels during
+the same scroll pass and produce a one-time compact-bar flash. The explicit
+`scrollToFirstBooks()` coexistence path may still force a reveal after a filter/view
+reset.
 
 Desktop CSS (`min-width: 601px`):
 - Base `.filter-bar { position: static }` → the **full bar scrolls away naturally**.

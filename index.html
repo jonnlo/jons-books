@@ -3514,11 +3514,22 @@
     filterBarGoneSentinel.style.height = '0px';
     filterBarGoneSentinel.setAttribute('aria-hidden', 'true');
     filterBar.parentNode.insertBefore(filterBarGoneSentinel, filterBar.nextSibling);
+    // Desktop-only flow shim: pinning compacts the bar, but the original OG
+    // bar must keep its document-space height. Without this shim, revealing
+    // or releasing the compact bar moves the results underneath it and causes
+    // a visible layout stutter near the top of the page.
+    const filterBarFlowShim = document.createElement('div');
+    filterBarFlowShim.setAttribute('aria-hidden', 'true');
+    filterBarFlowShim.style.height = '0px';
+    filterBar.parentNode.insertBefore(filterBarFlowShim, filterBarGoneSentinel.nextSibling);
 
     // Scroll state for the reveal-on-scroll-up bar.
     let barPastTop = false;
     let lastScrollY = window.scrollY || 0;
+    let lastScrollDelta = 0;
     let lastScrollDir = 'down';
+    let desktopBarNaturalHeight = 0;
+    let desktopPinReleaseTimer = null;
     let barPanelLocked = false; // mobile Filters panel open → keep the bar revealed
     // Velocity tuning (NOT distance): revealing takes a real upward scroll, not
     // a slow nudge. A sliding window of recent scroll samples gives px/ms
@@ -3998,7 +4009,7 @@
       // re-measure the grid's document top AFTER the reveal, then land the
       // first book just below the (now compact) bar.
       lastScrollDir = 'up';
-      applyStickyBarState();
+      applyStickyBarState(true);
       const docTopCompacted = target.getBoundingClientRect().top + window.scrollY;
       const landingY = Math.max(0, Math.round(docTopCompacted - ((filterBar.offsetHeight || 0) + 8)));
       // Reset the velocity baseline so the programmatic jump isn't read as a
@@ -4016,7 +4027,7 @@
     // row. Sticky keeps it in flow, so toggling never shifts the layout.
     // MOBILE (≤600px): unchanged — the bar tucks away on scroll-down and
     // re-reveals pinned on scroll-up (.is-past / .is-revealed).
-    function applyStickyBarState() {
+    function applyStickyBarState(forceReveal = false) {
       if (!mobileView.matches) {
         // Desktop: the compact bar may engage as soon as its OWN top reaches
         // the viewport top (barTopGone), so it can pin while the first book is
@@ -4031,32 +4042,55 @@
         const barTopGone = filterBarSentinel.getBoundingClientRect().bottom <= 0;
         const fullBarGone = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
         const wasPinned = filterBar.classList.contains('is-pinned');
+        const naturalHeightBeforeChange = !wasPinned ? filterBar.offsetHeight : desktopBarNaturalHeight;
         if (!barTopGone) {
           // Bar back at its natural spot → release sticky entirely.
-          filterBar.classList.remove('is-pinned', 'is-revealed');
-        } else if (barPanelLocked || lastScrollDir === 'up') {
-          // Scroll up (or panel locked): reveal pinned at top.
-          if (!wasPinned) filterBar.style.transition = 'none';
-          filterBar.classList.add('is-pinned');
-          filterBar.classList.add('is-revealed');
-          if (!wasPinned) {
-            void filterBar.offsetHeight; // commit the initial pin state
-            filterBar.style.transition = '';
+          if (desktopPinReleaseTimer) {
+            clearTimeout(desktopPinReleaseTimer);
+            desktopPinReleaseTimer = null;
           }
-        } else if (fullBarGone) {
-          // Scrolled fully past on the way down: engage sticky (hidden above).
-          if (!wasPinned) filterBar.style.transition = 'none';
-          filterBar.classList.add('is-pinned');
-          filterBar.classList.remove('is-revealed');
+          filterBar.classList.remove('is-pinned', 'is-revealed');
+          filterBarFlowShim.style.height = '0px';
+          desktopBarNaturalHeight = filterBar.offsetHeight;
+        } else if (barPanelLocked || (lastScrollDir === 'up' && (forceReveal || lastScrollDelta < 0))) {
+          // Scroll up (or panel locked): reveal pinned at top. Downward
+          // scrolling must never reveal the compact layout: changing from the
+          // wrapped natural bar to the compact bar changes the in-flow height
+          // and can make the sentinels move during the same first scroll pass.
+          if (desktopPinReleaseTimer) {
+            clearTimeout(desktopPinReleaseTimer);
+            desktopPinReleaseTimer = null;
+          }
           if (!wasPinned) {
+            // Establish the compact sticky geometry in its hidden position,
+            // then let the normal transform transition animate the reveal.
+            filterBar.style.transition = 'none';
+            filterBar.classList.add('is-pinned');
             void filterBar.offsetHeight;
             filterBar.style.transition = '';
+          } else {
+            filterBar.classList.add('is-pinned');
           }
+          filterBar.classList.add('is-revealed');
+          if (!wasPinned) desktopBarNaturalHeight = naturalHeightBeforeChange;
+          filterBarFlowShim.style.height = `${Math.max(0, desktopBarNaturalHeight - filterBar.offsetHeight)}px`;
         } else {
-          // Scrolling down but not fully past: keep any latched sticky state,
-          // just tuck it. If never pinned the bar stays static and scrolls
-          // away naturally (its in-flow spot is already above the viewport).
+          // Desktop never hides the OG bar in a pinned/off-screen state. On a
+          // down-scroll, slide the compact bar away first, then release the
+          // pin after the transform transition. The full bar remains normal
+          // document content and naturally returns when the user scrolls back.
           filterBar.classList.remove('is-revealed');
+          if (wasPinned) {
+            if (desktopPinReleaseTimer) clearTimeout(desktopPinReleaseTimer);
+            desktopPinReleaseTimer = setTimeout(() => {
+              desktopPinReleaseTimer = null;
+              if (filterBar.classList.contains('is-pinned') && lastScrollDir === 'down') {
+                filterBar.classList.remove('is-pinned');
+                filterBarFlowShim.style.height = '0px';
+                desktopBarNaturalHeight = filterBar.offsetHeight;
+              }
+            }, 260);
+          }
         }
         filterBar.classList.remove('is-past');
         return;
@@ -4087,6 +4121,7 @@
       const y = window.scrollY || 0;
       const t = performance.now();
       if (y === lastScrollY) return;
+      lastScrollDelta = y - lastScrollY;
       lastScrollY = y;
       scrollSamples.push({ y, t });
       // Keep only samples inside the velocity window; slow nudges (events far
