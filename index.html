@@ -1096,7 +1096,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       column-gap: 28px;
-      row-gap: 16px;
+      row-gap: 24px;
       width: 100%;
     }
 
@@ -1255,7 +1255,6 @@
     .book-author {
       font-size: 0.85rem;
       color: var(--text-secondary);
-      margin-bottom: 8px;
       display: -webkit-box;
       -webkit-line-clamp: 1;
       line-clamp: 1;
@@ -1271,6 +1270,7 @@
       font-size: 0.7rem;
       font-weight: 600;
       padding: 2px 8px;
+      margin-top: 8px;
       border-radius: 12px;
       background: var(--bg-main);
       color: var(--text-secondary);
@@ -1964,7 +1964,6 @@
     
     .stage-row .book-author {
       font-size: 0.85rem;
-      margin-bottom: 8px;
     }
     .stage-row .status-pill {
       font-size: 0.7rem;
@@ -2251,7 +2250,7 @@
 
       .book-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
+        gap: 32px 8px !important;
       }
       /* Stage rows go full-bleed on mobile (offset the body padding and scroll
          edge-to-edge). :first-of-type / :last-of-type — NOT :first-child: the
@@ -2287,7 +2286,6 @@
       }
       .stage-row .book-author {
         font-size: 0.8rem;
-        margin-bottom: 8px;
       }
       .stage-row .status-pill {
         font-size: 0.7rem;
@@ -2296,6 +2294,7 @@
 
       .book-info {
         padding: 8px 6px;
+        min-height: 0px;
       }
 
       .book-title {
@@ -2305,7 +2304,6 @@
 
       .book-author {
         font-size: 0.8rem;
-        margin-bottom: 8px;
       }
 
       .book-vol-stage {
