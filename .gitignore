@@ -4,6 +4,9 @@
 CSV/
 catalog.csv
 
+# Older one-off backup pages (kept locally for reference only; no useful history to track)
+bkup/
+
 # macOS
 .DS_Store
 
