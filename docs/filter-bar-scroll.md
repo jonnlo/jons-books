@@ -51,6 +51,7 @@ Two zero-height **sentinels** are injected around the bar in JS:
 | `lastScrollDir` | `'up'` / `'down'`, from velocity. Drives reveal/tuck. |
 | `lastScrollY` | last scroll position (for the velocity sample window). |
 | `barPanelLocked` | true while the mobile Filters panel is open → the bar is forced revealed so the panel can't ride away. |
+| `barLandingLock` | true while a programmatic scroll-reset (shuffle/tag/sort/filter/view) is landing on mobile Grid. Forces the bar pinned+revealed through the jump so it can't end up half-tucked; released on a real scroll (whole bar off again, or back at its natural spot). |
 | `scrollSamples` | sliding window of `{y, t}` scroll samples. |
 | `VELOCITY_WINDOW_MS` | `90` ms — samples older than this are dropped. |
 | `REVEAL_UP_VELOCITY` | `0.5` px/ms — upward velocity needed to **reveal** the bar (higher = less eager). |
@@ -79,14 +80,18 @@ filter-panel open/close. It branches on `mobileView.matches` (`window.matchMedia
 ### 3a. Mobile (≤ 600px) — tuck + reveal
 
 ```js
-const reveal = barPastTop && (barPanelLocked || lastScrollDir === 'up');
-filterBar.classList.toggle('is-past', barPastTop);       // hidden above (-110%)
-filterBar.classList.toggle('is-revealed', reveal);       // slid down to top:0
+const pinned = barLandingLock || barPastTop;
+const reveal = pinned && (barPanelLocked || barLandingLock || lastScrollDir === 'up' || forceReveal);
+filterBar.classList.toggle('is-past', pinned);       // hidden above (-110%)
+filterBar.classList.toggle('is-revealed', reveal);   // slid down to top:0
 ```
 
 - Bar is **sticky at top:0** (`position: sticky`) in both views on mobile.
 - Scroll down → `is-past` (translateY -110%, tucked off-screen). Scroll up (fast enough)
   → `is-past` + `is-revealed` (slides back to top:0).
+- `barLandingLock` is a **temporary override** set by `scrollToFirstBooks()` before a
+  mobile-Grid jump: it pins the bar even though the below-bar sentinel is back in view
+  at the landing point (which would otherwise un-stick it → half-tucked bar).
 - CSS: `.filter-bar.is-past { transform: translateY(-110%) }`,
   `.filter-bar.is-past.is-revealed { transform: translateY(0) }`.
 - `prefers-reduced-motion` disables the transition.
@@ -152,7 +157,20 @@ Branches on view + breakpoint:
 | Case | Landing target | Guard (no-op when) |
 |---|---|---|
 | **Volumes** (both breakpoints) | `gridTop − 4` (first volume flush) | `scrollY <= landingY` |
-| **Mobile Grid** | `gridTop − (filterBar.offsetHeight + 8)` (first book just below the always-sticky bar) | `scrollY <= landingY` |
+| **Mobile Grid** | force-reveal the bar, then `gridTop − (filterBar.offsetHeight + 8)` (first book just below the pinned bar = "filter top") | `scrollY <= landingY` |
+
+**Mobile Grid landing lock (why it exists):** the mobile bar's sticky state is gated by
+`barPastTop`, which is driven by the **below-bar** sentinel — the bar counts as "past" only
+once its WHOLE box (+ margin) has scrolled off. The "filter top" landing point
+(`gridTop − barH − 8`) sits *before* that threshold, so on the jump's own scroll event the
+below-sentinel is back in view, `barPastTop` flips false, `is-past` is removed, and the bar
+falls back to natural flow with its top partially above the viewport → **half-tucked bar**
+(the bug fixed 2026-08-16). The fix sets `barLandingLock = true` + forces the reveal
+(snapped, transition off) before `window.scrollTo`, and the scroll listener keeps the pin
+while the lock is held. The lock releases on a real scroll once the whole bar is off again
+(`pastNow`) or the bar is back at its natural spot (`scrollY <= barNaturalTop`), then
+normal tuck/reveal resumes. The no-op guard (`scrollY <= landingY`) returns before the lock
+is set, so a near-top trigger never leaves stale pinned classes.
 | **Desktop Grid** | reveal compact bar, then `gridTop_compacted − (filterBar.offsetHeight + 8)` (pinned bar + first book **coexist**) | `scrollY <= gridTop` (first book still on screen) |
 
 Before scrolling it resets the velocity baseline (`scrollSamples.length = 0;

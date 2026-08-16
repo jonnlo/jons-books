@@ -1035,7 +1035,7 @@
     }
 
     .results-count {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: var(--text-secondary);
       margin-bottom: 16px;
     }
@@ -3566,6 +3566,11 @@
     let desktopBarNaturalHeight = 0;
     let desktopPinReleaseTimer = null;
     let barPanelLocked = false; // mobile Filters panel open → keep the bar revealed
+    // A programmatic scroll-reset (shuffle/tag/sort/filter/view) pins the bar at
+    // the landing point. Without this lock the jump's own scroll event sees the
+    // below-bar sentinel back in view and un-sticks the bar, leaving it half-
+    // tucked above the viewport. Released on a real scroll (see the listener).
+    let barLandingLock = false;
     // Velocity tuning (NOT distance): revealing takes a real upward scroll, not
     // a slow nudge. A sliding window of recent scroll samples gives px/ms
     // velocity; the dead zone between the two thresholds stops it flapping.
@@ -4044,9 +4049,21 @@
       }
 
       if (mobileView.matches) {
-        // Mobile Grid: the sticky filter bar stays above the first books.
+        // Mobile Grid: land the first book just below the (pinned) filter bar.
         const landingY = Math.max(0, Math.round(docTop - ((filterBar.offsetHeight || 0) + 8)));
-        if (window.scrollY <= landingY) return;
+        if (window.scrollY <= landingY) return; // near/above the landing → no-op
+        // The bar must be forced into the pinned+revealed state and LATCHED
+        // through the jump. Otherwise the jump's own scroll event sees the
+        // below-bar sentinel back in view, un-sticks the bar (is-past removed),
+        // and it returns to natural flow with its top partially above the
+        // viewport — the bar ends up half-tucked. Snap the pin (transition off)
+        // so it's committed before the jump; the lock releases on a real scroll.
+        lastScrollDir = 'up';
+        barLandingLock = true;
+        filterBar.style.transition = 'none';
+        applyStickyBarState(true);
+        void filterBar.offsetHeight; // commit the pinned state before the jump
+        filterBar.style.transition = '';
         scrollSamples.length = 0;
         lastScrollY = window.scrollY;
         window.scrollTo(0, landingY);
@@ -4161,10 +4178,16 @@
       // down-scroll dismissal never animates through a visible position, and
       // the up-scroll reveal still slides in.
       const wasPast = filterBar.classList.contains('is-past');
-      const reveal = barPastTop && (barPanelLocked || lastScrollDir === 'up');
-      const hideNow = barPastTop && !reveal;
+      // A programmatic scroll-reset (barLandingLock) pins the bar at the
+      // landing even though the below-bar sentinel is back in view there —
+      // otherwise the jump's scroll event would un-stick it and leave it
+      // half-tucked above the viewport. The lock is released once the user
+      // scrolls the whole bar off again (or back to its natural spot).
+      const pinned = barLandingLock || barPastTop;
+      const reveal = pinned && (barPanelLocked || barLandingLock || lastScrollDir === 'up' || forceReveal);
+      const hideNow = pinned && !reveal;
       if (hideNow && !wasPast) filterBar.style.transition = 'none';
-      filterBar.classList.toggle('is-past', barPastTop);
+      filterBar.classList.toggle('is-past', pinned);
       filterBar.classList.toggle('is-revealed', reveal);
       if (hideNow && !wasPast) {
         void filterBar.offsetHeight; // commit the snapped-hide state
@@ -4219,6 +4242,18 @@
       if (pastNow !== barPastTop) {
         barPastTop = pastNow;
         applyStickyBarState();
+      }
+      // Release the landing lock once the user scrolls the whole bar off again
+      // (pastNow true) or the bar is back at its natural spot (scrollY at/below
+      // its natural top) — normal tuck/reveal resumes from there. Re-evaluate
+      // after releasing so the forced pin is cleared even when barPastTop did
+      // not change (e.g. the jump itself: both false at the landing point).
+      if (barLandingLock) {
+        const barNaturalTop = filterBarSentinel.getBoundingClientRect().bottom + y;
+        if (pastNow || y <= barNaturalTop) {
+          barLandingLock = false;
+          applyStickyBarState();
+        }
       }
       // px/ms over the window (+ down / − up). In the dead zone the previous
       // direction (and so the bar state) is left untouched.
