@@ -437,6 +437,8 @@
       width: 100%;
       align-items: center;
       cursor: pointer;
+      /* Removes iOS double-tap delay / zoom on tap (touch only). */
+      touch-action: manipulation;
     }
 
     .engine-cover {
@@ -1152,6 +1154,8 @@
       /* border: 1px solid var(--border-color); */
       border-radius: 12px;
       transition: all 0.3s ease;
+      /* Removes iOS double-tap delay / zoom on tap (touch only). */
+      touch-action: manipulation;
 
     }
 
@@ -1159,16 +1163,25 @@
       cursor: grabbing;
     }
 
+    /* Hover-only effects are scoped per-rule to real pointers (below) so touch
+       devices don't get a sticky :hover (which makes iOS Safari require a
+       double-tap to click). The base .cover-container / .book3d rules stay
+       outside the media query so the 3D book still renders on touch. */
+    @media (hover: hover) and (pointer: fine) {
     .book-card:hover {
       /* transform: translateY(-10px); */
       border-color: var(--border-accent);
     }
-
+    }
+    /* @media (hover: hover) and (pointer: fine) { */
     .book-card:hover .cover-container {
       background-color:var(--img-bg-hover);
+    /* } */
     }
+    /* @media (hover: hover) and (pointer: fine) { */
     .book-card:hover .book3d {
       --book-scale: 1.05;
+    /* } */
     }
     .cover-container {
       border-radius: 12px;
@@ -1217,8 +1230,10 @@
       box-shadow: none;
       transition: box-shadow 0.2s ease;
     }
+    @media (hover: hover) and (pointer: fine) {
     .book-card:hover .book3d__front {
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
     }
     .book3d__front .cover-img,
     .book3d__front .book-jacket {
@@ -1451,7 +1466,13 @@
 
     .modal-overlay.active {
       display: flex;
-      animation: modal-fade-in 0.2s ease-out;
+    }
+    /* Entrance animation is on a separate class so it's added only AFTER the
+       overlay is laid out (display:flex). iOS Safari skips an animation that
+       starts the same frame an element goes from display:none to displayed,
+       which made the modal appear suddenly with no transition. */
+    .modal-overlay.anim-in {
+      animation: modal-fade-in 0.25s ease-in;
     }
 
     @keyframes modal-fade-in {
@@ -1679,7 +1700,7 @@
        drag-down-to-dismiss gesture. Transform only: the overlay's own fade
        (`modal-fade-in`) already fades the dim + card, so animating opacity
        here too would double-fade. The card stays centered (no bottom sheet). */
-    .book-detail-modal.active .modal-content {
+    .book-detail-modal.anim-in .modal-content {
       animation: detail-rise-in 0.25s ease-out;
     }
 
@@ -5345,10 +5366,13 @@
       editVolTargetNum.value = volNum;
       volNameModalInput.value = volBook.volumeName || `Volume ${volNum}`;
       volumeModal.classList.add('active');
+      void volumeModal.offsetWidth;
+      volumeModal.classList.add('anim-in');
     }
 
     function closeVolumeModal() {
       volumeModal.classList.remove('active');
+      volumeModal.classList.remove('anim-in');
     }
 
     closeVolumeModalBtn.addEventListener('click', closeVolumeModal);
@@ -5400,6 +5424,8 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      void modal.offsetWidth;
+      modal.classList.add('anim-in');
       formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
@@ -5420,12 +5446,16 @@
       editStageTargetNum.value = stageNum;
       stageNameModalInput.value = stageBook.stageName || `Stage ${stageNum}`;
       stageModal.classList.add('active');
+      void stageModal.offsetWidth;
+      stageModal.classList.add('anim-in');
     }
 
     function closeStageModal() {
       stageModal.classList.remove('active');
+      stageModal.classList.remove('anim-in');
     }
 
+    stageModal.classList.remove('anim-in');
     closeStageModalBtn.addEventListener('click', closeStageModal);
     cancelStageModalBtn.addEventListener('click', closeStageModal);
 
@@ -5478,6 +5508,8 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      void modal.offsetWidth;
+      modal.classList.add('anim-in');
       formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
@@ -5499,6 +5531,8 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      void modal.offsetWidth;
+      modal.classList.add('anim-in');
       formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
@@ -5528,6 +5562,8 @@
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
+      void modal.offsetWidth;
+      modal.classList.add('anim-in');
       formBaseline = snapshotFormState(); // baseline for unsaved-change detection
     }
 
@@ -5562,11 +5598,14 @@
       // Tags — initialize the chip editor from the book's tags.
       tagEditorTags = [...(book.tags || [])];
       tagEditorInput.value = '';
-      renderTagEditor();
-
-      deleteBookBtn.style.display = "block";
-      modal.classList.add('active');
+      void modal.offsetWidth;
+      modal.classList.add('anim-in');
       formBaseline = snapshotFormState(); // baseline for unsaved-change detection
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      modal.classList.remove('anim-in');
     }
 
     function closeModal() {
@@ -5774,6 +5813,11 @@
       detailModal.style.animation = '';
       dismissing = false;
       detailModal.classList.add('active');
+      // Force layout so the display:flex state is committed before the entrance
+      // animation class is added (iOS Safari skips animations that begin the
+      // same frame an element goes from display:none to displayed).
+      void detailModal.offsetWidth;
+      detailModal.classList.add('anim-in');
       // Reflect the open book in the URL (#book=<id>) so the page is
       // deep-linkable and Back/Forward toggle the modal. pushState adds a
       // history entry without firing hashchange (so no recursion), and we skip
@@ -5815,6 +5859,7 @@
         history.replaceState(null, '', location.pathname + location.search);
       }
       detailModal.classList.remove('active');
+      detailModal.classList.remove('anim-in');
       const appContainer = document.querySelector('.container');
       if (appContainer) appContainer.inert = false;
       // Return focus to whatever opened the modal (best effort).
