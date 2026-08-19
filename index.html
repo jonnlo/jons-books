@@ -4343,10 +4343,11 @@
       if (dir !== lastScrollDir) {
         lastScrollDir = dir;
         applyStickyBarState();
-      } else if (!mobileView.matches) {
-        // Desktop: also re-evaluate when the full bar scrolls back into view
-        // (or out of it) without a direction change, so the compact pinned bar
-        // tracks the full bar's gone/visible state.
+      } else if (!mobileView.matches && lastScrollDelta < 0) {
+        // Desktop: only re-evaluate on upward scroll when the delta is clearly
+        // upward (lastScrollDelta < 0). This prevents jitter from tiny scroll
+        // nudges in the dead zone — the bar state only updates when the user
+        // is clearly scrolling up, not on every minor movement.
         applyStickyBarState();
       }
     }, { passive: true });
