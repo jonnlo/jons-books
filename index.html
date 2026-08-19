@@ -1651,17 +1651,20 @@
       flex-wrap: wrap;
       margin-bottom: 24px;
     }
-
+    .detail-pills .status-pill {
+      margin-top:0;
+    }
     .engine-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-size: 0.7rem;
+      font-weight: 500;
       padding: 2px 8px;
       border-radius: 12px;
-      background: var(--bg-main);
+      background: var(--img-bg);
       color: var(--text-secondary);
-      border: 1px solid var(--border-color);
+      border: 0px solid var(--border-color);
     }
 
     .detail-meta {
@@ -1671,12 +1674,13 @@
     }
 
     /* Definition-list rows: no background highlight, just a divider line
-       between rows. Mobile stacks the value under the label; desktop puts the
-       label on the left and right-aligns the value on the right. */
+       between rows. The label sits on the left and the value is right-aligned
+       on the right at every width (mobile included). */
     .detail-meta-row {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 4px;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: baseline;
       padding: 12px 0;
       border-bottom: 1px solid var(--border-color);
     }
@@ -1687,10 +1691,7 @@
 
     @media (min-width: 601px) {
       .detail-meta-row {
-        grid-template-columns: auto 1fr;
-        gap: 16px;
         padding: 10px 0;
-        align-items: baseline;
       }
     }
 
@@ -1704,18 +1705,12 @@
     }
 
     .detail-meta-value {
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       color: var(--text-primary);
       overflow-wrap: anywhere;
       line-height: 1.4;
-      text-align: left;
-    }
-
-    @media (min-width: 601px) {
-      .detail-meta-value {
-        justify-self: end;
-        text-align: right;
-      }
+      justify-self: end;
+      text-align: right;
     }
 
     .detail-links {
@@ -3065,7 +3060,7 @@
             <div class="detail-tags-list" id="detail-tags-list"></div>
           </div>
           <div class="detail-summary" id="detail-summary" hidden>
-            <h4>About this book</h4>
+            <!-- <h4>About this book</h4> -->
             <p id="detail-summary-text" class="clamped"></p>
             <button type="button" class="detail-summary-toggle" id="detail-summary-toggle" hidden aria-expanded="false">Read more</button>
           </div>
