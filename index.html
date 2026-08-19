@@ -1895,6 +1895,16 @@
       gap: 10px;
     }
 
+    /* Volume collapse/expand chevron — lucide swaps the <i> for an <svg> that
+       keeps this class, so sizing/tinting/stroke live here (not inline) and
+       are easy to tune. */
+    .vol-expand-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-primary);
+      stroke-width: 1.5;
+    }
+
     .stage-block {
       background: transparent;
       border: none;
@@ -2169,7 +2179,7 @@
     .count-badge {
       font-size: 0.75rem;
       background: var(--bg-surface);
-      border: 1px solid var(--border-color);
+      border: 0px solid var(--border-color);
       color: var(--text-secondary);
       padding: 2px 8px;
       border-radius: 12px;
@@ -4626,7 +4636,7 @@
               saveCollapsedStates();
               const icon = header.querySelector('.vol-expand-icon');
               if (icon) {
-                icon.setAttribute('data-lucide', 'chevron-down');
+                icon.setAttribute('data-lucide', 'minus');
                 lucide.createIcons();
               }
             }
@@ -4822,7 +4832,7 @@
           <section class="volume-section ${isVolCollapsed ? 'collapsed-volume' : ''}" data-vol-num="${volNum}">
             <h2 class="volume-header" onclick="toggleVolumeCollapse(${volNum})">
               <div class="volume-title-group">
-                <i data-lucide="${isVolCollapsed ? 'chevron-right' : 'chevron-down'}" class="vol-expand-icon" style="width: 20px; height: 20px; color: var(--text-muted);"></i>
+                <i data-lucide="${isVolCollapsed ? 'plus' : 'minus'}" class="vol-expand-icon"></i>
                 <span>Volume ${volNum}: ${escapeHtml(volData.volumeName)}</span>
                 <span class="count-badge">${totalVolBooks}</span>
               </div>
