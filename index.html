@@ -22,43 +22,43 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     :root {
-      --bg-main: hsl(223, 39%, 7%);
-      --bg-surface: hsl(220, 42%, 13%);
-      --bg-card: #172136;
+      --bg-main: hsl(223, 0%, 2%);
+      --bg-surface: hsl(220, 0%, 7.5%);
+      --bg-card: hsl(221, 0%, 15%);
       --bg-card-hover: #1e2c45;
-      --bg-input: #0f172a;
-      --border-color: #233148;
+      --bg-input: hsl(222, 0%, 5%);
+      --border-color: hsl(217, 0%, 10%);
       --border-accent: #3b82f6;
-      --text-primary: #f8fafc;
-      --text-secondary: hsl(215, 20%, 85%);
-      --text-muted: #64748b;
-      --img-bg: hsl(220, 42%, 13%);
-      --img-bg-hover: hsl(220, 42%, 33%);
-      --btn-secondary-bg: hsl(220, 42%, 18%);
-      --btn-secondary-bg-hover: hsl(220, 42%, 24%);
+      --text-primary: hsl(210, 0%, 90%);
+      --text-secondary: hsl(215, 0%, 85%);
+      --text-muted: hsl(215, 0%, 47%);
+      --img-bg: hsl(220, 0%, 7.5%);
+      --img-bg-hover: hsl(220, 0%, 12%);
+      --btn-secondary-bg: hsl(220, 0%, 18%);
+      --btn-secondary-bg-hover: hsl(220, 0%, 24%);
       --engine-1: #3b82f6;
       --engine-2: #06b6d4;
       --engine-3: #f59e0b;
-      --accent-color: #6366f1;
-      --success-color: #34d399;
+      --accent-color: hsl(239, 0%, 30%);
+      --success-color: #040605; 
     }
 
     [data-theme="light"] {
-      --bg-main: hsl(220, 10%, 99%);
-      --bg-surface: hsl(200, 25%, 96%);
-      --bg-card: #f1f5f9;
-      --bg-card-hover: hsl(214, 32%, 91%);
+      --bg-main: hsl(220, 0%, 99%);
+      --bg-surface: hsl(200, 0%, 96%);
+      --bg-card: hsl(210, 0%, 96%);
+      --bg-card-hover: hsl(214, 0%, 91%);
       --bg-input: #ffffff;
-      --border-color: #cbd5e1;
-      --border-accent: #3b82f6;
-      --text-primary: #0f172a;
-      --text-secondary: hsl(215, 8%, 45%);
-      --text-muted: #7e8fa7;
-      --img-bg: hsl(200, 25%, 96%);
-      --img-bg-hover: hsl(200, 21%, 94%);
+      --border-color: hsl(213, 0%, 84%);
+      --border-accent: hsl(217, 0%, 60%);
+      --text-primary: hsl(222, 0%, 11%);
+      --text-secondary: hsl(215, 0%, 45%);
+      --text-muted: hsl(215, 0%, 57%);
+      --img-bg: hsl(200, 0%, 96.5%);
+      --img-bg-hover: hsl(200, 0%, 94%);
       --btn-secondary-bg: #ffffff;
-      --btn-secondary-bg-hover: hsl(214, 32%, 95%);
-      --accent-color: #4f46e5;
+      --btn-secondary-bg-hover: hsl(214, 0%, 95%);
+      --accent-color: hsl(0, 0%, 0%);
       --success-color: #16a34a;
     }
 
@@ -780,15 +780,16 @@
       font-size: 0.875rem;
       font-family: inherit;
       text-transform: capitalize;
-      background: var(--bg-surface);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--img-bg);
+      color: var(--text-muted);
+      border: none;
       cursor: pointer;
       transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     }
     .tag-filter-chip:hover {
       border-color: var(--accent-color);
-      color:var(--accent-color);
+      color:var(--text-primary);
+      background: var(--img-bg-hover);
     }
     .tag-filter-chip[aria-pressed="true"] {
       background: var(--accent-color);
@@ -876,16 +877,17 @@
       border-radius: 18px;
       min-height: 36px;
       text-transform: capitalize;
-      background: var(--bg-surface);
+      background: var(--img-bg);
       color: var(--text-secondary);
-      border: 1px solid var(--border-color);
+      border: 0px solid var(--border-color);
       cursor: pointer;
       font-family: inherit;
       transition: border-color 0.15s ease, color 0.15s ease;
     }
     .tag-chip:hover {
       border-color: var(--accent-color);
-      color: var(--accent-color);
+      color: var(--text-primary);
+      background: var(--img-bg-hover);
     }
     .tag-chip:focus-visible {
       outline: 2px solid var(--accent-color);
@@ -1146,7 +1148,7 @@
     }
     .book-card:hover .cover-img,.book-card:hover .book-jacket{
       transform: scale(1.05);
-      filter: drop-shadow(0 6px 10px hsla(220, 30%, 25%, 0.18));
+      filter: drop-shadow(0 6px 10px hsla(220, 30%, 0%, 0.25));
     }
     .cover-container {
       border-radius: 12px;
@@ -1270,7 +1272,7 @@
 
     .book-author {
       font-size: 0.85rem;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       display: -webkit-box;
       -webkit-line-clamp: 1;
       line-clamp: 1;
@@ -1284,18 +1286,19 @@
       display: inline-flex;
       align-self: flex-start;
       font-size: 0.7rem;
-      font-weight: 600;
+      font-weight: 500;
       padding: 2px 8px;
       margin-top: 8px;
       border-radius: 12px;
-      background: var(--bg-main);
-      color: var(--text-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--img-bg);
+      color: var(--text-muted);
+      border: 0px solid var(--border-color);
     }
 
     /* Reading: accent-colored border + text (neutral background). */
     .status-pill[data-status="Reading"] {
-      color: var(--accent-color);
+      color: var(--text-primary);
+      background: var(--img-bg-hover);
       border-color: color-mix(in srgb, var(--accent-color) 70%, var(--bg-input));
     }
 
@@ -1335,7 +1338,7 @@
     }
 
     .modal-content {
-      background: var(--bg-surface);
+      background: var(--bg-main);
       border: 1px solid var(--border-color);
       border-radius: 16px;
       width: 90%;
@@ -1576,7 +1579,7 @@
       width: 320px;
       flex-shrink: 0;
       aspect-ratio: 2 / 3;
-      background: var(--img-bg);
+      background: none;
       border-radius: 12px;
       display: flex;
       align-items: center;
