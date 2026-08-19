@@ -805,14 +805,14 @@
        strip instead of wrapping into many rows. Desktop wrapping unchanged. */
     @media (max-width: 600px) {
       .tag-filters {
-        /* Full-bleed: widen the strip to offset the body's 20px padding so it
+        /* Full-bleed: widen the strip to offset the body's 16px padding so it
            scrolls edge-to-edge. The flex/width override matters — with the base
            flex-basis:100% + negative margins, flexbox absorbs the right margin
            and the box never actually widens. No viewport units either, which
            avoids iOS 100vw overflow under viewport-fit=cover. (No scroll-snap:
            it kept re-snapping the initial position and un-aligning the first chip.) */
         flex: 0 0 auto;
-        width: calc(100% + 40px);
+        width: calc(100% + 32px);
         margin-inline: -16px;
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -2219,7 +2219,7 @@
       /* Active Books → compact horizontal carousel: the ORIGINAL mobile card
          (100px cover, title/author right) swiped through at ~80vw each, leaving
          a peek of the next card. CSS scroll-snap (mandatory) re-enabled
-         2026-08-12 to test on device: scroll-padding-left:20px keeps card 1's
+         2026-08-12 to test on device: scroll-padding-left:16px keeps card 1's
          content inset, and padding-right:40px keeps the last card's snap point
          reachable (the missing trailing pad was the original "snap back"
          cause). Empty slots dropped; the whole section (heading included)
@@ -2234,7 +2234,7 @@
 
       .engines-grid {
         flex: 0 0 auto;
-        width: calc(100% + 40px);
+        width: calc(100% + 32px);
         margin-inline: -16px;
         display: flex;
         flex-wrap: nowrap;
@@ -2245,9 +2245,9 @@
         scrollbar-width: none;
         padding: 2px 0 4px; /* room for :focus-visible rings */
         scroll-snap-type: x mandatory;
-        /* 20px so snapping card 1 lands at scrollLeft 0 (offsetLeft 20 minus
+        /* 16px so snapping card 1 lands at scrollLeft 0 (offsetLeft 16 minus
            this padding), keeping the card's page-content inset. */
-        scroll-padding-left: 20px;
+        scroll-padding-left: 16px;
       }
 
       .engines-grid::-webkit-scrollbar {
@@ -2259,7 +2259,7 @@
         width: 80vw;
         scroll-snap-align: start;
       }
-      /* Re-align the first/last card with the rest of the page content (20px
+      /* Re-align the first/last card with the rest of the page content (16px
          inset) instead of bleeding to the screen edge. Margin-based
          compensation is robust inside scroll containers (unlike container
          padding, which some browsers omit from scrollable overflow). */
@@ -2343,7 +2343,7 @@
       /* Stage rows go full-bleed on mobile (offset the body padding and scroll
          edge-to-edge). :first-of-type / :last-of-type — NOT :first-child: the
          collapsed-hint <div> is the row's real first child — so the first card
-         lines up with the 20px content inset and the last card can scroll fully
+         lines up with the 16px content inset and the last card can scroll fully
          into view (margin-based compensation, robust in scroll containers). */
       .stage-row {
         width: calc(100% + 32px);
@@ -2410,7 +2410,7 @@
       }
 
       /* The roadmap rows intentionally bleed to the viewport edges on mobile,
-         while the volume section itself remains aligned to the 20px page
+         while the volume section itself remains aligned to the 16px page
          gutter. Keep the header content aligned, but extend its opaque sticky
          background across the viewport so a wide row cannot show beside it. */
       .volume-header::before {
