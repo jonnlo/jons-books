@@ -19,7 +19,8 @@
       "poetry",
       "society",
       "history"
-    ]
+    ],
+    "spineColor": "#372c26"
   },
   {
     "id": "1786993352539",
@@ -40,7 +41,8 @@
     "tags": [
       "fiction",
       "society"
-    ]
+    ],
+    "spineColor": "#181c18"
   },
   {
     "id": "1786993057411",
@@ -61,7 +63,8 @@
     "tags": [
       "buddhism",
       "chinese"
-    ]
+    ],
+    "spineColor": "#fffee1"
   },
   {
     "id": "1786189407293",
@@ -83,7 +86,8 @@
       "fiction",
       "work",
       "relationships"
-    ]
+    ],
+    "spineColor": "#242529"
   },
   {
     "id": "1786171495955",
@@ -103,7 +107,8 @@
     "isbn": "9781842300114",
     "tags": [
       "design"
-    ]
+    ],
+    "spineColor": "#313332"
   },
   {
     "id": "1785948535767",
@@ -124,7 +129,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#fdc634"
   },
   {
     "id": "1785948133744",
@@ -145,7 +151,8 @@
     "tags": [
       "creativity",
       "technology"
-    ]
+    ],
+    "spineColor": "#580c0e"
   },
   {
     "id": "1785840339946",
@@ -167,7 +174,8 @@
       "fiction",
       "philosophy",
       "death"
-    ]
+    ],
+    "spineColor": "#022846"
   },
   {
     "id": "1785755389555jgu4l",
@@ -188,7 +196,8 @@
     "tags": [
       "buddhism",
       "chinese"
-    ]
+    ],
+    "spineColor": "#dacab4"
   },
   {
     "id": "17857553895551xrze",
@@ -209,7 +218,8 @@
     "tags": [
       "buddhism",
       "chinese"
-    ]
+    ],
+    "spineColor": "#dacab4"
   },
   {
     "id": "1785755389555n9moa",
@@ -231,7 +241,8 @@
       "buddhism",
       "chinese",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#854c39"
   },
   {
     "id": "1785755389555qqsvg",
@@ -253,7 +264,8 @@
       "buddhism",
       "chinese",
       "meditation"
-    ]
+    ],
+    "spineColor": "#824e42"
   },
   {
     "id": "1785755389555klhso",
@@ -274,7 +286,8 @@
     "tags": [
       "buddhism",
       "meditation"
-    ]
+    ],
+    "spineColor": "#175655"
   },
   {
     "id": "1785755389555ceums",
@@ -296,7 +309,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#e39c34"
   },
   {
     "id": "1785755389555tqcwj",
@@ -318,7 +332,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f2ede9"
   },
   {
     "id": "1785755389555d577l",
@@ -340,7 +355,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#ebe9e3"
   },
   {
     "id": "1785755389555xii6j",
@@ -362,7 +378,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f3eada"
   },
   {
     "id": "17857553895555i327",
@@ -384,7 +401,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#d3d3c4"
   },
   {
     "id": "17857553895552nmwi",
@@ -406,7 +424,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#d9e9bb"
   },
   {
     "id": "1785755389555kyecd",
@@ -428,7 +447,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f2ede9"
   },
   {
     "id": "17857553895552hfk8",
@@ -450,7 +470,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f3edea"
   },
   {
     "id": "1785755389555aojh5",
@@ -472,7 +493,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f2edea"
   },
   {
     "id": "1785755389555533r3",
@@ -494,7 +516,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f2edea"
   },
   {
     "id": "1785755389555amvkd",
@@ -516,7 +539,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f3f4f6"
   },
   {
     "id": "1785755389555dj0ws",
@@ -538,7 +562,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f2f4f6"
   },
   {
     "id": "1785755389555kx9xt",
@@ -560,7 +585,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f2f4f8"
   },
   {
     "id": "1785755389555m859b",
@@ -582,7 +608,8 @@
       "buddhism",
       "philosophy",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f63102"
   },
   {
     "id": "1785755389555jkcs5",
@@ -604,7 +631,8 @@
       "buddhism",
       "philosophy",
       "chinese"
-    ]
+    ],
+    "spineColor": "#c8a818"
   },
   {
     "id": "1785755389555ifvjc",
@@ -626,7 +654,8 @@
       "buddhism",
       "philosophy",
       "chinese"
-    ]
+    ],
+    "spineColor": "#86abc9"
   },
   {
     "id": "1785755389555vqjsk",
@@ -648,7 +677,8 @@
       "buddhism",
       "philosophy",
       "chinese"
-    ]
+    ],
+    "spineColor": "#740627"
   },
   {
     "id": "1785755389555j0cvs",
@@ -668,7 +698,8 @@
     "isbn": "9781614294542",
     "tags": [
       "buddhism"
-    ]
+    ],
+    "spineColor": "#bc220b"
   },
   {
     "id": "1785755389555wjai1",
@@ -689,7 +720,8 @@
     "tags": [
       "buddhism",
       "chinese"
-    ]
+    ],
+    "spineColor": "#dacab4"
   },
   {
     "id": "17857553895550btez",
@@ -710,7 +742,8 @@
     "tags": [
       "philosophy",
       "meditation"
-    ]
+    ],
+    "spineColor": "#383838"
   },
   {
     "id": "1785755389555pluhm",
@@ -731,7 +764,8 @@
     "tags": [
       "buddhism",
       "death"
-    ]
+    ],
+    "spineColor": "#fcc32a"
   },
   {
     "id": "17857553895552vjbi",
@@ -753,7 +787,8 @@
       "buddhism",
       "death",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f4b808"
   },
   {
     "id": "1785755389555dkuah",
@@ -775,7 +810,8 @@
       "buddhism",
       "meditation",
       "chinese"
-    ]
+    ],
+    "spineColor": "#363935"
   },
   {
     "id": "1785755389555yjvo9",
@@ -796,7 +832,8 @@
     "tags": [
       "stoicism",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#325992"
   },
   {
     "id": "17857553895555kxhq",
@@ -817,7 +854,8 @@
     "tags": [
       "stoicism",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#8c8479"
   },
   {
     "id": "17857553895559iq0c",
@@ -838,7 +876,8 @@
     "tags": [
       "stoicism",
       "self-help"
-    ]
+    ],
+    "spineColor": "#fdf9dc"
   },
   {
     "id": "17857553895550nm3c",
@@ -859,7 +898,8 @@
     "tags": [
       "creativity",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#c8c8c9"
   },
   {
     "id": "1785755389555yqnk0",
@@ -880,7 +920,8 @@
     "tags": [
       "creativity",
       "attention"
-    ]
+    ],
+    "spineColor": "#e3e2de"
   },
   {
     "id": "1785755389555o3o58",
@@ -901,7 +942,8 @@
     "tags": [
       "creativity",
       "essays"
-    ]
+    ],
+    "spineColor": "#fcf3e2"
   },
   {
     "id": "17857553895558e8iu",
@@ -922,7 +964,8 @@
     "tags": [
       "essays",
       "creativity"
-    ]
+    ],
+    "spineColor": "#48549d"
   },
   {
     "id": "1785755389555cccrj",
@@ -943,7 +986,8 @@
     "tags": [
       "work",
       "creativity"
-    ]
+    ],
+    "spineColor": "#282828"
   },
   {
     "id": "1785755389555eqomr",
@@ -964,7 +1008,8 @@
     "tags": [
       "creativity",
       "science"
-    ]
+    ],
+    "spineColor": "#565b6e"
   },
   {
     "id": "1785755389555gcezf",
@@ -985,7 +1030,8 @@
     "tags": [
       "essays",
       "attention"
-    ]
+    ],
+    "spineColor": "#171a1b"
   },
   {
     "id": "178575538955554mja",
@@ -1006,7 +1052,8 @@
     "tags": [
       "attention",
       "productivity"
-    ]
+    ],
+    "spineColor": "#f5f1f0"
   },
   {
     "id": "178575538955594p6v",
@@ -1027,7 +1074,8 @@
     "tags": [
       "attention",
       "self-help"
-    ]
+    ],
+    "spineColor": "#f3f3f3"
   },
   {
     "id": "17857553895552hir3",
@@ -1048,7 +1096,8 @@
     "tags": [
       "buddhism",
       "meditation"
-    ]
+    ],
+    "spineColor": "#fff343"
   },
   {
     "id": "1785755389555ltzsv",
@@ -1069,7 +1118,8 @@
     "tags": [
       "creativity",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#c8ccc4"
   },
   {
     "id": "1785755389555vfuaw",
@@ -1090,7 +1140,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#2a272e"
   },
   {
     "id": "17857553895554taxs",
@@ -1111,7 +1162,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#0165b3"
   },
   {
     "id": "1785755389555i9pgj",
@@ -1132,7 +1184,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#fdf7e4"
   },
   {
     "id": "178575538955501zjh",
@@ -1153,7 +1206,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#dbb36b"
   },
   {
     "id": "1785755389555sejdd",
@@ -1174,7 +1228,8 @@
     "tags": [
       "creativity",
       "work"
-    ]
+    ],
+    "spineColor": "#db5a59"
   },
   {
     "id": "17857553895558oebj",
@@ -1195,7 +1250,8 @@
     "tags": [
       "psychology",
       "creativity"
-    ]
+    ],
+    "spineColor": "#e6e6e6"
   },
   {
     "id": "1785755389555yjpva",
@@ -1216,7 +1272,8 @@
     "tags": [
       "philosophy",
       "psychology"
-    ]
+    ],
+    "spineColor": "#0e1213"
   },
   {
     "id": "178575538955597y7w",
@@ -1237,7 +1294,8 @@
     "tags": [
       "philosophy",
       "creativity"
-    ]
+    ],
+    "spineColor": "#fcf2e8"
   },
   {
     "id": "1785755389555u1rf1",
@@ -1258,7 +1316,8 @@
     "tags": [
       "philosophy",
       "creativity"
-    ]
+    ],
+    "spineColor": "#f5f5f3"
   },
   {
     "id": "1785755389555ib07k",
@@ -1279,7 +1338,8 @@
     "tags": [
       "philosophy",
       "psychology"
-    ]
+    ],
+    "spineColor": "#121915"
   },
   {
     "id": "1785755389555nxcgh",
@@ -1299,7 +1359,8 @@
     "isbn": "9780465072996",
     "tags": [
       "design"
-    ]
+    ],
+    "spineColor": "#fade36"
   },
   {
     "id": "1785755389555md2o3",
@@ -1320,7 +1381,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#343b56"
   },
   {
     "id": "17857553895553d6cq",
@@ -1341,7 +1403,8 @@
     "tags": [
       "design",
       "psychology"
-    ]
+    ],
+    "spineColor": "#e7f6f6"
   },
   {
     "id": "17857553895551zunp",
@@ -1362,7 +1425,8 @@
     "tags": [
       "design",
       "psychology"
-    ]
+    ],
+    "spineColor": "#dddddd"
   },
   {
     "id": "1785755389555er7c2",
@@ -1383,7 +1447,8 @@
     "tags": [
       "design",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#1a1615"
   },
   {
     "id": "1785755389555tm1xj",
@@ -1404,7 +1469,8 @@
     "tags": [
       "design",
       "creativity"
-    ]
+    ],
+    "spineColor": "#e9f2f5"
   },
   {
     "id": "1785755389555g45nw",
@@ -1425,7 +1491,8 @@
     "tags": [
       "design",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#e7e8e9"
   },
   {
     "id": "17857553895556lt5h",
@@ -1446,7 +1513,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#1d214d"
   },
   {
     "id": "1785755389555tvx41",
@@ -1467,7 +1535,8 @@
     "tags": [
       "design",
       "creativity"
-    ]
+    ],
+    "spineColor": "#e9e8e8"
   },
   {
     "id": "1785755389555d9t6p",
@@ -1489,7 +1558,8 @@
       "design",
       "technology",
       "work"
-    ]
+    ],
+    "spineColor": "#e8e7e7"
   },
   {
     "id": "1785755389555kc4ur",
@@ -1510,7 +1580,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#458737"
   },
   {
     "id": "1785755389555lt1qe",
@@ -1531,7 +1602,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#797979"
   },
   {
     "id": "1785755389555uq1yk",
@@ -1552,7 +1624,8 @@
     "tags": [
       "design",
       "productivity"
-    ]
+    ],
+    "spineColor": "#01b3d1"
   },
   {
     "id": "1785755389555j578f",
@@ -1573,7 +1646,8 @@
     "tags": [
       "design",
       "work"
-    ]
+    ],
+    "spineColor": "#73a5a4"
   },
   {
     "id": "1785755389555svdx8",
@@ -1594,7 +1668,8 @@
     "tags": [
       "design",
       "work"
-    ]
+    ],
+    "spineColor": "#4ba956"
   },
   {
     "id": "17857553895559w0g5",
@@ -1615,7 +1690,8 @@
     "tags": [
       "design",
       "work"
-    ]
+    ],
+    "spineColor": "#dcd9da"
   },
   {
     "id": "1785755389555fc5pl",
@@ -1636,7 +1712,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#e9e8e8"
   },
   {
     "id": "1785755389555m2ch7",
@@ -1657,7 +1734,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#0f0b08"
   },
   {
     "id": "17857553895556dfvd",
@@ -1678,7 +1756,8 @@
     "tags": [
       "design",
       "society"
-    ]
+    ],
+    "spineColor": "#6ca254"
   },
   {
     "id": "1785755389555e88jy",
@@ -1699,7 +1778,8 @@
     "tags": [
       "design",
       "society"
-    ]
+    ],
+    "spineColor": "#e6e6e6"
   },
   {
     "id": "17857553895550upin",
@@ -1720,7 +1800,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#d6d6d6"
   },
   {
     "id": "1785755389555n3vqv",
@@ -1741,7 +1822,8 @@
     "tags": [
       "design",
       "technology"
-    ]
+    ],
+    "spineColor": "#f4f0ed"
   },
   {
     "id": "1785755389555qvdwl",
@@ -1763,7 +1845,8 @@
       "design",
       "work",
       "self-help"
-    ]
+    ],
+    "spineColor": "#8ebfcb"
   },
   {
     "id": "1785755389555mst9r",
@@ -1784,7 +1867,8 @@
     "tags": [
       "work",
       "self-help"
-    ]
+    ],
+    "spineColor": "#0277bf"
   },
   {
     "id": "1785755389555wwnui",
@@ -1805,7 +1889,8 @@
     "tags": [
       "work",
       "self-help"
-    ]
+    ],
+    "spineColor": "#01acb3"
   },
   {
     "id": "1785755389555kkb7s",
@@ -1826,7 +1911,8 @@
     "tags": [
       "work",
       "self-help"
-    ]
+    ],
+    "spineColor": "#6ac2b8"
   },
   {
     "id": "1785755389555xksjf",
@@ -1847,7 +1933,8 @@
     "tags": [
       "work",
       "science"
-    ]
+    ],
+    "spineColor": "#3d4536"
   },
   {
     "id": "17857553895553b8i0",
@@ -1868,7 +1955,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#ec274a"
   },
   {
     "id": "1785755389555it4uc",
@@ -1889,7 +1977,8 @@
     "tags": [
       "work",
       "self-help"
-    ]
+    ],
+    "spineColor": "#f2f2f2"
   },
   {
     "id": "1786147200000k3m9x",
@@ -1910,7 +1999,8 @@
     "tags": [
       "work",
       "self-help"
-    ]
+    ],
+    "spineColor": "#e9eae2"
   },
   {
     "id": "1785755389555gn46x",
@@ -1931,7 +2021,8 @@
     "tags": [
       "productivity",
       "attention"
-    ]
+    ],
+    "spineColor": "#f7da11"
   },
   {
     "id": "1785755389555lpmbu",
@@ -1952,7 +2043,8 @@
     "tags": [
       "psychology",
       "society"
-    ]
+    ],
+    "spineColor": "#fde982"
   },
   {
     "id": "1785755389555xgko8",
@@ -1973,7 +2065,8 @@
     "tags": [
       "psychology",
       "self-help"
-    ]
+    ],
+    "spineColor": "#b7b7b7"
   },
   {
     "id": "1785755389555qq9vd",
@@ -1994,7 +2087,8 @@
     "tags": [
       "work",
       "design"
-    ]
+    ],
+    "spineColor": "#f56c21"
   },
   {
     "id": "17857553895550agku",
@@ -2015,7 +2109,8 @@
     "tags": [
       "attention",
       "technology"
-    ]
+    ],
+    "spineColor": "#1a1a14"
   },
   {
     "id": "1785755389555cjdw4",
@@ -2036,7 +2131,8 @@
     "tags": [
       "attention",
       "technology"
-    ]
+    ],
+    "spineColor": "#fedc01"
   },
   {
     "id": "1785755389555n2bdx",
@@ -2057,7 +2153,8 @@
     "tags": [
       "attention",
       "technology"
-    ]
+    ],
+    "spineColor": "#262529"
   },
   {
     "id": "1785755389555yjylv",
@@ -2078,7 +2175,8 @@
     "tags": [
       "technology",
       "attention"
-    ]
+    ],
+    "spineColor": "#f3ebd3"
   },
   {
     "id": "17857553895555xg02",
@@ -2099,7 +2197,8 @@
     "tags": [
       "technology",
       "capitalism"
-    ]
+    ],
+    "spineColor": "#d7d7d7"
   },
   {
     "id": "1785755389555irm5i",
@@ -2120,7 +2219,8 @@
     "tags": [
       "technology",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#eaeae8"
   },
   {
     "id": "1785755389555zjip6",
@@ -2141,7 +2241,8 @@
     "tags": [
       "technology",
       "capitalism"
-    ]
+    ],
+    "spineColor": "#131617"
   },
   {
     "id": "1785755389555omsxq",
@@ -2162,7 +2263,8 @@
     "tags": [
       "technology",
       "history"
-    ]
+    ],
+    "spineColor": "#868684"
   },
   {
     "id": "1785755389555d8fa9",
@@ -2183,7 +2285,8 @@
     "tags": [
       "technology",
       "capitalism"
-    ]
+    ],
+    "spineColor": "#160a05"
   },
   {
     "id": "178575538955507agp",
@@ -2205,7 +2308,8 @@
       "memoir",
       "work",
       "technology"
-    ]
+    ],
+    "spineColor": "#fe5b52"
   },
   {
     "id": "17857553895559v293",
@@ -2226,7 +2330,8 @@
     "tags": [
       "work",
       "society"
-    ]
+    ],
+    "spineColor": "#1689ca"
   },
   {
     "id": "178575538955521q0n",
@@ -2247,7 +2352,8 @@
     "tags": [
       "work",
       "society"
-    ]
+    ],
+    "spineColor": "#e1a67e"
   },
   {
     "id": "17857553895554icyv",
@@ -2268,7 +2374,8 @@
     "tags": [
       "work",
       "society"
-    ]
+    ],
+    "spineColor": "#e71e28"
   },
   {
     "id": "1785755389555dtmkx",
@@ -2289,7 +2396,8 @@
     "tags": [
       "memoir",
       "work"
-    ]
+    ],
+    "spineColor": "#fe93cb"
   },
   {
     "id": "1785755389555iajdz",
@@ -2310,7 +2418,8 @@
     "tags": [
       "productivity",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#fff272"
   },
   {
     "id": "1785755389555iv2bb",
@@ -2331,7 +2440,8 @@
     "tags": [
       "politics",
       "society"
-    ]
+    ],
+    "spineColor": "#f6f6f6"
   },
   {
     "id": "178575538955541nvx",
@@ -2351,7 +2461,8 @@
     "isbn": "9780593655658",
     "tags": [
       "philosophy"
-    ]
+    ],
+    "spineColor": "#02a6e5"
   },
   {
     "id": "17857553895557l4mk",
@@ -2373,7 +2484,8 @@
       "philosophy",
       "society",
       "capitalism"
-    ]
+    ],
+    "spineColor": "#3a5648"
   },
   {
     "id": "17857553895555ws4s",
@@ -2394,7 +2506,8 @@
     "tags": [
       "philosophy",
       "society"
-    ]
+    ],
+    "spineColor": "#171614"
   },
   {
     "id": "178575538955539mn6",
@@ -2415,7 +2528,8 @@
     "tags": [
       "capitalism",
       "society"
-    ]
+    ],
+    "spineColor": "#e82312"
   },
   {
     "id": "1785755389555629os",
@@ -2436,7 +2550,8 @@
     "tags": [
       "society",
       "psychology"
-    ]
+    ],
+    "spineColor": "#d9e8d5"
   },
   {
     "id": "1785755389555bqlp4",
@@ -2457,7 +2572,8 @@
     "tags": [
       "society",
       "psychology"
-    ]
+    ],
+    "spineColor": "#f3f5f6"
   },
   {
     "id": "1785755389555e8sm5",
@@ -2478,7 +2594,8 @@
     "tags": [
       "philosophy",
       "self-help"
-    ]
+    ],
+    "spineColor": "#01b9c1"
   },
   {
     "id": "17857553895553q744",
@@ -2499,7 +2616,8 @@
     "tags": [
       "politics",
       "history"
-    ]
+    ],
+    "spineColor": "#eae1d8"
   },
   {
     "id": "1785755389555o16a4",
@@ -2520,7 +2638,8 @@
     "tags": [
       "memoir",
       "society"
-    ]
+    ],
+    "spineColor": "#393b32"
   },
   {
     "id": "1785755389555y5ts5",
@@ -2542,7 +2661,8 @@
       "fiction",
       "philosophy",
       "politics"
-    ]
+    ],
+    "spineColor": "#693b35"
   },
   {
     "id": "1785755389555myn4b",
@@ -2563,7 +2683,8 @@
     "tags": [
       "history",
       "science"
-    ]
+    ],
+    "spineColor": "#f8f5ee"
   },
   {
     "id": "1785755389555933au",
@@ -2584,7 +2705,8 @@
     "tags": [
       "philosophy",
       "society"
-    ]
+    ],
+    "spineColor": "#ecebe7"
   },
   {
     "id": "1785755389555p9jkk",
@@ -2604,7 +2726,8 @@
     "isbn": "9780691276793",
     "tags": [
       "philosophy"
-    ]
+    ],
+    "spineColor": "#ca252b"
   },
   {
     "id": "17857553895554u8an",
@@ -2625,7 +2748,8 @@
     "tags": [
       "philosophy",
       "self-help"
-    ]
+    ],
+    "spineColor": "#ed6e2b"
   },
   {
     "id": "1785755389555oh22r",
@@ -2646,7 +2770,8 @@
     "tags": [
       "psychology",
       "science"
-    ]
+    ],
+    "spineColor": "#e30119"
   },
   {
     "id": "1785755389555x36fj",
@@ -2667,7 +2792,8 @@
     "tags": [
       "essays",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#e8e7e8"
   },
   {
     "id": "17857553895559h73a",
@@ -2688,7 +2814,8 @@
     "tags": [
       "neuroscience",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#383838"
   },
   {
     "id": "17857553895552i2cm",
@@ -2709,7 +2836,8 @@
     "tags": [
       "neuroscience",
       "psychology"
-    ]
+    ],
+    "spineColor": "#262829"
   },
   {
     "id": "1785755389555yutmp",
@@ -2730,7 +2858,8 @@
     "tags": [
       "neuroscience",
       "psychology"
-    ]
+    ],
+    "spineColor": "#fbf4e1"
   },
   {
     "id": "17857553895551i3ms",
@@ -2751,7 +2880,8 @@
     "tags": [
       "neuroscience",
       "science"
-    ]
+    ],
+    "spineColor": "#f5f4f2"
   },
   {
     "id": "1785755389555hi7wu",
@@ -2772,7 +2902,8 @@
     "tags": [
       "science",
       "health"
-    ]
+    ],
+    "spineColor": "#f4edda"
   },
   {
     "id": "1785755389555y5koo",
@@ -2793,7 +2924,8 @@
     "tags": [
       "psychology",
       "health"
-    ]
+    ],
+    "spineColor": "#417dbb"
   },
   {
     "id": "17857553895552mbsz",
@@ -2814,7 +2946,8 @@
     "tags": [
       "psychology",
       "science"
-    ]
+    ],
+    "spineColor": "#e9e9e9"
   },
   {
     "id": "1785755389555s37s8",
@@ -2835,7 +2968,8 @@
     "tags": [
       "psychology",
       "health"
-    ]
+    ],
+    "spineColor": "#f7f6f4"
   },
   {
     "id": "17857553895555o8aa",
@@ -2856,7 +2990,8 @@
     "tags": [
       "neuroscience",
       "psychology"
-    ]
+    ],
+    "spineColor": "#e7e7e7"
   },
   {
     "id": "1785755389555usc44",
@@ -2878,7 +3013,8 @@
       "psychology",
       "technology",
       "health"
-    ]
+    ],
+    "spineColor": "#1a1b2d"
   },
   {
     "id": "1785755389555uopj0",
@@ -2899,7 +3035,8 @@
     "tags": [
       "neuroscience",
       "meditation"
-    ]
+    ],
+    "spineColor": "#e7e7e7"
   },
   {
     "id": "1785755389555qs4o9",
@@ -2920,7 +3057,8 @@
     "tags": [
       "meditation",
       "buddhism"
-    ]
+    ],
+    "spineColor": "#f3f3f3"
   },
   {
     "id": "17857553895557akhu",
@@ -2941,7 +3079,8 @@
     "tags": [
       "neuroscience",
       "self-help"
-    ]
+    ],
+    "spineColor": "#f2f1ed"
   },
   {
     "id": "1785755389555bzhyo",
@@ -2962,7 +3101,8 @@
     "tags": [
       "psychology",
       "self-help"
-    ]
+    ],
+    "spineColor": "#fdba02"
   },
   {
     "id": "1785755389555gyirr",
@@ -2983,7 +3123,8 @@
     "tags": [
       "psychology",
       "self-help"
-    ]
+    ],
+    "spineColor": "#888888"
   },
   {
     "id": "17857553895557k4eo",
@@ -3005,7 +3146,8 @@
       "self-help",
       "productivity",
       "psychology"
-    ]
+    ],
+    "spineColor": "#f6f6eb"
   },
   {
     "id": "17857553895554b4fm",
@@ -3026,7 +3168,8 @@
     "tags": [
       "psychology",
       "self-help"
-    ]
+    ],
+    "spineColor": "#f7f5e9"
   },
   {
     "id": "1785755389555c2rc6",
@@ -3047,7 +3190,8 @@
     "tags": [
       "self-help",
       "psychology"
-    ]
+    ],
+    "spineColor": "#fb4e00"
   },
   {
     "id": "1785755389555n83hj",
@@ -3068,7 +3212,8 @@
     "tags": [
       "psychology",
       "relationships"
-    ]
+    ],
+    "spineColor": "#063b5d"
   },
   {
     "id": "17857553895555zdka",
@@ -3089,7 +3234,8 @@
     "tags": [
       "psychology",
       "relationships"
-    ]
+    ],
+    "spineColor": "#e7e6e7"
   },
   {
     "id": "1785755389555ucuxv",
@@ -3110,7 +3256,8 @@
     "tags": [
       "relationships",
       "self-help"
-    ]
+    ],
+    "spineColor": "#c7c7c7"
   },
   {
     "id": "178575538955502cn6",
@@ -3131,7 +3278,8 @@
     "tags": [
       "psychology",
       "relationships"
-    ]
+    ],
+    "spineColor": "#6fd1d2"
   },
   {
     "id": "17857553895552jm2l",
@@ -3152,7 +3300,8 @@
     "tags": [
       "health",
       "neuroscience"
-    ]
+    ],
+    "spineColor": "#03254a"
   },
   {
     "id": "178575538955559c1c",
@@ -3173,7 +3322,8 @@
     "tags": [
       "fiction",
       "society"
-    ]
+    ],
+    "spineColor": "#ca89db"
   },
   {
     "id": "1785755389555g31h2",
@@ -3194,7 +3344,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#181614"
   },
   {
     "id": "1785755389555j1you",
@@ -3215,7 +3366,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#0b130d"
   },
   {
     "id": "1785755389555otb0g",
@@ -3235,7 +3387,8 @@
     "isbn": "9780307593627",
     "tags": [
       "fiction"
-    ]
+    ],
+    "spineColor": "#fefce7"
   },
   {
     "id": "1785755389555ydgql",
@@ -3256,7 +3409,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#e5c5aa"
   },
   {
     "id": "1785755389555w0vl6",
@@ -3277,7 +3431,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#056836"
   },
   {
     "id": "17857553895552iczf",
@@ -3298,7 +3453,8 @@
     "tags": [
       "fiction",
       "work"
-    ]
+    ],
+    "spineColor": "#cc2d3c"
   },
   {
     "id": "178575538955500ph8",
@@ -3319,7 +3475,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#161619"
   },
   {
     "id": "17857553895555275g",
@@ -3340,7 +3497,8 @@
     "tags": [
       "fiction",
       "society"
-    ]
+    ],
+    "spineColor": "#593745"
   },
   {
     "id": "17857553895555q4mn",
@@ -3361,7 +3519,8 @@
     "tags": [
       "philosophy",
       "psychology"
-    ]
+    ],
+    "spineColor": "#dedede"
   },
   {
     "id": "1786190400000b3e5t",
@@ -3382,7 +3541,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#fbdb00"
   },
   {
     "id": "1786193182583ya3ww",
@@ -3403,7 +3563,8 @@
     "tags": [
       "fiction",
       "society"
-    ]
+    ],
+    "spineColor": "#bec4d5"
   },
   {
     "id": "1785755389555nvfg7",
@@ -3424,7 +3585,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#111d23"
   },
   {
     "id": "17857553895558jjlt",
@@ -3445,7 +3607,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#ed3638"
   },
   {
     "id": "1785755389555ckhnn",
@@ -3466,7 +3629,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#67b7ca"
   },
   {
     "id": "1785755389555hqazo",
@@ -3487,7 +3651,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#f9d906"
   },
   {
     "id": "17857553895550r4zg",
@@ -3508,7 +3673,8 @@
     "tags": [
       "fiction",
       "psychology"
-    ]
+    ],
+    "spineColor": "#1a1916"
   },
   {
     "id": "17857553895556asjc",
@@ -3529,7 +3695,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#a8a8a8"
   },
   {
     "id": "17857553895553al3x",
@@ -3549,7 +3716,8 @@
     "isbn": "9780063390805",
     "tags": [
       "fiction"
-    ]
+    ],
+    "spineColor": "#0388a7"
   },
   {
     "id": "17857553895551l2s6",
@@ -3570,7 +3738,8 @@
     "tags": [
       "memoir",
       "creativity"
-    ]
+    ],
+    "spineColor": "#f8c616"
   },
   {
     "id": "1785755389555donkr",
@@ -3591,7 +3760,8 @@
     "tags": [
       "society",
       "relationships"
-    ]
+    ],
+    "spineColor": "#e6e5d1"
   },
   {
     "id": "1785755389555w06qx",
@@ -3612,7 +3782,8 @@
     "tags": [
       "fiction",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f7f5e8"
   },
   {
     "id": "1785755389555jkg4m",
@@ -3633,7 +3804,8 @@
     "tags": [
       "fiction",
       "chinese"
-    ]
+    ],
+    "spineColor": "#d3d9d3"
   },
   {
     "id": "1785755389555vy7op",
@@ -3654,7 +3826,8 @@
     "tags": [
       "fiction",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#1a1a16"
   },
   {
     "id": "1785755389555p7f9o",
@@ -3675,7 +3848,8 @@
     "tags": [
       "fiction",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#cae9e1"
   },
   {
     "id": "1785755389555qj33y",
@@ -3696,7 +3870,8 @@
     "tags": [
       "essays",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#474747"
   },
   {
     "id": "17857553895555wc5n",
@@ -3717,7 +3892,8 @@
     "tags": [
       "fiction",
       "society"
-    ]
+    ],
+    "spineColor": "#fd2b55"
   },
   {
     "id": "1785755389555yof1m",
@@ -3738,7 +3914,8 @@
     "tags": [
       "fiction",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#393857"
   },
   {
     "id": "17857553895553zjtc",
@@ -3759,7 +3936,8 @@
     "tags": [
       "philosophy",
       "stoicism"
-    ]
+    ],
+    "spineColor": "#f0efea"
   },
   {
     "id": "1785755389555251z1",
@@ -3779,7 +3957,8 @@
     "isbn": "9781963108750",
     "tags": [
       "fiction"
-    ]
+    ],
+    "spineColor": "#f1f1e5"
   },
   {
     "id": "1785755389555ke331",
@@ -3801,7 +3980,8 @@
       "fiction",
       "philosophy",
       "death"
-    ]
+    ],
+    "spineColor": "#e7d9c9"
   },
   {
     "id": "1785755389555hv8ix",
@@ -3822,7 +4002,8 @@
     "tags": [
       "fiction",
       "chinese"
-    ]
+    ],
+    "spineColor": "#f7f5e8"
   },
   {
     "id": "1785755389555y66e4",
@@ -3843,7 +4024,8 @@
     "tags": [
       "relationships",
       "society"
-    ]
+    ],
+    "spineColor": "#eb0129"
   },
   {
     "id": "1785755389555z0x8l",
@@ -3864,7 +4046,8 @@
     "tags": [
       "relationships",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#fcf7f1"
   },
   {
     "id": "1785755389555pz9sv",
@@ -3885,7 +4068,8 @@
     "tags": [
       "relationships",
       "psychology"
-    ]
+    ],
+    "spineColor": "#e8e9e8"
   },
   {
     "id": "1785755389555igeb2",
@@ -3906,7 +4090,8 @@
     "tags": [
       "poetry",
       "relationships"
-    ]
+    ],
+    "spineColor": "#141413"
   },
   {
     "id": "178575538955506ah5",
@@ -3927,7 +4112,8 @@
     "tags": [
       "poetry",
       "relationships"
-    ]
+    ],
+    "spineColor": "#0d0417"
   },
   {
     "id": "1785755389555ys4ao",
@@ -3948,7 +4134,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#fef6e4"
   },
   {
     "id": "17857553895558lb8s",
@@ -3969,7 +4156,8 @@
     "tags": [
       "fiction",
       "relationships"
-    ]
+    ],
+    "spineColor": "#382824"
   },
   {
     "id": "1785755389555nevjg",
@@ -3990,7 +4178,8 @@
     "tags": [
       "fiction",
       "death"
-    ]
+    ],
+    "spineColor": "#f9cc55"
   },
   {
     "id": "178575538955533u22",
@@ -4010,7 +4199,8 @@
     "isbn": "9798887075365",
     "tags": [
       "fiction"
-    ]
+    ],
+    "spineColor": "#a6a7a7"
   },
   {
     "id": "1785755389555jhl4t",
@@ -4031,7 +4221,8 @@
     "tags": [
       "memoir",
       "health"
-    ]
+    ],
+    "spineColor": "#f8f5ed"
   },
   {
     "id": "1785755389555jltpj",
@@ -4052,7 +4243,8 @@
     "tags": [
       "memoir",
       "psychology"
-    ]
+    ],
+    "spineColor": "#6bcef5"
   },
   {
     "id": "1786196514413c0utx",
@@ -4073,7 +4265,8 @@
     "tags": [
       "memoir",
       "relationships"
-    ]
+    ],
+    "spineColor": "#fef6e3"
   },
   {
     "id": "1785755389555k3be6",
@@ -4094,7 +4287,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#1c2545"
   },
   {
     "id": "1785755389555nlu5h",
@@ -4115,7 +4309,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#c1e4e7"
   },
   {
     "id": "1785755389555q5wzq",
@@ -4136,7 +4331,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#aa5626"
   },
   {
     "id": "17857553895559c9bs",
@@ -4157,7 +4353,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#00dd01"
   },
   {
     "id": "1785755389555xhenb",
@@ -4178,7 +4375,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#463a35"
   },
   {
     "id": "1785755389555ld64x",
@@ -4199,7 +4397,8 @@
     "tags": [
       "fiction",
       "sci-fi"
-    ]
+    ],
+    "spineColor": "#032b35"
   },
   {
     "id": "1785755389555xe2n1",
@@ -4220,7 +4419,8 @@
     "tags": [
       "poetry",
       "fiction"
-    ]
+    ],
+    "spineColor": "#a78867"
   },
   {
     "id": "1785755389555gcm2b",
@@ -4241,7 +4441,8 @@
     "tags": [
       "poetry",
       "creativity"
-    ]
+    ],
+    "spineColor": "#c7c7c7"
   },
   {
     "id": "1785755389555a0rcp",
@@ -4262,7 +4463,8 @@
     "tags": [
       "poetry",
       "science"
-    ]
+    ],
+    "spineColor": "#031b25"
   },
   {
     "id": "1785755389555rnc5i",
@@ -4283,7 +4485,8 @@
     "tags": [
       "poetry",
       "fiction"
-    ]
+    ],
+    "spineColor": "#f8eccf"
   },
   {
     "id": "1785755389555k1a9i",
@@ -4303,7 +4506,8 @@
     "isbn": "9781529934984",
     "tags": [
       "fiction"
-    ]
+    ],
+    "spineColor": "#b8b8b8"
   },
   {
     "id": "1785755389555refdn",
@@ -4324,7 +4528,8 @@
     "tags": [
       "fiction",
       "chinese"
-    ]
+    ],
+    "spineColor": "#d5d8db"
   },
   {
     "id": "1786869412954",
@@ -4345,7 +4550,8 @@
     "tags": [
       "poetry",
       "society"
-    ]
+    ],
+    "spineColor": "#eae6e7"
   },
   {
     "id": "1785755389555dv6q9",
@@ -4366,7 +4572,8 @@
     "tags": [
       "music",
       "history"
-    ]
+    ],
+    "spineColor": "#458ac7"
   },
   {
     "id": "1785755389555fjbxq",
@@ -4387,7 +4594,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#6c949a"
   },
   {
     "id": "17857553895551aah2",
@@ -4408,7 +4616,8 @@
     "tags": [
       "music",
       "creativity"
-    ]
+    ],
+    "spineColor": "#2e2925"
   },
   {
     "id": "17857553895558us52",
@@ -4428,7 +4637,8 @@
     "isbn": "9780978582104",
     "tags": [
       "music"
-    ]
+    ],
+    "spineColor": "#edccb5"
   },
   {
     "id": "17857553895555q0hf",
@@ -4449,7 +4659,8 @@
     "tags": [
       "creativity",
       "self-help"
-    ]
+    ],
+    "spineColor": "#f5f4f4"
   },
   {
     "id": "1785755389555eladb",
@@ -4471,7 +4682,8 @@
       "memoir",
       "creativity",
       "chinese"
-    ]
+    ],
+    "spineColor": "#e8e6ea"
   },
   {
     "id": "1785755389555nazo7",
@@ -4492,7 +4704,8 @@
     "tags": [
       "self-help",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#add9e2"
   },
   {
     "id": "1785755389555r6zi0",
@@ -4513,7 +4726,8 @@
     "tags": [
       "history",
       "science"
-    ]
+    ],
+    "spineColor": "#0b0c0b"
   },
   {
     "id": "1786196157399ibwcl",
@@ -4534,7 +4748,8 @@
     "tags": [
       "technology",
       "society"
-    ]
+    ],
+    "spineColor": "#c4c2ab"
   },
   {
     "id": "1785755389555dth7w",
@@ -4555,7 +4770,8 @@
     "tags": [
       "memoir",
       "essays"
-    ]
+    ],
+    "spineColor": "#578687"
   },
   {
     "id": "1785755389555las7j",
@@ -4576,7 +4792,8 @@
     "tags": [
       "memoir",
       "essays"
-    ]
+    ],
+    "spineColor": "#e8f2ea"
   },
   {
     "id": "1785755389555uyifr",
@@ -4597,7 +4814,8 @@
     "tags": [
       "memoir",
       "essays"
-    ]
+    ],
+    "spineColor": "#f3b669"
   },
   {
     "id": "1785755389555qb77r",
@@ -4618,7 +4836,8 @@
     "tags": [
       "memoir",
       "essays"
-    ]
+    ],
+    "spineColor": "#ebeae4"
   },
   {
     "id": "178575538955556vg8",
@@ -4639,7 +4858,8 @@
     "tags": [
       "science",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#20201e"
   },
   {
     "id": "1785755389555kh742",
@@ -4660,7 +4880,8 @@
     "tags": [
       "science",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#654643"
   },
   {
     "id": "1785755389555yjp4x",
@@ -4681,7 +4902,8 @@
     "tags": [
       "society",
       "psychology"
-    ]
+    ],
+    "spineColor": "#eefae2"
   },
   {
     "id": "1785755389555wct44",
@@ -4702,7 +4924,8 @@
     "tags": [
       "politics",
       "society"
-    ]
+    ],
+    "spineColor": "#e2ddda"
   },
   {
     "id": "1785755389555x495u",
@@ -4723,7 +4946,8 @@
     "tags": [
       "history",
       "society"
-    ]
+    ],
+    "spineColor": "#e2a22c"
   },
   {
     "id": "1785755389555enlfe",
@@ -4744,7 +4968,8 @@
     "tags": [
       "technology",
       "society"
-    ]
+    ],
+    "spineColor": "#373636"
   },
   {
     "id": "1785755389555w59rs",
@@ -4765,7 +4990,8 @@
     "tags": [
       "society",
       "philosophy"
-    ]
+    ],
+    "spineColor": "#fdfbda"
   },
   {
     "id": "1785755389555ab9am",
@@ -4787,6 +5013,7 @@
       "capitalism",
       "technology",
       "society"
-    ]
+    ],
+    "spineColor": "#fefae7"
   }
 ]

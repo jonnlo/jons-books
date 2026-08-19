@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Book Cover Hover — POC</title>
+<style>
+  :root {
+    /* Default spine color (used if canvas extraction is blocked, e.g. file://) */
+    --spine-color: #2b6cff;
+    --depth: 30px;        /* book thickness */
+    --max-tilt: 28deg;    /* max tilt angle */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px;
+    background: #0e1116; color: #cdd3df;
+    font-family: system-ui, sans-serif;
+  }
+  .caption { font-size: 14px; opacity: .7; text-align: center; max-width: 320px; }
+
+  /* Perspective container */
+  .scene { perspective: 1100px; width: 240px; height: 360px; }
+
+  /* The rotating 3D book */
+  .book {
+    position: relative;
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform .12s ease-out;
+    will-change: transform;
+  }
+
+  .book__face { position: absolute; top: 50%; left: 50%; backface-visibility: hidden; }
+
+  /* Front cover */
+  .book__front {
+    width: 240px; height: 360px;
+    transform: translate(-50%, -50%) translateZ(calc(var(--depth) / 2));
+    border-radius: 2px 4px 4px 2px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  .book__front img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Gloss / sheen overlay (tracks cursor) */
+  .book__gloss {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s ease;
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
+                rgba(255,255,255,.45), rgba(255,255,255,0) 55%);
+    mix-blend-mode: screen;
+  }
+
+  /* Spine (LEFT, colored with dominant cover color) */
+  .book__spine {
+    width: var(--depth); height: 360px;
+    transform: translate(-50%, -50%) rotateY(-90deg) translateZ(120px);
+    background: linear-gradient(90deg,
+                color-mix(in srgb, var(--spine-color) 70%, #000 30%),
+                var(--spine-color) 40%,
+                color-mix(in srgb, var(--spine-color) 85%, #fff 15%));
+    border-radius: 2px;
+  }
+
+  /* Page edges (RIGHT / TOP / BOTTOM) — white like pages */
+  .book__pages {
+    background: repeating-linear-gradient(0deg, #f4f1ea 0 2px, #e9e5db 2px 3px);
+  }
+  .book__pages--right {
+    width: var(--depth); height: 360px;
+    transform: translate(-50%, -50%) rotateY(90deg) translateZ(120px);
+    border-radius: 2px;
+  }
+  .book__pages--top {
+    width: 240px; height: var(--depth);
+    transform: translate(-50%, -50%) rotateX(90deg) translateZ(180px);
+    border-radius: 2px;
+  }
+  .book__pages--bottom {
+    width: 240px; height: var(--depth);
+    transform: translate(-50%, -50%) rotateX(-90deg) translateZ(180px);
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) { .book { transition: none; } }
+</style>
+</head>
+<body>
+  <div class="scene" id="scene">
+    <div class="book" id="book">
+      <div class="book__face book__front">
+        <img id="coverImg" src="covers/1786993606180.jpg" alt="book cover">
+        <div class="book__gloss" id="gloss"></div>
+      </div>
+      <div class="book__face book__spine"></div>
+      <div class="book__face book__pages book__pages--right"></div>
+      <div class="book__face book__pages book__pages--top"></div>
+      <div class="book__face book__pages book__pages--bottom"></div>
+    </div>
+  </div>
+  <p class="caption">
+    Hover the cover — it tilts toward the cursor with a moving gloss.
+    The left edge is the spine (dominant cover color); the other three edges are white pages.
+    For live spine-color extraction, serve via <code>python3 -m http.server</code>;
+    opened as <code>file://</code> it falls back to the default blue.
+  </p>
+
+<script>
+  const scene = document.getElementById('scene');
+  const book  = document.getElementById('book');
+  const gloss = document.getElementById('gloss');
+  const img   = document.getElementById('coverImg');
+  const MAX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--max-tilt')) || 14;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let raf = null;
+
+  scene.addEventListener('pointermove', (e) => {
+    if (reduce) return;
+    const r = scene.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;   // 0..1
+    const py = (e.clientY - r.top)  / r.height;  // 0..1
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      const ry = (px - 0.5) * 2 * MAX;
+      const rx = -(py - 0.5) * 2 * MAX;
+      book.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+      book.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+      gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+      gloss.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+      raf = null;
+    });
+  });
+
+  scene.addEventListener('pointerenter', () => { gloss.style.opacity = '1'; });
+  scene.addEventListener('pointerleave', () => {
+    book.style.setProperty('--ry', '0deg');
+    book.style.setProperty('--rx', '0deg');
+    gloss.style.opacity = '0';
+  });
+
+  // Dominant-color extraction (works when served over http; falls back on file://)
+  function extractDominant(imgEl) {
+    try {
+      const w = 40, h = 60;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(imgEl, 0, 0, w, h);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      const buckets = {};
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i+1], b = data[i+2];
+        const sum = r + g + b;
+        if (sum > 740 || sum < 30) continue;        // skip near-white / near-black
+        const key = (r >> 4) + ',' + (g >> 4) + ',' + (b >> 4);
+        const bk = buckets[key] || (buckets[key] = { r:0, g:0, b:0, n:0 });
+        bk.r += r; bk.g += g; bk.b += b; bk.n++;
+      }
+      let best = null;
+      for (const k in buckets) {
+        const bk = buckets[k];
+        if (!best || bk.n > best.n) best = bk;
+      }
+      if (best) {
+        const r = Math.round(best.r / best.n);
+        const g = Math.round(best.g / best.n);
+        const b = Math.round(best.b / best.n);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+    } catch (err) {
+      console.warn('Dominant color extraction blocked:', err);
+    }
+    return null;
+  }
+
+  img.addEventListener('load', () => {
+    const col = extractDominant(img);
+    if (col) document.documentElement.style.setProperty('--spine-color', col);
+  });
+  if (img.complete) img.dispatchEvent(new Event('load'));
+</script>
+</body>
+</html>

@@ -1140,7 +1140,7 @@
     }
 
     .book-card {
-      overflow: hidden;
+      overflow: visible;
       display: flex;
       flex-direction: column;
       height: 100%;
@@ -1167,9 +1167,8 @@
     .book-card:hover .cover-container {
       background-color:var(--img-bg-hover);
     }
-    .book-card:hover .cover-img,.book-card:hover .book-jacket{
-      transform: scale(1.05);
-      filter: drop-shadow(0 6px 10px hsla(220, 30%, 0%, 0.25));
+    .book-card:hover .book3d {
+      --book-scale: 1.05;
     }
     .cover-container {
       border-radius: 12px;
@@ -1183,6 +1182,108 @@
       padding: 8px;
       position: relative;
       transition: all 0.3s ease;
+      /* Gives the 3D book hover its depth; only book cards use .cover-container. */
+      perspective: 1000px;
+    }
+
+    /* ---- 3D book hover (grid + Volumes row cards) ----
+       The flat cover becomes a slight 3D book: a colored spine on the left
+       (dominant cover color) and white "page" edges on the other three sides.
+       Tilt + gloss are driven by --rx/--ry/--gx/--gy set in JS on .book3d. */
+    .book3d {
+      --book-depth: 40px;
+      --spine-color: #555a66;
+      position: relative;
+      /* Placeholder = the original contained footprint; JS refines this to the
+         cover's exact aspect-ratio size so books aren't all forced to 2:3. */
+      width: 85%;
+      height: 80%;
+      flex: 0 0 auto;
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(var(--book-scale, 1));
+      transition: transform 0.15s ease-out;
+      will-change: transform;
+    }
+    .book3d__face {
+      position: absolute;
+      backface-visibility: hidden;
+    }
+    .book3d__front {
+      inset: 0;
+      transform: translateZ(calc(var(--book-depth) / 2));
+      border-radius: 2px 5px 5px 2px;
+      overflow: hidden;
+      /* Shadow only appears on hover (see .book-card:hover rule below). */
+      box-shadow: none;
+      transition: box-shadow 0.2s ease;
+    }
+    .book-card:hover .book3d__front {
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+    .book3d__front .cover-img,
+    .book3d__front .book-jacket {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .book3d__front .book-jacket {
+      border-radius: 2px 5px 5px 2px;
+    }
+    .book3d__gloss {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
+                  rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 55%);
+      mix-blend-mode: screen;
+    }
+    .book3d__spine {
+      top: 0; left: 0;
+      width: var(--book-depth);
+      height: 100%;
+      transform-origin: left center;
+      transform: rotateY(-90deg) translateX(calc(var(--book-depth) / -2));
+      background: linear-gradient(90deg,
+                  color-mix(in srgb, var(--spine-color) 70%, #000 30%),
+                  var(--spine-color) 45%,
+                  color-mix(in srgb, var(--spine-color) 85%, #fff 15%));
+      border-radius: 2px;
+    }
+    .book3d__pages {
+      /* Top/bottom faces: page lines run horizontally (parallel to spine). */
+      background: repeating-linear-gradient(0deg, hsl(72, 5%, 99%) 0 6px, hsl(43, 34%, 85%) 6px 8px);
+    }
+    .book3d__pages--right {
+      top: 0; right: 0;
+      width: var(--book-depth);
+      height: 100%;
+      transform-origin: right center;
+      transform: rotateY(90deg) translateX(calc(var(--book-depth) / 2));
+      /* Right face: page lines run vertically (parallel to spine). */
+      background: repeating-linear-gradient(90deg, hsl(72, 5%, 99%) 0 6px, hsl(43, 34%, 85%) 6px 8px);
+      border-radius: 2px;
+    }
+    .book3d__pages--top {
+      top: 0; left: 0;
+      width: 100%;
+      height: var(--book-depth);
+      transform-origin: top center;
+      transform: rotateX(90deg) translateY(calc(var(--book-depth) / -2));
+      border-radius: 2px;
+    }
+    .book3d__pages--bottom {
+      bottom: 0; left: 0;
+      width: 100%;
+      height: var(--book-depth);
+      transform-origin: bottom center;
+      transform: rotateX(-90deg) translateY(calc(var(--book-depth) / 2));
+      border-radius: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .book3d { transition: none; }
     }
 
     .cover-img {
@@ -3391,6 +3492,7 @@
         status: b.status || "",
         engine: b.engine || "None",
         cover: b.cover || b.cover_url || "",
+        spineColor: b.spineColor || "",
         notes: b.notes || "",
         summary: b.summary || "",
         isbn: (b.isbn || "").toString(),
@@ -3446,24 +3548,71 @@
     // renderCoverHtml appends ?v=N so the grid re-fetches immediately.
     const coverVersions = new Map();
 
-    function renderCoverHtml(coverUrl, title, author, imgClass = 'cover-img', bookId) {
-      if (coverUrl && coverUrl.trim() !== '') {
-        const version = bookId && coverVersions.get(bookId);
-        const src = version ? `${coverUrl}?v=${version}` : coverUrl;
-        return `<img src="${escapeHtml(src)}" 
-                     alt="${escapeHtml(title)}" 
-                     class="${imgClass}" 
-                     loading="lazy" 
-                     data-title="${escapeHtml(title)}" 
-                     data-author="${escapeHtml(author)}" 
-                     onerror="handleCoverError(this)" />`;
+    function renderCoverHtml(coverUrl, title, author, imgClass = 'cover-img', bookId, opts = {}) {
+      const inner = (() => {
+        if (coverUrl && coverUrl.trim() !== '') {
+          const version = bookId && coverVersions.get(bookId);
+          const src = version ? `${coverUrl}?v=${version}` : coverUrl;
+          return `<img src="${escapeHtml(src)}" 
+                       alt="${escapeHtml(title)}" 
+                       class="${imgClass}" 
+                       loading="lazy" 
+                       data-title="${escapeHtml(title)}" 
+                       data-author="${escapeHtml(author)}" 
+                       onerror="handleCoverError(this)" />`;
+        }
+        return createJacketHtml(title, author);
+      })();
+
+      // Wrap the flat cover in a 3D "book" (spine + page edges) for the hover effect.
+      if (opts.threeD) {
+        const spine = opts.spineColor ? ` style="--spine-color:${escapeHtml(opts.spineColor)}"` : '';
+        return `<div class="book3d"${spine}>
+          <div class="book3d__face book3d__front">${inner}<div class="book3d__gloss"></div></div>
+          <div class="book3d__face book3d__spine"></div>
+          <div class="book3d__face book3d__pages book3d__pages--right"></div>
+          <div class="book3d__face book3d__pages book3d__pages--top"></div>
+          <div class="book3d__face book3d__pages book3d__pages--bottom"></div>
+        </div>`;
       }
-      return createJacketHtml(title, author);
+      return inner;
     }
 
     // Cover upload — pick a local image, downscale it, and save it into covers/.
     const MAX_COVER_WIDTH = 800; // max width in px (height uncapped)
     const COVER_QUALITY = 0.85;
+
+    // Dominant (most common, non-near-white/black) color of a canvas as #rrggbb.
+    // Used as the book's spine color. Returns null if it can't be read (e.g. a
+    // tainted canvas) so callers can fall back to the default CSS spine color.
+    function dominantColorFromCanvas(canvas) {
+      try {
+        const w = canvas.width, h = canvas.height;
+        const ctx = canvas.getContext('2d');
+        const data = ctx.getImageData(0, 0, w, h).data;
+        const buckets = {};
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i + 1], b = data[i + 2];
+          const sum = r + g + b;
+          if (sum > 740 || sum < 30) continue; // skip near-white / near-black
+          const key = (r >> 4) + ',' + (g >> 4) + ',' + (b >> 4);
+          const bk = buckets[key] || (buckets[key] = { r: 0, g: 0, b: 0, n: 0 });
+          bk.r += r; bk.g += g; bk.b += b; bk.n++;
+        }
+        let best = null;
+        for (const k in buckets) {
+          const bk = buckets[k];
+          if (!best || bk.n > best.n) best = bk;
+        }
+        if (best) {
+          const r = Math.round(best.r / best.n);
+          const g = Math.round(best.g / best.n);
+          const b = Math.round(best.b / best.n);
+          return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+        }
+      } catch (e) { /* tainted canvas, etc. */ }
+      return null;
+    }
 
     function processCoverImage(file) {
       return new Promise((resolve, reject) => {
@@ -3482,7 +3631,8 @@
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
           URL.revokeObjectURL(objectUrl);
-          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not encode the image.')), 'image/jpeg', COVER_QUALITY);
+          const spineColor = dominantColorFromCanvas(canvas);
+          canvas.toBlob(blob => blob ? resolve({ blob, spineColor }) : reject(new Error('Could not encode the image.')), 'image/jpeg', COVER_QUALITY);
         };
         img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Could not read that image.')); };
         img.src = objectUrl;
@@ -3589,6 +3739,94 @@
     const viewGridBtn = document.getElementById('view-grid-btn');
     const viewRoadmapBtn = document.getElementById('view-roadmap-btn');
     const bookGrid = document.getElementById('book-grid');
+
+    // 3D book hover: cursor-following tilt + gloss sheen on covers.
+    // Delegated on bookGrid so it survives grid/roadmap re-renders (innerHTML swaps).
+    (function initBook3DTilt() {
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const MAX = 28; // degrees — keep in sync with the POC feel
+      let raf = null;
+      let lastBook = null;
+
+      function reset(book) {
+        if (!book) return;
+        book.style.setProperty('--ry', '0deg');
+        book.style.setProperty('--rx', '0deg');
+        const g = book.querySelector('.book3d__gloss');
+        if (g) g.style.opacity = '0';
+      }
+
+      bookGrid.addEventListener('pointermove', (e) => {
+        const book = e.target.closest('.book3d');
+        if (book !== lastBook) { reset(lastBook); lastBook = book; }
+        if (!book) return;
+        const r = book.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;   // 0..1
+        const py = (e.clientY - r.top) / r.height;   // 0..1
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          const ry = (px - 0.5) * 2 * MAX;
+          const rx = -(py - 0.5) * 2 * MAX;
+          book.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+          book.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+          const gloss = book.querySelector('.book3d__gloss');
+          if (gloss) {
+            gloss.style.opacity = '1';
+            gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+            gloss.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+          }
+          raf = null;
+        });
+      });
+      bookGrid.addEventListener('pointerleave', () => { reset(lastBook); lastBook = null; });
+    })();
+
+    // Size each 3D book to its cover's natural aspect ratio, contained within
+    // the original 85%×80% footprint of the grey .cover-container. CSS can't
+    // both "contain" an image and wrap a 3D box of that exact size, so we
+    // measure: box = container content area * 0.85 / 0.80; contained size =
+    // min(boxW, boxH*ar) × min(boxH, boxW/ar). Jackets (no <img>) keep the box.
+    function sizeBook3D(book3d) {
+      const container = book3d.closest('.cover-container');
+      if (!container) return;
+      const cs = getComputedStyle(container);
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const availW = container.clientWidth - padX;
+      const availH = container.clientHeight - padY;
+      const boxW = availW * 0.84;
+      const boxH = availH * 0.79;
+
+      const img = book3d.querySelector('.book3d__front img');
+      if (img && img.naturalWidth && img.naturalHeight) {
+        const ar = img.naturalWidth / img.naturalHeight;
+        const w = Math.min(boxW, boxH * ar);
+        const h = w / ar;
+        book3d.style.width = w + 'px';
+        book3d.style.height = h + 'px';
+      }
+      // No <img> (jacket fallback): leave at the 85%×80% placeholder box.
+    }
+
+    function sizeAllBook3D() {
+      bookGrid.querySelectorAll('.book3d').forEach(book3d => {
+        sizeBook3D(book3d);
+        const img = book3d.querySelector('.book3d__front img');
+        if (img && !img.naturalWidth) {
+          // Lazy covers load late — size once the pixels are available.
+          img.addEventListener('load', () => sizeBook3D(book3d), { once: true });
+        }
+      });
+    }
+
+    // Recompute on viewport changes (container size drives the footprint).
+    let resizeRaf = null;
+    window.addEventListener('resize', () => {
+      if (resizeRaf) return;
+      resizeRaf = requestAnimationFrame(() => { resizeRaf = null; sizeAllBook3D(); });
+    });
+
     const searchInput = document.getElementById('search-input');
     const filterVolume = document.getElementById('filter-volume');
     const filterStatus = document.getElementById('filter-status');
@@ -3702,10 +3940,12 @@
     const coverPlaceholder = document.getElementById('cover-dropzone-placeholder');
     const coverHint = document.getElementById('book-cover-hint');
     let pendingCoverBlob = null; // downscaled cover chosen but not yet saved
+    let pendingSpineColor = null; // dominant color of the pending cover (spine)
     let formBaseline = null; // form snapshot taken on open — for unsaved-change detection
 
     function resetCoverUploadState() {
       pendingCoverBlob = null;
+      pendingSpineColor = null;
       inputCover.value = ''; // hidden source-of-truth — don't rely on bookForm.reset() to clear it
       coverPreview.hidden = true;
       coverPreview.removeAttribute('src');
@@ -4572,7 +4812,7 @@
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id)}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true, spineColor: book.spineColor })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -4597,7 +4837,7 @@
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
             <span class="order-badge" title="Reading order in stage">${book.readingOrder}</span>
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id)}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true, spineColor: book.spineColor })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -5007,6 +5247,8 @@
       // Stage rows were just (re)built — sync the edge fade state so a row
       // that's already at its end (or never overflows) has no fade.
       updateAllStageRowFades();
+      // Size each 3D book to its cover's aspect ratio (lazy covers size on load).
+      sizeAllBook3D();
     }
 
     // --- Volume & Stage Reordering & CRUD Functions ---
@@ -5801,6 +6043,11 @@
         summary: inputSummary.value.trim(),
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
       });
+      // Spine color: use the freshly computed one when a new cover was uploaded,
+      // otherwise keep the book's existing value. Cleared when the cover is removed.
+      bookData.spineColor = cover
+        ? (pendingSpineColor || (id ? (books.find(b => b.id === id) || {}).spineColor : '') || '')
+        : '';
 
       if (id) {
         const idx = books.findIndex(b => b.id === id);
@@ -5830,8 +6077,9 @@
     // Cover upload: pick or drop → downscale → preview (the blob is written to covers/ on submit).
     async function handleCoverFile(file) {
       try {
-        const blob = await processCoverImage(file);
+        const { blob, spineColor } = await processCoverImage(file);
         pendingCoverBlob = blob;
+        pendingSpineColor = spineColor;
         if (coverPreview.src && coverPreview.src.startsWith('blob:')) URL.revokeObjectURL(coverPreview.src);
         coverPreview.src = URL.createObjectURL(blob);
         coverPreview.hidden = false;
