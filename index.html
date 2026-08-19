@@ -76,7 +76,7 @@
       background-color: var(--bg-main);
       color: var(--text-primary);
       /* Safe-area top keeps content clear of the status bar in iOS standalone mode */
-      padding: calc(24px + env(safe-area-inset-top, 0px)) 20px 24px;
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 16px 24px;
       line-height: 1.5;
     }
 
@@ -813,7 +813,7 @@
            it kept re-snapping the initial position and un-aligning the first chip.) */
         flex: 0 0 auto;
         width: calc(100% + 40px);
-        margin-inline: -20px;
+        margin-inline: -16px;
         flex-wrap: nowrap;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -841,10 +841,10 @@
          compensation is robust inside scroll containers (unlike container padding,
          which some browsers omit from scrollable overflow). */
       .tag-filter-chip:first-child {
-        margin-left: 20px;
+        margin-left: 16px;
       }
       .tag-filter-chip:last-child {
-        margin-right: 20px;
+        margin-right: 16px;
       }
       /* Edge fade cues on the tag strip (mobile): the mask-image fades should
          not mask the first chip once it's at the start (scrollLeft 0) nor the
@@ -1362,7 +1362,7 @@
       background: var(--bg-main);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      width: 90%;
+      width: 94%;
       max-width: 680px;
       max-height: 90vh;
       overflow-y: auto;
@@ -2234,7 +2234,7 @@
       .engines-grid {
         flex: 0 0 auto;
         width: calc(100% + 40px);
-        margin-inline: -20px;
+        margin-inline: -16px;
         display: flex;
         flex-wrap: nowrap;
         gap: 12px;
@@ -2263,10 +2263,10 @@
          compensation is robust inside scroll containers (unlike container
          padding, which some browsers omit from scrollable overflow). */
       .engine-card:first-child {
-        margin-left: 20px;
+        margin-left: 16px;
       }
       .engine-card:last-child {
-        margin-right: 20px;
+        margin-right: 16px;
       }
 
       .engine-header {
@@ -2345,14 +2345,14 @@
          lines up with the 20px content inset and the last card can scroll fully
          into view (margin-based compensation, robust in scroll containers). */
       .stage-row {
-        width: calc(100% + 40px);
-        margin-inline: -20px;
+        width: calc(100% + 32px);
+        margin-inline: -16px;
         /* no right-edge fade on touch: the card beside the edge is enough cue */
         -webkit-mask-image: none;
         mask-image: none;
       }
-      .stage-row .book-card:first-of-type { margin-left: 20px; }
-      .stage-row .book-card:last-of-type { margin-right: 20px; }
+      .stage-row .book-card:first-of-type { margin-left: 16px; }
+      .stage-row .book-card:last-of-type { margin-right: 16px; }
       .stage-row .book-card { flex-basis: 145px; }
       .stage-arrows { display: none; }
 
