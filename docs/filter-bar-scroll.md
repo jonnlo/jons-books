@@ -131,7 +131,9 @@ Desktop CSS (`min-width: 601px`):
   transform: translateY(-110%); transition: transform 0.25s ease; }` — sticky, hidden above.
 - `.filter-bar.is-pinned.is-revealed { transform: translateY(0); padding: 12px 0px; }` — slid down.
 - `.filter-bar.is-pinned .tag-filters` — tags compacted to a **single scrollable row**
-  (`flex-wrap: nowrap; overflow-x: auto`, with a right-edge mask fade).
+  (`flex-wrap: nowrap; overflow-x: auto`, with edge mask fades: a right-edge fade cues
+  more chips, and a left-edge fade appears once the strip is scrolled — toggled by
+  `.at-start` / `.at-end` classes in `updateTagFiltersFade`).
 - In Volumes view the pinned bar overlays the volume/stage sticky headers (z 60 > their 10 / 9).
 
 **Key geometry insight (why the pinned bar + first book CAN coexist):** the coexistence

@@ -595,8 +595,8 @@
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
         scrollbar-width: none;
-        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
-        mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
       }
       .filter-bar.is-pinned .tag-filters::-webkit-scrollbar {
         display: none;
@@ -821,9 +821,10 @@
         scrollbar-width: none;
         /* small vertical pad so :focus-visible outlines aren't clipped */
         padding: 2px 0 4px;
-        /* right-edge fade cue that the strip scrolls */
-        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
-        mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+        /* edge fade cues that the strip scrolls (left fade appears once the
+           strip is scrolled; right fade cues more chips) */
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
       }
       .tag-filters::-webkit-scrollbar {
         display: none;
@@ -845,20 +846,40 @@
       .tag-filter-chip:last-child {
         margin-right: 20px;
       }
+      /* Edge fade cues on the tag strip (mobile): the mask-image fades should
+         not mask the first chip once it's at the start (scrollLeft 0) nor the
+         last chip once it's fully in view. Toggled by JS in
+         updateTagFiltersFade:
+         - .at-start  → no left fade (at scroll 0)
+         - .at-end    → no right fade (scrolled to max OR never overflows)
+         - both       → no fades at all (never overflows) */
+      .tag-filters.at-start {
+        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+      }
+      .tag-filters.at-end {
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+      }
+      .tag-filters.at-start.at-end {
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
     }
 
-    /* Right-edge fade cue hidden once the tag strip is at its end (the last
-       chip is fully in view) so the fade never masks the last chip — same rule
-       as the stage rows. Toggled by JS in updateTagFiltersFade: applies when
-       the strip is scrolled to its max OR when it never overflows. Specificity:
-       the plain rule beats the mobile MQ `.tag-filters` mask; the .is-pinned
-       variant beats the desktop compact bar's `.filter-bar.is-pinned
-       .tag-filters` mask. */
-    .tag-filters.at-end {
-      -webkit-mask-image: none;
-      mask-image: none;
+    /* Edge fade cues on the tag strip when the desktop compact bar is pinned:
+       same .at-start / .at-end / .at-start.at-end states as the mobile strip.
+       Scoped to .is-pinned so the wrapping (non-scrollable) desktop tag row
+       never gets a mask. Toggled by JS in updateTagFiltersFade. */
+    .filter-bar.is-pinned .tag-filters.at-start {
+      -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+      mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
     }
     .filter-bar.is-pinned .tag-filters.at-end {
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+    }
+    .filter-bar.is-pinned .tag-filters.at-start.at-end {
       -webkit-mask-image: none;
       mask-image: none;
     }
@@ -1913,18 +1934,33 @@
       scrollbar-width: none;
       padding: 6px 2px 14px;
       border-radius: 8px;
-      -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
-      mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
     }
     .stage-row::-webkit-scrollbar { display: none; }
 
-    /* Right-edge fade cue — hidden once the row is at its end (the last book
-       is fully in view) so the fade never masks the last book. Toggled by JS
-       in updateStageRowFade: applies when the row is scrolled to its max OR
-       when it never overflows (nothing to scroll). */
-    .stage-row.at-end {
-      -webkit-mask-image: none;
-      mask-image: none;
+    /* Edge fade cues on stage rows: the mask-image fades should not mask the
+       first book once it's at the start (scrollLeft 0) nor the last book once
+       it's fully in view. Toggled by JS in updateStageRowFade:
+       - .at-start  → no left fade (at scroll 0)
+       - .at-end    → no right fade (scrolled to max OR never overflows)
+       - both       → no fades at all (never overflows)
+       Desktop only: the mobile MQ deliberately disables all edge fades on
+       touch (the card beside the edge is enough cue), so these state rules
+       are scoped to min-width: 601px to avoid re-enabling a fade on mobile. */
+    @media (min-width: 601px) {
+      .stage-row.at-start {
+        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
+        mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 30px), transparent 100%);
+      }
+      .stage-row.at-end {
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30px, #000 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 30px, #000 100%);
+      }
+      .stage-row.at-start.at-end {
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
     }
 
     /* Empty stage (only reachable via filters): a slim centered drop target.
@@ -3901,14 +3937,18 @@
       tagFilters.scrollLeft = prevScrollLeft;
     }
 
-    // Right-edge fade cue on the tag strip: the mask-image fade should not
-    // mask the last chip once it's fully in view — same rule as the stage rows.
-    // The strip is "at its end" when scrolled to its max OR when it never
-    // overflows (nothing to scroll → the last chip is already fully visible).
-    // The .at-end class clears the mask in CSS (mobile MQ + pinned-bar masks).
+    // Edge fade cues on the tag strip: the mask-image fades should not mask
+    // the first chip once it's at the start (scrollLeft 0) nor the last chip
+    // once it's fully in view — same rule as the stage rows. The strip is
+    // "at its start" when scrollLeft is 0; "at its end" when scrolled to its
+    // max OR when it never overflows (nothing to scroll → the last chip is
+    // already fully visible). The .at-start / .at-end classes adjust the mask
+    // in CSS (mobile MQ + pinned-bar masks).
     function updateTagFiltersFade() {
       if (tagFilters.hidden) return;
+      const atStart = tagFilters.scrollLeft <= 1;
       const atEnd = tagFilters.scrollWidth - tagFilters.clientWidth - tagFilters.scrollLeft <= 1;
+      tagFilters.classList.toggle('at-start', atStart);
       tagFilters.classList.toggle('at-end', atEnd);
     }
 
@@ -4170,7 +4210,7 @@
         // Pinning/unpinning changes the tag strip's overflow (the compact bar
         // switches it to nowrap + scrollable), so re-evaluate its fade state
         // on desktop too — otherwise a stale .at-end from the wrapped bar would
-        // suppress the fade at scroll 0 of the compact strip.
+        // suppress the right-edge fade at scroll 0 of the compact strip.
         updateTagFiltersFade();
         filterBar.classList.remove('is-past');
         return;
@@ -4598,14 +4638,18 @@
       row.scrollBy({ left: dir * row.clientWidth * 0.8, behavior });
     }
 
-    // Right-edge fade cue on stage rows: the mask-image fade should not mask
-    // the last book once it's fully in view. A row is "at its end" when it's
-    // scrolled to its max (scrollLeft at scrollWidth - clientWidth) OR when it
-    // never overflows at all — then the last book is already fully visible and
-    // there's nothing to scroll for. The .at-end class clears the mask in CSS.
+    // Edge fade cues on stage rows: the mask-image fades should not mask the
+    // first book once it's at the start (scrollLeft 0) nor the last book once
+    // it's fully in view. A row is "at its start" when scrollLeft is 0; "at
+    // its end" when scrolled to its max (scrollLeft at scrollWidth -
+    // clientWidth) OR when it never overflows at all — then the last book is
+    // already fully visible and there's nothing to scroll for. The .at-start /
+    // .at-end classes adjust the mask in CSS (desktop only).
     function updateStageRowFade(row) {
       if (!row || !row.classList.contains('stage-row')) return;
+      const atStart = row.scrollLeft <= 1;
       const atEnd = row.scrollWidth - row.clientWidth - row.scrollLeft <= 1;
+      row.classList.toggle('at-start', atStart);
       row.classList.toggle('at-end', atEnd);
     }
 
@@ -4735,7 +4779,7 @@
       let html = `
         <div class="roadmap-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">
-            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> Roadmap View (Drag & Drop Books Across Stages & Volumes)
+            <i data-lucide="git-branch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i> Volumes View
           </span>
           <button class="btn-primary btn-xs" onclick="addNewVolume()"><i data-lucide="plus"></i> Add Volume</button>
         </div>
@@ -4888,8 +4932,8 @@
     function renderBooks() {
       updateVolumeFilterDropdown();
       updateTagFilters();
-      // Tag chips were just (re)built — sync the right-edge fade state so a
-      // strip that's already at its end (or never overflows) has no fade.
+      // Tag chips were just (re)built — sync the edge fade state so a strip
+      // that's already at its end (or never overflows) has no fade.
       updateTagFiltersFade();
       updateFilterBadge();
 
@@ -4926,8 +4970,8 @@
 
       lucide.createIcons();
       updateActiveEngines();
-      // Stage rows were just (re)built — sync the right-edge fade state so a
-      // row that's already at its end (or never overflows) has no fade.
+      // Stage rows were just (re)built — sync the edge fade state so a row
+      // that's already at its end (or never overflows) has no fade.
       updateAllStageRowFades();
     }
 
