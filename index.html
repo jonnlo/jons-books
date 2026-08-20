@@ -1150,10 +1150,7 @@
       position: relative;
       user-select: none;
       background-color: var(--bg-main);
-      /* border-radius: 12px; */
-      /* border: 1px solid var(--border-color); */
       border-radius: 12px;
-      transition: all 0.3s ease;
       /* Removes iOS double-tap delay / zoom on tap (touch only). */
       touch-action: manipulation;
 
@@ -1171,12 +1168,8 @@
        devices don't get a sticky :hover (which makes iOS Safari require a
        double-tap to click). The base .cover-container / .book3d rules stay
        outside the media query so the 3D book still renders on touch. */
-    @media (hover: hover) and (pointer: fine) {
-    .book-card:hover {
-      /* transform: translateY(-10px); */
-      border-color: var(--border-accent);
-    }
-    }
+   
+  
     /* @media (hover: hover) and (pointer: fine) { */
     .book-card:hover .cover-container {
       background-color:var(--img-bg-hover);
@@ -1198,7 +1191,7 @@
       justify-content: center;
       padding: 8px;
       position: relative;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
       /* Gives the 3D book hover its depth; only book cards use .cover-container. */
       perspective: 1000px;
     }
