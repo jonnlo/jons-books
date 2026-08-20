@@ -1261,11 +1261,30 @@
       height: 100%;
       transform-origin: left center;
       transform: rotateY(-90deg) translateX(calc(var(--book-depth) / -2));
-      background: linear-gradient(90deg,
-                  color-mix(in srgb, var(--spine-color) 70%, #000 30%),
-                  var(--spine-color) 45%,
-                  color-mix(in srgb, var(--spine-color) 85%, #fff 15%));
+      /* --spine-img = the spine texture, derived purely in CSS from the cover's
+         left edge. JS sets it to the cover URL and sizes the background so the
+         LEFTMOST N pixels fill the spine (background-size % is relative to this
+         spine box, so (cw/N)*100% maps the leftmost N px onto the full width).
+         No canvas, so it works on every origin (http, https, file://) and is
+         GPU-composited. Falls back to --spine-color for jacket books (no cover). */
+      background-image: var(--spine-img, none);
+      background-size: var(--spine-bg-size, 100% 100%);
+      background-position: var(--spine-bg-pos, center);
+      background-color: var(--spine-color, #555a66);
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
       border-radius: 2px;
+    }
+    /* Subtle cylindrical shading as a separate layer so it doesn't fight the
+       image — a soft dark edge with a faint highlight, kept light so the
+       cover's left-edge color stays readable. */
+    .book3d__spine::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+                  rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.08) 42%, rgba(0, 0, 0, 0.14));
+      border-radius: 2px;
+      pointer-events: none;
     }
     .book3d__pages {
       /* Top/bottom faces: page lines run horizontally (parallel to spine). */
@@ -3513,7 +3532,6 @@
         status: b.status || "",
         engine: b.engine || "None",
         cover: b.cover || b.cover_url || "",
-        spineColor: b.spineColor || "",
         notes: b.notes || "",
         summary: b.summary || "",
         isbn: (b.isbn || "").toString(),
@@ -3586,9 +3604,10 @@
       })();
 
       // Wrap the flat cover in a 3D "book" (spine + page edges) for the hover effect.
+      // The spine texture is derived purely in CSS from the cover's left edge at
+      // layout time (see sizeAllBook3D), so no stored color is needed here.
       if (opts.threeD) {
-        const spine = opts.spineColor ? ` style="--spine-color:${escapeHtml(opts.spineColor)}"` : '';
-        return `<div class="book3d"${spine}>
+        return `<div class="book3d">
           <div class="book3d__face book3d__front">${inner}<div class="book3d__gloss"></div></div>
           <div class="book3d__face book3d__spine"></div>
           <div class="book3d__face book3d__pages book3d__pages--right"></div>
@@ -3603,37 +3622,11 @@
     const MAX_COVER_WIDTH = 800; // max width in px (height uncapped)
     const COVER_QUALITY = 0.85;
 
-    // Dominant (most common, non-near-white/black) color of a canvas as #rrggbb.
-    // Used as the book's spine color. Returns null if it can't be read (e.g. a
-    // tainted canvas) so callers can fall back to the default CSS spine color.
-    function dominantColorFromCanvas(canvas) {
-      try {
-        const w = canvas.width, h = canvas.height;
-        const ctx = canvas.getContext('2d');
-        const data = ctx.getImageData(0, 0, w, h).data;
-        const buckets = {};
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2];
-          const sum = r + g + b;
-          if (sum > 740 || sum < 30) continue; // skip near-white / near-black
-          const key = (r >> 4) + ',' + (g >> 4) + ',' + (b >> 4);
-          const bk = buckets[key] || (buckets[key] = { r: 0, g: 0, b: 0, n: 0 });
-          bk.r += r; bk.g += g; bk.b += b; bk.n++;
-        }
-        let best = null;
-        for (const k in buckets) {
-          const bk = buckets[k];
-          if (!best || bk.n > best.n) best = bk;
-        }
-        if (best) {
-          const r = Math.round(best.r / best.n);
-          const g = Math.round(best.g / best.n);
-          const b = Math.round(best.b / best.n);
-          return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
-        }
-      } catch (e) { /* tainted canvas, etc. */ }
-      return null;
-    }
+    // The spine texture is derived purely in CSS from the cover's left edge
+    // (see sizeAllBook3D): the cover URL is used as a background and sized so the
+    // leftmost few pixels fill the spine. No canvas, so it works on every origin
+    // (http, https, file://) and is GPU-composited — no main-thread encode and no
+    // double-decode. No stored color is needed.
 
     function processCoverImage(file) {
       return new Promise((resolve, reject) => {
@@ -3652,8 +3645,7 @@
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
           URL.revokeObjectURL(objectUrl);
-          const spineColor = dominantColorFromCanvas(canvas);
-          canvas.toBlob(blob => blob ? resolve({ blob, spineColor }) : reject(new Error('Could not encode the image.')), 'image/jpeg', COVER_QUALITY);
+          canvas.toBlob(blob => blob ? resolve({ blob }) : reject(new Error('Could not encode the image.')), 'image/jpeg', COVER_QUALITY);
         };
         img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Could not read that image.')); };
         img.src = objectUrl;
@@ -3832,11 +3824,33 @@
 
     function sizeAllBook3D() {
       bookGrid.querySelectorAll('.book3d').forEach(book3d => {
-        sizeBook3D(book3d);
         const img = book3d.querySelector('.book3d__front img');
-        if (img && !img.naturalWidth) {
-          // Lazy covers load late — size once the pixels are available.
-          img.addEventListener('load', () => sizeBook3D(book3d), { once: true });
+        const apply = () => {
+          sizeBook3D(book3d);
+          // Derive the spine texture from the cover's left edge — pure CSS, no
+          // canvas. Stretch the cover's LEFTMOST N pixels across the spine by
+          // sizing the background so that N/cw of its width equals the spine
+          // width. background-size % is relative to the spine box, so (cw/N)*100%
+          // makes the leftmost N px of the cover fill the spine exactly. This
+          // works on every origin (http, https, file://) and is GPU-composited.
+          const coverSrc = img && (img.currentSrc || img.src);
+          if (coverSrc && img.naturalWidth) {
+            const N = 3;
+            const cw = img.naturalWidth || 400;
+            const bgWpct = (cw / N) * 100;
+            book3d.style.setProperty('--spine-img', `url("${coverSrc}")`);
+            book3d.style.setProperty('--spine-bg-size', `${bgWpct}% 100%`);
+            book3d.style.setProperty('--spine-bg-pos', 'left center');
+          }
+          // else: jacket fallback keeps --spine-color
+        };
+        if (img && img.naturalWidth) {
+          apply();
+        } else if (img) {
+          // Lazy covers load late — size + set spine once pixels are available.
+          img.addEventListener('load', apply, { once: true });
+        } else {
+          sizeBook3D(book3d); // jacket fallback (no <img>)
         }
       });
     }
@@ -3961,12 +3975,10 @@
     const coverPlaceholder = document.getElementById('cover-dropzone-placeholder');
     const coverHint = document.getElementById('book-cover-hint');
     let pendingCoverBlob = null; // downscaled cover chosen but not yet saved
-    let pendingSpineColor = null; // dominant color of the pending cover (spine)
     let formBaseline = null; // form snapshot taken on open — for unsaved-change detection
 
     function resetCoverUploadState() {
       pendingCoverBlob = null;
-      pendingSpineColor = null;
       inputCover.value = ''; // hidden source-of-truth — don't rely on bookForm.reset() to clear it
       coverPreview.hidden = true;
       coverPreview.removeAttribute('src');
@@ -4833,7 +4845,7 @@
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true, spineColor: book.spineColor })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -4858,7 +4870,7 @@
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
             <span class="order-badge" title="Reading order in stage">${book.readingOrder}</span>
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true, spineColor: book.spineColor })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -6088,11 +6100,6 @@
         summary: inputSummary.value.trim(),
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
       });
-      // Spine color: use the freshly computed one when a new cover was uploaded,
-      // otherwise keep the book's existing value. Cleared when the cover is removed.
-      bookData.spineColor = cover
-        ? (pendingSpineColor || (id ? (books.find(b => b.id === id) || {}).spineColor : '') || '')
-        : '';
 
       if (id) {
         const idx = books.findIndex(b => b.id === id);
@@ -6122,9 +6129,8 @@
     // Cover upload: pick or drop → downscale → preview (the blob is written to covers/ on submit).
     async function handleCoverFile(file) {
       try {
-        const { blob, spineColor } = await processCoverImage(file);
+        const { blob } = await processCoverImage(file);
         pendingCoverBlob = blob;
-        pendingSpineColor = spineColor;
         if (coverPreview.src && coverPreview.src.startsWith('blob:')) URL.revokeObjectURL(coverPreview.src);
         coverPreview.src = URL.createObjectURL(blob);
         coverPreview.hidden = false;
