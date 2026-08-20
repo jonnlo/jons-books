@@ -21,3 +21,7 @@ scripts/node_modules/
 
 # Generated summary-fetch logs (regenerated on each backfill run)
 scripts/hardcover-summary-misses.txt
+
+# Generated pagecount-fetch logs (regenerated on each backfill run)
+scripts/pagecount-misses.txt
+scripts/pagecount-hardcover-misses.txt

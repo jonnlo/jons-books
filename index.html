@@ -3156,6 +3156,10 @@
             <label for="book-isbn-input">ISBN</label>
             <input type="text" id="book-isbn-input" placeholder="e.g. 9780197686546">
           </div>
+          <div class="form-group">
+            <label for="book-pages-input">Pages (optional)</label>
+            <input type="number" id="book-pages-input" min="1" step="1" placeholder="e.g. 320">
+          </div>
           <div class="form-group full-width">
             <label for="book-notes-input">Personal Notes / Quotes</label>
             <textarea id="book-notes-input" placeholder="Add annotations, key concepts, or takeaway notes..."></textarea>
@@ -3561,6 +3565,7 @@
         notes: b.notes || "",
         summary: b.summary || "",
         isbn: (b.isbn || "").toString(),
+        pages: b.pages ? parseInt(b.pages, 10) : undefined,
         tags: Array.isArray(b.tags)
           ? [...new Set(b.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean))]
           : []
@@ -3633,7 +3638,8 @@
       // The spine texture is derived purely in CSS from the cover's left edge at
       // layout time (see sizeAllBook3D), so no stored color is needed here.
       if (opts.threeD) {
-        return `<div class="book3d">
+        const pagesAttr = opts.pages ? ` data-pages="${parseInt(opts.pages, 10)}"` : '';
+        return `<div class="book3d"${pagesAttr}>
           <div class="book3d__face book3d__front">${inner}<div class="book3d__gloss"></div></div>
           <div class="book3d__face book3d__spine"></div>
           <div class="book3d__face book3d__pages book3d__pages--right"></div>
@@ -3785,7 +3791,7 @@
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const MAX_X = 4; // degrees — max vertical tilt (rotateX, py axis)
-      const MAX_Y = 20; // degrees — max horizontal tilt (rotateY, px axis)
+      const MAX_Y = 40; // degrees — max horizontal tilt (rotateY, px axis)
       let raf = null;
       let lastBook = null;
 
@@ -3844,14 +3850,23 @@
       const boxH = isDetailBook ? availH *0.90 : availH * 0.79;
 
       const img = book3d.querySelector('.book3d__front img');
+      let w, h;
       if (img && img.naturalWidth && img.naturalHeight) {
         const ar = img.naturalWidth / img.naturalHeight;
-        const w = Math.min(boxW, boxH * ar);
-        const h = w / ar;
+        w = Math.min(boxW, boxH * ar);
+        h = w / ar;
         book3d.style.width = w + 'px';
         book3d.style.height = h + 'px';
+      } else {
+        // Jacket fallback: keep the box size.
+        w = boxW;
+        h = boxH;
       }
-      // No <img> (jacket fallback): leave at the box size.
+      // Depth scales with both cover width and page count. Thick books are
+      // genuinely thicker; covers still look consistent when w changes.
+      const pagesEff = (book3d.dataset.pages && parseInt(book3d.dataset.pages, 10)) || 240;
+      const depth = Math.round(Math.max(14, Math.min(56, w * 0.10 + pagesEff * 0.06)));
+      book3d.style.setProperty('--book-depth', depth + 'px');
     }
 
     function deriveSpineTexture(book3d) {
@@ -4018,6 +4033,7 @@
       coverHint.textContent = 'Saved to covers/ in this repo.';
     }
     const inputIsbn = document.getElementById('book-isbn-input');
+    const inputPages = document.getElementById('book-pages-input');
     const inputNotes = document.getElementById('book-notes-input');
     const inputSummary = document.getElementById('book-summary-input');
     const inputTags = document.getElementById('book-tags-input');
@@ -4875,7 +4891,7 @@
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -4900,7 +4916,7 @@
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
             <span class="order-badge" title="Reading order in stage">${book.readingOrder}</span>
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -5635,6 +5651,7 @@
         coverClearBtn.hidden = false;
       }
       inputIsbn.value = book.isbn;
+      inputPages.value = book.pages != null ? String(book.pages) : '';
       inputNotes.value = book.notes;
       inputSummary.value = book.summary;
       // Tags — initialize the chip editor from the book's tags.
@@ -5668,6 +5685,7 @@
         engine: inputEngine.value,
         cover: inputCover.value,
         isbn: inputIsbn.value,
+        pages: inputPages.value,
         notes: inputNotes.value,
         summary: inputSummary.value,
         tags: inputTags.value
@@ -5766,7 +5784,7 @@
 
       // Cover (renders the CSS jacket fallback if the image fails).
       // Always use 3D book in detail modal for interactive viewing.
-      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true });
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true, pages: book.pages });
 
       detailTitle.textContent = book.title;
       detailAuthor.textContent = book.author;
@@ -6271,6 +6289,7 @@
         engine: newEngine,
         cover,
         isbn: inputIsbn.value.trim(),
+        pages: inputPages.value ? parseInt(inputPages.value, 10) : undefined,
         notes: inputNotes.value.trim(),
         summary: inputSummary.value.trim(),
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
