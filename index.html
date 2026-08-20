@@ -1286,7 +1286,7 @@
     }
     .book3d__pages {
       /* Top/bottom faces: page lines run horizontally (parallel to spine). */
-      background: repeating-linear-gradient(0deg, hsl(72, 5%, 99%) 0 6px, hsl(43, 34%, 85%) 6px 8px);
+      background: repeating-linear-gradient(0deg, hsl(52, 25%, 85%) 0 3px, hsl(53, 34%, 70%) 3px 5px);
     }
     .book3d__pages--right {
       top: 0; right: 0;
@@ -1295,7 +1295,7 @@
       transform-origin: right center;
       transform: rotateY(90deg) translateX(calc(var(--book-depth) / 2));
       /* Right face: page lines run vertically (parallel to spine). */
-      background: repeating-linear-gradient(90deg, hsl(72, 5%, 99%) 0 6px, hsl(43, 34%, 85%) 6px 8px);
+      background: repeating-linear-gradient(90deg, hsl(52, 25%, 85%) 0 3px, hsl(53, 34%, 70%) 3px 5px);
       border-radius: 2px;
     }
     .book3d__pages--top {
@@ -1479,22 +1479,28 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      /* Entrance fade via transition + @starting-style.
+         iOS Safari 17.4+ animates from @starting-style when display:none→flex. */
+      opacity: 0;
+      transition: opacity 0.2s ease-out, display 0.2s ease-out;
+      transition-behavior: allow-discrete;
     }
 
     .modal-overlay.active {
       display: flex;
-    }
-    /* Entrance animation is on a separate class so it's added only AFTER the
-       overlay is laid out (display:flex). iOS Safari skips an animation that
-       starts the same frame an element goes from display:none to displayed,
-       which made the modal appear suddenly with no transition. */
-    .modal-overlay.anim-in {
-      animation: modal-fade-in 0.2s ease-out;
+      opacity: 1;
     }
 
-    @keyframes modal-fade-in {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @starting-style {
+      .modal-overlay.active {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .modal-overlay {
+        transition: none;
+      }
     }
 
     .modal-content {
@@ -1715,15 +1721,28 @@
 
     /* The detail card rises up slightly as it appears — the inverse of the
        drag-down-to-dismiss gesture. Transform only: the overlay's own fade
-       (`modal-fade-in`) already fades the dim + card, so animating opacity
-       here too would double-fade. The card stays centered (no bottom sheet). */
-    .book-detail-modal.anim-in .modal-content {
-      animation: detail-rise-in 0.25s ease-out;
+       already fades the dim + card, so animating opacity here too would
+       double-fade. The card stays centered (no bottom sheet). */
+    .book-detail-modal .modal-content {
+      /* Entrance rise via transition + @starting-style.
+         iOS Safari 17.4+ animates from @starting-style when the modal opens. */
+      transition: transform 0.25s ease-out;
     }
 
-    @keyframes detail-rise-in {
-      from { transform: translateY(24px); }
-      to { transform: translateY(0); }
+    .book-detail-modal.active .modal-content {
+      transform: translateY(0);
+    }
+
+    @starting-style {
+      .book-detail-modal.active .modal-content {
+        transform: translateY(24px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .book-detail-modal .modal-content {
+        transition: none;
+      }
     }
 
     /* Within the detail modal, the `hidden` attribute always wins (some
@@ -5822,11 +5841,6 @@
       detailModal.style.animation = '';
       dismissing = false;
       detailModal.classList.add('active');
-      // Force layout so the display:flex state is committed before the entrance
-      // animation class is added (iOS Safari skips animations that begin the
-      // same frame an element goes from display:none to displayed).
-      void detailModal.offsetWidth;
-      detailModal.classList.add('anim-in');
       // Reflect the open book in the URL (#book=<id>) so the page is
       // deep-linkable and Back/Forward toggle the modal. pushState adds a
       // history entry without firing hashchange (so no recursion), and we skip
@@ -5956,8 +5970,9 @@
         if (!(raw > 0 && detailSheet.scrollTop <= 0)) return;
         dragActive = true;
         dragStartY = y;                       // re-baseline so the sheet starts at 0
-        detailSheet.style.animation = 'none'; // cancel the entrance rise mid-drag
-        detailModal.style.animation = 'none'; // cancel the overlay fade mid-drag
+        // Cancel any CSS entrance transition by jumping to end state.
+        detailSheet.style.transition = 'none';
+        detailSheet.style.transform = 'translateY(0)';
       }
       e.preventDefault();                     // stop native scroll / rubber-band
 
