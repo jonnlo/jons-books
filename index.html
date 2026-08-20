@@ -1753,11 +1753,11 @@
 
     .book-detail-body {
       display: flex;
-      gap: 24px;
+      gap: 36px;
     }
 
     .detail-cover {
-      width: 320px;
+      width: 300px;
       flex-shrink: 0;
       aspect-ratio: 2 / 3;
       background: none;
@@ -1768,6 +1768,8 @@
       padding: 8px;
       align-self: flex-start;
       overflow: hidden;
+      /* 3D book needs a perspective on the container (like .cover-container). */
+      perspective: 1000px;
       /* Pin the cover beside the scrolling text once the modal's content grows
          taller than the viewport (e.g. an expanded summary). `align-self:
          flex-start` keeps it a fixed-height flex item, so sticky has room to
@@ -1776,6 +1778,13 @@
          .modal-content, which is the overflow-y:auto scrollport. */
       position: sticky;
       top: 24px;
+    }
+
+    /* When the detail cover wraps the 3D book, drop the 8px padding so the
+       book faces sit flush to the container edges (no gap). */
+    .detail-cover:has(.book3d) {
+      padding: 0;
+      overflow: visible;
     }
 
     .detail-cover-img {
@@ -3819,15 +3828,20 @@
     // measure: box = container content area * 0.85 / 0.80; contained size =
     // min(boxW, boxH*ar) × min(boxH, boxW/ar). Jackets (no <img>) keep the box.
     function sizeBook3D(book3d) {
-      const container = book3d.closest('.cover-container');
+      // Detail modal cover has no .cover-container — size from #detail-cover directly.
+      const detailCoverEl = book3d.closest('#detail-cover');
+      const isDetailBook = !!detailCoverEl;
+      const container = book3d.closest('.cover-container') || detailCoverEl;
       if (!container) return;
       const cs = getComputedStyle(container);
       const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
       const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
       const availW = container.clientWidth - padX;
       const availH = container.clientHeight - padY;
-      const boxW = availW * 0.84;
-      const boxH = availH * 0.79;
+      // Detail book: fill its fixed 320×~480 box directly (no grey footprint shrinkage);
+      // grid books: fit the grey footprint at 0.84/0.79.
+      const boxW = isDetailBook ? availW *0.90 : availW * 0.84;
+      const boxH = isDetailBook ? availH *0.90 : availH * 0.79;
 
       const img = book3d.querySelector('.book3d__front img');
       if (img && img.naturalWidth && img.naturalHeight) {
@@ -3837,7 +3851,20 @@
         book3d.style.width = w + 'px';
         book3d.style.height = h + 'px';
       }
-      // No <img> (jacket fallback): leave at the 85%×80% placeholder box.
+      // No <img> (jacket fallback): leave at the box size.
+    }
+
+    function deriveSpineTexture(book3d) {
+      const img = book3d.querySelector('.book3d__front img');
+      const coverSrc = img && (img.currentSrc || img.src);
+      if (coverSrc && img && img.naturalWidth) {
+        const N = 3;
+        const cw = img.naturalWidth || 400;
+        const bgWpct = (cw / N) * 100;
+        book3d.style.setProperty('--spine-img', `url("${coverSrc}")`);
+        book3d.style.setProperty('--spine-bg-size', `${bgWpct}% 100%`);
+        book3d.style.setProperty('--spine-bg-pos', 'left center');
+      }
     }
 
     function sizeAllBook3D() {
@@ -3845,22 +3872,7 @@
         const img = book3d.querySelector('.book3d__front img');
         const apply = () => {
           sizeBook3D(book3d);
-          // Derive the spine texture from the cover's left edge — pure CSS, no
-          // canvas. Stretch the cover's LEFTMOST N pixels across the spine by
-          // sizing the background so that N/cw of its width equals the spine
-          // width. background-size % is relative to the spine box, so (cw/N)*100%
-          // makes the leftmost N px of the cover fill the spine exactly. This
-          // works on every origin (http, https, file://) and is GPU-composited.
-          const coverSrc = img && (img.currentSrc || img.src);
-          if (coverSrc && img.naturalWidth) {
-            const N = 3;
-            const cw = img.naturalWidth || 400;
-            const bgWpct = (cw / N) * 100;
-            book3d.style.setProperty('--spine-img', `url("${coverSrc}")`);
-            book3d.style.setProperty('--spine-bg-size', `${bgWpct}% 100%`);
-            book3d.style.setProperty('--spine-bg-pos', 'left center');
-          }
-          // else: jacket fallback keeps --spine-color
+          deriveSpineTexture(book3d);
         };
         if (img && img.naturalWidth) {
           apply();
@@ -5753,7 +5765,8 @@
       if (!book) return;
 
       // Cover (renders the CSS jacket fallback if the image fails).
-      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id);
+      // Always use 3D book in detail modal for interactive viewing.
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true });
 
       detailTitle.textContent = book.title;
       detailAuthor.textContent = book.author;
@@ -5841,6 +5854,10 @@
       detailModal.style.animation = '';
       dismissing = false;
       detailModal.classList.add('active');
+      // Size the 3D book now that #detail-cover has a layout (display:flex).
+      // Doing it before .active leaves clientWidth at 0 -> default 85%×80%
+      // box + no spine texture -> gapped + flat colour.
+      if (window.sizeDetailBook3D) requestAnimationFrame(window.sizeDetailBook3D);
       // Reflect the open book in the URL (#book=<id>) so the page is
       // deep-linkable and Back/Forward toggle the modal. pushState adds a
       // history entry without firing hashchange (so no recursion), and we skip
@@ -6028,6 +6045,152 @@
     });
 
     // Lightweight focus trap while the detail modal is open.
+    detailModal.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = detailModal.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    // --- 3D Book in Detail Modal ---
+    // Desktop: hover tilt + gloss (reuse grid logic).
+    // Mobile: touch drag rotation + gloss + limited tilt.
+    (function initDetailBook3D() {
+      const detailCover = document.getElementById('detail-cover');
+      if (!detailCover) return;
+
+      // Size the 3D book when the modal opens (sizes to #detail-cover
+      // box and derives the cover's real left-edge pixels for the spine).
+      function sizeDetailBook3D() {
+        const book3d = detailCover.querySelector('.book3d');
+        if (!book3d) return;
+        const apply = () => { sizeBook3D(book3d); deriveSpineTexture(book3d); };
+        const img = book3d.querySelector('.book3d__front img');
+        if (!img) { apply(); return; }
+        if (img.complete && img.naturalWidth) {
+          apply();
+        } else {
+          img.addEventListener('load', apply, { once: true });
+          // Also handle detail images outside grid — lazy load may fire into
+          // a hidden detail-cover; observe the image until it decodes.
+          if (!img.complete) img.addEventListener('load', () => requestAnimationFrame(apply), { once: true });
+        }
+      }
+
+      // Desktop: hover tilt + gloss (only on fine pointer, no reduced motion).
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+          !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const MAX_X = 4;
+        const MAX_Y = 20;
+        let raf = null;
+
+        function reset(book3d) {
+          if (!book3d) return;
+          book3d.style.setProperty('--ry', '0deg');
+          book3d.style.setProperty('--rx', '0deg');
+          const g = book3d.querySelector('.book3d__gloss');
+          if (g) g.style.opacity = '0';
+        }
+
+        detailCover.addEventListener('pointermove', (e) => {
+          const book3d = detailCover.querySelector('.book3d');
+          if (!book3d) return;
+          const r = book3d.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          if (raf) return;
+          raf = requestAnimationFrame(() => {
+            const ry = (px - 0.5) * 2 * 20;
+            const rx = -(py - 0.5) * 2 * 4;
+            book3d.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+            book3d.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+            const gloss = book3d.querySelector('.book3d__gloss');
+            if (gloss) {
+              gloss.style.opacity = '1';
+              gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+              gloss.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+            }
+            raf = null;
+          });
+        });
+        detailCover.addEventListener('pointerleave', () => {
+          const book3d = detailCover.querySelector('.book3d');
+          reset(book3d);
+        });
+      }
+
+      // Mobile: touch drag rotation + gloss + limited tilt.
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        let rotateX = 0, rotateY = 0;
+        let dragStartX = 0, dragStartY = 0;
+        let dragging = false;
+
+        detailCover.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          const book3d = detailCover.querySelector('.book3d');
+          if (!book3d) return;
+          dragStartX = e.touches[0].clientX;
+          dragStartY = e.touches[0].clientY;
+          dragging = true;
+          book3d.style.transition = 'none';
+        }, { passive: true });
+
+        detailCover.addEventListener('touchmove', (e) => {
+          if (e.touches.length !== 1 || !dragging) return;
+          const book3d = detailCover.querySelector('.book3d');
+          if (!book3d) return;
+          e.preventDefault();
+          const r = book3d.getBoundingClientRect();
+          // Position on the cover -> desktop-style tilt, clamped to same limits
+          const px = Math.max(0, Math.min(1, (e.touches[0].clientX - r.left) / r.width));
+          const py = Math.max(0, Math.min(1, (e.touches[0].clientY - r.top) / r.height));
+          rotateY = (px - 0.5) * 2 * 33;
+          rotateX = -(py - 0.5) * 2 * 4;
+          // Desktop tilt is the entire motion on mobile (no free spin)
+          book3d.style.setProperty('--rx', rotateX.toFixed(2) + 'deg');
+          book3d.style.setProperty('--ry', rotateY.toFixed(2) + 'deg');
+          // Gloss follows the finger like desktop hover gloss follows the cursor
+          const gloss = book3d.querySelector('.book3d__gloss');
+          if (gloss) {
+            gloss.style.opacity = '1';
+            gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
+            gloss.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+          }
+        }, { passive: false });
+
+        function resetRotation(book3d) {
+          if (!book3d) return;
+          book3d.style.transition = 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)';
+          book3d.style.setProperty('--rx', '0deg');
+          book3d.style.setProperty('--ry', '0deg');
+          const gloss = book3d.querySelector('.book3d__gloss');
+          if (gloss) gloss.style.opacity = '0';
+        }
+
+        detailCover.addEventListener('touchend', () => {
+          const book3d = detailCover.querySelector('.book3d');
+          resetRotation(book3d);
+          dragging = false;
+        });
+
+        detailCover.addEventListener('touchcancel', () => {
+          const book3d = detailCover.querySelector('.book3d');
+          resetRotation(book3d);
+          dragging = false;
+        });
+      }
+
+      // Size the 3D book when modal opens (called from openReadOnlyModal).
+      window.sizeDetailBook3D = sizeDetailBook3D;
+    })();
     detailModal.addEventListener('keydown', (e) => {
       if (e.key !== 'Tab') return;
       const focusables = detailModal.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
