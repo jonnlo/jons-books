@@ -1146,7 +1146,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      cursor: grab;
+      cursor: pointer;
       position: relative;
       user-select: none;
       background-color: var(--bg-main);
@@ -1159,7 +1159,11 @@
 
     }
 
-    .book-card:active {
+    .sortable-row .book-card {
+      cursor: grab;
+    }
+
+    .sortable-row .book-card:active {
       cursor: grabbing;
     }
 
@@ -1178,10 +1182,10 @@
       background-color:var(--img-bg-hover);
     /* } */
     }
-    /* @media (hover: hover) and (pointer: fine) { */
+    @media (hover: hover) and (pointer: fine) {
     .book-card:hover .book3d {
       --book-scale: 1.05;
-    /* } */
+    }
     }
     .cover-container {
       border-radius: 12px;
@@ -1232,7 +1236,7 @@
     }
     @media (hover: hover) and (pointer: fine) {
     .book-card:hover .book3d__front {
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
     }
     .book3d__front .cover-img,
@@ -1251,8 +1255,8 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.25s ease;
-      background: radial-gradient(circle at var(--gx, 80%) var(--gy, 80%),
-                  rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%);
+      background: radial-gradient(circle at var(--gx, 200%) var(--gy, 300%),
+                  rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 70%);
       mix-blend-mode: screen;
     }
     .book3d__spine {
@@ -1492,7 +1496,7 @@
        starts the same frame an element goes from display:none to displayed,
        which made the modal appear suddenly with no transition. */
     .modal-overlay.anim-in {
-      animation: modal-fade-in 0.25s ease-in;
+      animation: modal-fade-in 0.2s ease-out;
     }
 
     @keyframes modal-fade-in {
@@ -3759,7 +3763,8 @@
     (function initBook3DTilt() {
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const MAX = 28; // degrees — keep in sync with the POC feel
+      const MAX_X = 4; // degrees — max vertical tilt (rotateX, py axis)
+      const MAX_Y = 20; // degrees — max horizontal tilt (rotateY, px axis)
       let raf = null;
       let lastBook = null;
 
@@ -3780,8 +3785,8 @@
         const py = (e.clientY - r.top) / r.height;   // 0..1
         if (raf) return;
         raf = requestAnimationFrame(() => {
-          const ry = (px - 0.5) * 2 * MAX;
-          const rx = -(py - 0.5) * 2 * MAX;
+          const ry = (px - 0.5) * 2 * MAX_Y;
+          const rx = -(py - 0.5) * 2 * MAX_X;
           book.style.setProperty('--ry', ry.toFixed(2) + 'deg');
           book.style.setProperty('--rx', rx.toFixed(2) + 'deg');
           const gloss = book.querySelector('.book3d__gloss');
@@ -5611,6 +5616,8 @@
       // Tags — initialize the chip editor from the book's tags.
       tagEditorTags = [...(book.tags || [])];
       tagEditorInput.value = '';
+      renderTagEditor();
+      modal.classList.add('active');
       void modal.offsetWidth;
       modal.classList.add('anim-in');
       formBaseline = snapshotFormState(); // baseline for unsaved-change detection
@@ -5619,10 +5626,6 @@
     function closeModal() {
       modal.classList.remove('active');
       modal.classList.remove('anim-in');
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
     }
 
     // Snapshot the book form's current values so we can detect unsaved changes

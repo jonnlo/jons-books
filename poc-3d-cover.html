@@ -9,7 +9,8 @@
     /* Default spine color (used if canvas extraction is blocked, e.g. file://) */
     --spine-color: #2b6cff;
     --depth: 30px;        /* book thickness */
-    --max-tilt: 28deg;    /* max tilt angle */
+    --max-tilt-x: 14deg;  /* max vertical tilt (rotateX) */
+    --max-tilt-y: 28deg;  /* max horizontal tilt (rotateY) */
   }
   * { box-sizing: border-box; }
   body {
@@ -117,7 +118,8 @@
   const book  = document.getElementById('book');
   const gloss = document.getElementById('gloss');
   const img   = document.getElementById('coverImg');
-  const MAX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--max-tilt')) || 14;
+  const MAX_X = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--max-tilt-x')) || 14;
+  const MAX_Y = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--max-tilt-y')) || 28;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let raf = null;
 
@@ -128,8 +130,8 @@
     const py = (e.clientY - r.top)  / r.height;  // 0..1
     if (raf) return;
     raf = requestAnimationFrame(() => {
-      const ry = (px - 0.5) * 2 * MAX;
-      const rx = -(py - 0.5) * 2 * MAX;
+      const ry = (px - 0.5) * 2 * MAX_Y;
+      const rx = -(py - 0.5) * 2 * MAX_X;
       book.style.setProperty('--ry', ry.toFixed(2) + 'deg');
       book.style.setProperty('--rx', rx.toFixed(2) + 'deg');
       gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
