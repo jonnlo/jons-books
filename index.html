@@ -3785,13 +3785,15 @@
     const viewRoadmapBtn = document.getElementById('view-roadmap-btn');
     const bookGrid = document.getElementById('book-grid');
 
-    // 3D book hover: cursor-following tilt + gloss sheen on covers.
+    // 3D book hover: cursor-following tilt + gloss sheen on covers (grid + volumes rows).
     // Delegated on bookGrid so it survives grid/roadmap re-renders (innerHTML swaps).
+    // TUNE: MAX_X = max vertical tilt (rotateX, ±MAX_X° at top/bottom edge);
+    //       MAX_Y = max horizontal tilt (rotateY, ±MAX_Y° at left/right edge).
     (function initBook3DTilt() {
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const MAX_X = 4; // degrees — max vertical tilt (rotateX, py axis)
-      const MAX_Y = 40; // degrees — max horizontal tilt (rotateY, px axis)
+      const MAX_X = 4; // degrees — try 6-8 for steeper vertical tilt
+      const MAX_Y = 35; // degrees — try 54 for dramatic card hover
       let raf = null;
       let lastBook = null;
 
@@ -6103,11 +6105,14 @@
         }
       }
 
-      // Desktop: hover tilt + gloss (only on fine pointer, no reduced motion).
+      // Desktop detail hover — cursor-following tilt + gloss.
+      // TUNE: MAX_X = max vertical tilt (rotateX, ±MAX_X° at top/bottom edge);
+      //       MAX_Y = max horizontal tilt (rotateY, ±MAX_Y° at left/right edge).
+      // Only on fine pointer + no reduced motion (matches grid's initBook3DTilt).
       if (window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
           !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const MAX_X = 4;
-        const MAX_Y = 20;
+        const MAX_X = 4;  // vertical tilt degrees — try 6-8 for steeper
+        const MAX_Y = 40; // horizontal tilt degrees — try 30-40 for steeper
         let raf = null;
 
         function reset(book3d) {
@@ -6126,8 +6131,9 @@
           const py = (e.clientY - r.top) / r.height;
           if (raf) return;
           raf = requestAnimationFrame(() => {
-            const ry = (px - 0.5) * 2 * 20;
-            const rx = -(py - 0.5) * 2 * 4;
+            // px/py 0..1 on the cover -> tilt clamped to ±MAX_X/±MAX_Y.
+            const ry = (px - 0.5) * 2 * MAX_Y;  // mirrors MAX_Y above
+            const rx = -(py - 0.5) * 2 * MAX_X;  // mirrors MAX_X above (inverted)
             book3d.style.setProperty('--ry', ry.toFixed(2) + 'deg');
             book3d.style.setProperty('--rx', rx.toFixed(2) + 'deg');
             const gloss = book3d.querySelector('.book3d__gloss');
@@ -6145,7 +6151,10 @@
         });
       }
 
-      // Mobile: touch drag rotation + gloss + limited tilt.
+      // Mobile detail touch — finger position -> desktop-style tilt.
+      // TUNE: clamp/tilt uses same MAX_X (4°) / MAX_Y (20°) as desktop hover;
+      //       change those consts above to widen/narrow. Formula mirrors desktop:
+      //       py 0..1 -> rotateX -(py-0.5)*2*MAX_X, px 0..1 -> rotateY (px-0.5)*2*MAX_Y.
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         let rotateX = 0, rotateY = 0;
         let dragStartX = 0, dragStartY = 0;
