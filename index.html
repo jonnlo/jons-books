@@ -3793,7 +3793,7 @@
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const MAX_X = 4; // degrees — try 6-8 for steeper vertical tilt
-      const MAX_Y = 35; // degrees — try 54 for dramatic card hover
+      const MAX_Y = 15; // degrees — try 54 for dramatic card hover
       let raf = null;
       let lastBook = null;
 
@@ -6179,7 +6179,7 @@
           // Position on the cover -> desktop-style tilt, clamped to same limits
           const px = Math.max(0, Math.min(1, (e.touches[0].clientX - r.left) / r.width));
           const py = Math.max(0, Math.min(1, (e.touches[0].clientY - r.top) / r.height));
-          rotateY = (px - 0.5) * 2 * 33;
+          rotateY = (px - 0.5) * 2 * 40;
           rotateX = -(py - 0.5) * 2 * 4;
           // Desktop tilt is the entire motion on mobile (no free spin)
           book3d.style.setProperty('--rx', rotateX.toFixed(2) + 'deg');
