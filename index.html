@@ -4863,7 +4863,7 @@
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -4888,7 +4888,7 @@
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container">
             <span class="order-badge" title="Reading order in stage">${book.readingOrder}</span>
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: true })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
