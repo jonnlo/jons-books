@@ -1251,8 +1251,8 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.25s ease;
-      background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
-                  rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 55%);
+      background: radial-gradient(circle at var(--gx, 80%) var(--gy, 80%),
+                  rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%);
       mix-blend-mode: screen;
     }
     .book3d__spine {
@@ -1282,7 +1282,8 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(90deg,
-                  rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.08) 42%, rgba(0, 0, 0, 0.14));
+                  rgba(0, 0, 0, 0.42), rgba(255, 255, 255, 0.08) 62%, rgba(0, 0, 0, 0.06));
+      mix-blend-mode: overlay;
       border-radius: 2px;
       pointer-events: none;
     }
