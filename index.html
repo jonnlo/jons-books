@@ -1257,18 +1257,26 @@
       height: 100%;
       transform-origin: left center;
       transform: rotateY(-90deg) translateX(calc(var(--book-depth) / -2));
-      /* --spine-img = the spine texture, derived purely in CSS from the cover's
-         left edge. JS sets it to the cover URL and sizes the background so the
-         LEFTMOST N pixels fill the spine (background-size % is relative to this
-         spine box, so (cw/N)*100% maps the leftmost N px onto the full width).
-         No canvas, so it works on every origin (http, https, file://) and is
-         GPU-composited. Falls back to --spine-color for jacket books (no cover). */
-      background-image: var(--spine-img, none);
-      background-size: var(--spine-bg-size, 100% 100%);
-      background-position: var(--spine-bg-pos, center);
       background-color: var(--spine-color, #555a66);
       box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
       border-radius: 2px;
+      overflow: hidden;
+    }
+    /* Spine texture isolated on ::before so blur doesn't soften the shading overlay.
+       JS sets --spine-img to the cover URL and --spine-bg-size to (cw/3)*100% so
+       the leftmost 3px stretch across the spine. Blur hides stretch banding.
+       No canvas — works on http/https/file:// and stays GPU-composited. */
+    .book3d__spine::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background-image: var(--spine-img, none);
+      background-size: var(--spine-bg-size, 100% 100%);
+      background-position: var(--spine-bg-pos, center);
+      background-repeat: no-repeat;
+      filter: blur(1.5px);
+      border-radius: 2px;
+      pointer-events: none;
     }
     /* Subtle cylindrical shading as a separate layer so it doesn't fight the
        image — a soft dark edge with a faint highlight, kept light so the
