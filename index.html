@@ -3809,9 +3809,12 @@
         const book = e.target.closest('.book3d');
         if (book !== lastBook) { reset(lastBook); lastBook = book; }
         if (!book) return;
-        const r = book.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width;   // 0..1
-        const py = (e.clientY - r.top) / r.height;   // 0..1
+        // Anchor to the stable container (untransformed) — measuring the
+        // rotating book's own rect shrinks as it tilts (w*cos) and feeds back.
+        const container = book.closest('.cover-container') || book;
+        const r = container.getBoundingClientRect();
+        const px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+        const py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
         if (raf) return;
         raf = requestAnimationFrame(() => {
           const ry = (px - 0.5) * 2 * MAX_Y;
@@ -6129,9 +6132,9 @@
         detailCover.addEventListener('pointermove', (e) => {
           const book3d = detailCover.querySelector('.book3d');
           if (!book3d) return;
-          const r = book3d.getBoundingClientRect();
-          const px = (e.clientX - r.left) / r.width;
-          const py = (e.clientY - r.top) / r.height;
+          const r = detailCover.getBoundingClientRect();
+          const px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+          const py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
           if (raf) return;
           raf = requestAnimationFrame(() => {
             // px/py 0..1 on the cover -> tilt clamped to ±MAX_X/±MAX_Y.
@@ -6175,8 +6178,7 @@
           const book3d = detailCover.querySelector('.book3d');
           if (!book3d) return;
           e.preventDefault();
-          const r = book3d.getBoundingClientRect();
-          // Position on the cover -> desktop-style tilt, clamped to same limits
+          const r = detailCover.getBoundingClientRect();
           const px = Math.max(0, Math.min(1, (e.touches[0].clientX - r.left) / r.width));
           const py = Math.max(0, Math.min(1, (e.touches[0].clientY - r.top) / r.height));
           rotateY = (px - 0.5) * 2 * DETAIL_TILT_MAX_Y;
