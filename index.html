@@ -6086,6 +6086,9 @@
     (function initDetailBook3D() {
       const detailCover = document.getElementById('detail-cover');
       if (!detailCover) return;
+      // Shared tilt limits degrees for desktop hover + mobile drag — one place to tune.
+      const DETAIL_TILT_MAX_X = 4;  // ±° vertical (rotateX)
+      const DETAIL_TILT_MAX_Y = 40; // ±° horizontal (rotateY)
 
       // Size the 3D book when the modal opens (sizes to #detail-cover
       // box and derives the cover's real left-edge pixels for the spine).
@@ -6111,8 +6114,8 @@
       // Only on fine pointer + no reduced motion (matches grid's initBook3DTilt).
       if (window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
           !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const MAX_X = 4;  // vertical tilt degrees — try 6-8 for steeper
-        const MAX_Y = 40; // horizontal tilt degrees — try 30-40 for steeper
+        const MAX_X = DETAIL_TILT_MAX_X;
+        const MAX_Y = DETAIL_TILT_MAX_Y;
         let raf = null;
 
         function reset(book3d) {
@@ -6151,10 +6154,7 @@
         });
       }
 
-      // Mobile detail touch — finger position -> desktop-style tilt.
-      // TUNE: clamp/tilt uses same MAX_X (4°) / MAX_Y (20°) as desktop hover;
-      //       change those consts above to widen/narrow. Formula mirrors desktop:
-      //       py 0..1 -> rotateX -(py-0.5)*2*MAX_X, px 0..1 -> rotateY (px-0.5)*2*MAX_Y.
+      // Mobile detail touch — finger position -> desktop-style tilt (same DETAIL_TILT_MAX_*).
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         let rotateX = 0, rotateY = 0;
         let dragStartX = 0, dragStartY = 0;
@@ -6179,9 +6179,8 @@
           // Position on the cover -> desktop-style tilt, clamped to same limits
           const px = Math.max(0, Math.min(1, (e.touches[0].clientX - r.left) / r.width));
           const py = Math.max(0, Math.min(1, (e.touches[0].clientY - r.top) / r.height));
-          rotateY = (px - 0.5) * 2 * 40;
-          rotateX = -(py - 0.5) * 2 * 4;
-          // Desktop tilt is the entire motion on mobile (no free spin)
+          rotateY = (px - 0.5) * 2 * DETAIL_TILT_MAX_Y;
+          rotateX = -(py - 0.5) * 2 * DETAIL_TILT_MAX_X;
           book3d.style.setProperty('--rx', rotateX.toFixed(2) + 'deg');
           book3d.style.setProperty('--ry', rotateY.toFixed(2) + 'deg');
           // Gloss follows the finger like desktop hover gloss follows the cursor
