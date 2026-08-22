@@ -3311,6 +3311,7 @@
     const LAST_MODIFIED_KEY = 'personal_library_last_modified';
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
     const STATUS_CLEANUP_KEY = 'personal_library_status_cleanup_v1';
+    const ORDER_CLEANUP_KEY = 'personal_library_order_cleanup_v1';
 
     // Public / View-Only Mode — on the published site we load books.json
     // (the committed source of truth, staged by the deploy workflow) and hide editing.
@@ -3467,6 +3468,33 @@
       return migrated;
     }
 
+    // Renumber EVERY stage 1..n. The stable sort preserves each stage's
+    // existing relative order, so nothing visibly reshuffles. A no-op on
+    // already-clean data, hence safe to run unguarded (e.g. on imports).
+    function normalizeAllReadingOrders(booksArray) {
+      const groups = new Map();
+      booksArray.forEach(b => {
+        const k = `${b.volumeNumber}:${b.stageNumber}`;
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(b);
+      });
+      groups.forEach(list => {
+        list.sort((a, b) => a.readingOrder - b.readingOrder)
+            .forEach((b, i) => { b.readingOrder = i + 1; });
+      });
+      return booksArray;
+    }
+
+    // One-time migration: earlier versions left gaps and duplicate reading
+    // orders behind when a book was moved between stages (or deleted) via the
+    // edit modal. Heal pre-fix localStorage copies once per browser.
+    function migrateReadingOrders(booksArray) {
+      if (localStorage.getItem(ORDER_CLEANUP_KEY)) return booksArray;
+      normalizeAllReadingOrders(booksArray);
+      localStorage.setItem(ORDER_CLEANUP_KEY, '1');
+      return booksArray;
+    }
+
     // LocalStorage Operations
     // Prefer existing localStorage. On a fresh start (no usable stored data) we
     // bootstrap from the committed books.json when it's reachable (e.g. served
@@ -3477,7 +3505,7 @@
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const data = migrateLegacyToRead(parsed.map(normalizeBook));
+            const data = migrateReadingOrders(migrateLegacyToRead(parsed.map(normalizeBook)));
             // Persist the cleanup so it survives reloads even without a later save.
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             return data;
@@ -3497,7 +3525,7 @@
           try {
             const data = await readBooksJsonData();
             if (Array.isArray(data) && data.length > 0) {
-              const seeded = migrateLegacyToRead(data.map(normalizeBook));
+              const seeded = migrateReadingOrders(migrateLegacyToRead(data.map(normalizeBook)));
               localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
               localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
               return seeded;
@@ -3518,7 +3546,7 @@
         if (response.ok) {
           const parsed = await response.json();
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const seeded = migrateLegacyToRead(parsed.map(normalizeBook));
+            const seeded = migrateReadingOrders(migrateLegacyToRead(parsed.map(normalizeBook)));
             localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
             // Matches the committed books.json — no export reminder needed.
             localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -5628,7 +5656,14 @@
       } else {
         populateVolumeDropdown('__new__');
       }
-      inputReadingOrder.value = (books.length + 1);
+      // Suggest appending at the end of the preselected stage, not a global
+      // count — matches addNewBookToStage. The submit path clamps anyway.
+      const selVol = parseInt(inputVolSelect.value);
+      const selStage = parseInt(inputStageSelect.value);
+      const selStageBooks = books.filter(b => b.volumeNumber === selVol && b.stageNumber === selStage);
+      inputReadingOrder.value = selStageBooks.length > 0
+        ? Math.max(...selStageBooks.map(b => b.readingOrder)) + 1
+        : 1;
 
       deleteBookBtn.style.display = "none";
       modal.classList.add('active');
@@ -6241,6 +6276,34 @@
       }
     });
 
+    // Renumber one stage's books 1..n, preserving their current relative
+    // order. Used after a book leaves a stage (moved via the edit modal, or
+    // deleted) so the remaining books close the gap instead of starting at #2.
+    function renumberStage(volNum, stageNum) {
+      books
+        .filter(b => b.volumeNumber === volNum && b.stageNumber === stageNum)
+        .sort((a, b) => a.readingOrder - b.readingOrder)
+        .forEach((b, i) => { b.readingOrder = i + 1; });
+    }
+
+    // Treat the form's reading-order value as the POSITION the book should
+    // hold in its (possibly new) stage. The stage's other books — the moving
+    // book is already excluded by the caller — are rebuilt around it: splice
+    // it into the sorted list at that position, then renumber 1..n. One
+    // mechanism covers every case: brand-new books, cross-stage arrivals, and
+    // same-stage moves in EITHER direction (on a forward move the displaced
+    // neighbour slides up into the gap the mover left). Orders stay contiguous
+    // and unique. Does NOT insert the book into `books`; the caller places it
+    // (preserving array position).
+    function placeBookAtOrder(book, requestedOrder) {
+      const others = books
+        .filter(b => b.volumeNumber === book.volumeNumber && b.stageNumber === book.stageNumber)
+        .sort((a, b) => a.readingOrder - b.readingOrder);
+      const pos = Math.max(1, Math.min(requestedOrder || others.length + 1, others.length + 1));
+      others.splice(pos - 1, 0, book);
+      others.forEach((b, i) => { b.readingOrder = i + 1; });
+    }
+
     bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = inputId.value;
@@ -6312,10 +6375,24 @@
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
       });
 
+      // Reading-order integrity: remove the old record first so its old slot
+      // doesn't take part in the ordering, place the saved book at the
+      // requested position of its (possibly new) stage — siblings shift to
+      // make room — and renumber the stage it left so no gap remains.
+      const requestedOrder = parseInt(inputReadingOrder.value) || 0;
+
       if (id) {
         const idx = books.findIndex(b => b.id === id);
-        if (idx !== -1) books[idx] = bookData;
+        if (idx !== -1) {
+          const previous = books[idx];
+          const leftStage = previous.volumeNumber !== volumeNumber || previous.stageNumber !== stageNumber;
+          books.splice(idx, 1);
+          placeBookAtOrder(bookData, requestedOrder);
+          books.splice(idx, 0, bookData);
+          if (leftStage) renumberStage(previous.volumeNumber, previous.stageNumber);
+        }
       } else {
+        placeBookAtOrder(bookData, requestedOrder);
         books.unshift(bookData);
       }
 
@@ -6327,7 +6404,9 @@
     deleteBookBtn.addEventListener('click', () => {
       const id = inputId.value;
       if (id && confirm("Are you sure you want to remove this book from your catalog?")) {
+        const victim = books.find(b => b.id === id);
         books = books.filter(b => b.id !== id);
+        if (victim) renumberStage(victim.volumeNumber, victim.stageNumber); // close the gap left behind
         saveBooksToStorage(books);
         closeModal();
         renderBooks();
@@ -6768,7 +6847,10 @@
         );
         if (!ok) return false;
       }
-      books = parsed.map(normalizeBook); // ids are preserved from the file.
+      // Normalize reading orders on import too — a stale backup (pre-fix
+      // export, old bkup/*.json) may carry gaps or duplicates; the one-time
+      // migration flag won't fire again, so imports get the same heal.
+      books = normalizeAllReadingOrders(parsed.map(normalizeBook)); // ids are preserved from the file.
       saveBooksToStorage(books);
       // After importing books.json, the library matches an exported file — no reminder.
       localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -7069,7 +7151,8 @@
     function applyFirstRunData(data) {
       try {
         if (!Array.isArray(data) || data.length === 0) throw new Error('empty catalog');
-        books = data.map(normalizeBook);
+        // A picked file may predate the reading-order fix — normalize on the way in.
+        books = normalizeAllReadingOrders(data.map(normalizeBook));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
         localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
         hideFirstRunBanner();
