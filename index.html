@@ -1285,15 +1285,24 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg,
-                  rgba(0, 0, 0, 0.42), rgba(255, 255, 255, 0.08) 62%, rgba(0, 0, 0, 0.06));
+      /* background: linear-gradient(90deg,
+                  rgba(0, 0, 0, 0.42), rgba(255, 255, 255, 0.08) 62%, rgba(0, 0, 0, 0.06)); */
+    background:linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.5) 0%,         /* Deep shadow curving around the back */
+    rgba(0, 0, 0, 0.1) 20%,        /* Soft shadow transition */
+    rgba(255, 255, 255, 0) 45%,    /* Neutral mid-tone */
+    rgba(255, 255, 255, 0.3) 78%,  /* Specular light highlight */
+    rgba(0, 0, 0, 0.45) 92%,       /* Physical hinge shadow */
+    rgba(255, 255, 255, 0.2) 100%  /* Outer edge catch-light */
+  );
       mix-blend-mode: overlay;
       border-radius: 2px;
       pointer-events: none;
     }
     .book3d__pages {
       /* Top/bottom faces: page lines run horizontally (parallel to spine). */
-      background: repeating-linear-gradient(0deg, hsl(52, 25%, 85%) 0 3px, hsl(53, 34%, 70%) 3px 5px);
+      background: repeating-linear-gradient(0deg, hsl(52, 20%, 85%) 0 3px, hsl(52, 2%, 80%) 3px 4.5px);
     }
     .book3d__pages--right {
       top: 0; right: 0;
@@ -1302,8 +1311,19 @@
       transform-origin: right center;
       transform: rotateY(90deg) translateX(calc(var(--book-depth) / 2));
       /* Right face: page lines run vertically (parallel to spine). */
-      background: repeating-linear-gradient(90deg, hsl(52, 25%, 85%) 0 3px, hsl(53, 34%, 70%) 3px 5px);
+      background: repeating-linear-gradient(90deg, hsl(52, 20%, 85%) 0 3px, hsl(52, 2%, 80%) 3px 4.5px);
       border-radius: 2px;
+    }
+    .book3d__pages--right::after {
+      /*pages shadow*/
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(-90deg,
+                  rgba(0, 0, 0, 0.42), rgba(255, 255, 255, 0.08) 62%, rgba(0, 0, 0, 0.06));
+      mix-blend-mode: overlay;
+      border-radius: 2px;
+      pointer-events: none;
     }
     .book3d__pages--top {
       top: 0; left: 0;
