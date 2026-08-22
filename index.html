@@ -5415,12 +5415,13 @@
       const filtered = computeFilteredBooks();
 
       // Random-sort / Surprise button state. The shuffle button is always
-      // available in the grid — clicking it enters Random mode (or reshuffles
-      // if already random); it's hidden in the roadmap, where Random is a
-      // no-op (regroups by Volume → Stage). Its active state + tooltip reflect
+      // visible in BOTH views — clicking it enters Random mode (or reshuffles
+      // if already random) and, from Volumes, first switches to Grid so the
+      // new order is actually visible (the roadmap regroups by Volume → Stage,
+      // making Random a no-op there). Its active state + tooltip reflect
       // whether Random is currently engaged.
       const inRandom = sortVal === 'random';
-      shuffleBtn.hidden = currentView !== 'grid';
+      shuffleBtn.hidden = false;
       shuffleBtn.classList.toggle('active', inRandom);
       shuffleBtn.title = inRandom ? 'Reshuffle' : 'Shuffle (Random order)';
       shuffleBtn.setAttribute('aria-label', shuffleBtn.title);
@@ -6695,10 +6696,16 @@
     });
 
     // Shuffle: auto-select Random in the sort dropdown, or reshuffle if already
-    // in Random mode — regenerate the cached order either way.
+    // in Random mode — regenerate the cached order either way. From Volumes,
+    // switch to Grid first (via the grid button's own handler) so the shuffled
+    // order is actually visible instead of being silently regrouped away.
     shuffleBtn.addEventListener('click', () => {
       sortSelect.value = 'random';
       shuffledIds = null;
+      if (currentView !== 'grid') {
+        viewGridBtn.click(); // renders with Random set + lands at the first books
+        return;
+      }
       renderBooks();
       // If the user has scrolled past the sticky point, land at the new first
       // book so the reshuffle is actually visible (no-op near the top, and
