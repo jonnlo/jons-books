@@ -1,5 +1,28 @@
 [
   {
+    "id": "1787417366258",
+    "title": "Playing to the Gallery: Helping Contemporary Art in its Struggle to Be Understood",
+    "author": "Grayson Perry",
+    "volumeNumber": 2,
+    "volumeName": "The Observer",
+    "stageNumber": 1,
+    "stageName": "Learning to See",
+    "readingOrder": 5,
+    "year": "2016",
+    "status": "",
+    "engine": "None",
+    "cover": "covers/1787417366258.jpg",
+    "notes": "",
+    "summary": "Now Grayson Perry is a fully paid-up member of the art establishment, he wants to show that any of us can appreciate art (after all, there is a reason he''s called this book Playing to the Gallery and not ''Sucking up to an Academic Elite''). Based on his hugely popular BBC Radio 4 Reith Lectures and full of pictures, this funny, personal journey through the art world answers the basic questions that might occur to us in an art gallery but seem too embarrassing to ask.",
+    "isbn": "9780141979618",
+    "pages": 144,
+    "tags": [
+      "art",
+      "society",
+      "essays"
+    ]
+  },
+  {
     "id": "1787338320175",
     "title": "Limitarianism: The Case Against Extreme Wealth",
     "author": "Ingrid Robeyns",
@@ -963,7 +986,8 @@
     "pages": 176,
     "tags": [
       "creativity",
-      "philosophy"
+      "philosophy",
+      "art"
     ]
   },
   {
@@ -1007,7 +1031,8 @@
     "pages": 160,
     "tags": [
       "creativity",
-      "essays"
+      "essays",
+      "art"
     ]
   },
   {
@@ -1205,7 +1230,8 @@
     "pages": 160,
     "tags": [
       "creativity",
-      "self-help"
+      "self-help",
+      "art"
     ]
   },
   {
@@ -1227,7 +1253,8 @@
     "pages": 224,
     "tags": [
       "creativity",
-      "self-help"
+      "self-help",
+      "art"
     ]
   },
   {
@@ -1249,7 +1276,8 @@
     "pages": 211,
     "tags": [
       "creativity",
-      "self-help"
+      "self-help",
+      "art"
     ]
   },
   {
@@ -1271,7 +1299,8 @@
     "pages": 306,
     "tags": [
       "creativity",
-      "self-help"
+      "self-help",
+      "art"
     ]
   },
   {
@@ -1293,7 +1322,8 @@
     "pages": 278,
     "tags": [
       "creativity",
-      "work"
+      "work",
+      "art"
     ]
   },
   {
@@ -1594,9 +1624,9 @@
     "engine": "None",
     "cover": "covers/1785755389555tvx41.jpg",
     "notes": "",
-    "summary": "",
+    "summary": "Over the course of her popular podcast’s fifteen-year reign, Debbie Millman has interviewed more than 400 creative minds. In those conversations, she has not only explored what it means to design a creative life, but has, as Millman’s wife, Roxane Gay, assesses in her foreword, “created a gloriously interesting and ongoing conversation about what it means to live well, overcome trauma, face rejection, learn to love and be loved, and thrive both personally and professional.”\n\nIn this illustrated, curated anthology, Millman includes approximately 80 of her best interviews with visionaries from across diverse fields. Grouped by category—Legends, Truth Tellers, Culture Makers, Trendsetters, and Visionaries—these eye-opening, entertaining, and enlightening conversations—offer insights into new ways of being and living.\n\nAccompanying each entry is a brief biography, a portrait photographed by Millman, and a pull quote written in Millman’s artistic hand. Why Design Matters features 100 images and includes interviews with:\n\nMarina Abramovic, Cey Adams, Elizabeth Alexander, Laurie Anderson, Lynda Barry, Allison Bechdel, Michael Bierut, Brené Brown, Alain de Botton, Eve Ensler, Shepard Fairey, Tim Ferriss, Louise Fili, Kenny Fries, Anand Girhidardas, Cindy Gallop, Malcolm Gladwell, Milton Glaser, Ira Glass, Seth Godin, Thelma Golden, Gabrielle Hamilton, Steven Heller, Jessica Hische, Michael R. Jackson, Oliver Jeffers, Saeed Jones, Thomas Kail, Maira Kalman, Chip Kidd, Anne Lamott, Elle Luna, Carmen Maria Machado, Thomas Page McBee, Erin McKeown, Chanel Miller, Mike Mills, Marilyn Minter, Isaac Mizrahi, Nico Muhly, Eileen Myles, Emily Oberman, Amanda Palmer, Priya Parker, Esther Perel, Maria Popova, Edel Rodriguez, Paula Scher, Amy Sherald, Simon Sinek, Pete Souza, Aminatou Sow, Brandon Stanton, Cheryl Strayed, Amber Tamblyn, Christina Tosi, Tea Uglow, Chris Ware, and Albert Watson.",
     "isbn": "9780062872982",
-    "pages": 320,
+    "pages": 363,
     "tags": [
       "design",
       "creativity"
