@@ -1919,6 +1919,37 @@
       text-align: right;
     }
 
+    /* Clickable Volume / Stage values in the detail modal — tap to jump to
+       that volume/stage in Volumes view. A dotted underline marks the link. */
+    .detail-meta-link {
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      overflow-wrap: anywhere;
+      line-height: 1.4;
+      justify-self: end;
+      text-align: right;
+      cursor: pointer;
+      display: inline;
+      border-radius: 6px;
+      max-width: 100%;
+      text-decoration: underline dotted var(--text-muted);
+      text-underline-offset: 3px;
+      transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    }
+    .detail-meta-link:hover {
+      color: var(--border-accent);
+      text-decoration-color: var(--border-accent);
+    }
+    .detail-meta-link:focus-visible {
+      outline: 2px solid var(--border-accent);
+      outline-offset: 2px;
+    }
+
     .detail-links {
       display: flex;
       gap: 8px;
@@ -2071,6 +2102,9 @@
       border-radius: 0;
       padding: 0;
       /* margin-bottom: 36px; */
+      /* Detail-modal jump clearance (jumpToVolumeStage → scrollIntoView):
+         the landed volume header sits 4px below the viewport top. */
+      scroll-margin-top: 4px;
     }
 
     .volume-header {
@@ -2116,6 +2150,10 @@
       border-radius: 0;
       padding: 0;
       /* margin-bottom: 24px; */
+      /* Detail-modal jump clearance: must clear the sticky volume header
+         pinned at top:0 (~52px tall on desktop) plus a small gap, so the
+         landed stage header is visible instead of hidden behind it. */
+      scroll-margin-top: 72px;
     }
 
     .stage-header {
@@ -2253,7 +2291,7 @@
     }
     .stage-row .book-info {
       padding: 10px 7px;
-      min-height: 102px;
+      min-height: 132px;
     }
     .stage-row .book-title {
       font-size: 0.95rem;
@@ -2597,7 +2635,10 @@
         font-size: 0.7rem;
         padding: 2px 8px;
       }
-
+      .stage-row .book-info{
+        padding: 8px 6px;
+        min-height: 110px;
+      }
       .book-info {
         padding: 8px 6px;
         min-height: 0px;
@@ -2648,6 +2689,12 @@
       .stage-header {
         font-size: 0.85rem;
         min-height: 56px;
+      }
+
+      /* Taller sticky volume header on mobile (min-height 64px) needs more
+         jump clearance than the desktop 72px. */
+      .stage-block {
+        scroll-margin-top: 84px;
       }
 
       .volume-title-group,
@@ -3255,11 +3302,11 @@
           <div class="detail-meta">
             <div class="detail-meta-row">
               <span class="detail-meta-label">Volume</span>
-              <span class="detail-meta-value" id="detail-volume"></span>
+              <button type="button" class="detail-meta-link" id="detail-volume"></button>
             </div>
             <div class="detail-meta-row">
               <span class="detail-meta-label">Stage</span>
-              <span class="detail-meta-value" id="detail-stage"></span>
+              <button type="button" class="detail-meta-link" id="detail-stage"></button>
             </div>
             <div class="detail-meta-row">
               <span class="detail-meta-label">Reading Order</span>
@@ -5842,6 +5889,64 @@
       renderBooks();
     });
 
+    // Clicking Volume / Stage in the detail modal jumps to that spot in
+    // Volumes (roadmap) view. Volume clicks land on the volume header;
+    // stage clicks land on the stage header inside that volume.
+    detailModal.addEventListener('click', (e) => {
+      const link = e.target.closest('.detail-meta-link');
+      if (!link) return;
+      const volNum = parseInt(link.dataset.vol);
+      const stageNum = parseInt(link.dataset.stage);
+      if (!volNum) return;
+      closeDetailModal();
+      jumpToVolumeStage(volNum, stageNum || null);
+    });
+
+    function jumpToVolumeStage(volNum, stageNum) {
+      // Ensure the roadmap view is active.
+      if (currentView !== 'roadmap') {
+        currentView = 'roadmap';
+        document.body.classList.add('view-roadmap');
+        closeFilterPanel();
+        viewRoadmapBtn.classList.add('active');
+        viewRoadmapBtn.setAttribute('aria-pressed', 'true');
+        viewGridBtn.classList.remove('active');
+        viewGridBtn.setAttribute('aria-pressed', 'false');
+      }
+      // Expand the target volume if collapsed.
+      const volKey = `vol-${volNum}`;
+      if (collapsedVolumes.has(volKey)) {
+        collapsedVolumes.delete(volKey);
+        saveCollapsedStates();
+      }
+      renderBooks();
+      // Scroll via scrollIntoView — the browser resolves the target position
+      // atomically at scroll time, so there's no measure-then-scroll race
+      // when a collapsed volume just expanded and shifted the layout (the old
+      // getBoundingClientRect + scrollTo math could land at a stale spot).
+      // Landing clearances live in CSS as scroll-margin-top on the targets:
+      // .volume-section 4px / .stage-block 72px desktop, 84px mobile (clears
+      // the sticky volume header pinned at top:0). The section is targeted
+      // for volume jumps — never sticky itself, so its rect is always its
+      // true position (a stuck header would report top:0).
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const selector = stageNum
+            ? `.volume-section[data-vol-num="${volNum}"] .stage-block[data-stage-num="${stageNum}"]`
+            : `.volume-section[data-vol-num="${volNum}"]`;
+          const target = document.querySelector(selector);
+          if (!target) return;
+          // Reset the velocity baseline so the programmatic jump isn't read
+          // as a user flick (which would wrongly reveal the filter bar).
+          scrollSamples.length = 0;
+          lastScrollY = window.scrollY;
+          lastScrollDir = 'down';
+          syncStickyBar();
+          target.scrollIntoView({ block: 'start' });
+        });
+      });
+    }
+
     const ENGINE_COLORS = {
       'Engine 1: Deep Focus': 'var(--engine-1)',
       'Engine 2: Complementary': 'var(--engine-2)',
@@ -5892,8 +5997,12 @@
       }
 
       // Volume / stage — the label carries the "Volume" / "Stage" word, so the
-      // value just shows the number + name.
+      // value just shows the number + name. Rendered as clickable buttons that
+      // jump to the matching volume/stage in Volumes view on click.
+      detailVolume.dataset.vol = book.volumeNumber;
       detailVolume.textContent = `${book.volumeNumber} / ${book.volumeName}`;
+      detailStage.dataset.vol = book.volumeNumber;
+      detailStage.dataset.stage = book.stageNumber;
       detailStage.textContent = `${book.stageNumber} / ${book.stageName}`;
       detailOrder.textContent = `#${book.readingOrder} in stage`;
       detailYear.textContent = book.year || '—';
