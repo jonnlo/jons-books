@@ -1491,6 +1491,14 @@
       opacity: 0;
       transition: opacity 0.2s ease-out, display 0.2s ease-out;
       transition-behavior: allow-discrete;
+      /* iOS standalone (Home Screen): the viewport extends under the status
+         bar / home indicator, so reserve those insets as padding. Flexbox then
+         centers every modal INSIDE the safe area. Insets are 0 in normal
+         browser chrome, so this is a no-op outside Home-Screen installs.
+         Background still paints across the padding, so the dim/blur keeps
+         covering the full screen. */
+      padding-top: calc(env(safe-area-inset-top, 0px) + 12px);
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
     }
 
     .modal-overlay.active {
@@ -1516,7 +1524,10 @@
       border-radius: 16px;
       width: 94%;
       max-width: 680px;
-      max-height: 90vh;
+      /* Never taller than the safe area: min() keeps the desktop 90vh cap but
+         shrinks the card on standalone iOS/iPadOS where dvh spans under the
+         status bar + home indicator. */
+      max-height: min(90vh, calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px));
       overflow-y: auto;
       padding: 24px;
       /* box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); */
@@ -2512,8 +2523,11 @@
         margin-bottom: 8px;
       }
 
+      /* Fit inside the overlay's safe-area padding — a bare 95dvh overflows
+         it on Home-Screen installs, pushing the card's top edge under the
+         status bar. Keep dvh; just subtract the insets + breathing room. */
       .modal-content{
-        max-height: 95dvh;
+        max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px);
       }
 
       .engine-book-author {
@@ -3135,7 +3149,7 @@
           </div>
 
           <div class="form-group">
-            <label for="book-engine-input">Active Reading Engine Track</label>
+            <label for="book-engine-input">Active Reading</label>
             <select id="book-engine-input">
               <option value="None">None (Unassigned)</option>
               <option value="Engine 1: Deep Focus">Engine 1: Deep Focus</option>
