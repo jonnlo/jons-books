@@ -5541,8 +5541,16 @@
       const inRandom = sortVal === 'random';
       shuffleBtn.hidden = false;
       shuffleBtn.classList.toggle('active', inRandom);
-      shuffleBtn.title = inRandom ? 'Reshuffle' : 'Shuffle (Random order)';
+      // Shuffle/Random reorder whatever is currently listed (filters stay
+      // engaged) — say so in the tooltip so the scope is never a surprise.
+      const shuffleScope = filtered.length === books.length
+        ? `all ${books.length} books`
+        : `${filtered.length} filtered books`;
+      shuffleBtn.title = inRandom
+        ? `Reshuffle ${shuffleScope}`
+        : `Shuffle — random order for the current list (${shuffleScope})`;
       shuffleBtn.setAttribute('aria-label', shuffleBtn.title);
+      surpriseBtn.title = 'Surprise me — a random book from your entire library';
       surpriseBtn.disabled = filtered.length === 0;
 
       // Update Header Stats
@@ -6008,6 +6016,10 @@
       if (!chip || !chip.dataset.tag) return;
       activeTags.clear();
       activeTags.add(chip.dataset.tag);
+      // A tag click here means "explore this tag" — drop any Volume/Status
+      // slice too, so the tag can never land on an empty grid.
+      filterVolume.value = '';
+      filterStatus.value = '';
       closeDetailModal();
       renderBooks();
       // Land at the new first book, same as filter-bar tag chips.
@@ -6879,11 +6891,12 @@
       scrollToFirstBooks();
     });
 
-    // Surprise me: open a random book from the current filtered results.
+    // Surprise me: open a random book from the ENTIRE library. Filters and
+    // search are left exactly as they are — this is just a quick peek at a
+    // book, not a view change.
     surpriseBtn.addEventListener('click', () => {
-      const results = computeFilteredBooks();
-      if (!results.length) return;
-      const pick = results[Math.floor(Math.random() * results.length)];
+      if (!books.length) return;
+      const pick = books[Math.floor(Math.random() * books.length)];
       openBookDetails(pick.id, surpriseBtn);
     });
 

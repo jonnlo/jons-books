@@ -152,7 +152,11 @@ Called **after** a re-render that changes what "first book" means:
 - tag chip click (`tagFilters` click handler)
 - `filterClear` (Clear all)
 - `shuffleBtn` click
+- detail-modal tag chip click (`detailTagsList` handler — also clears Volume/Status first, see §6 note)
 - Grid/Volumes view switch (`viewGridBtn` / `viewRoadmapBtn` handlers)
+
+NOT wired: `surpriseBtn` — it only opens a random book's detail modal (picked from ALL
+books); it never re-renders or moves the page, and leaves filters/search untouched.
 
 Branches on view + breakpoint:
 
@@ -225,6 +229,8 @@ Tag chips and the search box are not panel controls, so they don't auto-close it
 | Tag chip click | reset (coexist) | reset |
 | Clear all | reset (coexist) | reset + panel auto-collapse |
 | Shuffle | reset (coexist) | reset |
+| Detail-modal tag chip | reset (coexist) + clears Volume/Status too | reset + clears Volume/Status too |
+| Surprise me | **no** reset — opens a random book (from all books) without touching filters | **no** reset |
 | View switch | reset (first volume / coexist) | reset (first volume / barH+8) |
 | Search input | **no** reset (per-keystroke would jump) | **no** reset |
 
