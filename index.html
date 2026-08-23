@@ -5973,6 +5973,10 @@
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let dragStartY = 0, dragDy = 0, dragActive = false, dismissing = false;
     let lastY = 0, lastT = 0, velY = 0;
+    // True while a touch gesture BEGAN on the interactive 3D cover — that
+    // gesture belongs to the tilt, so drag-to-dismiss stays disengaged for
+    // the whole touch (touch events keep targeting the start element).
+    let sheetDragOnCover = false;
     const DRAG_DIST = 140; // px of downward travel to dismiss
     const DRAG_VEL = 0.9;  // px/ms (~900px/s) flick to dismiss
     const closeDetailModalBtn = document.getElementById('close-detail-modal');
@@ -6290,6 +6294,10 @@
     // handled too. The card stays centered — this is NOT a bottom sheet.
     detailSheet.addEventListener('touchstart', (e) => {
       if (finePointer || e.touches.length !== 1) return;
+      // Finger down on the 3D book: hand the gesture to the tilt handler —
+      // never engage drag-to-dismiss from the cover.
+      sheetDragOnCover = !!(e.target.closest && e.target.closest('#detail-cover'));
+      if (sheetDragOnCover) return;
       dragStartY = e.touches[0].clientY;
       dragDy = 0; dragActive = false; dismissing = false;
       lastY = dragStartY; lastT = performance.now(); velY = 0;
@@ -6298,7 +6306,7 @@
     }, { passive: true });
 
     detailSheet.addEventListener('touchmove', (e) => {
-      if (finePointer || e.touches.length !== 1) return;
+      if (finePointer || e.touches.length !== 1 || sheetDragOnCover) return;
       const y = e.touches[0].clientY;
       const t = performance.now();
       velY = (y - lastY) / Math.max(t - lastT, 1);
@@ -6473,25 +6481,15 @@
         let dragStartX = 0, dragStartY = 0;
         let dragging = false;
 
-        detailCover.addEventListener('touchstart', (e) => {
-          if (e.touches.length !== 1) return;
+        // Shared by touchstart (tap/press activation) + touchmove (drag
+        // tracking): maps a touch point to the same tilt + gloss the desktop
+        // hover produces.
+        function applyTouchTilt(touch) {
           const book3d = detailCover.querySelector('.book3d');
           if (!book3d) return;
-          dragStartX = e.touches[0].clientX;
-          dragStartY = e.touches[0].clientY;
-          dragging = true;
-          book3d.style.transition = 'none';
-        }, { passive: true });
-
-        detailCover.addEventListener('touchmove', (e) => {
-          if (e.touches.length !== 1 || !dragging) return;
-          const book3d = detailCover.querySelector('.book3d');
-          if (!book3d) return;
-          e.preventDefault();
-          hideRotateHint();
           const r = detailCover.getBoundingClientRect();
-          const px = Math.max(0, Math.min(1, (e.touches[0].clientX - r.left) / r.width));
-          const py = Math.max(0, Math.min(1, (e.touches[0].clientY - r.top) / r.height));
+          const px = Math.max(0, Math.min(1, (touch.clientX - r.left) / r.width));
+          const py = Math.max(0, Math.min(1, (touch.clientY - r.top) / r.height));
           rotateY = (px - 0.5) * 2 * DETAIL_TILT_MAX_Y;
           rotateX = -(py - 0.5) * 2 * DETAIL_TILT_MAX_X;
           book3d.style.setProperty('--rx', rotateX.toFixed(2) + 'deg');
@@ -6503,6 +6501,32 @@
             gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
             gloss.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
           }
+        }
+
+        detailCover.addEventListener('touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          const book3d = detailCover.querySelector('.book3d');
+          if (!book3d) return;
+          dragStartX = e.touches[0].clientX;
+          dragStartY = e.touches[0].clientY;
+          dragging = true;
+          hideRotateHint();
+          // Activate on TOUCH, not just drag: a quick ease to the pressed
+          // angle makes the tilt obvious on a simple tap-and-hold. touchmove
+          // then switches to transition:none for zero-lag tracking.
+          book3d.style.transition = 'transform 0.18s ease-out';
+          applyTouchTilt(e.touches[0]);
+        }, { passive: true });
+
+        detailCover.addEventListener('touchmove', (e) => {
+          if (e.touches.length !== 1 || !dragging) return;
+          const book3d = detailCover.querySelector('.book3d');
+          if (!book3d) return;
+          e.preventDefault();
+          hideRotateHint();
+          // Past the initial wake-up ease: track the finger with zero lag.
+          book3d.style.transition = 'none';
+          applyTouchTilt(e.touches[0]);
         }, { passive: false });
 
         function resetRotation(book3d) {
