@@ -428,7 +428,7 @@
 
     .engine-slot:hover .engine-cover-img{
       scale: 1.05;
-      filter: drop-shadow(0 4px 10px hsla(220, 0%, 15%, 0.48));
+      filter: drop-shadow(0 4px 8px hsla(220, 0%, 15%, 0.35));
     }
 
     .engine-book-container {
@@ -520,6 +520,129 @@
     .engine-unassign-btn:hover {
       color: #ef4444;
       background: var(--bg-surface);
+    }
+
+    /* Engines responsive bands (601–1047px). Below ~1048px the base auto-fit
+       grid can't fit 3 × 320px columns, so the third card wrapped onto its own
+       row. Two strategies keep everything on ONE row:
+       • 601–840px — horizontal strip: cards keep their natural width (name +
+         tag chip stay intact, no ellipsis) and the row scrolls/snap-swipes,
+         mirroring the ≤600px carousel mechanics (full-bleed, hidden scrollbar,
+         mandatory snap, first/last margin compensation).
+       • 841–1047px — 3-column squeeze grid: clamp() shrinks gap/padding/cover
+         toward the desktop metrics so the band's top edge lands almost exactly
+         on them (gap 28 / pad 32 / cover 140) — seamless breakpoint.
+       The tag-chip ellipsis in the grid band is a backstop only; at today's
+       sizes the chips fit unclipped there. */
+    @media (min-width: 601px) and (max-width: 840px) {
+      .engines-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 14px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        padding: 2px 0 4px; /* room for :focus-visible rings */
+        scroll-snap-type: x mandatory;
+        /* keeps card 1's snap point at scrollLeft 0, aligned with the page
+           content inset (same recipe as the ≤600px carousel) */
+        scroll-padding-left: 16px;
+        /* full-bleed edge-to-edge (offset the body's 16px padding) */
+        width: calc(100% + 32px);
+        margin-inline: -16px;
+      }
+
+      .engines-grid::-webkit-scrollbar {
+        display: none;
+      }
+
+      .engine-card {
+        flex: 0 0 auto;
+        /* floor is wide enough that the longest header (name + tag chip)
+           never clips */
+        width: clamp(268px, 37vw, 312px);
+        scroll-snap-align: start;
+      }
+
+      .engine-card:first-child {
+        margin-left: 16px;
+      }
+
+      .engine-card:last-child {
+        margin-right: 16px;
+      }
+
+      .engine-slot {
+        padding: 12px 14px;
+        min-height: 0;
+      }
+
+      .engine-cover {
+        height: clamp(100px, 15vw, 124px);
+      }
+
+      .engine-book-container {
+        gap: 12px;
+      }
+    }
+
+    @media (min-width: 841px) and (max-width: 1047px) {
+      .engines-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: clamp(10px, 2.4vw, 28px);
+      }
+
+      /* Grid items default to min-width:auto — without this the header row
+         (name + tag chip) sets a large min-content floor and pushes the whole
+         grid past the viewport instead of shrinking. */
+      .engines-grid > .engine-card {
+        min-width: 0;
+      }
+
+      /* Keep name + tag on ONE line: the name never shrinks, the tag chip
+         absorbs any residual squeeze and ellipsizes (full text on the chip's
+         title tooltip). Backstop — chips currently fit unclipped here. */
+      .engine-name {
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+
+      .engine-tag {
+        white-space: nowrap;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .engine-slot {
+        padding: clamp(14px, 3vw, 32px);
+        min-height: 0;
+      }
+
+      .engine-cover {
+        height: clamp(112px, 13.4vw, 140px);
+      }
+
+      .engine-book-container {
+        gap: clamp(8px, 1.6vw, 20px);
+      }
+
+      .engine-header {
+        margin-bottom: clamp(8px, 1.15vw, 12px);
+      }
+
+      .engine-book-title {
+        font-size: clamp(0.76rem, 1.35vw, 0.9rem);
+      }
+
+      .engine-book-author {
+        font-size: clamp(0.7rem, 1.2vw, 0.83rem);
+      }
+
+      .engine-book-meta {
+        font-size: clamp(0.66rem, 1.05vw, 0.75rem);
+      }
     }
 
     /* Filter Controls UI */
@@ -3355,7 +3478,7 @@
             <div class="engine-name">
               <span class="dot" style="background: var(--engine-1);"></span> Deep Focus
             </div>
-            <span class="engine-tag">Philosophical / Technical</span>
+            <span class="engine-tag" title="Philosophical / Technical">Philosophical / Technical</span>
           </div>
           <div class="engine-slot" id="engine-slot-1">
             <p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>
@@ -3367,7 +3490,7 @@
             <div class="engine-name">
               <span class="dot" style="background: var(--engine-2);"></span> Complementary
             </div>
-            <span class="engine-tag">Narrative / Theory</span>
+            <span class="engine-tag" title="Narrative / Theory">Narrative / Theory</span>
           </div>
           <div class="engine-slot" id="engine-slot-2">
             <p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>
@@ -3379,7 +3502,7 @@
             <div class="engine-name">
               <span class="dot" style="background: var(--engine-3);"></span> Exploration
             </div>
-            <span class="engine-tag">Range / Reference</span>
+            <span class="engine-tag" title="Range / Reference">Range / Reference</span>
           </div>
           <div class="engine-slot" id="engine-slot-3">
             <p style="color: var(--text-muted); font-size: 0.85rem;">No active book yet</p>
