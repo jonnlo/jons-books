@@ -6010,6 +6010,8 @@
       activeTags.add(chip.dataset.tag);
       closeDetailModal();
       renderBooks();
+      // Land at the new first book, same as filter-bar tag chips.
+      scrollToFirstBooks();
     });
 
     // Clicking Volume / Stage in the detail modal jumps to that spot in
