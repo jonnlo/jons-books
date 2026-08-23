@@ -1826,6 +1826,40 @@
       overflow: visible;
     }
 
+    /* Rotate hint — tiny Lucide badge pinned to the bottom-right of the detail
+       cover's 3D book ("this cover tilts/drag-rotates"). Sits OUTSIDE .book3d
+       so it never inherits the 3D transform; pointer-events:none keeps tilt +
+       drag working underneath; fades out after the first interaction (see
+       initDetailBook3D). Dark scrim circle so it reads over any cover color. */
+    .detail-cover .book3d-hint {
+      position: absolute;
+      right: -8px;
+      bottom: -8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: color-mix(in srgb, #000 34%, transparent);
+      color: rgba(255, 255, 255, 0.92);
+      pointer-events: none;
+      z-index: 2;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+    .detail-cover .book3d-hint svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 1.5px;
+    }
+    .detail-cover .book3d-hint.is-hidden {
+      opacity: 0;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .detail-cover .book3d-hint { transition: none; }
+    }
+
     .detail-cover-img {
       width: 100%;
       height: 100%;
@@ -2796,6 +2830,18 @@
            below it as the modal scrolls. */
         align-self: center;
         position: static;
+      }
+
+      /* Smaller rotate hint chip on the narrow mobile cover. */
+      .detail-cover .book3d-hint {
+        right: -8px;
+        bottom: -8px;
+        width: 24px;
+        height: 24px;
+      }
+      .detail-cover .book3d-hint svg {
+        width: 14px;
+        height: 14px;
       }
 
       .detail-info {
@@ -3795,13 +3841,18 @@
       // layout time (see sizeAllBook3D), so no stored color is needed here.
       if (opts.threeD) {
         const pagesAttr = opts.pages ? ` data-pages="${parseInt(opts.pages, 10)}"` : '';
+        // Optional rotate-hint badge (detail modal only) — a sibling AFTER
+        // .book3d so it stays flat (never inherits the 3D transform).
+        const hintHtml = opts.hint
+          ? `<div class="book3d-hint" aria-hidden="true"><i data-lucide="rotate-3d"></i></div>`
+          : '';
         return `<div class="book3d"${pagesAttr}>
           <div class="book3d__face book3d__front">${inner}<div class="book3d__gloss"></div></div>
           <div class="book3d__face book3d__spine"></div>
           <div class="book3d__face book3d__pages book3d__pages--right"></div>
           <div class="book3d__face book3d__pages book3d__pages--top"></div>
           <div class="book3d__face book3d__pages book3d__pages--bottom"></div>
-        </div>`;
+        </div>${hintHtml}`;
       }
       return inner;
     }
@@ -6033,7 +6084,9 @@
 
       // Cover (renders the CSS jacket fallback if the image fails).
       // Always use 3D book in detail modal for interactive viewing.
-      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true, pages: book.pages });
+      // hint: true adds the small rotate badge (bottom-right) that tells the
+      // user the cover tilts — it fades away on first interaction.
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true, pages: book.pages, hint: true });
 
       detailTitle.textContent = book.title;
       detailAuthor.textContent = book.author;
@@ -6341,6 +6394,14 @@
       const DETAIL_TILT_MAX_X = 4;  // ±° vertical (rotateX)
       const DETAIL_TILT_MAX_Y = 40; // ±° horizontal (rotateY)
 
+      // Fade the rotate-hint badge once the user has interacted (hover/drag) —
+      // re-queried fresh each time since openReadOnlyModal rebuilds innerHTML
+      // (and thus a NEW hint element) on every open. Idempotent via classList.
+      function hideRotateHint() {
+        const hint = detailCover.querySelector('.book3d-hint');
+        if (hint) hint.classList.add('is-hidden');
+      }
+
       // Size the 3D book when the modal opens (sizes to #detail-cover
       // box and derives the cover's real left-edge pixels for the spine).
       function sizeDetailBook3D() {
@@ -6380,6 +6441,7 @@
         detailCover.addEventListener('pointermove', (e) => {
           const book3d = detailCover.querySelector('.book3d');
           if (!book3d) return;
+          hideRotateHint();
           const r = detailCover.getBoundingClientRect();
           const px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
           const py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
@@ -6426,6 +6488,7 @@
           const book3d = detailCover.querySelector('.book3d');
           if (!book3d) return;
           e.preventDefault();
+          hideRotateHint();
           const r = detailCover.getBoundingClientRect();
           const px = Math.max(0, Math.min(1, (e.touches[0].clientX - r.left) / r.width));
           const py = Math.max(0, Math.min(1, (e.touches[0].clientY - r.top) / r.height));
