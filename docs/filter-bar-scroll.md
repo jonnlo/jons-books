@@ -4,7 +4,7 @@
 > so it can be referenced (and debugged) later without re-deriving everything.
 > All behavior lives in a single static file: **`index.html`** (no build system).
 
-Last verified: 2026-08-13 (desktop first-load reveal guard; not yet committed).
+Last verified: 2026-08-23 (four-band responsive rework + desktop tall-strip collapse).
 Line numbers drift — reference by **function/class names**.
 
 ---
@@ -19,8 +19,13 @@ There are **two independent systems** that interact:
    change (or view switch, or shuffle) reorders the results, the page scrolls back
    to the new first book instead of leaving you stranded mid-list.
 
-The behaviors differ by **viewport** (mobile ≤ 600px vs desktop > 600px) and by
-**view** (Grid vs Volumes/roadmap).
+The behaviors differ by **band** and by **view** (Grid vs Volumes/roadmap):
+
+| Band | Search | Toggle | Selects | Sticky behavior |
+|---|---|---|---|---|
+| ≥ 781px (desktop) | inline field | labeled 222px | inline | pins like desktop |
+| 461–780px (middle) | field, flex-fill | labeled ~212px | ⚙ panel on tag row | pins like desktop |
+| ≤ 460px (phones) | 🔍 icon ↔ expandable field | flex-fill labeled | ⚙ panel on tag row | tucks/reveals like mobile |
 
 ### DOM layout (top → bottom, in `index.html`)
 
@@ -55,6 +60,8 @@ Two zero-height **sentinels** are injected around the bar in JS:
 | `barPanelLocked` | true while the mobile Filters panel is open → the bar is forced revealed so the panel can't ride away. Read via the `isBarLocked()` helper (below), never directly. |
 | `isBarLocked()` | `barPanelLocked \|\| filterBar.classList.contains('search-open')` — the expanded mobile search locks the bar too. All three lock reads (scroll-listener early return, desktop reveal condition, mobile reveal calc) go through this helper so closing the Filters panel can't silently unlock an open search (`closeFilterPanel` resets `barPanelLocked` unconditionally). |
 | `barLandingLock` | true while a programmatic scroll-reset (shuffle/tag/sort/filter/view) is landing on mobile Grid. Forces the bar pinned+revealed through the jump so it can't end up half-tucked; released on a real scroll (whole bar off again, or back at its natural spot). |
+| `mobileView` | `matchMedia('(max-width: 460px)')` — selects the tuck/reveal sticky branch + scroll-landing offsets. |
+| `narrowPanel` | `matchMedia('(max-width: 780px)')` — selects the panel-as-overlay presentation + auto-collapse-after-pick. |
 | `scrollSamples` | sliding window of `{y, t}` scroll samples. |
 | `VELOCITY_WINDOW_MS` | `90` ms — samples older than this are dropped. |
 | `REVEAL_UP_VELOCITY` | `0.5` px/ms — upward velocity needed to **reveal** the bar (higher = less eager). |
@@ -79,9 +86,9 @@ so velocity ≈ 0 → the bar does **not** reveal. You must scroll up with a bit
 ## 3. `applyStickyBarState()` — the bar's visible/hidden/pinned state
 
 Called from the scroll listener, the `IntersectionObserver`, `syncStickyBar()`, and the
-filter-panel open/close. It branches on `mobileView.matches` (`window.matchMedia('(max-width: 600px)')`).
+filter-panel open/close. It branches on `mobileView.matches` (`window.matchMedia('(max-width: 460px)')`).
 
-### 3a. Mobile (≤ 600px) — tuck + reveal
+### 3a. Phones (≤ 460px) — tuck + reveal
 
 ```js
 const pinned = barLandingLock || barPastTop;
@@ -100,7 +107,10 @@ filterBar.classList.toggle('is-revealed', reveal);   // slid down to top:0
   `.filter-bar.is-past.is-revealed { transform: translateY(0) }`.
 - `prefers-reduced-motion` disables the transition.
 
-### 3b. Desktop (> 600px) — natural scroll-away + latched compact pinned bar
+### 3b. Everything above 460px (middle band + desktop) — natural scroll-away + latched compact pinned bar
+
+The 461–780 middle band uses this same pinned-bar path as desktop — the bar pins and
+reveals like desktop even though its selects live in the ⚙ panel.
 
 Desktop logic keys off two booleans:
 - `barTopGone` = `filterBarSentinel.bottom <= 0` (the bar's **own top** has hit the viewport top).
@@ -129,7 +139,7 @@ the same scroll pass and produce a one-time compact-bar flash. The explicit
 `scrollToFirstBooks()` coexistence path may still force a reveal after a filter/view
 reset.
 
-Desktop CSS (`min-width: 601px`):
+Desktop CSS (`min-width: 781px`):
 - Base `.filter-bar { position: static }` → the **full bar scrolls away naturally**.
 - `.filter-bar.is-pinned { position: sticky; top: 0; z-index: 60; background: var(--bg-main);
   transform: translateY(-110%); transition: transform 0.25s ease; }` — sticky, hidden above.
@@ -166,8 +176,9 @@ Branches on view + breakpoint:
 
 | Case | Landing target | Guard (no-op when) |
 |---|---|---|
-| **Volumes** (both breakpoints) | `gridTop − 4` (first volume flush) | `scrollY <= landingY` |
-| **Mobile Grid** | force-reveal the bar, then `gridTop − (filterBar.offsetHeight + 8)` (first book just below the pinned bar = "filter top") | `scrollY <= landingY` |
+| **Volumes** (all bands) | `gridTop − 4` (first volume flush) | `scrollY <= landingY` |
+| **Phones Grid** (≤460) | force-reveal the bar, then `gridTop − (filterBar.offsetHeight + 8)` (first book just below the pinned bar = "filter top") | `scrollY <= landingY` |
+| **Middle/desktop Grid** (≥461) | reveal compact bar, then `gridTop_compacted − (filterBar.offsetHeight + 8)` (pinned bar + first book **coexist**) | `scrollY <= gridTop` (first book still on screen) |
 
 **Mobile Grid landing lock (why it exists):** the mobile bar's sticky state is gated by
 `barPastTop`, which is driven by the **below-bar** sentinel — the bar counts as "past" only
@@ -207,18 +218,18 @@ Landing from the pre-compaction `docTop` would put the first book *behind* the p
 
 ## 5. Mobile Filters panel (`#filter-panel`)
 
-- Mobile: the panel is an **absolute overlay** just below the bar (`.filter-panel {
+- ≤780px bands: the panel is an **absolute overlay** just below the bar (`.filter-panel {
   position: absolute; top: calc(100% + 4px); ... }`), shown when `.filter-bar.filters-open`
   is present; z-index 15 (must clear the roadmap's sticky headers at z 10/9).
-- Desktop: the panel is `display: contents` (the selects flow inline) and the
+- ≥781px: the panel is `display: contents` (the selects flow inline) and the
   `#filter-toggle` / `#filter-clear` buttons are hidden.
 - `filterToggle` click toggles `.filters-open` + `aria-expanded` and sets `barPanelLocked`
   (bar stays revealed while open). Outside-tap / Escape call `closeFilterPanel()`.
 - `closeFilterPanel()` removes `.filters-open`, resets `aria-expanded`, sets
   `barPanelLocked = false`, and calls `applyStickyBarState()`.
 
-**Auto-collapse (mobile):** picking a Volume/Status/Sort option or pressing Clear-all
-calls `if (mobileView.matches) closeFilterPanel();` **before** `scrollToFirstBooks()` —
+**Auto-collapse (≤780px):** picking a Volume/Status/Sort option or pressing Clear-all
+ calls `if (narrowPanel.matches) closeFilterPanel();` **before** `scrollToFirstBooks()` —
 so the panel closes and the new results (from the top) are immediately visible.
 Tag chips and the search box are not panel controls, so they don't auto-close it.
 
@@ -233,7 +244,7 @@ progressively collapses into the ⚙ panel on the tag row.
 | Band | Search | Grid/Volumes toggle | Volume/Status/Sort | ⚙ |
 |---|---|---|---|---|
 | ≥ 781px (desktop) | inline, grows | labeled, 222px | **inline** (panel is `display:contents`) | hidden |
-| 461–780px (middle) | field, flex-fill (`min-width:140`) | labeled, natural size (~180px, segment `min-width:0`) | **in panel** | on tag row |
+| 461–780px (middle) | field, flex-fill (`min-width:110`) | labeled, ~212px (segments `min-width:105`) | in panel | on tag row |
 | ≤ 460px (small phones) | 🔍 icon (`.search-open` expands over the row) | flex-fill WITH labels (18px icons) | in panel | on tag row |
 
 - JS matchers: `mobileView = '(max-width: 460px)'` gates the sticky tuck/reveal +
@@ -256,14 +267,23 @@ progressively collapses into the ⚙ panel on the tag row.
 - Desktop pinned compaction (`.filter-bar.is-pinned .tag-filters`) still applies
   ≥781px; `.tag-row` carries base `width:100%; min-width:0` so the pinned nowrap
   strip can never push it past the site width.
+- Desktop **tall-strip collapse**: ≥781px, if the chips would wrap into 3+ rows,
+  `updateTagRowWrap()` adds `.strip-scroll` and the strip becomes ONE horizontal
+  scrollable row (same pattern as ≤780px). Two wrapped rows are kept wrapped —
+  the at-a-glance overview is worth the space. Measured by clearing the class,
+  reading the wrapped height, and comparing against a 2-row budget
+  (`chipHeight×2 + rowGap + 2px slack`); re-run on every render, on rAF-debounced
+  resize, and after `document.fonts.ready` (fonts change chip widths). With the
+  current 29-tag catalog (~2900px of chips) the collapsed state is the norm on
+  most desktops; edge fades come from `updateTagFiltersFade` as usual.
 
 ---
 
 ## 6. Which controls reset scroll — summary
 
-| Control | Desktop | Mobile |
+| Control | Desktop (≥461px) | Phones (≤460px) |
 |---|---|---|
-| Sort change | reset (coexist) | reset (barH+8) |
+| Sort change | reset (coexist) | reset (barH+8) + panel auto-collapse |
 | Volume / Status change | reset (coexist) | reset + panel auto-collapse |
 | Tag chip click | reset (coexist) | reset |
 | Clear all | reset (coexist) | reset + panel auto-collapse |
@@ -296,10 +316,13 @@ progressively collapses into the ⚙ panel on the tag row.
 
 ---
 
-## 8. Commit trail (2026-08-12)
+## 8. Commit trail
 
 | Commit | What |
 |---|---|
+| `e6e10c3` | Four-band responsive bar: middle band (461–780) collapses selects into ⚙ panel, search field persists; toggle re-tuned; search-icon leak + crushed-icon fixes; desktop tall-strip collapse |
+| `5703826` | Book data enrichment + doc updates |
+| `29d5564` | Mobile filter bar: collapsible search, labeled toggle, ⚙ on tag row, sticky-hover + pinned-spill fixes |
 | `65bbea7` | Reset scroll to first book on sort/filter changes (mobile + desktop) |
 | `a9716c5` | Desktop: pinned filter bar + first book coexist (Option A latch) |
 | `116cc29` | Mobile: all filter/sort changes reset scroll to the filter top |
