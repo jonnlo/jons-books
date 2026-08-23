@@ -223,48 +223,42 @@ so the panel closes and the new results (from the top) are immediately visible.
 Tag chips and the search box are not panel controls, so they don't auto-close it.
 
 ---
-5b. Mobile collapsible search (`#search-toggle` / `.search-open`)
+5b. Responsive filter-bar bands (search / toggle / panel)
 
-On phones the search field collapses to a 🔍 icon button so row 1 fits the **labeled**
-Grid/Volumes toggle. Three visual tiers:
+The bar no longer has a single mobile/desktop cut — it degrades through FOUR bands
+(three MQs: ≤780, ≤550, ≤460, plus desktop ≥781). Search has priority everywhere:
+it stays a real field as long as physically possible, and everything else
+progressively collapses into the ⚙ panel on the tag row.
 
-| Breakpoint | Search | Grid/Volumes toggle |
-|---|---|---|
-| > 600px | full field | icons + labels, desktop size (`#search-toggle` hidden) |
-| 361–600px | 🔍 icon | icons + labels, compact (15px icons, `0.75rem` labels) |
-| ≤ 359px | 🔍 icon | icons only (labels re-hidden; this MQ must come AFTER the 600px block — both match, source order wins) |
+| Band | Search | Grid/Volumes toggle | Volume/Status/Sort | ⚙ |
+|---|---|---|---|---|
+| ≥ 781px (desktop) | inline, grows | labeled, 222px | **inline** (panel is `display:contents`) | hidden |
+| 461–780px (middle) | field, flex-fill (`min-width:140`) | labeled, natural size (~180px, segment `min-width:0`) | **in panel** | on tag row |
+| ≤ 460px (small phones) | 🔍 icon (`.search-open` expands over the row) | flex-fill WITH labels (18px icons) | in panel | on tag row |
 
-- Collapsed: `.search-input-wrap { display:none }`; row 1 = 🔍 + shuffle + surprise +
-  the flex-fill icon+label toggle. **The ⚙ Filters toggle lives on ROW 2**, inside a
-  full-bleed `.tag-row` wrapper beside the scrolling chip strip — its badge counts
-  active tags, so it sits with the chips it summarises. The WRAPPER carries the
-  `width: calc(100% + 32px); margin-inline: -16px` bleed; the strip is `flex: 1;
-  min-width: 0` inside it and keeps its own scroll/fade machinery
-  (`updateTagFiltersFade` reads the strip, so it needs no changes). Zero tags →
-  strip hides and ⚙ remains alone right-aligned (`justify-content: flex-end`),
-  keeping filters reachable after a Reset. Desktop: `.tag-row` is a plain
-  full-width flex div; the strip wraps chips as always and ⚙ stays hidden.
-- Tap 🔍 → `openMobileSearch()`: adds `.search-open` (field takes over the whole row,
-  all other row-1 controls `display:none`), sets `aria-expanded`, calls
-  `applyStickyBarState(true)` (force-reveal through `isBarLocked()`), focuses the input
-  (selects existing text if any).
-- Field actions sit at the right edge of the expanded field (`.search-actions`):
-  ✕ (`#search-clear`) CLEARS the query in place — field stays open + focused,
-  `renderBooks()` re-runs (programmatic value writes fire no input event); ‹
-  (`#search-collapse`) or Escape → `closeMobileSearch()`: removes `.search-open`,
-  calls `applyStickyBarState()` + `updateSearchBadge()`. The ✕ is hidden while the
-  field is empty on BOTH breakpoints (`.has-value` class on the wrap drives its
-  visibility + the input's padding-right); ‹ is mobile-only (hidden ≥601px).
-- An applied query **survives collapsing**; `updateSearchBadge()` (called from
-  `renderBooks`) shows a corner dot (`#search-badge`, same `.filter-badge` style as the
-  Filters toggle) on the 🔍 while a query is active.
-- Desktop is untouched: `#search-toggle` is in the min-width:601px hide list and the
-  `.search-open` rules live inside the mobile MQ only; a `mobileView change` listener
-  drops lingering state when resizing across the breakpoint.
+- JS matchers: `mobileView = '(max-width: 460px)'` gates the sticky tuck/reveal +
+  scroll-landing offsets; `narrowPanel = '(max-width: 780px)'` gates the panel
+  auto-collapse after picking a filter. Sticky behavior: ≤460 tucks like mobile,
+  461+ pins like desktop.
+- Row 2 on ≤780px: `.tag-row` holds the chip strip + ⚙ side by side (strip
+  `flex:1; min-width:0`, single-row scroll with fade cues). Zero tags → strip
+  hides, ⚙ remains alone right-aligned. ≤460px adds the full-bleed treatment
+  (`width: calc(100% + 32px); margin-inline:-16px` + end-chip gutter margins).
+- Collapsed search (≤460 only): `.search-input-wrap { display:none }`; row 1 =
+  🔍 + shuffle + surprise + flex-fill toggle. Tap 🔍 → `.search-open` (field takes
+  over the row, other controls hide, sticky bar force-revealed via
+  `isBarLocked()`), focuses the input.
+- Field actions (`.search-actions`, right edge of the field): ✕ clears the query
+  IN PLACE (hidden while empty via `.has-value` on the wrap — that class also
+  drives the input's `padding-right`); ‹ collapses (≤460 only). An applied query
+  survives collapsing and shows as a corner dot on 🔍 (`updateSearchBadge()` also
+  sets the toggle's aria-label "Search books — query active").
+- Desktop pinned compaction (`.filter-bar.is-pinned .tag-filters`) still applies
+  ≥781px; `.tag-row` carries base `width:100%; min-width:0` so the pinned nowrap
+  strip can never push it past the site width.
 
 ---
 
-## 
 ## 6. Which controls reset scroll — summary
 
 | Control | Desktop | Mobile |

@@ -798,6 +798,28 @@
       min-width: 0; /* same auto-min-content guard, one level down */
     }
 
+    /* Desktop tall-strip collapse: when the chips would wrap into 3+ rows,
+       JS adds .strip-scroll and the strip becomes ONE horizontal scrollable
+       row instead (same pattern as the ≤780px band). Two wrapped rows are
+       kept wrapped — the overview is worth the space. Edge fades come from
+       updateTagFiltersFade's .at-start/.at-end classes as usual. */
+    .tag-filters.strip-scroll {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+    }
+    .tag-filters.strip-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .tag-filters.strip-scroll .tag-filter-chip {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
     /* Filters panel: display:contents on desktop so the Volume / Status / Sort
        selects keep flowing inline between the search box and the action buttons
        exactly as before. The mobile-only "Filters" toggle, its badge, the panel
@@ -809,22 +831,24 @@
     .filter-panel label {
       display: none;
     }
-    /* Desktop only: hide the mobile "Filters" toggle and the panel's
-       Clear-all button (they only make sense in the compact mobile bar). */
-    @media (min-width: 601px) {
+    /* Desktop (>781px): hide the ⚙ Filters toggle (selects flow inline), the
+       panel's Clear-all, and the mobile search icon/collapse pair. */
+    @media (min-width: 781px) {
       #filter-toggle,
       #filter-clear,
       #search-toggle,
       #search-collapse {
         display: none;
       }
-      /* Desktop: the ✕ appears inside the field only while it has text. */
-      .search-input-wrap.has-value .search-actions {
-        display: inline-flex;
-      }
-      .search-input-wrap.has-value .search-input {
-        padding-right: 44px; /* room for the ✕ */
-      }
+    }
+    /* Clear-✕ inside the field, ANY width where the field is visible:
+       appears only while the field has text (.has-value is toggled in JS).
+       Mobile-expanded reserves differ (44px ‹ / 82px ✕+‹) via the ≤460px band. */
+    .search-input-wrap.has-value .search-actions {
+      display: inline-flex;
+    }
+    .search-input-wrap.has-value .search-input {
+      padding-right: 44px; /* room for the ✕ */
     }
     /* Active-filter count badge on the mobile "Filters" toggle */
     .filter-badge {
@@ -881,67 +905,45 @@
       outline-offset: 2px;
     }
 
-    /* Small screens: the tag filter becomes a single horizontal scroll-snap
-       strip instead of wrapping into many rows. Desktop wrapping unchanged. */
-    @media (max-width: 600px) {
-      .tag-filters {
-        /* Full-bleed: widen the strip to offset the body's 16px padding so it
-           scrolls edge-to-edge. The flex/width override matters — with the base
-           flex-basis:100% + negative margins, flexbox absorbs the right margin
-           and the box never actually widens. No viewport units either, which
-           avoids iOS 100vw overflow under viewport-fit=cover. (No scroll-snap:
-           it kept re-snapping the initial position and un-aligning the first chip.) */
-        flex: 0 0 auto;
-        width: calc(100% + 32px);
-        margin-inline: -16px;
+    /* Narrow screens (≤780px): the tag strip becomes a single horizontal
+       scrolling row inside .tag-row, beside the ⚙ Filters toggle. Full-bleed
+       edge-to-edge scrolling is the ≤460px tier's refinement (see that block). */
+    @media (max-width: 780px) {
+      .tag-row .tag-filters {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+        margin-inline: 0;
         flex-wrap: nowrap;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
         scrollbar-width: none;
-        /* small vertical pad so :focus-visible outlines aren't clipped */
         padding: 2px 0 4px;
-        /* edge fade cues that the strip scrolls (left fade appears once the
-           strip is scrolled; right fade cues more chips) */
         -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
         mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
       }
-      .tag-filters::-webkit-scrollbar {
+      .tag-row .tag-filters::-webkit-scrollbar {
         display: none;
       }
       .tag-filter-chip {
         flex: 0 0 auto;
         white-space: nowrap;
-        scroll-snap-align: start;
         min-height: 32px;
         padding: 2px 11px;
         font-size: 0.8125rem;
       }
-      /* Re-align the end chips with the rest of the page content. Margin-based
-         compensation is robust inside scroll containers (unlike container padding,
-         which some browsers omit from scrollable overflow). */
-      .tag-filter-chip:first-child {
-        margin-left: 16px;
-      }
-      .tag-filter-chip:last-child {
-        margin-right: 16px;
-      }
-      /* Edge fade cues on the tag strip (mobile): the mask-image fades should
-         not mask the first chip once it's at the start (scrollLeft 0) nor the
-         last chip once it's fully in view. Toggled by JS in
-         updateTagFiltersFade:
-         - .at-start  → no left fade (at scroll 0)
-         - .at-end    → no right fade (scrolled to max OR never overflows)
-         - both       → no fades at all (never overflows) */
-      .tag-filters.at-start {
+      /* Edge fade cues: fades must not mask the first chip at scroll 0 nor
+         the last chip once fully in view. Toggled by updateTagFiltersFade. */
+      .tag-row .tag-filters.at-start {
         -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
         mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
       }
-      .tag-filters.at-end {
+      .tag-row .tag-filters.at-end {
         -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
         mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
       }
-      .tag-filters.at-start.at-end {
+      .tag-row .tag-filters.at-start.at-end {
         -webkit-mask-image: none;
         mask-image: none;
       }
@@ -2932,222 +2934,268 @@
         font-size: 0.8rem;
       }
 
-      /* ===== Phase 2: Sticky filter bar + Filters panel (mobile) ===== */
+    }
 
-      /* Shared look & spacing for BOTH views so the rhythm around the bar
-         (engines → bar → results count) never shifts when toggling views.
-         Solid --bg-main background (matches the page, so no seam) keeps Safari
-         from tinting the browser chrome; no backdrop-filter/blur. */
-      .filter-bar {
-        /* Sits in natural flow (no reserved space). Once it has fully scrolled
-           off it becomes sticky and hidden above; the reveal slides it back
-           down to top:0. Because the sticky point equals the bar's natural
-           spot, engaging it never shifts the layout. */
-        position: relative;
-        z-index: 50;
-        gap: 6px; /* 8px left no room for icons in the Grid/Volumes toggle */
-        isolation: isolate;
-        background: transparent;
-        margin-bottom: 14px;
-        padding: 10px 0 8px;
-        padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
-      }
+    /* ===== Filter bar — middle band (≤780px): Volume/Status/Sort collapse
+       into the ⚙ panel on the tag row; the search FIELD keeps row 1 and the
+       labeled Grid/Volumes toggle stays content-sized. ===== */
+    @media (max-width: 780px) {
+    /* Bar chrome shared by the two narrow bands: tighter gaps/margins and a
+       stacking context for the panel overlay. */
+    .filter-bar {
+      position: relative;
+      z-index: 50;
+      gap: 6px;
+      isolation: isolate;
+      background: transparent;
+      margin-bottom: 14px;
+      padding: 10px 0 8px;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+    }
 
-      /* Hidden above the viewport once scrolled past; revealed slides back
-         down to top:0. The transition animates the reveal/dismiss while
-         scrolling. */
-      .filter-bar.is-past {
-        position: sticky;
-        top: 0;
-        transform: translateY(-110%);
-        transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-      }
-      .filter-bar.is-past.is-revealed {
-        transform: translateY(0);
-      }
+    /* Roadmap: the pinned/revealed bar overlays the volume/stage sticky
+       headers (z 10 / 9). */
+    body.view-roadmap .filter-bar {
+      z-index: 60;
+    }
 
-      /* Keep the filter controls aligned to the page gutter while its sticky
-         background covers full-bleed roadmap rows at both viewport edges. */
-      .filter-bar::before {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        inset-block: 0;
-        left: 50%;
-        width: 100vw;
-        transform: translateX(-50%);
-        background: var(--bg-main);
-        pointer-events: none;
-      }
+    /* Search has priority: it absorbs all leftover row-1 space. The 110px
+       floor lets one line survive down to ~461px beside the 212px labeled
+       toggle. */
+    .search-input-wrap {
+      order: 1;
+      flex: 1 1 0;
+      min-width: 110px;
+    }
+    /* The 🔍 collapse icon is a ≤460px affordance — the field itself is
+       always visible in this band, so the icon must not sit beside it. */
+    #search-toggle {
+      display: none;
+    }
+    .search-input {
+      font-size: 16px; /* >=16px stops iOS Safari auto-zooming the input */
+    }
+    #shuffle-btn,
+    #surprise-btn {
+      order: 1;
+      flex: 0 0 auto;
+      width: 42px;
+      padding: 0 8px;
+    }
+    .view-toggle {
+      order: 1;
+    }
+    /* Natural content sizing keeps the toggle compact, but give segments a
+       105px floor so the toggle reads close to its desktop width — the
+       search field yields the difference (its own floor drops to 110px). */
+    .view-toggle .btn-secondary {
+      min-width: 105px;
+      padding: 6px 8px;
+    }
+    .view-toggle .btn-secondary svg {
+      flex-shrink: 0; /* the icon must never absorb a segment shortfall */
+    }
 
-      /* Roadmap: the revealed bar overlays the volume/stage sticky headers
-         (z 10 / 9), so it needs to sit above them. */
-      body.view-roadmap .filter-bar {
-        z-index: 60;
-      }
+    /* Row 2: tag chips scroll BESIDE the pinned ⚙ (its badge counts active
+       tags, so the button lives with the chips it summarises). Single-row
+       scrolling without the ≤460px full-bleed treatment. Zero tags → strip
+       hides, ⚙ remains alone right-aligned so filters stay reachable. */
+    .tag-row {
+      order: 2;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .tag-row .tag-filters {
+      flex: 1 1 auto;
+      width: auto;
+      min-width: 0;
+      margin-inline: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      padding: 2px 0 4px;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+    }
+    .tag-row .tag-filters::-webkit-scrollbar {
+      display: none;
+    }
+    .tag-row .tag-filters.at-start {
+      -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+      mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+    }
+    .tag-row .tag-filters.at-end {
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+    }
+    .tag-row .tag-filters.at-start.at-end {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .tag-filter-chip {
+      flex: 0 0 auto;
+      white-space: nowrap;
+      min-height: 32px;
+      padding: 2px 11px;
+      font-size: 0.8125rem;
+    }
+    .tag-row #filter-toggle {
+      flex: 0 0 auto;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: none;
+      color: var(--text-secondary);
+    }
 
-      /* ===== Row 1: collapsible search + tools + LABELED view toggle ===== */
+    /* The panel becomes the dropdown behind ⚙ (same overlay pattern the
+       ≤460px tier uses). Opens via .filters-open on the bar; Escape/outside-
+       tap/pick handlers are width-agnostic in JS. */
+    .filter-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      z-index: 15;
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    .filter-bar.filters-open .filter-panel {
+      display: grid;
+    }
+    .filter-panel .filter-field {
+      display: grid;
+      gap: 5px;
+    }
+    .filter-panel .filter-field-wide {
+      grid-column: 1 / -1;
+    }
+    .filter-panel label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .filter-panel .filter-select {
+      flex: none;
+      width: 100%;
+      min-width: 0;
+    }
+    #filter-clear {
+      grid-column: 1 / -1;
+      justify-content: center;
+      height: 40px;
+    }
 
-      /* Collapsed search: the field hides behind the 🔍 toggle so row 1 has
-         room for the labeled Grid/Volumes toggle (the app's core navigation).
-         Tapping 🔍 adds .search-open — the field takes over the whole row and
-         every other control steps aside (see openMobileSearch/closeMobileSearch
-         JS, which also locks the sticky bar so it can't tuck under the
-         keyboard). An applied query survives collapsing and shows as a corner
-         dot (#search-badge) on the icon. */
-      .search-input-wrap {
-        display: none;
-      }
-      .filter-bar.search-open .search-input-wrap {
-        display: flex;
-        order: 1;
-        flex: 1 1 0; /* basis 0 so the field fills the freed row */
-        min-width: 0;
-      }
-      .filter-bar.search-open #search-toggle,
-      .filter-bar.search-open #shuffle-btn,
-      .filter-bar.search-open #surprise-btn,
-      .filter-bar.search-open .view-toggle,
-      .filter-bar.search-open #filter-toggle {
-        display: none;
-      }
-      #search-toggle {
-        order: 1;
-        flex: 0 0 auto;
-        width: 42px; /* base pins 46px — 42 frees room for toggle icons */
-        padding: 0 8px;
-      }
-      .filter-bar.search-open .search-actions {
-        display: inline-flex;
-      }
-      .filter-bar.search-open .search-input {
-        padding-right: 44px; /* room for ‹ (always visible while expanded) */
-      }
-      .filter-bar.search-open .search-input-wrap.has-value .search-input {
-        padding-right: 82px; /* room for ✕ + ‹ once there's text to clear */
-      }
-      .search-input {
-        font-size: 16px; /* >=16px stops iOS Safari auto-zooming the input on focus */
-      }
-      #shuffle-btn,
-      #surprise-btn {
-        order: 1;
-        flex: 0 0 auto;
-        /* Base pins width:46px; 42px here keeps row 1 airy now that the
-           Filters toggle lives on the tag row below. */
-        width: 42px;
-        padding: 0 8px;
-      }
+    /* Highlight ⚙ when any filter is active or the panel is open. */
+    #filter-toggle:has(.filter-badge:not([hidden])),
+    .filter-bar.filters-open #filter-toggle {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
+    }
 
-      /* Row 1 (cont.): Grid / Volumes toggle WITH icons + labels. Compact
-         metrics (15px icons, 0.75rem labels, 6px 7px padding) so both
-         segments + the four 42px icon buttons share one line down to 360px.
-         flex: 1 1 0 keeps the segments equal-width so the sliding pill still
-         lines up. */
-      .view-toggle {
-        order: 1;
-        flex: 1 0 auto;
-      }
-      .view-toggle .btn-secondary {
-        min-width: 0;
-        gap: 3px;
-        padding: 6px 7px;
-        font-size: 0.83rem;
-      }
-      .view-toggle .btn-secondary svg {
-        display: inline-flex;
-        width: 18px;
-        height: 18px;
-      }
+    }
 
-      /* Row 2: tag chips + the Filters toggle, one full-bleed row. The strip
-         scrolls BESIDE the pinned ⚙ (its badge counts active tags, so the
-         button belongs with the chips it summarises). The WRAPPER carries the
-         edge-to-edge bleed; the strip just fills the leftover width and keeps
-         its own scroll/fade machinery. Zero tags → strip hides, ⚙ remains
-         alone right-aligned so filters stay reachable after a Reset. */
-      .tag-row {
-        order: 2;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 6px;
-        width: calc(100% + 32px);
-        margin-inline: -16px;
-        padding-right: 10px;
-      }
-      .tag-row .tag-filters {
-        flex: 1 1 auto;
-        width: auto;
-        min-width: 0;
-        margin-inline: 0;
-      }
-      .tag-row #filter-toggle {
-        flex: 0 0 auto;
-        width: 40px;
-        height:40px;
-        padding: 0 8px;
-        border:none;
-        color:var(--text-secondary);
-      }
-      
-
-      /* Row 3: Filters panel — Volume | Status 2-col, Sort, Clear all.
-         Overlays the grid (absolute, just below the bar) instead of pushing
-         it down, so opening filters never shifts the grid's position.
-         Solid bg + shadow read it as a floating dropdown; no backdrop-filter
-         (Safari tint rule). z-index must clear the roadmap's sticky
-         volume/stage headers (z-index 10 / 9) in Volumes view. */
-      .filter-panel {
-        position: absolute;
-        top: calc(100% + 4px);
-        left: 0;
-        right: 0;
-        z-index: 15;
-        display: none;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 14px;
-        background: var(--bg-surface);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-      }
-      .filter-bar.filters-open .filter-panel {
-        display: grid;
-      }
-      .filter-panel .filter-field {
-        display: grid;
-        gap: 5px;
-      }
-      .filter-panel .filter-field-wide {
-        grid-column: 1 / -1;
-      }
-      .filter-panel label {
-        display: block;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-muted);
-      }
-      .filter-panel .filter-select {
-        flex: none;
-        width: 100%;
-        min-width: 0;
-      }
-      #filter-clear {
-        grid-column: 1 / -1;
-        justify-content: center;
-        height: 40px;
-      }
-
-      /* Highlight the toggle when any filter is active (mirrors
-         .filter-btn.active so it reads as an engaged control). */
-      #filter-toggle:has(.filter-badge:not([hidden])),
-      .filter-bar.filters-open #filter-toggle {
-        border-color: var(--accent-color);
-        color: var(--accent-color);
-        background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
-      }
+    /* ===== Filter bar — small phones (≤460px): search collapses to a 🔍
+       icon, the toggle returns to flex-fill WITH labels, the tag row goes
+       full-bleed, and the bar tucks/reveals on scroll (JS gates this band
+       via the mobileView matcher). ===== */
+    @media (max-width: 460px) {
+    .search-input-wrap {
+      display: none;
+    }
+    .filter-bar.search-open .search-input-wrap {
+      display: flex;
+      order: 1;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .filter-bar.search-open #search-toggle,
+    .filter-bar.search-open #shuffle-btn,
+    .filter-bar.search-open #surprise-btn,
+    .filter-bar.search-open .view-toggle,
+    .filter-bar.search-open #filter-toggle {
+      display: none;
+    }
+    #search-toggle {
+      display: inline-flex; /* re-show: the ≤780 band hides it */
+      order: 1;
+      flex: 0 0 auto;
+      width: 42px;
+      padding: 0 8px;
+    }
+    .filter-bar.search-open .search-actions {
+      display: inline-flex;
+    }
+    .filter-bar.search-open .search-input {
+      padding-right: 44px; /* room for ‹ */
+    }
+    .filter-bar.search-open .search-input-wrap.has-value .search-input {
+      padding-right: 82px; /* room for ✕ + ‹ */
+    }
+    .view-toggle {
+      order: 1;
+      flex: 1 0 auto;
+    }
+    .view-toggle .btn-secondary {
+      min-width: 0;
+      gap: 3px;
+      padding: 6px 7px;
+      font-size: 0.83rem;
+    }
+    .view-toggle .btn-secondary svg {
+      width: 18px;
+      height: 18px;
+    }
+    .view-toggle .toggle-label {
+      display: inline; /* restore what the ≤550 band hid */
+    }
+    .tag-row {
+      width: calc(100% + 32px);
+      margin-inline: -16px;
+      padding-right: 10px;
+    }
+    /* Re-align the end chips with the page gutter inside the bleeding row. */
+    .tag-row .tag-filter-chip:first-child {
+      margin-left: 16px;
+    }
+    .tag-row .tag-filter-chip:last-child {
+      margin-right: 16px;
+    }
+    /* Solid full-bleed backdrop behind the bar so the tucked/pinned state
+       never shows seams over the bleeding tag row (Safari tint rule: solid
+       bg, no blur). */
+    .filter-bar::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset-block: 0;
+      left: 50%;
+      width: 100vw;
+      transform: translateX(-50%);
+      background: var(--bg-main);
+      pointer-events: none;
+    }
+    .filter-bar.is-past {
+      position: sticky;
+      top: 0;
+      transform: translateY(-110%);
+      transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .filter-bar.is-past.is-revealed {
+      transform: translateY(0);
+    }
     }
 
     /* Extreme small phones (≤359px): icons+labels don't fit next to the four
@@ -4327,7 +4375,11 @@
     const searchCollapseBtn = document.getElementById('search-collapse');
     const searchWrap = document.querySelector('.search-input-wrap');
     // Mobile-only: view switches land at the first books (see scrollToFirstBooks).
-    const mobileView = window.matchMedia('(max-width: 600px)');
+    const mobileView = window.matchMedia('(max-width: 460px)');
+    // Panel-as-overlay band (≤780px): selects live behind ⚙ on the tag row.
+    // Drives panel auto-collapse on picks; sticky/scroll behavior instead
+    // follows mobileView (≤460px tucks like mobile, above pins like desktop).
+    const narrowPanel = window.matchMedia('(max-width: 780px)');
 
     // Unified sticky filter bar (desktop + mobile, Grid + Volumes): the bar
     // tucks off-screen once you scroll past it and re-reveals pinned at the
@@ -4701,6 +4753,9 @@
         </button>
       `).join('');
       tagFilters.scrollLeft = prevScrollLeft;
+      // Desktop: if the chips just (re)rendered into 3+ wrapped rows, collapse
+      // to a single horizontal scrollable row instead.
+      updateTagRowWrap();
     }
 
     // Edge fade cues on the tag strip: the mask-image fades should not mask
@@ -4724,6 +4779,31 @@
     // change how many chips fit, so re-check on resize too.
     tagFilters.addEventListener('scroll', updateTagFiltersFade);
     window.addEventListener('resize', updateTagFiltersFade);
+
+    // Desktop (≥781px): when the chips would wrap into 3+ rows, collapse the
+    // strip into ONE horizontal scrollable row (.strip-scroll) — same pattern
+    // as the ≤780px band, but only when it's actually tall. Two wrapped rows
+    // are kept as-is: the at-a-glance overview is worth the vertical space.
+    // CSS can't count wrapped lines, so measure: clear the class, read the
+    // wrapped height, compare against a 2-row budget. Re-run on resize (rAF-
+    // debounced) and after webfonts load (they change chip widths).
+    function updateTagRowWrap() {
+      if (typeof narrowPanel !== 'undefined' && narrowPanel.matches) return; // ≤780px is always single-row
+      if (tagFilters.hidden) { tagFilters.classList.remove('strip-scroll'); return; }
+      tagFilters.classList.remove('strip-scroll');
+      const chip = tagFilters.querySelector('.tag-filter-chip');
+      if (!chip) return;
+      const gapH = parseFloat(getComputedStyle(tagFilters).rowGap) || 0;
+      const twoRows = chip.offsetHeight * 2 + gapH + 2; // +2px rounding slack
+      if (tagFilters.scrollHeight > twoRows) tagFilters.classList.add('strip-scroll');
+      updateTagFiltersFade();
+    }
+    let tagRowWrapRaf = null;
+    window.addEventListener('resize', () => {
+      if (tagRowWrapRaf) return;
+      tagRowWrapRaf = requestAnimationFrame(() => { tagRowWrapRaf = null; updateTagRowWrap(); });
+    });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateTagRowWrap);
 
     // Modal Volume/Stage Dropdown Helpers
     function getVolumeMap() {
@@ -5263,7 +5343,7 @@
       activeTags.clear();
       syncViewFromSort();
       renderBooks();
-      if (mobileView.matches) closeFilterPanel();
+      if (narrowPanel.matches) closeFilterPanel();
       // Land at the first book when filters are cleared (both breakpoints).
       scrollToFirstBooks();
     });
@@ -7129,7 +7209,7 @@
     // panel auto-collapses after a pick so the new results are visible.
     [filterVolume, filterStatus].forEach(el => {
       el.addEventListener('change', () => {
-        if (mobileView.matches) closeFilterPanel();
+        if (narrowPanel.matches) closeFilterPanel();
         scrollToFirstBooks();
       });
     });
