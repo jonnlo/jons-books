@@ -2132,7 +2132,28 @@
     .volume-title-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 4px; /* tight number→name word-space (icon gets its air back below) */
+      flex: 1;
+      min-width: 0;
+    }
+
+    .volume-number{
+      color:color-mix(in srgb, var(--text-secondary) 60%, var(--text-muted));
+      line-height: 1.3;
+      margin-right:12px;
+    }
+
+    /* Name grows to pin the badge right (same contract as the stage header);
+       clamped to 2 lines so a long name can't stretch the sticky header. */
+    .volume-title-group .volume-name {
+      min-width: 0;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
     }
 
     /* Volume collapse/expand chevron — lucide swaps the <i> for an <svg> that
@@ -2141,8 +2162,11 @@
     .vol-expand-icon {
       width: 20px;
       height: 20px;
-      color: var(--text-primary);
+      color: color-mix(in srgb, var(--text-secondary) 60%, var(--text-muted));
       stroke-width: 1.5;
+      /* The group gap dropped to 4px for a tight number→name word space;
+         this restores the icon's original ~10px stand-off from the number. */
+      margin-right: 6px;
     }
 
     .stage-block {
@@ -2180,20 +2204,29 @@
 
     .stage-title-group {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: baseline;
+      gap: 4px; /* tight number→name word-space; badge keeps its own margin */
       flex: 1;
       min-width: 0;
     }
-    .stage-title-group span:not(.count-badge) {
-      flex: 1;
+    /* Sibling spans (NOT nested): when the name wraps, its 2nd line aligns
+       under the name — not under the number — for a hanging-indent hierarchy.
+       Only the name grows/clamps; the number stays a content-sized flex item. */
+    .stage-title-group .stage-name {
       min-width: 0;
+      flex: 1;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       line-height: 1.3;
+    }
+    /* Stage number echoes the muted .volume-number treatment. */
+    .stage-number {
+      color: color-mix(in srgb, var(--text-secondary) 60%, var(--text-muted));
+      line-height: 1.3;
+      margin-right:12px;
     }
 
     /* ===== Stage horizontal rows (Volumes view) =====
@@ -2688,7 +2721,7 @@
       }
 
       .stage-header {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         min-height: 56px;
       }
 
@@ -2704,8 +2737,11 @@
         flex: 1;
       }
 
-      .volume-title-group span:not(.count-badge),
-      .stage-title-group span:not(.count-badge) {
+      /* Sibling spans (not nested): a wrapped name's 2nd line aligns under
+         the name, not under the number. Only the name needs clamp + grow;
+         the number stays a content-sized, muted flex item. */
+      .volume-title-group .volume-name,
+      .stage-title-group .stage-name {
         flex: 1;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -2954,7 +2990,7 @@
         <!-- <div class="brand-icon"><i data-lucide="book-open"></i></div> -->
         <div>
           <h1>jon's books</h1>
-          <!-- <p>curated by volumes</p> -->
+          <!-- <p>curated by jon</p> -->
         </div>
       </div>
 
@@ -5275,7 +5311,10 @@
             <h2 class="volume-header" onclick="toggleVolumeCollapse(${volNum})">
               <div class="volume-title-group">
                 <i data-lucide="${isVolCollapsed ? 'plus' : 'minus'}" class="vol-expand-icon"></i>
-                <span>Volume ${volNum}: ${escapeHtml(volData.volumeName)}</span>
+                <!-- Sibling spans (NOT nested): when the name wraps, its 2nd
+                     line aligns under the name — not under the number — for a
+                     hanging-indent hierarchy. Spacing comes from the group gap. -->
+                <span class="volume-number">volume ${volNum}</span><span class="volume-name">${escapeHtml(volData.volumeName)}</span>
                 <span class="count-badge">${totalVolBooks}</span>
               </div>
               <div class="section-action-btns" onclick="event.stopPropagation();">
@@ -5299,7 +5338,10 @@
             <div class="stage-block" data-vol-num="${volNum}" data-stage-num="${stageNum}">
               <div class="stage-header">
                 <div class="stage-title-group">
-                  <span>Stage ${stageNum}: ${escapeHtml(stageData.stageName)}</span>
+                  <!-- Sibling spans (NOT nested): a wrapped name's 2nd line
+                       aligns under the name, not under the number — hanging-
+                       indent hierarchy. Spacing comes from the group gap. -->
+                  <span class="stage-number">stage ${stageNum}</span><span class="stage-name">${escapeHtml(stageData.stageName)}</span>
                   <span class="count-badge">${stageData.books.length}</span>
                 </div>
                 <div class="stage-arrows" onclick="event.stopPropagation();" aria-label="Scroll stage">
