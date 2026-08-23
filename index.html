@@ -3159,7 +3159,8 @@
         <div class="filter-field filter-field-wide">
           <label for="sort-select">Sort</label>
           <select class="filter-select" id="sort-select">
-            <option value="reading-order">Reading Order (Volume → Stage → Order)</option>
+            <!-- 'reading-order' doubles as the Volumes-view selector (see syncViewFromSort). -->
+            <option value="reading-order">Reading Order (Volumes View)</option>
             <option value="year-desc" selected>Year (Newest First)</option>
             <option value="year-asc">Year (Oldest First)</option>
             <option value="title-asc">Title (A-Z)</option>
@@ -4829,15 +4830,36 @@
       }
     }, { passive: true });
 
+    // --- Sort ⇄ View coupling ---
+    // "reading-order" IS the Volumes view; every other sort value is Grid.
+    // The Sort dropdown and the segmented toggle are two entry points into
+    // this ONE piece of state, so the dropdown always truthfully reflects the
+    // active view ("Reading Order" while in Volumes). Entering Volumes also
+    // discards any cached Random shuffle for free: computeFilteredBooks()
+    // nulls shuffledIds whenever the sort isn't random.
+    let lastGridSort = 'year-desc'; // restored when returning to Grid
+
+    // Derive the active view from the sort dropdown. Programmatic .value
+    // writes fire no events, so every writer pairs its assignment with a
+    // syncViewFromSort() + renderBooks() call.
+    function syncViewFromSort() {
+      const wantRoadmap = sortSelect.value === 'reading-order';
+      const target = wantRoadmap ? 'roadmap' : 'grid';
+      if (currentView === target) return;
+      currentView = target;
+      document.body.classList.toggle('view-roadmap', wantRoadmap);
+      closeFilterPanel();
+      viewRoadmapBtn.classList.toggle('active', wantRoadmap);
+      viewRoadmapBtn.setAttribute('aria-pressed', String(wantRoadmap));
+      viewGridBtn.classList.toggle('active', !wantRoadmap);
+      viewGridBtn.setAttribute('aria-pressed', String(!wantRoadmap));
+    }
+
     viewGridBtn.addEventListener('click', () => {
-      currentView = 'grid';
-      // Phase 2: sticky filter bar is Grid-only — this class flips it off in
-      // the roadmap.
-      document.body.classList.remove('view-roadmap');
-      viewGridBtn.classList.add('active');
-      viewGridBtn.setAttribute('aria-pressed', 'true');
-      viewRoadmapBtn.classList.remove('active');
-      viewRoadmapBtn.setAttribute('aria-pressed', 'false');
+      // Returning to Grid restores the user's last real sort — the dropdown
+      // kept it while Volumes held reading-order.
+      sortSelect.value = lastGridSort;
+      syncViewFromSort();
       renderBooks();
       // View switch reveals the bar in Grid so the mobile first-books landing
       // (offset = bar height + 8) matches the visible pinned bar.
@@ -4847,13 +4869,10 @@
     });
 
     viewRoadmapBtn.addEventListener('click', () => {
-      currentView = 'roadmap';
-      document.body.classList.add('view-roadmap');
-      closeFilterPanel();
-      viewRoadmapBtn.classList.add('active');
-      viewRoadmapBtn.setAttribute('aria-pressed', 'true');
-      viewGridBtn.classList.remove('active');
-      viewGridBtn.setAttribute('aria-pressed', 'false');
+      // Volumes view = Reading Order sort. Setting the dropdown keeps both
+      // controls in lockstep instead of letting them drift apart.
+      sortSelect.value = 'reading-order';
+      syncViewFromSort();
       renderBooks();
       // In Volumes the first volume lands flush (offset 4) with the bar hidden,
       // so leave it tucked until the user scrolls up.
@@ -4870,7 +4889,9 @@
       let count = 0;
       if (filterVolume.value !== '') count++;
       if (filterStatus.value !== '') count++;
-      if (sortSelect.value !== 'year-desc') count++;
+      // 'reading-order' IS the Volumes view (not a pending filter), so it
+      // never counts toward the badge.
+      if (['year-asc', 'title-asc', 'random'].includes(sortSelect.value)) count++;
       count += activeTags.size;
       filterBadge.textContent = String(count);
       filterBadge.hidden = count === 0;
@@ -4912,9 +4933,10 @@
     filterClear.addEventListener('click', () => {
       filterVolume.value = '';
       filterStatus.value = '';
-      sortSelect.value = 'year-desc';
+      sortSelect.value = 'year-desc'; // full reset ⇒ Grid + default sort
       searchInput.value = '';
       activeTags.clear();
+      syncViewFromSort();
       renderBooks();
       if (mobileView.matches) closeFilterPanel();
       // Land at the first book when filters are cleared (both breakpoints).
@@ -5314,7 +5336,7 @@
                 <!-- Sibling spans (NOT nested): when the name wraps, its 2nd
                      line aligns under the name — not under the number — for a
                      hanging-indent hierarchy. Spacing comes from the group gap. -->
-                <span class="volume-number">volume ${volNum}</span><span class="volume-name">${escapeHtml(volData.volumeName)}</span>
+                <span class="volume-number">Volume ${volNum}</span><span class="volume-name">${escapeHtml(volData.volumeName)}</span>
                 <span class="count-badge">${totalVolBooks}</span>
               </div>
               <div class="section-action-btns" onclick="event.stopPropagation();">
@@ -5341,7 +5363,7 @@
                   <!-- Sibling spans (NOT nested): a wrapped name's 2nd line
                        aligns under the name, not under the number — hanging-
                        indent hierarchy. Spacing comes from the group gap. -->
-                  <span class="stage-number">stage ${stageNum}</span><span class="stage-name">${escapeHtml(stageData.stageName)}</span>
+                  <span class="stage-number">Stage ${stageNum}</span><span class="stage-name">${escapeHtml(stageData.stageName)}</span>
                   <span class="count-badge">${stageData.books.length}</span>
                 </div>
                 <div class="stage-arrows" onclick="event.stopPropagation();" aria-label="Scroll stage">
@@ -5947,15 +5969,10 @@
     });
 
     function jumpToVolumeStage(volNum, stageNum) {
-      // Ensure the roadmap view is active.
+      // Ensure the roadmap view is active (via the sort ⇄ view coupling).
       if (currentView !== 'roadmap') {
-        currentView = 'roadmap';
-        document.body.classList.add('view-roadmap');
-        closeFilterPanel();
-        viewRoadmapBtn.classList.add('active');
-        viewRoadmapBtn.setAttribute('aria-pressed', 'true');
-        viewGridBtn.classList.remove('active');
-        viewGridBtn.setAttribute('aria-pressed', 'false');
+        sortSelect.value = 'reading-order';
+        syncViewFromSort();
       }
       // Expand the target volume if collapsed.
       const volKey = `vol-${volNum}`;
@@ -6724,7 +6741,10 @@
       }
     });
 
-    [searchInput, filterVolume, filterStatus, sortSelect].forEach(elem => {
+    // sortSelect is deliberately absent — it renders via its own 'change'
+    // handler below, which also syncs the coupled view state (its 'input'
+    // would double-render before the sync runs).
+    [searchInput, filterVolume, filterStatus].forEach(elem => {
       elem.addEventListener('input', renderBooks);
     });
 
@@ -6739,16 +6759,13 @@
     });
 
     // Shuffle: auto-select Random in the sort dropdown, or reshuffle if already
-    // in Random mode — regenerate the cached order either way. From Volumes,
-    // switch to Grid first (via the grid button's own handler) so the shuffled
-    // order is actually visible instead of being silently regrouped away.
+    // in Random mode — regenerate the cached order either way. Random implies
+    // Grid under the sort ⇄ view coupling, so sync directly (a .click() on
+    // the grid button would clobber 'random' with lastGridSort).
     shuffleBtn.addEventListener('click', () => {
       sortSelect.value = 'random';
       shuffledIds = null;
-      if (currentView !== 'grid') {
-        viewGridBtn.click(); // renders with Random set + lands at the first books
-        return;
-      }
+      syncViewFromSort();
       renderBooks();
       // If the user has scrolled past the sticky point, land at the new first
       // book so the reshuffle is actually visible (no-op near the top, and
@@ -6756,13 +6773,14 @@
       scrollToFirstBooks();
     });
 
-    // Picking Random auto-switches to Grid so the shuffle is actually visible
-    // (Random is a no-op in the roadmap view). On mobile the panel auto-
-    // collapses after a pick so the new results are visible.
+    // Any non-reading-order pick implies Grid; picking Reading Order implies
+    // Volumes. The dropdown is the source of truth — sync the view to match,
+    // then re-render. On mobile the panel auto-collapses after a pick so the
+    // new results are visible.
     sortSelect.addEventListener('change', () => {
-      if (sortSelect.value === 'random' && currentView !== 'grid') {
-        viewGridBtn.click();
-      }
+      if (sortSelect.value !== 'reading-order') lastGridSort = sortSelect.value;
+      syncViewFromSort();
+      renderBooks();
       if (mobileView.matches) closeFilterPanel();
       // Changing the sort reorders the grid, so if the user has scrolled past
       // the first books, land at the new first book — same as the shuffle
