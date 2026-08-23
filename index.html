@@ -3139,7 +3139,7 @@
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-x: contain;
       scrollbar-width: none;
-      padding: 2px 0 4px;
+      padding: 3px 0 3px;
       -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
       mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
     }
@@ -3167,11 +3167,13 @@
     }
     .tag-row #filter-toggle {
       flex: 0 0 auto;
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       padding: 0;
       border: none;
       color: var(--text-secondary);
+      background:none;
     }
 
     /* The panel becomes the dropdown behind ⚙ (same overlay pattern the
@@ -3224,7 +3226,7 @@
     .filter-bar.filters-open #filter-toggle {
       border-color: var(--accent-color);
       color: var(--accent-color);
-      background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
+      background: color-mix(in srgb, var(--accent-color) 5%, var(--bg-input));
     }
 
     }
