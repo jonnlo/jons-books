@@ -611,7 +611,7 @@
 
     .search-input-wrap {
       flex: 2;
-      min-width: 240px;
+      width: clamp(100px, 100%, 160px);
       position: relative;
       display: flex;
       align-items: center;
@@ -643,7 +643,7 @@
 
     .filter-select {
       flex: 1;
-      min-width: 120px;
+      width: clamp(100px, 100%, 160px);
       height: 42px;
       background: var(--bg-input);
       border: 1px solid var(--border-color);
