@@ -28,9 +28,11 @@ The behaviors differ by **viewport** (mobile ≤ 600px vs desktop > 600px) and b
 .filter-bar#filter-bar            ← the filter bar (search, panel, buttons, tags)
   .search-input-wrap              ← row 1 (mobile) / inline (desktop)
   .filter-panel#filter-panel      ← Volume / Status / Sort / Clear-all
-  #shuffle-btn, #surprise-btn, #filter-toggle
+  #shuffle-btn, #surprise-btn
   .view-toggle                    ← Grid / Volumes
-  .tag-filters#tag-filters        ← tag chips (single-row strip on mobile)
+  .tag-row                        ← row 2 (mobile): full-bleed wrapper
+    .tag-filters#tag-filters      ← tag chips (single-row strip on mobile)
+    #filter-toggle                ← ⚙ lives BESIDE the chips on mobile
 .results-count                    ← "Showing N books"
 main#book-grid                    ← Grid: class="book-grid" | Volumes: class="roadmap-container"
 ```
@@ -233,10 +235,15 @@ Grid/Volumes toggle. Three visual tiers:
 | ≤ 359px | 🔍 icon | icons only (labels re-hidden; this MQ must come AFTER the 600px block — both match, source order wins) |
 
 - Collapsed: `.search-input-wrap { display:none }`; row 1 = 🔍 + shuffle + surprise +
-  filters + icon+label toggle. Budget keepers: the four `.filter-btn`s are pinned to
-  `width: 42px` in the mobile MQ (base is 46px), bar `gap` drops 8→6px, and the
-  toggle segments run `6px 7px / 0.75rem` with 15px icons — measured one-line at
-  360/375/390/430; ≤359px additionally lets buttons size to content.
+  the flex-fill icon+label toggle. **The ⚙ Filters toggle lives on ROW 2**, inside a
+  full-bleed `.tag-row` wrapper beside the scrolling chip strip — its badge counts
+  active tags, so it sits with the chips it summarises. The WRAPPER carries the
+  `width: calc(100% + 32px); margin-inline: -16px` bleed; the strip is `flex: 1;
+  min-width: 0` inside it and keeps its own scroll/fade machinery
+  (`updateTagFiltersFade` reads the strip, so it needs no changes). Zero tags →
+  strip hides and ⚙ remains alone right-aligned (`justify-content: flex-end`),
+  keeping filters reachable after a Reset. Desktop: `.tag-row` is a plain
+  full-width flex div; the strip wraps chips as always and ⚙ stays hidden.
 - Tap 🔍 → `openMobileSearch()`: adds `.search-open` (field takes over the whole row,
   all other row-1 controls `display:none`), sets `aria-expanded`, calls
   `applyStickyBarState(true)` (force-reveal through `isBarLocked()`), focuses the input
