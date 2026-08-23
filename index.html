@@ -617,8 +617,10 @@
       align-items: center;
     }
 
-    .search-input-wrap i,
-    .search-input-wrap svg {
+    /* Direct children only — the mobile ✕ close button's svg must NOT be
+       caught by this absolute-positioning rule. */
+    .search-input-wrap > i,
+    .search-input-wrap > svg {
       position: absolute;
       left: 12px;
       top: 50%;
@@ -639,6 +641,48 @@
       padding: 8px 12px 8px 38px;
       color: var(--text-primary);
       font-size: 0.875rem;
+    }
+
+    /* Field-action buttons at the right edge of the search input:
+       ✕ = clear the query in place · ‹ = collapse (mobile expanded only).
+       The group is shown per-context: mobile while .search-open, desktop when
+       the wrap carries .has-value (the collapse button itself stays
+       desktop-hidden — see the min-width MQ). */
+    .search-actions {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      align-items: center;
+      gap: 2px;
+    }
+    .search-field-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .search-field-btn:hover {
+        color: var(--text-primary);
+      }
+    }
+    .search-field-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    /* inline-flex above would override the hidden attribute (recurring
+       gotcha — same as .tag-filters[hidden]) */
+    .search-field-btn[hidden] {
+      display: none !important;
     }
 
     .filter-select {
@@ -698,9 +742,16 @@
       cursor: pointer;
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
-    .filter-btn:hover {
-      border-color: var(--accent-color);
-      color: var(--accent-color);
+    /* Hover styling ONLY for devices with a real pointer. On touch, a tap
+       leaves a STICKY :hover (WebKit keeps it latched until the next tap
+       elsewhere) — the 🔍 toggle kept its accent border after collapsing the
+       expanded search field because of this. Same pattern as the
+       .book-card/.book3d hover scoping. */
+    @media (hover: hover) and (pointer: fine) {
+      .filter-btn:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+      }
     }
     .filter-btn:focus-visible {
       outline: 2px solid var(--accent-color);
@@ -731,6 +782,22 @@
       display: none !important; /* display:flex above would override the hidden attribute */
     }
 
+    /* Wrapper around the tag strip + (mobile) Filters toggle. Desktop needs
+       this too: as a plain block flex-item its min-width:auto would resolve
+       to the strip's min-content — enormous once the PINNED bar compacts the
+       strip to nowrap — so the row could never shrink and spilled past the
+       site width. width:100% + min-width:0 make it a well-behaved item; the
+       mobile MQ re-themes it full-bleed. */
+    .tag-row {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+    }
+    .tag-row .tag-filters {
+      min-width: 0; /* same auto-min-content guard, one level down */
+    }
+
     /* Filters panel: display:contents on desktop so the Volume / Status / Sort
        selects keep flowing inline between the search box and the action buttons
        exactly as before. The mobile-only "Filters" toggle, its badge, the panel
@@ -746,8 +813,17 @@
        Clear-all button (they only make sense in the compact mobile bar). */
     @media (min-width: 601px) {
       #filter-toggle,
-      #filter-clear {
+      #filter-clear,
+      #search-toggle,
+      #search-collapse {
         display: none;
+      }
+      /* Desktop: the ✕ appears inside the field only while it has text. */
+      .search-input-wrap.has-value .search-actions {
+        display: inline-flex;
+      }
+      .search-input-wrap.has-value .search-input {
+        padding-right: 44px; /* room for the ✕ */
       }
     }
     /* Active-filter count badge on the mobile "Filters" toggle */
@@ -789,10 +865,12 @@
       cursor: pointer;
       transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     }
-    .tag-filter-chip:hover {
-      border-color: var(--accent-color);
-      color:var(--text-primary);
-      background: var(--img-bg-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .tag-filter-chip:hover {
+        border-color: var(--accent-color);
+        color:var(--text-primary);
+        background: var(--img-bg-hover);
+      }
     }
     .tag-filter-chip[aria-pressed="true"] {
       background: var(--accent-color);
@@ -907,10 +985,12 @@
       font-family: inherit;
       transition: border-color 0.15s ease, color 0.15s ease;
     }
-    .tag-chip:hover {
-      border-color: var(--accent-color);
-      color: var(--text-primary);
-      background: var(--img-bg-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .tag-chip:hover {
+        border-color: var(--accent-color);
+        color: var(--text-primary);
+        background: var(--img-bg-hover);
+      }
     }
     .tag-chip:focus-visible {
       outline: 2px solid var(--accent-color);
@@ -2865,7 +2945,7 @@
            spot, engaging it never shifts the layout. */
         position: relative;
         z-index: 50;
-        gap: 8px;
+        gap: 6px; /* 8px left no room for icons in the Grid/Volumes toggle */
         isolation: isolate;
         background: transparent;
         margin-bottom: 14px;
@@ -2906,40 +2986,111 @@
         z-index: 60;
       }
 
-      /* Row 1: search (grows) + Surprise + Grid/Volumes + Filters toggle */
+      /* ===== Row 1: collapsible search + tools + LABELED view toggle ===== */
+
+      /* Collapsed search: the field hides behind the 🔍 toggle so row 1 has
+         room for the labeled Grid/Volumes toggle (the app's core navigation).
+         Tapping 🔍 adds .search-open — the field takes over the whole row and
+         every other control steps aside (see openMobileSearch/closeMobileSearch
+         JS, which also locks the sticky bar so it can't tuck under the
+         keyboard). An applied query survives collapsing and shows as a corner
+         dot (#search-badge) on the icon. */
       .search-input-wrap {
+        display: none;
+      }
+      .filter-bar.search-open .search-input-wrap {
+        display: flex;
         order: 1;
-        flex: 1 1 0; /* basis 0 so all four row-1 controls fit on one line; search grows to fill */
-        min-width: 0; /* was 240px — let it shrink to share row 1 with the buttons */
+        flex: 1 1 0; /* basis 0 so the field fills the freed row */
+        min-width: 0;
+      }
+      .filter-bar.search-open #search-toggle,
+      .filter-bar.search-open #shuffle-btn,
+      .filter-bar.search-open #surprise-btn,
+      .filter-bar.search-open .view-toggle,
+      .filter-bar.search-open #filter-toggle {
+        display: none;
+      }
+      #search-toggle {
+        order: 1;
+        flex: 0 0 auto;
+        width: 42px; /* base pins 46px — 42 frees room for toggle icons */
+        padding: 0 8px;
+      }
+      .filter-bar.search-open .search-actions {
+        display: inline-flex;
+      }
+      .filter-bar.search-open .search-input {
+        padding-right: 44px; /* room for ‹ (always visible while expanded) */
+      }
+      .filter-bar.search-open .search-input-wrap.has-value .search-input {
+        padding-right: 82px; /* room for ✕ + ‹ once there's text to clear */
       }
       .search-input {
         font-size: 16px; /* >=16px stops iOS Safari auto-zooming the input on focus */
       }
       #shuffle-btn,
-      #surprise-btn,
-      #filter-toggle {
+      #surprise-btn {
         order: 1;
         flex: 0 0 auto;
-        padding: 0 12px;
+        /* Base pins width:46px; 42px here keeps row 1 airy now that the
+           Filters toggle lives on the tag row below. */
+        width: 42px;
+        padding: 0 8px;
       }
 
-      /* Row 1 (cont.): slim icon-only Grid / Volumes toggle */
+      /* Row 1 (cont.): Grid / Volumes toggle WITH icons + labels. Compact
+         metrics (15px icons, 0.75rem labels, 6px 7px padding) so both
+         segments + the four 42px icon buttons share one line down to 360px.
+         flex: 1 1 0 keeps the segments equal-width so the sliding pill still
+         lines up. */
       .view-toggle {
         order: 1;
-        flex: 0 0 auto;
+        flex: 1 0 auto;
       }
       .view-toggle .btn-secondary {
         min-width: 0;
-        padding: 6px 10px;
+        gap: 3px;
+        padding: 6px 7px;
+        font-size: 0.83rem;
       }
-      .view-toggle .toggle-label {
-        display: none;
+      .view-toggle .btn-secondary svg {
+        display: inline-flex;
+        width: 18px;
+        height: 18px;
       }
 
-      /* Row 2: tag strip (full-bleed, existing rule above) */
-      .tag-filters {
+      /* Row 2: tag chips + the Filters toggle, one full-bleed row. The strip
+         scrolls BESIDE the pinned ⚙ (its badge counts active tags, so the
+         button belongs with the chips it summarises). The WRAPPER carries the
+         edge-to-edge bleed; the strip just fills the leftover width and keeps
+         its own scroll/fade machinery. Zero tags → strip hides, ⚙ remains
+         alone right-aligned so filters stay reachable after a Reset. */
+      .tag-row {
         order: 2;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+        width: calc(100% + 32px);
+        margin-inline: -16px;
+        padding-right: 10px;
       }
+      .tag-row .tag-filters {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+        margin-inline: 0;
+      }
+      .tag-row #filter-toggle {
+        flex: 0 0 auto;
+        width: 40px;
+        height:40px;
+        padding: 0 8px;
+        border:none;
+        color:var(--text-secondary);
+      }
+      
 
       /* Row 3: Filters panel — Volume | Status 2-col, Sort, Clear all.
          Overlays the grid (absolute, just below the bar) instead of pushing
@@ -2996,6 +3147,23 @@
         border-color: var(--accent-color);
         color: var(--accent-color);
         background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-input));
+      }
+    }
+
+    /* Extreme small phones (≤359px): icons+labels don't fit next to the four
+       icon buttons — revert the toggle to ICONS-ONLY so every control stays
+       on row 1. MUST come after the max-width:600px block — both queries
+       match at these widths, so source order decides the winner. */
+    @media (max-width: 359px) {
+      .filter-btn {
+        width: auto;
+        padding: 0 8px;
+      }
+      .view-toggle .btn-secondary {
+        padding: 6px 9px;
+      }
+      .view-toggle .toggle-label {
+        display: none;
       }
     }
 
@@ -3179,6 +3347,14 @@
       <div class="search-input-wrap">
         <i data-lucide="search"></i>
         <input type="text" id="search-input" class="search-input" placeholder="Search Title, Author, Stage, Notes, ISBN...">
+        <!-- Field actions (absolute, right edge): ✕ clears the query IN PLACE
+             (hidden while the field is empty); ‹ collapses the expanded mobile
+             field back to its 🔍 icon (mobile-only). An applied query survives
+             collapsing — the badge dot on 🔍 signals it. -->
+        <div class="search-actions">
+          <button type="button" id="search-clear" class="search-field-btn" aria-label="Clear search" hidden><i data-lucide="x"></i></button>
+          <button type="button" id="search-collapse" class="search-field-btn" aria-label="Collapse search"><i data-lucide="chevron-left"></i></button>
+        </div>
       </div>
 
       <!-- Volume / Status / Sort + Clear all. On desktop the panel is
@@ -3219,23 +3395,36 @@
         <button type="button" id="filter-clear" class="btn-secondary"><i data-lucide="rotate-ccw"></i> Clear all</button>
       </div>
 
+      <!-- Mobile-only: collapses row 1 into a 🔍 icon so the labeled
+           Grid/Volumes toggle fits. Tapping expands the field over the whole
+           row (.search-open CSS + openMobileSearch JS below). -->
+      <button type="button" id="search-toggle" class="filter-btn" title="Search" aria-label="Search books" aria-expanded="false" aria-controls="search-input">
+        <i data-lucide="search"></i>
+        <span class="filter-badge" id="search-badge" hidden></span>
+      </button>
       <button type="button" id="shuffle-btn" class="filter-btn" title="Reshuffle" aria-label="Reshuffle" hidden><i data-lucide="shuffle"></i></button>
       <button type="button" id="surprise-btn" class="filter-btn" title="Open a random book from the current results" aria-label="Surprise me"><i data-lucide="sparkles"></i></button>
-      <button type="button" id="filter-toggle" class="filter-btn" title="Toggle filters" aria-label="Toggle filters" aria-expanded="false" aria-controls="filter-panel">
-        <i data-lucide="sliders-horizontal"></i>
-        <span class="filter-badge" id="filter-badge" hidden></span>
-      </button>
 
       <div class="view-toggle" role="group" aria-label="View mode">
-        <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View" aria-pressed="true">
+        <button class="btn-secondary active" id="view-grid-btn" type="button" title="Grid View" aria-label="Grid view" aria-pressed="true">
           <i data-lucide="grid"></i> <span class="toggle-label">Grid</span>
         </button>
-        <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Volumes View" aria-pressed="false">
+        <button class="btn-secondary" id="view-roadmap-btn" type="button" title="Volumes View" aria-label="Volumes view" aria-pressed="false">
           <i data-lucide="layers"></i> <span class="toggle-label">Volumes</span>
         </button>
       </div>
 
-      <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag" hidden></div>
+      <!-- Row 2 (mobile): tag chips + the Filters toggle, side by side. The
+           strip scrolls BESIDE the pinned ⚙ — its badge counts active tags,
+           so the button lives with the chips it summarises. Stays on this row
+           even when the catalog has no tags (lone right-aligned ⚙). -->
+      <div class="tag-row">
+        <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag" hidden></div>
+        <button type="button" id="filter-toggle" class="filter-btn" title="Toggle filters" aria-label="Toggle filters" aria-expanded="false" aria-controls="filter-panel">
+          <i data-lucide="sliders-horizontal"></i>
+          <span class="filter-badge" id="filter-badge" hidden></span>
+        </button>
+      </div>
     </div>
 
     <!-- Results Count -->
@@ -4131,6 +4320,12 @@
     const filterToggle = document.getElementById('filter-toggle');
     const filterBadge = document.getElementById('filter-badge');
     const filterClear = document.getElementById('filter-clear');
+    // Mobile collapsible search (see openMobileSearch/closeMobileSearch below).
+    const searchToggle = document.getElementById('search-toggle');
+    const searchBadge = document.getElementById('search-badge');
+    const searchClearBtn = document.getElementById('search-clear');
+    const searchCollapseBtn = document.getElementById('search-collapse');
+    const searchWrap = document.querySelector('.search-input-wrap');
     // Mobile-only: view switches land at the first books (see scrollToFirstBooks).
     const mobileView = window.matchMedia('(max-width: 600px)');
 
@@ -4169,6 +4364,13 @@
     let desktopBarNaturalHeight = 0;
     let desktopPinReleaseTimer = null;
     let barPanelLocked = false; // mobile Filters panel open → keep the bar revealed
+    // The bar must ALSO stay revealed while the expanded mobile search is open
+    // (either surface would otherwise tuck away mid-use). All reads go through
+    // this helper so closing the Filters panel can't unlock an open search
+    // (closeFilterPanel resets barPanelLocked unconditionally).
+    function isBarLocked() {
+      return barPanelLocked || filterBar.classList.contains('search-open');
+    }
     // A programmatic scroll-reset (shuffle/tag/sort/filter/view) pins the bar at
     // the landing point. Without this lock the jump's own scroll event sees the
     // below-bar sentinel back in view and un-sticks the bar, leaving it half-
@@ -4730,7 +4932,7 @@
           filterBar.classList.remove('is-pinned', 'is-revealed');
           filterBarFlowShim.style.height = '0px';
           desktopBarNaturalHeight = filterBar.offsetHeight;
-        } else if (barPanelLocked || (lastScrollDir === 'up' && (forceReveal || lastScrollDelta < 0))) {
+        } else if (isBarLocked() || (lastScrollDir === 'up' && (forceReveal || lastScrollDelta < 0))) {
           // Scroll up (or panel locked): reveal pinned at top. Downward
           // scrolling must never reveal the compact layout: changing from the
           // wrapped natural bar to the compact bar changes the in-flow height
@@ -4792,7 +4994,7 @@
       // half-tucked above the viewport. The lock is released once the user
       // scrolls the whole bar off again (or back to its natural spot).
       const pinned = barLandingLock || barPastTop;
-      const reveal = pinned && (barPanelLocked || barLandingLock || lastScrollDir === 'up' || forceReveal);
+      const reveal = pinned && (isBarLocked() || barLandingLock || lastScrollDir === 'up' || forceReveal);
       const hideNow = pinned && !reveal;
       if (hideNow && !wasPast) filterBar.style.transition = 'none';
       filterBar.classList.toggle('is-past', pinned);
@@ -4840,7 +5042,7 @@
       while (scrollSamples.length > 1 && t - scrollSamples[0].t > VELOCITY_WINDOW_MS) {
         scrollSamples.shift();
       }
-      if (barPanelLocked) return; // panel open → the bar stays revealed
+      if (isBarLocked()) return; // panel/search open → the bar stays revealed
       // Re-read the sentinel on every scroll. The below-bar sentinel marks
       // the natural BOTTOM of the always-sticky mobile bar (its flow space is
       // reserved by the shim), so it is stable and flips exactly when the bar
@@ -4974,12 +5176,82 @@
       }
     });
 
-    // Escape closes the panel.
+    // Escape closes the Filters panel, else the expanded mobile search.
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && filterBar.classList.contains('filters-open')) {
+      if (e.key !== 'Escape') return;
+      if (filterBar.classList.contains('filters-open')) {
         closeFilterPanel();
+      } else if (filterBar.classList.contains('search-open')) {
+        closeMobileSearch();
       }
     });
+
+    // --- Mobile collapsible search ---
+    // On phones the search field collapses to a 🔍 icon so row 1 fits the
+    // labeled Grid/Volumes toggle. Tapping the icon expands the field across
+    // the whole row (other controls step aside via .search-open CSS) and locks
+    // the sticky bar so it can't tuck away under the keyboard. Inside the
+    // expanded field: ✕ clears the query IN PLACE (field stays open); ‹
+    // collapses back to the icon — an applied query SURVIVES collapsing and
+    // shows as a corner dot on the icon (updateSearchBadge). Desktop only
+    // ever sees the ✕ (while the field has text); the 🔍/‹ machinery is
+    // display:none there.
+    function updateSearchBadge() {
+      if (!searchBadge) return;
+      const hasQuery = searchInput.value.trim() !== '';
+      searchBadge.hidden = !hasQuery;
+      // The badge is a bare dot (no text), so carry the state on the button's
+      // accessible name instead — otherwise SR users can't tell a query is on.
+      if (searchToggle) {
+        searchToggle.setAttribute('aria-label', hasQuery ? 'Search books — query active' : 'Search books');
+      }
+      // ✕ exists only while there's something to clear (both breakpoints);
+      // .has-value on the wrap reserves input padding-right for it in CSS.
+      if (searchClearBtn) searchClearBtn.hidden = !hasQuery;
+      if (searchWrap) searchWrap.classList.toggle('has-value', hasQuery);
+    }
+
+    function openMobileSearch() {
+      filterBar.classList.add('search-open');
+      searchToggle.setAttribute('aria-expanded', 'true');
+      // Force-reveal + latch the bar (mirrors the Filters-panel behaviour) so
+      // the freshly-expanded field is never stranded above the viewport.
+      applyStickyBarState(true);
+      searchInput.focus();
+      if (searchInput.value) searchInput.select();
+    }
+
+    function closeMobileSearch() {
+      filterBar.classList.remove('search-open');
+      searchToggle.setAttribute('aria-expanded', 'false');
+      applyStickyBarState();
+      updateSearchBadge();
+    }
+
+    if (searchToggle) {
+      searchToggle.addEventListener('click', () => {
+        if (filterBar.classList.contains('search-open')) closeMobileSearch();
+        else openMobileSearch();
+      });
+    }
+    // ✕ clears in place — empty the field, re-render, keep the field open and
+    // focused so typing can continue. ‹ collapses (query survives).
+    if (searchClearBtn) searchClearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      renderBooks(); // programmatic value writes fire no input event
+      searchInput.focus();
+    });
+    if (searchCollapseBtn) searchCollapseBtn.addEventListener('click', closeMobileSearch);
+
+    // Crossing the 600px breakpoint drops any lingering search-open state
+    // (desktop always shows the full field; the class is inert there anyway).
+    if (typeof mobileView.addEventListener === 'function') {
+      mobileView.addEventListener('change', () => {
+        if (!mobileView.matches && filterBar.classList.contains('search-open')) {
+          closeMobileSearch();
+        }
+      });
+    }
 
     // Clear all resets the panel filters, tags, and search. On mobile the
     // panel auto-collapses after a reset so the full results are visible.
@@ -5528,6 +5800,7 @@
       // that's already at its end (or never overflows) has no fade.
       updateTagFiltersFade();
       updateFilterBadge();
+      updateSearchBadge();
 
       const sortVal = sortSelect.value;
       const filtered = computeFilteredBooks();

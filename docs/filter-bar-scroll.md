@@ -50,7 +50,8 @@ Two zero-height **sentinels** are injected around the bar in JS:
 | `barPastTop` | `filterBarSentinel.bottom <= 0` (bar top at/above viewport top). Driven by an `IntersectionObserver` + `syncStickyBar()`. Used by the **mobile** branch. |
 | `lastScrollDir` | `'up'` / `'down'`, from velocity. Drives reveal/tuck. |
 | `lastScrollY` | last scroll position (for the velocity sample window). |
-| `barPanelLocked` | true while the mobile Filters panel is open → the bar is forced revealed so the panel can't ride away. |
+| `barPanelLocked` | true while the mobile Filters panel is open → the bar is forced revealed so the panel can't ride away. Read via the `isBarLocked()` helper (below), never directly. |
+| `isBarLocked()` | `barPanelLocked \|\| filterBar.classList.contains('search-open')` — the expanded mobile search locks the bar too. All three lock reads (scroll-listener early return, desktop reveal condition, mobile reveal calc) go through this helper so closing the Filters panel can't silently unlock an open search (`closeFilterPanel` resets `barPanelLocked` unconditionally). |
 | `barLandingLock` | true while a programmatic scroll-reset (shuffle/tag/sort/filter/view) is landing on mobile Grid. Forces the bar pinned+revealed through the jump so it can't end up half-tucked; released on a real scroll (whole bar off again, or back at its natural spot). |
 | `scrollSamples` | sliding window of `{y, t}` scroll samples. |
 | `VELOCITY_WINDOW_MS` | `90` ms — samples older than this are dropped. |
@@ -63,9 +64,10 @@ window and picks `dir`:
 - `velocity >= HIDE_DOWN_VELOCITY` → `'down'`
 - otherwise (the **dead zone**) → keep `lastScrollDir` unchanged (no flapping on slow drifts).
 
-While the mobile Filters panel is open (`barPanelLocked === true`) the listener records the
-sample and then **returns early** — the bar is forced revealed, so scroll direction doesn't
-change its state until the panel closes.
+While the mobile Filters panel is open **or the mobile search is expanded**
+(`isBarLocked() === true`) the listener records the sample and then **returns early** —
+the bar is forced revealed, so scroll direction doesn't change its state until both
+close.
 
 **Important:** a slow nudge (scroll events > 90 ms apart) never accumulates a window,
 so velocity ≈ 0 → the bar does **not** reveal. You must scroll up with a bit of speed.
@@ -219,7 +221,43 @@ so the panel closes and the new results (from the top) are immediately visible.
 Tag chips and the search box are not panel controls, so they don't auto-close it.
 
 ---
+5b. Mobile collapsible search (`#search-toggle` / `.search-open`)
 
+On phones the search field collapses to a 🔍 icon button so row 1 fits the **labeled**
+Grid/Volumes toggle. Three visual tiers:
+
+| Breakpoint | Search | Grid/Volumes toggle |
+|---|---|---|
+| > 600px | full field | icons + labels, desktop size (`#search-toggle` hidden) |
+| 361–600px | 🔍 icon | icons + labels, compact (15px icons, `0.75rem` labels) |
+| ≤ 359px | 🔍 icon | icons only (labels re-hidden; this MQ must come AFTER the 600px block — both match, source order wins) |
+
+- Collapsed: `.search-input-wrap { display:none }`; row 1 = 🔍 + shuffle + surprise +
+  filters + icon+label toggle. Budget keepers: the four `.filter-btn`s are pinned to
+  `width: 42px` in the mobile MQ (base is 46px), bar `gap` drops 8→6px, and the
+  toggle segments run `6px 7px / 0.75rem` with 15px icons — measured one-line at
+  360/375/390/430; ≤359px additionally lets buttons size to content.
+- Tap 🔍 → `openMobileSearch()`: adds `.search-open` (field takes over the whole row,
+  all other row-1 controls `display:none`), sets `aria-expanded`, calls
+  `applyStickyBarState(true)` (force-reveal through `isBarLocked()`), focuses the input
+  (selects existing text if any).
+- Field actions sit at the right edge of the expanded field (`.search-actions`):
+  ✕ (`#search-clear`) CLEARS the query in place — field stays open + focused,
+  `renderBooks()` re-runs (programmatic value writes fire no input event); ‹
+  (`#search-collapse`) or Escape → `closeMobileSearch()`: removes `.search-open`,
+  calls `applyStickyBarState()` + `updateSearchBadge()`. The ✕ is hidden while the
+  field is empty on BOTH breakpoints (`.has-value` class on the wrap drives its
+  visibility + the input's padding-right); ‹ is mobile-only (hidden ≥601px).
+- An applied query **survives collapsing**; `updateSearchBadge()` (called from
+  `renderBooks`) shows a corner dot (`#search-badge`, same `.filter-badge` style as the
+  Filters toggle) on the 🔍 while a query is active.
+- Desktop is untouched: `#search-toggle` is in the min-width:601px hide list and the
+  `.search-open` rules live inside the mobile MQ only; a `mobileView change` listener
+  drops lingering state when resizing across the breakpoint.
+
+---
+
+## 
 ## 6. Which controls reset scroll — summary
 
 | Control | Desktop | Mobile |
