@@ -25,7 +25,7 @@
       --bg-main: hsl(223, 0%, 2%);
       --bg-surface: hsl(220, 0%, 7.5%);
       --bg-card: hsl(221, 0%, 15%);
-      --bg-card-hover: #1e2c45;
+      --bg-card-hover: hsl(218, 39%, 19%);
       --bg-input: hsl(222, 0%, 5%);
       --border-color: hsl(217, 0%, 10%);
       --border-accent: #3b82f6;
@@ -196,9 +196,16 @@
       overflow: hidden;
       background: var(--bg-surface);
       flex-shrink: 0;
+      /* ONE place to tune the segmented-control animation: the pill slide AND
+         the icon/label color swap share this duration + easing so the text
+         changes in lockstep with the pill (the global * rule's 0.2s ease
+         finished before the pill arrived). */
+      --toggle-time: 0.25s;
+      --toggle-ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* The sliding active pill (inset 3px, rounded) */
+    /* The sliding active pill (inset 3px, rounded). Both ends of the slide
+       are explicit transforms so the interpolation is symmetric. */
     .mode-toggle::before {
       content: "";
       position: absolute;
@@ -208,14 +215,38 @@
       width: calc(50% - 6px);
       border-radius: 6px;
       background: var(--accent-color);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+      transition: transform var(--toggle-time) var(--toggle-ease);
       will-change: transform;
       z-index: 1;
     }
 
-    /* View segment active → slide the pill to the right half */
-    .mode-toggle:has(#mode-view-btn.active)::before {
+    /* View segment active → slide the pill to the right half.
+       Driven by a CLASS (.is-view, set in applyModeToggleState) instead of
+       :has(): WebKit/Safari doesn't reliably START a transition when the
+       changed property comes from a :has() match (the pill just jumps there),
+       while class-based transitions animate in every engine. */
+    .mode-toggle.is-view::before {
       transform: translateX(calc(100% + 6px));
+    }
+
+    /* Icon + label color rides the SAME clock as the pill — lucide icons
+       stroke with currentColor, so animating color covers both. Overrides
+       the generic 0.2s ease inherited from the global * rule. */
+    .mode-toggle .btn-secondary {
+      transition: color var(--toggle-time) var(--toggle-ease),
+        background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* The global * rule hands EVERY descendant (icon svg, label span) its own
+       0.2s color transition. Each child then chases the button's already-
+       interpolating color frame by frame, so icons/labels visibly trail the
+       pill — reads as a slow fade, most noticeable in WebKit/Safari. Children
+       must paint the button's color AS-IS: no second tween of their own.
+       (Serves both segmented controls.) */
+    .mode-toggle :not(.btn-secondary),
+    .view-toggle :not(.btn-secondary) {
+      transition: none;
     }
 
     .mode-toggle .btn-secondary {
@@ -238,7 +269,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .mode-toggle::before {
+      .mode-toggle::before,
+      .mode-toggle .btn-secondary {
         transition: none;
       }
     }
@@ -2279,9 +2311,16 @@
       overflow: hidden;
       background: var(--bg-surface);
       flex-shrink: 0;
+      /* ONE place to tune the segmented-control animation: the pill slide AND
+         the icon/label color swap share this duration + easing so the text
+         changes in lockstep with the pill (the global * rule's 0.2s ease
+         finished before the pill arrived). */
+      --toggle-time: 0.25s;
+      --toggle-ease: cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* The sliding active pill (inset 3px, rounded) */
+    /* The sliding active pill (inset 3px, rounded). Both ends of the slide
+       are explicit transforms so the interpolation is symmetric. */
     .view-toggle::before {
       content: "";
       position: absolute;
@@ -2291,14 +2330,27 @@
       width: calc(50% - 6px);
       border-radius: 7px;
       background: var(--accent-color);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+      transition: transform var(--toggle-time) var(--toggle-ease);
       will-change: transform;
       z-index: 1;
     }
 
-    /* Roadmap active → slide the pill to the right half */
-    .view-toggle:has(#view-roadmap-btn.active)::before {
+    /* Roadmap active → slide the pill to the right half.
+       Driven by a CLASS (.is-roadmap, set in syncViewFromSort) instead of
+       :has(): WebKit/Safari doesn't reliably START a transition when the
+       changed property comes from a :has() match (desktop Safari skipped the
+       slide entirely), while class-based transitions animate everywhere. */
+    .view-toggle.is-roadmap::before {
       transform: translateX(calc(100% + 6px));
+    }
+
+    /* Icon + label color rides the SAME clock as the pill — lucide icons
+       stroke with currentColor, so animating color covers both. Overrides
+       the generic 0.2s ease inherited from the global * rule. */
+    .view-toggle .btn-secondary {
+      transition: color var(--toggle-time) var(--toggle-ease),
+        background-color 0.2s ease, border-color 0.2s ease;
     }
 
     .view-toggle .btn-secondary {
@@ -2320,7 +2372,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .view-toggle::before {
+      .view-toggle::before,
+      .view-toggle .btn-secondary {
         transition: none;
       }
       /* No rise-in for the detail modal — instant open under reduced motion. */
@@ -3859,22 +3912,36 @@
     // mode (public-style read-only browsing). Both sides read the SAME working
     // copy (in-memory `books` + localStorage) — toggling is presentation-only,
     // so unexported edits always remain visible and nothing is ever lost.
+    // Reflect the current mode on the segmented control AND drive its sliding
+    // pill via the .is-view class (class-based transitions animate reliably
+    // in Safari; :has()-triggered ones don't — see the .mode-toggle CSS).
+    function applyModeToggleState() {
+      const editBtn = document.getElementById('mode-edit-btn');
+      const viewBtn = document.getElementById('mode-view-btn');
+      const wrap = document.getElementById('mode-toggle');
+      if (editBtn) {
+        editBtn.classList.toggle('active', !viewOnly);
+        editBtn.setAttribute('aria-pressed', String(!viewOnly));
+      }
+      if (viewBtn) {
+        viewBtn.classList.toggle('active', viewOnly);
+        viewBtn.setAttribute('aria-pressed', String(viewOnly));
+      }
+      if (wrap) wrap.classList.toggle('is-view', viewOnly);
+    }
+
     function setViewOnly(v) {
       viewOnly = v;
       document.body.classList.toggle('view-only', v);
       if (!isPublic) localStorage.setItem(VIEW_MODE_KEY, v ? 'view' : 'edit');
-      const editBtn = document.getElementById('mode-edit-btn');
-      const viewBtn = document.getElementById('mode-view-btn');
-      if (editBtn) {
-        editBtn.classList.toggle('active', !v);
-        editBtn.setAttribute('aria-pressed', String(!v));
-      }
-      if (viewBtn) {
-        viewBtn.classList.toggle('active', v);
-        viewBtn.setAttribute('aria-pressed', String(v));
-      }
-      renderBooks(); // re-render current view (roadmap re-render swaps sortables/stage classes)
-      if (!v) updateExportReminder(); // back in edit mode — refresh the export nudge
+      // Flip the pill/classes FIRST, then yield before the heavy re-render so
+      // the slide starts on the compositor instead of being starved by
+      // renderBooks()'s main-thread work (the iOS lag).
+      applyModeToggleState();
+      scheduleViewWork(() => {
+        renderBooks(); // re-render current view (roadmap re-render swaps sortables/stage classes)
+        if (!v) updateExportReminder(); // back in edit mode — refresh the export nudge
+      });
     }
 
     // Collapsible States (volumes only — stages are compact rows now, so they
@@ -4351,6 +4418,7 @@
     // DOM Elements
     const viewGridBtn = document.getElementById('view-grid-btn');
     const viewRoadmapBtn = document.getElementById('view-roadmap-btn');
+    const viewToggleWrap = document.querySelector('.view-toggle');
     const bookGrid = document.getElementById('book-grid');
 
     // 3D book hover: cursor-following tilt + gloss sheen on covers (grid + volumes rows).
@@ -5312,32 +5380,66 @@
       viewRoadmapBtn.setAttribute('aria-pressed', String(wantRoadmap));
       viewGridBtn.classList.toggle('active', !wantRoadmap);
       viewGridBtn.setAttribute('aria-pressed', String(!wantRoadmap));
+      // Slide-pill driver: a class instead of :has() — WebKit doesn't start
+      // transitions off a :has() match, so Safari showed no slide at all.
+      if (viewToggleWrap) viewToggleWrap.classList.toggle('is-roadmap', wantRoadmap);
+    }
+
+    // Heavy post-toggle work (renderBooks + scroll landing) is deferred by a
+    // couple of frames AFTER the toggle classes flip. A transform transition
+    // needs one committed frame to start on the compositor; rendering 200+
+    // cards synchronously in the same task starves it, which is why the pill
+    // slide felt laggy on iOS. Cancelling means rapid re-clicks never stack
+    // renders — the last click wins. A short setTimeout watchdog backs the
+    // rAF chain up: in normal browsers the frames win long before it fires,
+    // but in environments that starve rAF the view still swaps.
+    let pendingViewWork = 0;
+    function scheduleViewWork(fn) {
+      if (pendingViewWork) {
+        cancelAnimationFrame(pendingViewWork);
+        clearTimeout(pendingViewWork);
+      }
+      let done = false;
+      const run = () => {
+        if (done) return;
+        done = true;
+        pendingViewWork = 0;
+        fn();
+      };
+      pendingViewWork = requestAnimationFrame(() => requestAnimationFrame(run));
+      setTimeout(run, 120);
     }
 
     viewGridBtn.addEventListener('click', () => {
       // Returning to Grid restores the user's last real sort — the dropdown
       // kept it while Volumes held reading-order.
       sortSelect.value = lastGridSort;
+      // Classes flip now (pill starts sliding); the re-render yields to it.
       syncViewFromSort();
-      renderBooks();
-      // View switch reveals the bar in Grid so the mobile first-books landing
-      // (offset = bar height + 8) matches the visible pinned bar.
-      lastScrollDir = 'up';
-      syncStickyBar();
-      scrollToFirstBooks();
+      scheduleViewWork(() => {
+        renderBooks();
+        // View switch reveals the bar in Grid so the mobile first-books landing
+        // (offset = bar height + 8) matches the visible pinned bar.
+        lastScrollDir = 'up';
+        syncStickyBar();
+        scrollToFirstBooks();
+      });
     });
 
     viewRoadmapBtn.addEventListener('click', () => {
       // Volumes view = Reading Order sort. Setting the dropdown keeps both
       // controls in lockstep instead of letting them drift apart.
       sortSelect.value = 'reading-order';
+      // Classes flip now (pill starts sliding); the re-render yields to it.
       syncViewFromSort();
-      renderBooks();
-      // In Volumes the first volume lands flush (offset 4) with the bar hidden,
-      // so leave it tucked until the user scrolls up.
-      lastScrollDir = 'down';
-      syncStickyBar();
-      scrollToFirstBooks();
+      scheduleViewWork(() => {
+        renderBooks();
+        // In Volumes the first volume lands flush (offset 4) with the bar hidden,
+        // so leave it tucked until the user scrolls up.
+        lastScrollDir = 'down';
+        syncStickyBar();
+        scrollToFirstBooks();
+      });
     });
 
     // --- Filters panel (mobile "Filters" sheet) ---
@@ -5465,11 +5567,13 @@
       sortSelect.value = 'year-desc'; // full reset ⇒ Grid + default sort
       searchInput.value = '';
       activeTags.clear();
-      syncViewFromSort();
-      renderBooks();
-      if (narrowPanel.matches) closeFilterPanel();
-      // Land at the first book when filters are cleared (both breakpoints).
-      scrollToFirstBooks();
+      syncViewFromSort(); // pill/classes flip now; render yields below
+      scheduleViewWork(() => {
+        renderBooks();
+        if (narrowPanel.matches) closeFilterPanel();
+        // Land at the first book when filters are cleared (both breakpoints).
+        scrollToFirstBooks();
+      });
     });
 
     // 1) FIX: Copy All Titles Functionality (Nested under Volumes & Stages)
@@ -6520,38 +6624,40 @@
       // Ensure the roadmap view is active (via the sort ⇄ view coupling).
       if (currentView !== 'roadmap') {
         sortSelect.value = 'reading-order';
-        syncViewFromSort();
+        syncViewFromSort(); // pill/classes flip now; render yields below
       }
-      // Expand the target volume if collapsed.
-      const volKey = `vol-${volNum}`;
-      if (collapsedVolumes.has(volKey)) {
-        collapsedVolumes.delete(volKey);
-        saveCollapsedStates();
-      }
-      renderBooks();
-      // Scroll via scrollIntoView — the browser resolves the target position
-      // atomically at scroll time, so there's no measure-then-scroll race
-      // when a collapsed volume just expanded and shifted the layout (the old
-      // getBoundingClientRect + scrollTo math could land at a stale spot).
-      // Landing clearances live in CSS as scroll-margin-top on the targets:
-      // .volume-section 4px / .stage-block 72px desktop, 84px mobile (clears
-      // the sticky volume header pinned at top:0). The section is targeted
-      // for volume jumps — never sticky itself, so its rect is always its
-      // true position (a stuck header would report top:0).
-      requestAnimationFrame(() => {
+      scheduleViewWork(() => {
+        // Expand the target volume if collapsed.
+        const volKey = `vol-${volNum}`;
+        if (collapsedVolumes.has(volKey)) {
+          collapsedVolumes.delete(volKey);
+          saveCollapsedStates();
+        }
+        renderBooks();
+        // Scroll via scrollIntoView — the browser resolves the target position
+        // atomically at scroll time, so there's no measure-then-scroll race
+        // when a collapsed volume just expanded and shifted the layout (the old
+        // getBoundingClientRect + scrollTo math could land at a stale spot).
+        // Landing clearances live in CSS as scroll-margin-top on the targets:
+        // .volume-section 4px / .stage-block 72px desktop, 84px mobile (clears
+        // the sticky volume header pinned at top:0). The section is targeted
+        // for volume jumps — never sticky itself, so its rect is always its
+        // true position (a stuck header would report top:0).
         requestAnimationFrame(() => {
-          const selector = stageNum
-            ? `.volume-section[data-vol-num="${volNum}"] .stage-block[data-stage-num="${stageNum}"]`
-            : `.volume-section[data-vol-num="${volNum}"]`;
-          const target = document.querySelector(selector);
-          if (!target) return;
-          // Reset the velocity baseline so the programmatic jump isn't read
-          // as a user flick (which would wrongly reveal the filter bar).
-          scrollSamples.length = 0;
-          lastScrollY = window.scrollY;
-          lastScrollDir = 'down';
-          syncStickyBar();
-          target.scrollIntoView({ block: 'start' });
+          requestAnimationFrame(() => {
+            const selector = stageNum
+              ? `.volume-section[data-vol-num="${volNum}"] .stage-block[data-stage-num="${stageNum}"]`
+              : `.volume-section[data-vol-num="${volNum}"]`;
+            const target = document.querySelector(selector);
+            if (!target) return;
+            // Reset the velocity baseline so the programmatic jump isn't read
+            // as a user flick (which would wrongly reveal the filter bar).
+            scrollSamples.length = 0;
+            lastScrollY = window.scrollY;
+            lastScrollDir = 'down';
+            syncStickyBar();
+            target.scrollIntoView({ block: 'start' });
+          });
         });
       });
     }
@@ -7345,12 +7451,14 @@
     shuffleBtn.addEventListener('click', () => {
       sortSelect.value = 'random';
       shuffledIds = null;
-      syncViewFromSort();
-      renderBooks();
-      // If the user has scrolled past the sticky point, land at the new first
-      // book so the reshuffle is actually visible (no-op near the top, and
-      // mobile-only — same guard as the view-switch scroll).
-      scrollToFirstBooks();
+      syncViewFromSort(); // pill/classes flip now; render yields below
+      scheduleViewWork(() => {
+        renderBooks();
+        // If the user has scrolled past the sticky point, land at the new first
+        // book so the reshuffle is actually visible (no-op near the top, and
+        // mobile-only — same guard as the view-switch scroll).
+        scrollToFirstBooks();
+      });
     });
 
     // Any non-reading-order pick implies Grid; picking Reading Order implies
@@ -7359,13 +7467,15 @@
     // new results are visible.
     sortSelect.addEventListener('change', () => {
       if (sortSelect.value !== 'reading-order') lastGridSort = sortSelect.value;
-      syncViewFromSort();
-      renderBooks();
-      if (mobileView.matches) closeFilterPanel();
-      // Changing the sort reorders the grid, so if the user has scrolled past
-      // the first books, land at the new first book — same as the shuffle
-      // button (no-op near the top, mobile-only via scrollToFirstBooks).
-      scrollToFirstBooks();
+      syncViewFromSort(); // pill/classes flip now; render yields below
+      scheduleViewWork(() => {
+        renderBooks();
+        if (mobileView.matches) closeFilterPanel();
+        // Changing the sort reorders the grid, so if the user has scrolled past
+        // the first books, land at the new first book — same as the shuffle
+        // button (no-op near the top, mobile-only via scrollToFirstBooks).
+        scrollToFirstBooks();
+      });
     });
 
     // Surprise me: open a random book from the ENTIRE library. Filters and
@@ -7436,14 +7546,11 @@
     // on the segmented control, then wire the two segments to setViewOnly.
     const modeEditBtn = document.getElementById('mode-edit-btn');
     const modeViewBtn = document.getElementById('mode-view-btn');
+    applyModeToggleState(); // sets .active AND the .is-view pill class
     if (modeEditBtn) {
-      modeEditBtn.classList.toggle('active', !viewOnly);
-      modeEditBtn.setAttribute('aria-pressed', String(!viewOnly));
       modeEditBtn.addEventListener('click', () => setViewOnly(false));
     }
     if (modeViewBtn) {
-      modeViewBtn.classList.toggle('active', viewOnly);
-      modeViewBtn.setAttribute('aria-pressed', String(viewOnly));
       modeViewBtn.addEventListener('click', () => setViewOnly(true));
     }
 
