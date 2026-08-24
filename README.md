@@ -13,7 +13,7 @@ This started as a personal project to track and browse my reading — 223 books 
 - **Two views:** a visual **Grid** of cover cards and a **Volumes** ("roadmap") view that groups books into reading volumes and stages.
 - **Active Books:** three "reading engine" tracks — Deep Focus, Complementary, Exploration — that pin currently-read books.
 - **Search & filter:** full-text search (title, author, stage, notes, ISBN), plus **volume**, **status**, and multi-select **tag** filters.
-- **Sorting:** reading order (volume → stage → order), year (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
+- **Sorting:** reading order (volume → stage → order), year (newest/oldest), date added (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
 - **Edit / View modes:** flip between maintaining the library and read-only browsing on the same data.
 - **Book details modal:** cover, volume/stage, reading order, publisher **summary** (collapsible), notes, tags, and ISBN links to Google Books and Goodreads.
 - **Status tracking:** opt-in *To Read / Reading / Completed*, with distinct pill styles — To Read neutral, Reading accent outline, Completed solid accent fill.

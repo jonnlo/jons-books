@@ -3610,8 +3610,10 @@
           <select class="filter-select" id="sort-select">
             <!-- 'reading-order' doubles as the Volumes-view selector (see syncViewFromSort). -->
             <option value="reading-order">Reading Order (Volumes View)</option>
-            <option value="year-desc" selected>Year (Newest First)</option>
-            <option value="year-asc">Year (Oldest First)</option>
+            <option value="year-desc" selected>Published (New → Old)</option>
+            <option value="year-asc">Published (Old → New)</option>
+            <option value="created-desc">Added (New → Old)</option>
+            <option value="created-asc">Added (Old → New)</option>
             <option value="title-asc">Title (A-Z)</option>
             <option value="random">Random</option>
           </select>
@@ -3745,6 +3747,10 @@
             <input type="text" id="book-isbn-input" placeholder="e.g. 9780197686546">
           </div>
           <div class="form-group">
+            <label for="book-created-input">Added On</label>
+            <input type="datetime-local" id="book-created-input">
+          </div>
+          <div class="form-group">
             <label for="book-pages-input">Pages (optional)</label>
             <input type="number" id="book-pages-input" min="1" step="1" placeholder="e.g. 320">
           </div>
@@ -3819,6 +3825,10 @@
             <div class="detail-meta-row" id="detail-isbn-row">
               <span class="detail-meta-label">ISBN</span>
               <span class="detail-meta-value" id="detail-isbn"></span>
+            </div>
+            <div class="detail-meta-row" id="detail-added-row">
+              <span class="detail-meta-label">Added</span>
+              <span class="detail-meta-value" id="detail-added"></span>
             </div>
           </div>
           <div class="detail-tags" id="detail-tags" hidden>
@@ -4196,6 +4206,9 @@
         summary: b.summary || "",
         isbn: (b.isbn || "").toString(),
         pages: b.pages ? parseInt(b.pages, 10) : undefined,
+        // Date Added (ISO datetime). Backfilled from epub file creation dates
+        // by scripts/add-created-dates.mjs; new books are stamped at save time.
+        created: b.created || "",
         tags: Array.isArray(b.tags)
           ? [...new Set(b.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean))]
           : []
@@ -4695,6 +4708,23 @@
     const inputNotes = document.getElementById('book-notes-input');
     const inputSummary = document.getElementById('book-summary-input');
     const inputTags = document.getElementById('book-tags-input');
+
+    // --- Date Added (`created`) helpers ---
+    // Books store `created` as an ISO string; the edit form edits it through a
+    // datetime-local input (local time, minute precision). Clearing the field
+    // is non-destructive: the submit handler falls back to the persisted date.
+    const inputCreated = document.getElementById('book-created-input');
+    function toDatetimeLocalValue(iso) {
+      const d = iso ? new Date(iso) : null;
+      if (!d || isNaN(d)) return '';
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+    function createdToIso(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      return isNaN(d) ? '' : d.toISOString();
+    }
 
     // --- Tag editor (edit modal): chip input + type-ahead tag picker. ---
     // #book-tags-input is a hidden field that stays the single source of truth
@@ -5452,7 +5482,7 @@
       if (filterStatus.value !== '') count++;
       // 'reading-order' IS the Volumes view (not a pending filter), so it
       // never counts toward the badge.
-      if (['year-asc', 'title-asc', 'random'].includes(sortSelect.value)) count++;
+      if (['year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'].includes(sortSelect.value)) count++;
       count += activeTags.size;
       filterBadge.textContent = String(count);
       filterBadge.hidden = count === 0;
@@ -6080,6 +6110,16 @@
         }
         if (sortVal === 'year-desc') return (parseInt(b.year) || 0) - (parseInt(a.year) || 0);
         if (sortVal === 'year-asc') return (parseInt(a.year) || 0) - (parseInt(b.year) || 0);
+        // Date Added: books without a `created` stamp (no matching epub at
+        // migration time) always sink to the end, whichever direction.
+        if (sortVal === 'created-desc' || sortVal === 'created-asc') {
+          const ta = a.created ? Date.parse(a.created) : NaN;
+          const tb = b.created ? Date.parse(b.created) : NaN;
+          if (Number.isNaN(ta) && Number.isNaN(tb)) return 0;
+          if (Number.isNaN(ta)) return 1;
+          if (Number.isNaN(tb)) return -1;
+          return sortVal === 'created-desc' ? tb - ta : ta - tb;
+        }
         if (sortVal === 'title-asc') return a.title.localeCompare(b.title);
         return 0;
       });
@@ -6303,6 +6343,7 @@
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       resetTagEditor();       // ...or the tag chips/editor.
+      inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
 
       populateVolumeDropdown('__new__');
       inputNewVolName.value = `Volume ${newVolNum}`;
@@ -6387,6 +6428,7 @@
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       resetTagEditor();       // ...or the tag chips/editor.
+      inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
 
       populateVolumeDropdown(volNum);
       populateStageDropdown(volNum, '__new__');
@@ -6411,6 +6453,7 @@
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       resetTagEditor();       // ...or the tag chips/editor.
+      inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
 
       populateVolumeDropdown(volNum);
       populateStageDropdown(volNum, stageNum);
@@ -6431,6 +6474,7 @@
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       resetTagEditor();       // ...or the tag chips/editor.
+      inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
 
       const volMap = getVolumeMap();
       const sortedVols = Array.from(volMap.keys()).sort((a, b) => a - b);
@@ -6488,6 +6532,7 @@
       }
       inputIsbn.value = book.isbn;
       inputPages.value = book.pages != null ? String(book.pages) : '';
+      inputCreated.value = toDatetimeLocalValue(book.created);
       inputNotes.value = book.notes;
       inputSummary.value = book.summary;
       // Tags — initialize the chip editor from the book's tags.
@@ -6522,6 +6567,7 @@
         cover: inputCover.value,
         isbn: inputIsbn.value,
         pages: inputPages.value,
+        created: inputCreated.value,
         notes: inputNotes.value,
         summary: inputSummary.value,
         tags: inputTags.value
@@ -6535,7 +6581,12 @@
       if (!formBaseline) return false;
       const cur = snapshotFormState();
       for (const key in formBaseline) {
-        if (cur[key] !== formBaseline[key]) return true;
+        if (cur[key] !== formBaseline[key]) {
+          // Clearing "Added On" is not a real change — saving restores the
+          // persisted date, so closing without saving loses nothing.
+          if (key === 'created' && cur.created === '') continue;
+          return true;
+        }
       }
       if (pendingCoverBlob !== null) return true;
       return false;
@@ -6580,6 +6631,8 @@
     const detailYear = document.getElementById('detail-year');
     const detailIsbnRow = document.getElementById('detail-isbn-row');
     const detailIsbn = document.getElementById('detail-isbn');
+    const detailAddedRow = document.getElementById('detail-added-row');
+    const detailAdded = document.getElementById('detail-added');
     const detailLinks = document.getElementById('detail-links');
     const detailLinkGoodreads = document.getElementById('detail-link-goodreads');
     const detailNotes = document.getElementById('detail-notes');
@@ -6733,6 +6786,18 @@
       } else {
         detailIsbnRow.hidden = true;
         detailLinks.hidden = true;
+      }
+
+      // Date added (only when the book carries a `created` stamp).
+      if (book.created) {
+        const d = new Date(book.created);
+        detailAddedRow.hidden = false;
+        detailAdded.textContent = isNaN(d)
+          ? book.created
+          : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      } else {
+        detailAddedRow.hidden = true;
+        detailAdded.textContent = '';
       }
 
       // Personal notes (only when present).
@@ -7231,6 +7296,10 @@
 
       // Resolve id first — it determines the cover filename in covers/.
       const newId = id || Date.now().toString();
+      // Date Added: the form prefills the book's stamp ("now" for new books).
+      // Clearing the field is non-destructive — the persisted date survives.
+      const existing = id ? books.find(b => b.id === id) : null;
+      const fallbackCreated = existing ? (existing.created || "") : new Date().toISOString();
 
       // Persist any newly picked cover before saving the record.
       let cover = inputCover.value.trim();
@@ -7260,6 +7329,7 @@
         cover,
         isbn: inputIsbn.value.trim(),
         pages: inputPages.value ? parseInt(inputPages.value, 10) : undefined,
+        created: createdToIso(inputCreated.value) || fallbackCreated,
         notes: inputNotes.value.trim(),
         summary: inputSummary.value.trim(),
         tags: [...new Set(inputTags.value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean))]
