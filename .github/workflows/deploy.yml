@@ -8,6 +8,7 @@ on:
       - 'index.html'
       - 'scripts/**'
       - 'covers/**'
+      - 'site.json'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -35,6 +36,7 @@ jobs:
           mkdir -p _site
           cp index.html _site/index.html
           cp books.json _site/books.json
+          [ -f site.json ] && cp site.json _site/site.json || true
           [ -d covers ] && cp -r covers _site/covers || true
 
       - name: Upload Pages artifact

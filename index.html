@@ -3432,7 +3432,7 @@
       <div class="brand">
         <!-- <div class="brand-icon"><i data-lucide="book-open"></i></div> -->
         <div>
-          <h1>jon's books</h1>
+          <h1 id="site-title">jon's books</h1>
           <!-- <p>curated by jon</p> -->
         </div>
       </div>
@@ -3476,6 +3476,9 @@
         <!-- Check for Updates (compares on-disk books.json) -->
         <input type="file" id="books-check-file-input" accept=".json,application/json" style="display: none;">
         <button class="btn-secondary" id="check-newer-btn" title="Check if books.json on disk is newer than this copy"><i data-lucide="refresh-cw"></i> Check for Updates</button>
+
+        <!-- Site Settings (title / default sort → site.json) -->
+        <button class="btn-secondary" id="settings-btn" title="Site title & default sort — saved to site.json"><i data-lucide="settings"></i> Settings</button>
 
         <!-- Destructive action: keep last in the group -->
         <button class="btn-secondary" id="reset-btn" title="Reset to Sample Library"><i data-lucide="rotate-ccw"></i> Reset</button>
@@ -3897,6 +3900,41 @@
     </div>
   </div>
 
+  <!-- Site Settings Modal (local editing only — the ⚙ button lives in
+       .book-controls, hidden on the public site with the rest of editing) -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2>Site Settings</h2>
+        <button class="close-btn" id="close-settings-modal" aria-label="Close site settings"><i data-lucide="x"></i></button>
+      </div>
+      <form id="settings-form">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="site-title-input">Site Title</label>
+          <input type="text" id="site-title-input" placeholder="jon's books">
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="settings-sort-input">Default Sort</label>
+          <select id="settings-sort-input">
+            <!-- Mirrors #sort-select (no selected attr — JS sets the value on open). -->
+            <option value="reading-order">Reading Order (Volumes View)</option>
+            <option value="year-desc">Published (New → Old)</option>
+            <option value="year-asc">Published (Old → New)</option>
+            <option value="created-desc">Added (New → Old)</option>
+            <option value="created-asc">Added (Old → New)</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+        <p class="form-hint" style="margin-bottom: 4px;">Saving applies immediately and writes <code>site.json</code>.</p>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancel-settings-btn">Cancel</button>
+          <button type="submit" class="btn-primary" title="Applies now and writes site.json">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // LocalStorage Keys
     const STORAGE_KEY = 'personal_library_books_v2';
@@ -3905,6 +3943,18 @@
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
     const STATUS_CLEANUP_KEY = 'personal_library_status_cleanup_v1';
     const ORDER_CLEANUP_KEY = 'personal_library_order_cleanup_v1';
+
+    // Site settings (site.json) — owner config for the site title + default
+    // sort. Layered at startup: these defaults < fetched site.json < the
+    // localStorage working copy (SETTINGS_KEY, local editing only — visitors
+    // always get whatever site.json says). Machinery lives in the Site Settings
+    // block near the JSON import/export logic.
+    const SITE_FILE = 'site.json';
+    const SETTINGS_KEY = 'personal_library_settings_v1';
+    const SITE_FILE_HANDLE_KEY = 'siteJsonFileHandle';
+    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc' };
+    const VALID_SORTS = ['reading-order', 'year-desc', 'year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'];
+    let siteSettings = { ...DEFAULT_SETTINGS };
 
     // Public / View-Only Mode — on the published site we load books.json
     // (the committed source of truth, staged by the deploy workflow) and hide editing.
@@ -5483,8 +5533,9 @@
       if (filterVolume.value !== '') count++;
       if (filterStatus.value !== '') count++;
       // 'reading-order' IS the Volumes view (not a pending filter), so it
-      // never counts toward the badge.
-      if (['year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'].includes(sortSelect.value)) count++;
+      // never counts toward the badge. Other sorts count when they differ from
+      // the CONFIGURED default (site settings), not a hardcoded year-desc.
+      if (sortSelect.value !== 'reading-order' && sortSelect.value !== effectiveDefaultSort()) count++;
       count += activeTags.size;
       filterBadge.textContent = String(count);
       filterBadge.hidden = count === 0;
@@ -5596,7 +5647,7 @@
     filterClear.addEventListener('click', () => {
       filterVolume.value = '';
       filterStatus.value = '';
-      sortSelect.value = 'year-desc'; // full reset ⇒ Grid + default sort
+      sortSelect.value = effectiveDefaultSort(); // full reset ⇒ configured default sort
       searchInput.value = '';
       activeTags.clear();
       syncViewFromSort(); // pill/classes flip now; render yields below
@@ -7626,6 +7677,254 @@
       modeViewBtn.addEventListener('click', () => setViewOnly(true));
     }
 
+    // ===================== Site Settings (site.json) =====================
+    // Owner-only config surfaced by the ⚙ Settings button in the edit toolbar.
+    // Layering at startup: hardcoded defaults < fetched site.json < localStorage
+    // working copy (localStorage only on local editing origins — visitors always
+    // get whatever site.json says, so publishing new settings reaches them).
+    // One Save applies immediately AND writes site.json, so there is no separate
+    // export step and no reminder machinery for settings.
+
+    function normalizeSiteSettings(raw) {
+      const src = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+      return {
+        title: (typeof src.title === 'string' && src.title.trim()) ? src.title.trim() : DEFAULT_SETTINGS.title,
+        defaultSort: VALID_SORTS.includes(src.defaultSort) ? src.defaultSort : DEFAULT_SETTINGS.defaultSort
+      };
+    }
+
+    // The configured default sort — Clear-all and the filter badge compare
+    // against THIS instead of the old hardcoded 'year-desc'.
+    function effectiveDefaultSort() {
+      return VALID_SORTS.includes(siteSettings.defaultSort) ? siteSettings.defaultSort : DEFAULT_SETTINGS.defaultSort;
+    }
+
+    // Apply settings to the live page: tab title, header h1, default sort (+ view).
+    function applySettings(s) {
+      siteSettings = normalizeSiteSettings(s);
+      document.title = siteSettings.title;
+      const h1 = document.getElementById('site-title');
+      if (h1) h1.textContent = siteSettings.title; // textContent — no HTML injection
+      const def = effectiveDefaultSort();
+      sortSelect.value = def;
+      // lastGridSort must never hold 'reading-order': the Grid button restores
+      // it, which would bounce straight back to Volumes.
+      if (def !== 'reading-order') lastGridSort = def;
+      syncViewFromSort(); // a 'reading-order' default boots into Volumes view
+    }
+
+    // --- site.json file-handle persistence (same IndexedDB kv store as books.json/covers) ---
+    async function loadSiteFileHandle() {
+      try {
+        const db = await openCoverDirDb();
+        return await new Promise((resolve, reject) => {
+          const get = db.transaction(COVER_DIR_STORE, 'readonly').objectStore(COVER_DIR_STORE).get(SITE_FILE_HANDLE_KEY);
+          get.onsuccess = () => { db.close(); resolve(get.result || null); };
+          get.onerror = () => { db.close(); reject(get.error); };
+        });
+      } catch { return null; }
+    }
+
+    async function saveSiteFileHandle(handle) {
+      try {
+        const db = await openCoverDirDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(COVER_DIR_STORE, 'readwrite');
+          tx.objectStore(COVER_DIR_STORE).put(handle, SITE_FILE_HANDLE_KEY);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      } catch { /* best-effort; the picker will just appear next time */ }
+    }
+
+    // Hybrid write, mirrors writeBooksJsonFile minus the overwrite guard
+    // (site.json is tiny, owner-only, and written only from here). Returns:
+    //   'written'   — wrote the file via the persisted/picked handle
+    //   'download'  — no FS API / picker or write failed (classic download)
+    //   'cancelled' — user cancelled the picker (settings stay applied locally)
+    async function writeSiteJsonFile(data) {
+      if (!window.showOpenFilePicker) return 'download'; // Safari/Firefox
+
+      let handle = await loadSiteFileHandle();
+      if (handle) {
+        try {
+          const perm = await handle.queryPermission({ mode: 'readwrite' });
+          if (perm !== 'granted' && await handle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+            handle = null; // denied → pick again below
+          }
+        } catch { handle = null; }
+      }
+
+      if (!handle) {
+        try {
+          const [picked] = await window.showOpenFilePicker({
+            types: [{ description: 'site.json', accept: { 'application/json': ['.json'] } }],
+            mode: 'readwrite'
+          });
+          handle = picked;
+          saveSiteFileHandle(handle); // remember for next time
+        } catch (err) {
+          if (err && err.name === 'AbortError') return 'cancelled';
+          console.warn('[library] site.json picker failed, falling back to download:', err);
+          return 'download';
+        }
+      }
+
+      try {
+        const writable = await handle.createWritable();
+        await writable.write(data);
+        await writable.close();
+        return 'written';
+      } catch (err) {
+        console.warn('[library] could not write site.json via handle, falling back to download:', err);
+        return 'download';
+      }
+    }
+
+    // Startup loader — kicked off CONCURRENTLY with the catalog fetch in init()
+    // (never sequential: site.json is ~100 bytes vs books.json's hundreds of KB,
+    // so this always resolves first and adds no wall-clock time). Resolves the
+    // merged settings: defaults < site.json < localStorage (local only).
+    async function loadSiteSettings() {
+      let merged = { ...DEFAULT_SETTINGS };
+      try {
+        const response = await fetch(SITE_FILE, { cache: 'no-store' });
+        if (response.ok) {
+          const parsed = await response.json();
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            merged = { ...merged, ...parsed };
+          }
+        }
+      } catch (err) {
+        console.warn('[library] site.json unavailable, using defaults/localStorage:', err);
+      }
+      // Visitors (isPublic) never read/write the working copy — their view is
+      // exactly what site.json publishes. Only local editing origins keep a
+      // localStorage layer (same split as the books catalog).
+      const stored = !isPublic ? localStorage.getItem(SETTINGS_KEY) : null;
+      if (stored) {
+        try { merged = { ...merged, ...JSON.parse(stored) }; }
+        catch (e) { console.warn('[library] invalid stored site settings, ignoring:', e); }
+      } else if (!isPublic) {
+        // First run on this browser: seed the working copy from what we resolved.
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(normalizeSiteSettings(merged)));
+      }
+      return merged;
+    }
+
+    // --- Settings modal (clones the volume/stage modal skeleton) ---
+    const settingsModal = document.getElementById('settings-modal');
+    const settingsForm = document.getElementById('settings-form');
+    const inputSiteTitle = document.getElementById('site-title-input');
+    const inputSettingsSort = document.getElementById('settings-sort-input');
+    const closeSettingsModalBtn = document.getElementById('close-settings-modal');
+    const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
+    const settingsBtn = document.getElementById('settings-btn');
+
+    function openSettingsModal() {
+      if (viewOnly) return; // editing surface — never in view-only mode
+      inputSiteTitle.value = siteSettings.title;
+      inputSettingsSort.value = effectiveDefaultSort();
+      settingsModal.classList.add('active');
+    }
+
+    function closeSettingsModal() {
+      settingsModal.classList.remove('active');
+    }
+
+    if (settingsBtn) settingsBtn.addEventListener('click', openSettingsModal);
+    closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
+    cancelSettingsBtn.addEventListener('click', closeSettingsModal);
+
+    // Backdrop dismissal only when the press STARTS on the overlay too — same
+    // common-ancestor click rule as the edit/detail modals.
+    let settingsOverlayPointerDown = false;
+    settingsModal.addEventListener('mousedown', (e) => {
+      settingsOverlayPointerDown = (e.target === settingsModal);
+    });
+    settingsModal.addEventListener('click', (e) => {
+      if (settingsOverlayPointerDown && e.target === settingsModal) closeSettingsModal();
+      settingsOverlayPointerDown = false;
+    });
+
+    // Escape closes (guarded on the active class so it coexists with the other
+    // modals' document-level Escape handlers).
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && settingsModal.classList.contains('active')) {
+        closeSettingsModal();
+      }
+    });
+
+    // Save: apply locally FIRST (visible even if the disk write fails), then
+    // write site.json straight to disk when possible.
+    settingsForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const s = normalizeSiteSettings({ title: inputSiteTitle.value, defaultSort: inputSettingsSort.value });
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+      applySettings(s);
+      renderBooks(); // filter badge + Clear-all now reflect the new default
+      closeSettingsModal();
+
+      const result = await writeSiteJsonFile(JSON.stringify(s, null, 2));
+      if (result === 'written') {
+        showSiteSavedFeedback();
+      } else if (result === 'cancelled') {
+        showSiteNotice('Settings applied locally — site.json was not saved (picker cancelled). Save again to retry.');
+      } else {
+        showSiteNotice('Settings applied — site.json downloaded. Drop it into this folder to publish.');
+      }
+    });
+
+    // Transient feedback after saving settings — reuses the #export-reminder bar
+    // (same green/amber patterns as the books.json feedback), then restores the
+    // correct books-export state via updateExportReminder().
+    let siteSavedTimer = null;
+
+    function restoreExportBar(iconName) {
+      const reminder = document.getElementById('export-reminder');
+      const messageEl = document.getElementById('export-reminder-message');
+      const btn = document.getElementById('export-reminder-btn');
+      if (!reminder || !messageEl) return;
+      reminder.classList.remove('success', 'visible');
+      const liveIcon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+      if (liveIcon) liveIcon.setAttribute('data-lucide', iconName || 'upload');
+      messageEl.textContent = '';
+      if (btn) btn.style.display = '';
+      updateExportReminder(); // restore the correct books-export state/message
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function showSiteSavedFeedback() {
+      const reminder = document.getElementById('export-reminder');
+      const messageEl = document.getElementById('export-reminder-message');
+      const btn = document.getElementById('export-reminder-btn');
+      if (!reminder || !messageEl) return;
+      const icon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+      clearTimeout(siteSavedTimer);
+      reminder.classList.add('success', 'visible');
+      if (icon) icon.setAttribute('data-lucide', 'circle-check');
+      messageEl.textContent = 'Saved to site.json ✓';
+      if (btn) btn.style.display = 'none';
+      if (window.lucide) lucide.createIcons();
+      siteSavedTimer = setTimeout(() => restoreExportBar('upload'), 2500);
+    }
+
+    function showSiteNotice(text) {
+      const reminder = document.getElementById('export-reminder');
+      const messageEl = document.getElementById('export-reminder-message');
+      const btn = document.getElementById('export-reminder-btn');
+      if (!reminder || !messageEl) return;
+      const icon = reminder.querySelector('.export-reminder-text i, .export-reminder-text svg');
+      clearTimeout(siteSavedTimer);
+      reminder.classList.add('visible'); // amber style — NOT .success
+      if (icon) icon.setAttribute('data-lucide', 'upload');
+      messageEl.textContent = text;
+      if (btn) btn.style.display = 'none';
+      if (window.lucide) lucide.createIcons();
+      siteSavedTimer = setTimeout(() => restoreExportBar('upload'), 3500);
+    }
+
     // JSON Import / Export Logic — books.json is the source of truth for the public site.
     // Export writes straight to the on-disk books.json via a persisted File
     // System Access handle when available (Chrome/Edge); otherwise it falls back
@@ -8180,8 +8479,7 @@
         const parsed = await response.json();
         if (Array.isArray(parsed) && parsed.length > 0) {
           books = parsed.map(normalizeBook); // ids are already stable in books.json.
-          renderBooks();
-          return true;
+          return true; // init() renders ONCE, after site settings are applied
         }
       } catch (err) {
         console.warn('[library] books.json unavailable, using local data:', err);
@@ -8192,11 +8490,18 @@
     // Initialize App — prefer the published books.json when reachable (public site),
     // otherwise fall back to localStorage/seed for local editing use.
     (async function init() {
+      // Site settings load CONCURRENTLY with the catalog (perf: never awaited
+      // sequentially — site.json is ~100 bytes vs books.json's hundreds of KB,
+      // so it always resolves first and adds no wall-clock time). Applied
+      // BEFORE the single render below so the grid paints once, already in the
+      // configured default sort/view.
+      const settingsReady = loadSiteSettings();
       const loadedRemote = await loadCatalogFromRemote();
       if (!loadedRemote) {
         books = await loadBooksFromStorage();
-        renderBooks();
       }
+      applySettings(await settingsReady);
+      renderBooks();
       // Deep-link support: if the URL carries a #book=<id> hash, open that book's
       // detail modal once the catalog is rendered. openReadOnlyModal skips the
       // pushState because the hash already matches, so the browser's original
