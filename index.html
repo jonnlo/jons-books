@@ -80,6 +80,16 @@
       line-height: 1.5;
     }
 
+    /* Form controls don't inherit fonts from the body by default (the UA
+       stylesheet assigns them its own font) — force every one of them to use
+       the page font. Size/weight stay per-component on purpose. */
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+    }
+
     /* Global Lucide icon defaults for buttons & button-styled controls.
        Base size = 18px; stroke-weight = 1.5 (Lucide default is 2). The more
        specific rules below (e.g. .action-icon-btn svg) still override the size
@@ -790,7 +800,6 @@
       width: 100%;
       height: 42px;
       background: var(--bg-input);
-      font-family: inherit;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 8px 12px 8px 38px;
@@ -850,7 +859,6 @@
       padding: 8px 12px;
       color: var(--text-primary);
       font-size: 0.875rem;
-      font-family: inherit;
       -webkit-appearance: none;
       appearance: none;
       background-repeat: no-repeat;
@@ -1037,7 +1045,6 @@
       padding: 3px 12px;
       border-radius: 18px;
       font-size: 0.875rem;
-      font-family: inherit;
       text-transform: capitalize;
       background: var(--img-bg);
       color: var(--text-muted);
@@ -1140,7 +1147,6 @@
       color: var(--text-secondary);
       border: 0px solid var(--border-color);
       cursor: pointer;
-      font-family: inherit;
       transition: border-color 0.15s ease, color 0.15s ease;
     }
     @media (hover: hover) and (pointer: fine) {
@@ -1220,7 +1226,6 @@
       padding: 4px 2px;
       color: var(--text-primary);
       font-size: 0.875rem;
-      font-family: inherit;
     }
     .tag-editor-input:focus {
       outline: none;
@@ -1261,7 +1266,6 @@
       background: transparent;
       padding: 8px 10px;
       border-radius: 7px;
-      font-family: inherit;
       font-size: 0.875rem;
       color: var(--text-secondary);
       text-transform: capitalize;
@@ -1860,7 +1864,6 @@
       padding: 9px 12px;
       color: var(--text-primary);
       font-size: 0.875rem;
-      font-family: inherit;
       line-height: inherit;
     }
 
@@ -2277,7 +2280,6 @@
       border: none;
       padding: 0;
       margin-top: 8px;
-      font-family: inherit;
       font-size: 0.8125rem;
       font-weight: 600;
       color: var(--accent-color);
