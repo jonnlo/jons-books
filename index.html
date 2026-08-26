@@ -2414,16 +2414,20 @@
       padding: 0;
       /* margin-bottom: 36px; */
       /* Detail-modal jump clearance (jumpToVolumeStage → scrollIntoView):
-         the landed volume header sits 4px below the viewport top. */
-      scroll-margin-top: 4px;
+         the landed volume header sits 4px below its sticky point (which is
+         the safe-area inset on Home-Screen installs, 0 in browser). */
+      scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4px);
     }
 
     .volume-header {
       position: sticky;
-      top: 0;
+      /* Pin BELOW the status bar on Home-Screen installs (inset is 0 in the
+         browser → identical to top:0 there). Clearance lives here, NOT in
+         padding-top: flow spacing must stay identical to the browser look. */
+      top: env(safe-area-inset-top, 0px);
       z-index: 10;
       background: var(--bg-main);
-      padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      padding-top: 12px;
       padding-bottom: 12px;
       margin-bottom: 16px;
       border-bottom: 1px solid var(--text-secondary);
@@ -2437,6 +2441,29 @@
       gap: 10px;
       cursor: pointer;
       user-select: none;
+    }
+
+    /* Full-bleed opaque backdrop behind the header (mobile rows bleed to the
+       viewport edges). While PINNED (.is-stuck, toggled by JS) it extends up
+       over the status-bar strip so scrolled content can't show through above
+       the header. In natural flow it stays flush with the header box — an
+       always-extended backdrop would paint over the rows above it (the same
+       Home-Screen overlap that cut the engine cards). */
+    .volume-header::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 100vw;
+      transform: translateX(-50%);
+      background: var(--bg-main);
+      pointer-events: none;
+    }
+
+    .volume-header.is-stuck::before {
+      top: calc(-1 * env(safe-area-inset-top, 0px));
     }
 
     .volume-title-group {
@@ -2486,17 +2513,20 @@
       padding: 0;
       /* margin-bottom: 24px; */
       /* Detail-modal jump clearance: must clear the sticky volume header
-         pinned at top:0 (~52px tall on desktop) plus a small gap, so the
-         landed stage header is visible instead of hidden behind it. */
-      scroll-margin-top: 72px;
+         pinned below the status bar (inset + ~52px header + gap on
+         Home-Screen installs; inset is 0 in browser → the old 72px). */
+      scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
     }
 
     .stage-header {
       /* Scrolls away naturally — only the volume header stays sticky now that
-         stages are compact horizontal rows (no long scroll through a stage). */
+         stages are compact horizontal rows (no long scroll through a stage).
+         Static → it never pins, so NO safe-area inset here: on Home-Screen
+         installs the inset padding just inflated the gap above every stage
+         header (the body's padding already clears the status bar in flow). */
       position: static;
       background: var(--bg-main);
-      padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      padding-top: 12px;
       padding-bottom: 8px;
       margin-bottom: 14px;
       font-size: 1rem;
@@ -3012,22 +3042,11 @@
         border-bottom: 0;
       }
 
-      /* The roadmap rows intentionally bleed to the viewport edges on mobile,
-         while the volume section itself remains aligned to the 16px page
-         gutter. Keep the header content aligned, but extend its opaque sticky
-         background across the viewport so a wide row cannot show beside it. */
+      /* The base .volume-header::before already paints the full-bleed opaque
+         backdrop (and extends over the status-bar strip while pinned via
+         .is-stuck); mobile only adds a softer bottom rule to it. */
       .volume-header::before {
-        content: '';
-        position: absolute;
-        z-index: -1;
-        top: 0;
-        bottom: 0;
-        left: 50%;
-        width: 100vw;
-        transform: translateX(-50%);
-        background: var(--bg-main);
         border-bottom: 1px solid var(--text-muted);
-        pointer-events: none;
       }
 
       .stage-header {
@@ -3036,9 +3055,10 @@
       }
 
       /* Taller sticky volume header on mobile (min-height 64px) needs more
-         jump clearance than the desktop 72px. */
+         jump clearance than the desktop 72px — plus the status-bar inset the
+         header now pins below. */
       .stage-block {
-        scroll-margin-top: 84px;
+        scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 84px);
       }
 
       .volume-title-group,
@@ -3141,16 +3161,13 @@
       isolation: isolate;
       background: transparent;
       margin-bottom: 14px;
-      /* Status-bar clearance for Home-Screen installs: the safe-area inset
-         padding is needed while the bar is PINNED sticky at top:0 (controls
-         must clear the notch/status bar). In natural flow it would just add
-         a dead band between the engine cards and the bar — the body's own
-         safe-area padding already clears the status bar there — so pull the
-         bar back up by the same inset. Net zero in flow (identical to the
-         in-browser look), full clearance when pinned. Sticky insets apply to
-         the border box, so the negative margin never leaves a gap at top:0. */
-      padding: calc(env(safe-area-inset-top, 0px) + 10px) 0 8px;
-      margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+      /* NOTE: no safe-area padding here. In flow the body's own safe-area
+         padding already clears the status bar, and padding + negative-margin
+         compensation would make the bar's opaque ::before backdrop overlap
+         (and visually cut) the engine cards above it on Home-Screen installs.
+         Status-bar clearance is handled in the PINNED state only — see
+         .filter-bar.is-past / ::before below. */
+      padding: 10px 0 8px;
     }
 
     /* Roadmap: the pinned/revealed bar overlays the volume/stage sticky
@@ -3377,12 +3394,15 @@
     }
     /* Solid full-bleed backdrop behind the bar so the tucked/pinned state
        never shows seams over the bleeding tag row (Safari tint rule: solid
-       bg, no blur). */
+       bg, no blur). Extends UP by the safe-area inset so that when the bar
+       pins below the status bar (see .is-past top), the backdrop still covers
+       the status-bar strip — no content shows through above the bar. */
     .filter-bar::before {
       content: '';
       position: absolute;
       z-index: -1;
-      inset-block: 0;
+      top: calc(-1 * env(safe-area-inset-top, 0px));
+      bottom: 0;
       left: 50%;
       width: 100vw;
       transform: translateX(-50%);
@@ -3391,8 +3411,16 @@
     }
     .filter-bar.is-past {
       position: sticky;
-      top: 0;
-      transform: translateY(-110%);
+      /* Home-Screen installs: pin BELOW the status bar instead of top:0, so
+         the controls clear the notch. In-browser the inset is 0 → identical
+         to before. Bar height never changes between states, so no layout
+         shift and nothing above it gets overlapped. */
+      top: env(safe-area-inset-top, 0px);
+      /* Tuck offset must ALSO clear the pin offset: -110% is relative to the
+         bar's own height (~50px), so from a 59px sticky top it would leave a
+         sliver of the bar visible in the status-bar strip. Subtracting the
+         inset pushes the tucked bar fully off-screen. */
+      transform: translateY(calc(-110% - env(safe-area-inset-top, 0px)));
       transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
     .filter-bar.is-past.is-revealed {
@@ -5397,7 +5425,25 @@
     function syncStickyBar() {
       barPastTop = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
       applyStickyBarState();
+      syncVolumeHeaderStuck();
     }
+
+    // --- Volume header stick detection (Volumes view) ---
+    // Volume headers pin BELOW the status bar (top: env(safe-area-inset-top)).
+    // Their backdrop may only extend up over the status-bar strip WHILE
+    // pinned (.is-stuck) — in natural flow an extended backdrop would paint
+    // over the rows above (the Home-Screen overlap bug). A header is stuck
+    // exactly when its rect top equals its sticky top: before sticking the
+    // rect is lower, after its container ends it releases and drops again.
+    function syncVolumeHeaderStuck() {
+      document.querySelectorAll('.volume-header').forEach((h) => {
+        const stickyTop = parseFloat(getComputedStyle(h).top) || 0;
+        const stuck = Math.abs(h.getBoundingClientRect().top - stickyTop) < 1;
+        h.classList.toggle('is-stuck', stuck);
+      });
+    }
+    window.addEventListener('scroll', syncVolumeHeaderStuck, { passive: true });
+    window.addEventListener('resize', syncVolumeHeaderStuck);
 
     const barSentinelObserver = new IntersectionObserver(([entry]) => {
       const past = !entry.isIntersecting;
