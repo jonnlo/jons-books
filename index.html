@@ -1504,7 +1504,7 @@
       opacity: 0;
       transition: opacity 0.25s ease;
       background: radial-gradient(circle at var(--gx, 200%) var(--gy, 300%),
-                  rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0) 70%);
+                  rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 70%);
       mix-blend-mode: screen;
     }
     .book3d__spine {
@@ -3141,8 +3141,16 @@
       isolation: isolate;
       background: transparent;
       margin-bottom: 14px;
-      padding: 10px 0 8px;
-      padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+      /* Status-bar clearance for Home-Screen installs: the safe-area inset
+         padding is needed while the bar is PINNED sticky at top:0 (controls
+         must clear the notch/status bar). In natural flow it would just add
+         a dead band between the engine cards and the bar — the body's own
+         safe-area padding already clears the status bar there — so pull the
+         bar back up by the same inset. Net zero in flow (identical to the
+         in-browser look), full clearance when pinned. Sticky insets apply to
+         the border box, so the negative margin never leaves a gap at top:0. */
+      padding: calc(env(safe-area-inset-top, 0px) + 10px) 0 8px;
+      margin-top: calc(-1 * env(safe-area-inset-top, 0px));
     }
 
     /* Roadmap: the pinned/revealed bar overlays the volume/stage sticky
