@@ -6067,8 +6067,28 @@
               });
             }
 
+            // renderBooks() rebuilds the whole roadmap DOM, which resets each
+            // stage row's horizontal scroll to 0. Remember the scroll offset
+            // of the source/target rows (keyed by vol+stage) and restore it
+            // after the re-render so dragging within a wide row doesn't jump.
+            const scrollMemory = new Map();
+            [sourceGrid, targetGrid].forEach(grid => {
+              if (!grid || !grid.classList) return;
+              const key = `${grid.getAttribute('data-vol-num')}-${grid.getAttribute('data-stage-num')}`;
+              if (!scrollMemory.has(key)) scrollMemory.set(key, grid.scrollLeft);
+            });
+
             saveBooksToStorage(books);
             renderBooks();
+
+            scrollMemory.forEach((left, key) => {
+              const [volNum, stageNum] = key.split('-');
+              const row = bookGrid.querySelector(`.stage-row[data-vol-num="${volNum}"][data-stage-num="${stageNum}"]`);
+              if (row && left > 0) {
+                row.scrollLeft = left;
+                updateStageRowFade(row);
+              }
+            });
           }
         });
         sortableInstances.push(instance);
