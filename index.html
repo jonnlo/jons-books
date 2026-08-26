@@ -189,6 +189,24 @@
       font-size: 0.85rem;
     }
 
+    /* Desktop: true centering. space-between only centers the middle child when
+       the outer two are equal width (they aren't), so switch to a 3-col grid:
+       brand | stats | actions with equal side tracks pins .header-stats to the
+       exact horizontal center regardless of how wide brand/actions get.
+       Mobile (<601px) keeps the flex layout below, which relies on wrap+order
+       to drop the stats pill onto its own centered row. */
+    @media (min-width: 601px) {
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+      }
+
+      .header-actions {
+        justify-self: end;
+      }
+    }
+
     .stat-item span {
       color: var(--text-secondary);
       margin-right: 4px;
@@ -461,7 +479,7 @@
       padding: 2px 8px;
       border-radius: 12px;
       background: var(--bg-main);
-      color: var(--text-secondary);
+      color: var(--text-muted);
       border: 1px solid var(--border-color);
     }
 
