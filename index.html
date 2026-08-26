@@ -1332,6 +1332,40 @@
       margin-top: 4px;
     }
 
+    /* Accent preset swatches (Settings modal) */
+    .accent-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .accent-swatch {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      background: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .accent-swatch .swatch-dot {
+      display: block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.35); /* hairline so pale dots read on light bg */
+    }
+    .accent-swatch[aria-checked="true"] {
+      border-color: var(--accent-color);
+    }
+    .accent-swatch:focus-visible {
+      outline: 2px solid var(--border-accent);
+      outline-offset: 2px;
+    }
+
     .results-count {
       font-size: 0.85rem;
       color: var(--text-secondary);
@@ -3983,6 +4017,12 @@
           <input type="text" id="site-title-input" placeholder="jon's books">
         </div>
         <div class="form-group" style="margin-bottom: 16px;">
+          <label id="accent-picker-label">Accent Color</label>
+          <!-- Swatch buttons are injected by JS from ACCENT_PRESETS. -->
+          <div class="accent-swatches" id="accent-swatches" role="radiogroup" aria-labelledby="accent-picker-label"></div>
+          <p class="form-hint">Tints the whole palette — buttons, pills, focus rings, and a faint cast on the backgrounds.</p>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
           <label for="settings-sort-input">Default Sort</label>
           <select id="settings-sort-input">
             <!-- Mirrors #sort-select (no selected attr — JS sets the value on open). -->
@@ -4021,8 +4061,142 @@
     const SITE_FILE = 'site.json';
     const SETTINGS_KEY = 'personal_library_settings_v1';
     const SITE_FILE_HANDLE_KEY = 'siteJsonFileHandle';
-    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc' };
+    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink' };
     const VALID_SORTS = ['reading-order', 'year-desc', 'year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'];
+
+    // Accent color presets — each one re-tints the whole palette by swapping
+    // the hue of the theme tokens while keeping every contrast-validated
+    // lightness value from :root / [data-theme="light"] (which stay untouched
+    // as the defaults). 'ink' ships EMPTY overrides: it IS the code-defined
+    // look, so no override stylesheet is generated for it. Accent fills are
+    // Tailwind -700 shades (white text ≥4.5:1); accent inks are -300 on dark /
+    // -800 on light (readable as text/borders/focus rings). Neutral ladders
+    // keep their exact L values with a faint hue cast; text tokens shift hue
+    // at low saturation so the AA ratios hold.
+    const VALID_ACCENTS = ['ink', 'indigo', 'moss', 'clay', 'ocean', 'plum'];
+    const ACCENT_PRESETS = {
+      ink:   { name: 'Ink',   swatch: '#4d5058', dark: {}, light: {} },
+      indigo: {
+        name: 'Indigo', swatch: '#4f46e5',
+        dark: {
+          '--bg-main': 'hsl(245, 12%, 9%)', '--bg-surface': 'hsl(245, 12%, 12%)',
+          '--bg-card': 'hsl(245, 12%, 15%)', '--bg-card-hover': 'hsl(245, 12%, 19%)',
+          '--bg-input': 'hsl(245, 13%, 11%)', '--border-color': 'hsl(245, 12%, 20%)',
+          '--text-primary': 'hsl(243, 14%, 93%)', '--text-secondary': 'hsl(243, 11%, 74%)',
+          '--text-muted': 'hsl(243, 9%, 58%)', '--text-faint': 'hsl(243, 9%, 45%)',
+          '--img-bg': 'hsl(245, 12%, 12%)', '--img-bg-hover': 'hsl(245, 12%, 16%)',
+          '--btn-secondary-bg': 'hsl(245, 12%, 20%)', '--btn-secondary-bg-hover': 'hsl(245, 12%, 25%)',
+          '--accent-color': '#a5b4fc', '--accent-fill': '#4f46e5'
+        },
+        light: {
+          '--bg-main': 'hsl(245, 40%, 99%)', '--bg-surface': 'hsl(245, 30%, 96%)',
+          '--bg-card': 'hsl(245, 30%, 96%)', '--bg-card-hover': 'hsl(245, 26%, 91%)',
+          '--bg-input': '#ffffff', '--border-color': 'hsl(245, 20%, 84%)',
+          '--border-accent': 'var(--accent-color)',
+          '--text-primary': 'hsl(245, 25%, 11%)', '--text-secondary': 'hsl(245, 16%, 34%)',
+          '--text-muted': 'hsl(245, 13%, 44%)', '--text-faint': 'hsl(245, 11%, 57%)',
+          '--img-bg': 'hsl(245, 30%, 96.5%)', '--img-bg-hover': 'hsl(245, 30%, 93%)',
+          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(245, 30%, 95%)',
+          '--accent-color': '#4338ca', '--accent-fill': '#4f46e5'
+        }
+      },
+      moss: {
+        name: 'Moss', swatch: '#15803d',
+        dark: {
+          '--bg-main': 'hsl(150, 8%, 9%)', '--bg-surface': 'hsl(150, 8%, 12%)',
+          '--bg-card': 'hsl(150, 8%, 15%)', '--bg-card-hover': 'hsl(150, 8%, 19%)',
+          '--bg-input': 'hsl(150, 9%, 11%)', '--border-color': 'hsl(150, 8%, 20%)',
+          '--text-primary': 'hsl(148, 10%, 93%)', '--text-secondary': 'hsl(148, 8%, 74%)',
+          '--text-muted': 'hsl(148, 7%, 58%)', '--text-faint': 'hsl(148, 7%, 45%)',
+          '--img-bg': 'hsl(150, 8%, 12%)', '--img-bg-hover': 'hsl(150, 8%, 16%)',
+          '--btn-secondary-bg': 'hsl(150, 8%, 20%)', '--btn-secondary-bg-hover': 'hsl(150, 8%, 25%)',
+          '--accent-color': '#86efac', '--accent-fill': '#15803d'
+        },
+        light: {
+          '--bg-main': 'hsl(150, 30%, 99%)', '--bg-surface': 'hsl(150, 22%, 96%)',
+          '--bg-card': 'hsl(150, 22%, 96%)', '--bg-card-hover': 'hsl(150, 20%, 91%)',
+          '--bg-input': '#ffffff', '--border-color': 'hsl(150, 15%, 84%)',
+          '--border-accent': 'var(--accent-color)',
+          '--text-primary': 'hsl(150, 25%, 11%)', '--text-secondary': 'hsl(150, 16%, 34%)',
+          '--text-muted': 'hsl(150, 6%, 42%)', '--text-faint': 'hsl(150, 11%, 57%)',
+          '--img-bg': 'hsl(150, 22%, 96.5%)', '--img-bg-hover': 'hsl(150, 22%, 93%)',
+          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(150, 22%, 95%)',
+          '--accent-color': '#166534', '--accent-fill': '#15803d'
+        }
+      },
+      clay: {
+        name: 'Clay', swatch: '#c2410c',
+        dark: {
+          '--bg-main': 'hsl(22, 10%, 9%)', '--bg-surface': 'hsl(22, 10%, 12%)',
+          '--bg-card': 'hsl(22, 10%, 15%)', '--bg-card-hover': 'hsl(22, 10%, 19%)',
+          '--bg-input': 'hsl(22, 11%, 11%)', '--border-color': 'hsl(22, 10%, 20%)',
+          '--text-primary': 'hsl(20, 12%, 93%)', '--text-secondary': 'hsl(20, 9%, 74%)',
+          '--text-muted': 'hsl(20, 8%, 58%)', '--text-faint': 'hsl(20, 8%, 45%)',
+          '--img-bg': 'hsl(22, 10%, 12%)', '--img-bg-hover': 'hsl(22, 10%, 16%)',
+          '--btn-secondary-bg': 'hsl(22, 10%, 20%)', '--btn-secondary-bg-hover': 'hsl(22, 10%, 25%)',
+          '--accent-color': '#fdba74', '--accent-fill': '#c2410c'
+        },
+        light: {
+          '--bg-main': 'hsl(22, 40%, 99%)', '--bg-surface': 'hsl(22, 30%, 96%)',
+          '--bg-card': 'hsl(22, 30%, 96%)', '--bg-card-hover': 'hsl(22, 26%, 91%)',
+          '--bg-input': '#ffffff', '--border-color': 'hsl(22, 20%, 84%)',
+          '--border-accent': 'var(--accent-color)',
+          '--text-primary': 'hsl(22, 25%, 11%)', '--text-secondary': 'hsl(22, 16%, 34%)',
+          '--text-muted': 'hsl(22, 13%, 44%)', '--text-faint': 'hsl(22, 11%, 57%)',
+          '--img-bg': 'hsl(22, 30%, 96.5%)', '--img-bg-hover': 'hsl(22, 30%, 93%)',
+          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(22, 30%, 95%)',
+          '--accent-color': '#9a3412', '--accent-fill': '#c2410c'
+        }
+      },
+      ocean: {
+        name: 'Ocean', swatch: '#0369a1',
+        dark: {
+          '--bg-main': 'hsl(210, 12%, 9%)', '--bg-surface': 'hsl(210, 12%, 12%)',
+          '--bg-card': 'hsl(210, 12%, 15%)', '--bg-card-hover': 'hsl(210, 12%, 19%)',
+          '--bg-input': 'hsl(210, 13%, 11%)', '--border-color': 'hsl(210, 12%, 20%)',
+          '--text-primary': 'hsl(205, 14%, 93%)', '--text-secondary': 'hsl(205, 11%, 74%)',
+          '--text-muted': 'hsl(205, 9%, 58%)', '--text-faint': 'hsl(205, 9%, 45%)',
+          '--img-bg': 'hsl(210, 12%, 12%)', '--img-bg-hover': 'hsl(210, 12%, 16%)',
+          '--btn-secondary-bg': 'hsl(210, 12%, 20%)', '--btn-secondary-bg-hover': 'hsl(210, 12%, 25%)',
+          '--accent-color': '#7dd3fc', '--accent-fill': '#0369a1'
+        },
+        light: {
+          '--bg-main': 'hsl(210, 40%, 99%)', '--bg-surface': 'hsl(210, 30%, 96%)',
+          '--bg-card': 'hsl(210, 30%, 96%)', '--bg-card-hover': 'hsl(210, 26%, 91%)',
+          '--bg-input': '#ffffff', '--border-color': 'hsl(210, 20%, 84%)',
+          '--border-accent': 'var(--accent-color)',
+          '--text-primary': 'hsl(210, 25%, 11%)', '--text-secondary': 'hsl(210, 16%, 34%)',
+          '--text-muted': 'hsl(210, 13%, 44%)', '--text-faint': 'hsl(210, 11%, 57%)',
+          '--img-bg': 'hsl(210, 30%, 96.5%)', '--img-bg-hover': 'hsl(210, 30%, 93%)',
+          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(210, 30%, 95%)',
+          '--accent-color': '#075985', '--accent-fill': '#0369a1'
+        }
+      },
+      plum: {
+        name: 'Plum', swatch: '#a21caf',
+        dark: {
+          '--bg-main': 'hsl(300, 8%, 9%)', '--bg-surface': 'hsl(300, 8%, 12%)',
+          '--bg-card': 'hsl(300, 8%, 15%)', '--bg-card-hover': 'hsl(300, 8%, 19%)',
+          '--bg-input': 'hsl(300, 9%, 11%)', '--border-color': 'hsl(300, 8%, 20%)',
+          '--text-primary': 'hsl(298, 10%, 93%)', '--text-secondary': 'hsl(298, 8%, 74%)',
+          '--text-muted': 'hsl(298, 7%, 58%)', '--text-faint': 'hsl(298, 7%, 45%)',
+          '--img-bg': 'hsl(300, 8%, 12%)', '--img-bg-hover': 'hsl(300, 8%, 16%)',
+          '--btn-secondary-bg': 'hsl(300, 8%, 20%)', '--btn-secondary-bg-hover': 'hsl(300, 8%, 25%)',
+          '--accent-color': '#f0abfc', '--accent-fill': '#a21caf'
+        },
+        light: {
+          '--bg-main': 'hsl(300, 30%, 99%)', '--bg-surface': 'hsl(300, 22%, 96%)',
+          '--bg-card': 'hsl(300, 22%, 96%)', '--bg-card-hover': 'hsl(300, 20%, 91%)',
+          '--bg-input': '#ffffff', '--border-color': 'hsl(300, 15%, 84%)',
+          '--border-accent': 'var(--accent-color)',
+          '--text-primary': 'hsl(300, 20%, 11%)', '--text-secondary': 'hsl(300, 14%, 34%)',
+          '--text-muted': 'hsl(300, 11%, 44%)', '--text-faint': 'hsl(300, 9%, 57%)',
+          '--img-bg': 'hsl(300, 22%, 96.5%)', '--img-bg-hover': 'hsl(300, 22%, 93%)',
+          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(300, 22%, 95%)',
+          '--accent-color': '#86198f', '--accent-fill': '#a21caf'
+        }
+      }
+    };
     let siteSettings = { ...DEFAULT_SETTINGS };
 
     // Public / View-Only Mode — on the published site we load books.json
@@ -7747,12 +7921,41 @@
     // Theme Switcher
     const themeToggleBtn = document.getElementById('theme-toggle');
 
+    // Resolve the current --bg-main token to a hex for <meta theme-color>.
+    // Custom properties resolve instantly after a preset swap (only PAINTED
+    // values lag), so this is safe to call right after applyThemeColors.
+    function resolveBgMainHex() {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue('--bg-main').trim();
+      if (/^#[0-9a-f]{3,8}$/i.test(raw)) return raw;
+      const m = raw.match(/^hsl\(\s*([\d.]+)(?:deg)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%\s*\)$/i);
+      if (!m) return null;
+      const h = parseFloat(m[1]) / 360, s = parseFloat(m[2]) / 100, l = parseFloat(m[3]) / 100;
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const hp = h * 6, x = c * (1 - Math.abs(hp % 2 - 1));
+      let r = 0, g = 0, b = 0;
+      if (hp < 1) { r = c; g = x; }
+      else if (hp < 2) { r = x; g = c; }
+      else if (hp < 3) { g = c; b = x; }
+      else if (hp < 4) { g = x; b = c; }
+      else if (hp < 5) { r = x; b = c; }
+      else { r = c; b = x; }
+      const m2 = l - c / 2;
+      const to255 = v => Math.round((v + m2) * 255).toString(16).padStart(2, '0');
+      return '#' + to255(r) + to255(g) + to255(b);
+    }
+
     function applyTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
       // Keep the Android status-bar color in sync with the current theme.
+      // The color is DERIVED from the resolved --bg-main token (not hardcoded)
+      // so accent presets that tint the background stay correct; falls back
+      // to the original literals if the token can't be parsed.
       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeColorMeta) themeColorMeta.content = theme === 'light' ? '#fcfcfc' : '#161618';
+      if (themeColorMeta) {
+        const fallback = theme === 'light' ? '#fcfcfc' : '#161618';
+        themeColorMeta.content = resolveBgMainHex() || fallback;
+      }
       // The icon shows the theme the button will SWITCH TO (moon in light, sun
       // in dark). Re-query it each time: lucide.createIcons() replaces the <i>
       // with an <svg>, so a cached reference would silently stop updating.
@@ -7796,7 +7999,8 @@
       const src = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
       return {
         title: (typeof src.title === 'string' && src.title.trim()) ? src.title.trim() : DEFAULT_SETTINGS.title,
-        defaultSort: VALID_SORTS.includes(src.defaultSort) ? src.defaultSort : DEFAULT_SETTINGS.defaultSort
+        defaultSort: VALID_SORTS.includes(src.defaultSort) ? src.defaultSort : DEFAULT_SETTINGS.defaultSort,
+        accent: VALID_ACCENTS.includes(src.accent) ? src.accent : DEFAULT_SETTINGS.accent
       };
     }
 
@@ -7812,12 +8016,42 @@
       document.title = siteSettings.title;
       const h1 = document.getElementById('site-title');
       if (h1) h1.textContent = siteSettings.title; // textContent — no HTML injection
+      applyThemeColors(siteSettings); // accent preset (also re-syncs meta theme-color)
       const def = effectiveDefaultSort();
       sortSelect.value = def;
       // lastGridSort must never hold 'reading-order': the Grid button restores
       // it, which would bounce straight back to Volumes.
       if (def !== 'reading-order') lastGridSort = def;
       syncViewFromSort(); // a 'reading-order' default boots into Volumes view
+    }
+
+    // --- Accent preset engine ---
+    // Generates :root / [data-theme="light"] override rules from the active
+    // preset and injects them in a <style> AFTER the main stylesheet, so they
+    // win specificity ties. Inline custom properties on <html> are NOT usable
+    // here — they'd override BOTH theme blocks at once and break the toggle.
+    // The 'ink' preset has empty overrides → the stylesheet text is emptied
+    // and the code-defined defaults render untouched.
+    let accentStyleEl = null;
+
+    function applyThemeColors(s) {
+      const preset = ACCENT_PRESETS[s.accent] || ACCENT_PRESETS[DEFAULT_SETTINGS.accent];
+      if (!accentStyleEl) {
+        accentStyleEl = document.createElement('style');
+        accentStyleEl.id = 'accent-overrides';
+        document.head.appendChild(accentStyleEl);
+      }
+      let css = '';
+      const block = (selector, tokens) =>
+        selector + '{' + Object.entries(tokens).map(([k, v]) => k + ':' + v).join(';') + '}';
+      if (preset.dark && Object.keys(preset.dark).length) {
+        css += block(':root', preset.dark);
+        if (preset.light && Object.keys(preset.light).length) css += block('[data-theme="light"]', preset.light);
+      }
+      accentStyleEl.textContent = css;
+      // --bg-main may have changed → re-sync the browser-chrome theme-color
+      // (reads the resolved token, so it follows any preset automatically).
+      applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
     }
 
     // --- site.json file-handle persistence (same IndexedDB kv store as books.json/covers) ---
@@ -7925,14 +8159,50 @@
     const settingsForm = document.getElementById('settings-form');
     const inputSiteTitle = document.getElementById('site-title-input');
     const inputSettingsSort = document.getElementById('settings-sort-input');
+    const accentSwatchWrap = document.getElementById('accent-swatches');
     const closeSettingsModalBtn = document.getElementById('close-settings-modal');
     const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
     const settingsBtn = document.getElementById('settings-btn');
+
+    // Build the accent swatch radiogroup once from ACCENT_PRESETS. Real
+    // <button>s → natively keyboard-operable (Tab + Enter/Space); role=radio +
+    // aria-checked expose the single-select semantics to AT.
+    if (accentSwatchWrap) {
+      for (const id of VALID_ACCENTS) {
+        const preset = ACCENT_PRESETS[id];
+        if (!preset) continue;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'accent-swatch';
+        btn.dataset.accent = id;
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', 'false');
+        btn.title = preset.name;
+        btn.setAttribute('aria-label', preset.name);
+        btn.innerHTML = '<span class="swatch-dot" style="background:' + preset.swatch + '"></span>';
+        accentSwatchWrap.appendChild(btn);
+      }
+      accentSwatchWrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('.accent-swatch');
+        if (!btn) return;
+        accentSwatchWrap.querySelectorAll('.accent-swatch').forEach(b =>
+          b.setAttribute('aria-checked', String(b === btn)));
+      });
+    }
+
+    function selectedAccentFromUI() {
+      const checked = accentSwatchWrap && accentSwatchWrap.querySelector('.accent-swatch[aria-checked="true"]');
+      return (checked && VALID_ACCENTS.includes(checked.dataset.accent)) ? checked.dataset.accent : DEFAULT_SETTINGS.accent;
+    }
 
     function openSettingsModal() {
       if (viewOnly) return; // editing surface — never in view-only mode
       inputSiteTitle.value = siteSettings.title;
       inputSettingsSort.value = effectiveDefaultSort();
+      if (accentSwatchWrap) {
+        accentSwatchWrap.querySelectorAll('.accent-swatch').forEach(b =>
+          b.setAttribute('aria-checked', String(b.dataset.accent === siteSettings.accent)));
+      }
       settingsModal.classList.add('active');
     }
 
@@ -7967,7 +8237,11 @@
     // write site.json straight to disk when possible.
     settingsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const s = normalizeSiteSettings({ title: inputSiteTitle.value, defaultSort: inputSettingsSort.value });
+      const s = normalizeSiteSettings({
+        title: inputSiteTitle.value,
+        defaultSort: inputSettingsSort.value,
+        accent: selectedAccentFromUI()
+      });
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
       applySettings(s);
       renderBooks(); // filter badge + Clear-all now reflect the new default
