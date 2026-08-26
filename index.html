@@ -32,10 +32,12 @@
       --border-color: hsl(222, 6%, 20%);
       --border-accent: var(--accent-color);
       /* Text — real hierarchy: primary pops, secondary supports,
-         muted stays ≥5:1 on every surface. */
+         muted stays ≥5:1 on every surface. Faint is for DECORATIVE
+         uppercase micro-labels only — never body/content text. */
       --text-primary: hsl(220, 8%, 93%);
       --text-secondary: hsl(220, 6%, 74%);
       --text-muted: hsl(220, 5%, 58%);
+      --text-faint: hsl(220, 5%, 45%);
       --img-bg: hsl(222, 5%, 12%);
       --img-bg-hover: hsl(222, 5%, 16%);
       --btn-secondary-bg: hsl(222, 5%, 20%);
@@ -63,6 +65,7 @@
       --text-primary: hsl(222, 0%, 11%);
       --text-secondary: hsl(215, 0%, 34%);   /* was 45% */
       --text-muted: hsl(215, 0%, 44%);       /* was 57% */
+      --text-faint: hsl(215, 0%, 57%);       /* decorative micro-labels only */
       --img-bg: hsl(200, 0%, 96.5%);
       --img-bg-hover: hsl(200, 0%, 93%);     /* was 94% */
       --btn-secondary-bg: #ffffff;
@@ -2192,13 +2195,13 @@
       font-weight: 600;
       letter-spacing: 0.03em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: var(--text-faint);
       white-space: nowrap;
     }
 
     .detail-meta-value {
       font-size: 0.85rem;
-      color: var(--text-primary);
+      color: var(--text-secondary);
       overflow-wrap: anywhere;
       line-height: 1.4;
       justify-self: end;
@@ -2265,7 +2268,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.03em;
-      color: var(--text-muted);
+      color: var(--text-faint);
       margin-bottom: 6px;
     }
 
