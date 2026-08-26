@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- Android Chrome/Edge/Samsung Internet — colors the browser chrome to match the theme -->
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f19">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161618">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfcfc">
   <!-- iOS — only applies when added to the Home Screen (standalone mode) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,25 +22,34 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     :root {
-      --bg-main: hsl(223, 0%, 2%);
-      --bg-surface: hsl(220, 0%, 7.5%);
-      --bg-card: hsl(221, 0%, 15%);
-      --bg-card-hover: hsl(218, 39%, 19%);
-      --bg-input: hsl(222, 0%, 5%);
-      --border-color: hsl(217, 0%, 10%);
-      --border-accent: #3b82f6;
-      --text-primary: hsl(210, 0%, 90%);
-      --text-secondary: hsl(215, 0%, 85%);
-      --text-muted: hsl(215, 0%, 47%);
-      --img-bg: hsl(220, 0%, 7.5%);
-      --img-bg-hover: hsl(220, 0%, 12%);
-      --btn-secondary-bg: hsl(220, 0%, 18%);
-      --btn-secondary-bg-hover: hsl(220, 0%, 24%);
+      /* Dark surfaces — one quiet ladder (~4% L steps), faint cool cast.
+         bg-main sits at 9% so the page reads charcoal, not OLED black. */
+      --bg-main: hsl(222, 5%, 9%);
+      --bg-surface: hsl(222, 5%, 12%);
+      --bg-card: hsl(222, 5%, 15%);
+      --bg-card-hover: hsl(222, 5%, 19%);
+      --bg-input: hsl(222, 6%, 11%);
+      --border-color: hsl(222, 6%, 20%);
+      --border-accent: var(--accent-color);
+      /* Text — real hierarchy: primary pops, secondary supports,
+         muted stays ≥5:1 on every surface. */
+      --text-primary: hsl(220, 8%, 93%);
+      --text-secondary: hsl(220, 6%, 74%);
+      --text-muted: hsl(220, 5%, 58%);
+      --img-bg: hsl(222, 5%, 12%);
+      --img-bg-hover: hsl(222, 5%, 16%);
+      --btn-secondary-bg: hsl(222, 5%, 20%);
+      --btn-secondary-bg-hover: hsl(222, 5%, 25%);
       --engine-1: #3b82f6;
       --engine-2: #06b6d4;
       --engine-3: #f59e0b;
-      --accent-color: hsl(239, 0%, 30%);
-      --success-color: #040605; 
+      /* Accent split: --accent-color is the "ink" seen against the dark bg
+         (text, borders, focus rings, decorative stripes); --accent-fill is
+         the solid fill that carries WHITE text (buttons, pills, badges).
+         One value can't serve both roles on a dark theme. */
+      --accent-color: hsl(220, 8%, 78%);
+      --accent-fill: hsl(222, 6%, 32%);
+      --success-color: #34d399;
     }
 
     [data-theme="light"] {
@@ -50,15 +59,16 @@
       --bg-card-hover: hsl(214, 0%, 91%);
       --bg-input: #ffffff;
       --border-color: hsl(213, 0%, 84%);
-      --border-accent: hsl(217, 0%, 60%);
+      --border-accent: hsl(0, 0%, 40%);      /* was 60% */
       --text-primary: hsl(222, 0%, 11%);
-      --text-secondary: hsl(215, 0%, 45%);
-      --text-muted: hsl(215, 0%, 57%);
+      --text-secondary: hsl(215, 0%, 34%);   /* was 45% */
+      --text-muted: hsl(215, 0%, 44%);       /* was 57% */
       --img-bg: hsl(200, 0%, 96.5%);
-      --img-bg-hover: hsl(200, 0%, 94%);
+      --img-bg-hover: hsl(200, 0%, 93%);     /* was 94% */
       --btn-secondary-bg: #ffffff;
       --btn-secondary-bg-hover: hsl(214, 0%, 95%);
       --accent-color: hsl(0, 0%, 0%);
+      --accent-fill: hsl(0, 0%, 0%); /* same ink — light-mode fills are already dark */
       --success-color: #16a34a;
     }
 
@@ -145,7 +155,7 @@
     }
 
     .brand-icon {
-      background: var(--accent-color);
+      background: var(--accent-fill);
       color: white;
       padding: 10px;
       border-radius: 10px;
@@ -224,7 +234,7 @@
       left: 3px;
       width: calc(50% - 6px);
       border-radius: 6px;
-      background: var(--accent-color);
+      background: var(--accent-fill);
       transform: translateX(0);
       transition: transform var(--toggle-time) var(--toggle-ease);
       will-change: transform;
@@ -366,7 +376,7 @@
     }
 
     .btn-primary {
-      background: var(--accent-color);
+      background: var(--accent-fill);
       color: white;
       border: none;
       height: 38px;
@@ -1027,7 +1037,7 @@
       padding: 0 4px;
       border: 2px solid var(--bg-main); /* notch ring so the dot reads as a bubble */
       border-radius: 999px;
-      background: var(--accent-color);
+      background: var(--accent-fill);
       color: white;
       font-size: 0.62rem;
       font-weight: 600;
@@ -1041,7 +1051,7 @@
       display: inline-flex;
       align-items: center;
       min-height: 36px;
-      font-weight: 500;
+      font-weight: 400;
       padding: 3px 12px;
       border-radius: 18px;
       font-size: 0.875rem;
@@ -1060,7 +1070,7 @@
       }
     }
     .tag-filter-chip[aria-pressed="true"] {
-      background: var(--accent-color);
+      background: var(--accent-fill);
       color: white;
     }
     .tag-filter-chip:focus-visible {
@@ -1356,7 +1366,7 @@
     }
 
     .export-reminder .btn-export-now {
-      background: var(--accent-color);
+      background: var(--accent-fill);
       color: #fff;
       border: none;
       padding: 6px 14px;
@@ -1690,7 +1700,7 @@
        Kept between --text-secondary and --text-muted so it stays legible in
        both themes while clearly receding behind the main title. */
     .title-sub {
-      color: color-mix(in srgb, var(--text-secondary) 60%, var(--text-muted));
+      color: var(--text-muted);
       font-weight: 500;
     }
 
@@ -1728,8 +1738,8 @@
 
     /* Completed: solid accent fill with white text. */
     .status-pill[data-status="Completed"] {
-      background: var(--accent-color);
-      border-color: var(--accent-color);
+      background: var(--accent-fill);
+      border-color: var(--accent-fill);
       color: #ffffff;
     }
 
@@ -2333,7 +2343,7 @@
       left: 3px;
       width: calc(50% - 6px);
       border-radius: 7px;
-      background: var(--accent-color);
+      background: var(--accent-fill);
       transform: translateX(0);
       transition: transform var(--toggle-time) var(--toggle-ease);
       will-change: transform;
@@ -7647,7 +7657,7 @@
       localStorage.setItem('theme', theme);
       // Keep the Android status-bar color in sync with the current theme.
       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      if (themeColorMeta) themeColorMeta.content = theme === 'light' ? '#ffffff' : '#0b0f19';
+      if (themeColorMeta) themeColorMeta.content = theme === 'light' ? '#fcfcfc' : '#161618';
       // The icon shows the theme the button will SWITCH TO (moon in light, sun
       // in dark). Re-query it each time: lucide.createIcons() replaces the <i>
       // with an <svg>, so a cached reference would silently stop updating.
