@@ -15,9 +15,13 @@ This started as a personal project to track and browse my reading — 223 books 
 - **Search & filter:** full-text search (title, author, stage, notes, ISBN), plus **volume**, **status**, and multi-select **tag** filters.
 - **Sorting:** reading order (volume → stage → order), year (newest/oldest), date added (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
 - **Edit / View modes:** flip between maintaining the library and read-only browsing on the same data.
-- **Book details modal:** cover, volume/stage, reading order, publisher **summary** (collapsible), notes, tags, and ISBN links to Google Books and Goodreads.
+- **Site Settings:** configure the site title, default sort, and an **accent color preset** (Ink, Indigo, Moss, Clay, Ocean, Plum) from one modal — each preset re-tints the whole palette while keeping contrast ratios intact. Saved to `site.json` so visitors get your configuration.
+- **Note formatting:** personal notes support light markdown at display time — `**bold**`, `*italic*`, and `[label](https://…)` external links.
+- **Book cross-references:** type `[[Book Title]]` in notes to insert a tappable chip that opens that book's details — great for "read after…" or "pairs with…" annotations.
+- **Deep linking:** every book has a shareable `#book=<id>` URL that opens its details directly; Back/Forward navigate the modal like a page.
+- **Book details modal:** interactive 3D cover (hover tilt + gloss sheen on desktop, touch-drag rotation on mobile), volume/stage, reading order, publisher **summary** (collapsible), formatted notes, tags, and an ISBN link to Goodreads. Clicking the Volume or Stage value jumps straight to that spot in Volumes view.
 - **Status tracking:** opt-in *To Read / Reading / Completed*, with distinct pill styles — To Read neutral, Reading accent outline, Completed solid accent fill.
-- **Covers:** local JPEGs in `covers/`, uploaded via a click-or-drop zone (drag in a cover image file or even a raw image URL).
+- **Covers:** local JPEGs in `covers/`, uploaded via a click-or-drop zone (drag in a cover image file or even a raw image URL). Each cover is rendered as a 3D book — spine texture is derived live from the cover's left edge, and the book's depth scales with its page count.
 - **Dark / light themes**, with browser-chrome tinting tuned for iOS Safari 26.
 - **Accessibility:** focus-trapped modals, ARIA labels, keyboard/Escape support, touch drag-to-dismiss on mobile, and `prefers-reduced-motion` support.
 
@@ -57,6 +61,8 @@ Everything you edit lives in `localStorage`; **Export** writes it back to `books
 - **Reorder:** switch to the **Volumes** view and drag & drop books between volumes and stages.
 - **Assign status / engine:** via the add/edit form. A status pill only renders on cards that have one — status is opt-in.
 - **Tags:** added in the edit form via a type-ahead dropdown with suggestions (Enter or comma commits a tag; the list is pre-filled with existing tags).
+- **Notes:** free text with light markdown — `**bold**`, `*italic*`, `[label](https://…)` links, and `[[Book Title]]` cross-reference chips that open another book's details when tapped.
+- **Site settings:** the ⚙ **Settings** button opens a modal for the site title, default sort, and accent color. Saving applies immediately and writes `site.json` (same File System Access / download fallback as `books.json`), so your choices publish to visitors.
 - **Save your changes:** **Export** writes the current `localStorage` state back to `books.json`. The app shows an **Export Now** reminder when you have unsaved changes, and **Check for Updates** compares your local copy against the on-disk/remote `books.json` (it can read the file directly via the File System Access API when opened from `file://`).
 
 All editing controls live in the toolbar and are hidden on the public site.
@@ -100,8 +106,10 @@ All editing controls live in the toolbar and are hidden on the public site.
 | `readingOrder` | number | Order within the stage |
 | `engine` | string | `None`, or e.g. `Engine 1: Deep Focus` |
 | `tags` | string[] | Lowercase, trimmed, deduped |
-| `notes` | string | Free-text notes |
+| `notes` | string | Free-text notes; supports light markdown and `[[Book Title]]` cross-references at display time |
 | `summary` | string | Publisher blurb (`""` when none) |
+| `pages` | number | Optional page count — scales the 3D book's spine depth |
+| `created` | string | ISO datetime the book was added; powers the "Added (New/Old)" sorts |
 
 Current catalog: **223 books** across **7 volumes** and **41 stages**, with a **28-tag** vocabulary. Imports and the public fetch both normalize records through the same code path, so optional fields get sensible defaults on load.
 
