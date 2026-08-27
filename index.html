@@ -2269,7 +2269,7 @@
       margin: 0;
       font: inherit;
       font-size: 0.85rem;
-      color: var(--text-primary);
+      color: var(--accent-color);
       overflow-wrap: anywhere;
       line-height: 1.4;
       justify-self: end;
@@ -2278,15 +2278,15 @@
       display: inline;
       border-radius: 6px;
       max-width: 100%;
-      text-decoration-color: var(--text-muted);
+      text-decoration-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
       text-decoration-line: underline;
       text-decoration-style: dotted;
       text-underline-offset: 3px;
       transition: color 0.15s ease, text-decoration-color 0.15s ease;
     }
     .detail-meta-link:hover {
-      color: var(--border-accent);
-      text-decoration-color: var(--border-accent);
+      color: var(--text-muted);
+      text-decoration-color: var(--accent-color);
     }
     .detail-meta-link:focus-visible {
       outline: 2px solid var(--border-accent);
@@ -2330,6 +2330,39 @@
       color: var(--text-primary);
       white-space: pre-line;
       line-height: 1.55;
+    }
+
+    /* Personal-notes mini-markdown: external links + [[book ref]] chips.
+       Both inherit the note's font-size/line-height so they read inline. */
+    .detail-notes a {
+      color: var(--accent-color);
+      text-decoration: underline dotted;
+      text-decoration-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
+      text-underline-offset: 3px;
+    }
+
+    .detail-notes a:hover {
+      color: var(--text-muted);
+      text-decoration-color: var(--accent-color);
+    }
+
+    .note-bookref {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      color: var(--accent-color);
+      cursor: pointer;
+      text-align: left;
+      text-decoration: underline dotted;
+      text-decoration-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
+      text-underline-offset: 3px;
+    }
+
+    .note-bookref:hover {
+      color: var(--text-muted);
+      text-decoration-color: var(--accent-color);
     }
 
     #detail-summary-text.clamped {
@@ -3865,6 +3898,7 @@
           <div class="form-group full-width">
             <label for="book-notes-input">Personal Notes / Quotes</label>
             <textarea id="book-notes-input" placeholder="Add annotations, key concepts, or takeaway notes..."></textarea>
+            <p class="form-hint">Formatting: <code>**bold**</code> · <code>*italic*</code> · <code>[link](https://…)</code> · <code>[[Book Title]]</code> to reference another book.</p>
           </div>
           <div class="form-group full-width">
             <label for="book-summary-input">Summary</label>
@@ -4526,6 +4560,47 @@
       // string because escapeHtml preserves those characters.
       const m = escaped.match(/^(.*?)([:：(].*)$/);
       return m ? `${m[1]}<span class="title-sub">${m[2]}</span>` : escaped;
+    }
+
+    // Main title only — drops the subtitle tail (everything from the first
+    // ":", full-width "：", or "("). Same rule as renderTitleHtml; used for
+    // [[book ref]] chips in notes so long subtitles don't bloat the text.
+    function shortTitle(title) {
+      const m = String(title || '').match(/^(.*?)([:：(].*)$/);
+      return (m ? m[1] : String(title || '')).trim() || title;
+    }
+
+    // Mini-markdown for personal notes — DISPLAY-TIME ONLY, stored text stays
+    // plain (search/export untouched). Supports **bold**, *italic*,
+    // [label](https://url) external links, and [[Book Title]] cross-reference
+    // chips that open that book's detail modal. HTML is escaped FIRST so
+    // nothing else can inject markup; unmatched [[...]] renders literally.
+    function renderNotesHtml(text) {
+      let s = escapeHtml(text);
+      // Book refs first: [[Title]] → chip when a case-insensitive title match
+      // exists (exact match preferred, then prefix). The chip text uses the
+      // CANONICAL book title so refs stay consistent even if typed loosely.
+      s = s.replace(/\[\[([^\[\]]+)\]\]/g, (match, rawTitle) => {
+        const q = rawTitle.trim().toLowerCase();
+        if (!q) return match;
+        const hit =
+          books.find(b => (b.title || '').toLowerCase() === q) ||
+          books.find(b => (b.title || '').toLowerCase().startsWith(q));
+        return hit
+          ? `<button type="button" class="note-bookref" data-book-id="${escapeHtml(hit.id)}" title="${escapeHtml(hit.title)}">${escapeHtml(shortTitle(hit.title))}</button>`
+          : match;
+      });
+      // Links: [label](url). Only http(s) schemes become anchors (blocks
+      // javascript: etc.). &amp; in the escaped URL is valid inside an
+      // attribute — the browser decodes it back to &.
+      s = s.replace(/\[([^\]\[]+)\]\(([^()\s]+)\)/g, (match, label, url) => {
+        if (!/^https?:\/\//i.test(url.replace(/&amp;/g, '&'))) return match;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+      });
+      // Bold before italic so ** isn't consumed as two italics.
+      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+      return s;
     }
 
     // Cover Rendering
@@ -6994,6 +7069,17 @@
       scrollToFirstBooks();
     });
 
+    // Clicking a [[book cross-reference]] chip in personal notes opens that
+    // book's detail modal. In View mode the read-only modal swaps content in
+    // place (no close/reopen flash); in Edit mode close first so the edit
+    // modal doesn't stack on top of the detail modal.
+    detailNotesText.addEventListener('click', (e) => {
+      const ref = e.target.closest('.note-bookref');
+      if (!ref || !ref.dataset.bookId) return;
+      if (!viewOnly) closeDetailModal();
+      openBookDetails(ref.dataset.bookId, ref);
+    });
+
     // Clicking Volume / Stage in the detail modal jumps to that spot in
     // Volumes (roadmap) view. Volume clicks land on the volume header;
     // stage clicks land on the stage header inside that volume.
@@ -7134,12 +7220,14 @@
         detailAdded.textContent = '';
       }
 
-      // Personal notes (only when present).
+      // Personal notes (only when present). Rendered through the mini-markdown
+      // helper (bold/italic/links/[[book refs]]) — input is escaped first.
       if (book.notes && book.notes.trim()) {
         detailNotes.hidden = false;
-        detailNotesText.textContent = book.notes;
+        detailNotesText.innerHTML = renderNotesHtml(book.notes);
       } else {
         detailNotes.hidden = true;
+        detailNotesText.textContent = '';
       }
 
       // Tags (only when present) — click a chip to filter the grid by that tag.
