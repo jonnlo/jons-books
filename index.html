@@ -21,6 +21,8 @@
   <!-- SortableJS for Drag-and-Drop -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
+    @property --gx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+    @property --gy { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
     :root {
       /* Dark surfaces — one quiet ladder (~4% L steps), faint cool cast.
          bg-main sits at 9% so the page reads charcoal, not OLED black. */
@@ -2213,11 +2215,44 @@
       height: 18px;
       stroke-width: 1.5px;
     }
-    .detail-cover .book3d-hint.is-hidden {
+    /* Hidden during auto-demo; fades in when .demo-run is removed */
+    .book-detail-modal.demo-run .book3d-hint {
+      opacity: 0;
+      transition: none;
+    }
+    .detail-cover .book3d-hint.is-hidden,
+    .book-detail-modal.demo-run .book3d-hint.is-hidden {
       opacity: 0;
     }
     @media (prefers-reduced-motion: reduce) {
       .detail-cover .book3d-hint { transition: none; }
+    }
+
+    /* Auto-demo tilt on open: right pages first (-ry) → left spine (+ry) → rest.
+       Twice per session, interruptible, transform-only, respects reduced-motion. */
+    @media (prefers-reduced-motion: no-preference) {
+      .book-detail-modal.demo-run .book3d {
+        animation: detail-demo 1.3s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+      }
+      @keyframes detail-demo {
+        0% { transform: rotateX(0deg) rotateY(0deg) scale(1); }
+        35% { transform: rotateX(-2deg) rotateY(-27deg) scale(1); }
+        65% { transform: rotateX(1.2deg) rotateY(16deg) scale(1); }
+        100% { transform: rotateX(0deg) rotateY(0deg) scale(1); }
+      }
+      .book-detail-modal.demo-run .book3d__gloss {
+        animation: detail-gloss 1.3s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both;
+      }
+      @keyframes detail-gloss {
+        0% { opacity: 0; --gx: 15%; --gy: 45%; }
+        35% { opacity: 1; --gx: 22%; --gy: 45%; }
+        65% { opacity: 0.7; --gx: 78%; --gy: 50%; }
+        100% { opacity: 0; --gx: 85%; --gy: 50%; }
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .book-detail-modal.demo-run .book3d,
+      .book-detail-modal.demo-run .book3d__gloss { animation: none; }
     }
 
     .detail-cover-img {
@@ -7369,6 +7404,33 @@
       // Doing it before .active leaves clientWidth at 0 -> default 85%×80%
       // box + no spine texture -> gapped + flat colour.
       if (window.sizeDetailBook3D) requestAnimationFrame(window.sizeDetailBook3D);
+      // Auto-demo tilt: right pages first (-ry) → left spine (+ry) → rest.
+      // Twice per session, interruptible, jacket-safe, respects reduced-motion.
+      try {
+        const DEMO_KEY = 'detail-demo-count';
+        const demoCount = parseInt(sessionStorage.getItem(DEMO_KEY) || '0', 10);
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const hasCoverImg = !!detailCover.querySelector('.book3d img');
+        const canDemo = !prefersReduced && demoCount < 2 && hasCoverImg;
+        if (canDemo) {
+          // Clear any leftover inline animation from a previous cancel
+          const prevB = detailCover.querySelector('.book3d');
+          if (prevB) prevB.style.removeProperty('animation');
+          detailModal.classList.add('demo-run');
+          sessionStorage.setItem(DEMO_KEY, String(demoCount + 1));
+          const cancelDemo = () => {
+            detailModal.classList.remove('demo-run');
+          };
+          detailCover.addEventListener('pointermove', cancelDemo, { once: true });
+          detailCover.addEventListener('touchstart', cancelDemo, { once: true, passive: true });
+          const book3dEl = detailCover.querySelector('.book3d');
+          if (book3dEl) {
+            book3dEl.addEventListener('animationend', () => {
+              detailModal.classList.remove('demo-run');
+            }, { once: true });
+          }
+        }
+      } catch (e) { /* sessionStorage unavailable — skip demo */ }
       // Reflect the open book in the URL (#book=<id>) so the page is
       // deep-linkable and Back/Forward toggle the modal. pushState adds a
       // history entry without firing hashchange (so no recursion), and we skip
@@ -7410,6 +7472,7 @@
         history.replaceState(null, '', location.pathname + location.search);
       }
       detailModal.classList.remove('active');
+      detailModal.classList.remove('demo-run');
       detailModal.classList.remove('anim-in');
       const appContainer = document.querySelector('.container');
       if (appContainer) appContainer.inert = false;
