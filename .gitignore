@@ -25,3 +25,7 @@ scripts/hardcover-summary-misses.txt
 # Generated pagecount-fetch logs (regenerated on each backfill run)
 scripts/pagecount-misses.txt
 scripts/pagecount-hardcover-misses.txt
+
+# Local experiments and working notes (kept locally, not published)
+exp/
+docs/
