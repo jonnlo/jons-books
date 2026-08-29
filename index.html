@@ -3839,13 +3839,17 @@
             <input type="text" id="book-new-stage-name-input" placeholder="e.g. Foundational Concepts">
           </div>
 
-          <div class="form-group">
+          <div class="form-group full-width">
             <label for="book-reading-order-input">Reading Order (int)</label>
             <input type="number" id="book-reading-order-input" min="1" step="1" required placeholder="e.g. 1">
           </div>
           <div class="form-group">
             <label for="book-year-input">Publication Year</label>
             <input type="text" id="book-year-input" placeholder="e.g. 2026">
+          </div>
+          <div class="form-group">
+            <label for="book-first-published-input">First Published</label>
+            <input type="text" id="book-first-published-input" placeholder="Original work date, e.g. 1949">
           </div>
 
           <div class="form-group">
@@ -4528,6 +4532,7 @@
         stageName: b.stageName || "General Stage",
         readingOrder: parseInt(b.readingOrder || b.order) || 1,
         year: (b.year || "").toString(),
+        firstPublished: (b.firstPublished ?? b.originalYear ?? "").toString().trim(),
         status: b.status || "",
         engine: b.engine || "None",
         cover: b.cover || b.cover_url || "",
@@ -5051,6 +5056,7 @@
     const newStageNameGroup = document.getElementById('new-stage-name-group');
     const inputReadingOrder = document.getElementById('book-reading-order-input');
     const inputYear = document.getElementById('book-year-input');
+    const inputFirstPublished = document.getElementById('book-first-published-input');
     const inputStatus = document.getElementById('book-status-input');
     const inputEngine = document.getElementById('book-engine-input');
     const inputCover = document.getElementById('book-cover-input');
@@ -6500,7 +6506,9 @@
           b.volumeName.toLowerCase().includes(query) ||
           b.stageName.toLowerCase().includes(query) ||
           b.notes.toLowerCase().includes(query) ||
-          b.isbn.toLowerCase().includes(query);
+          b.isbn.toLowerCase().includes(query) ||
+          (b.year || "").toLowerCase().includes(query) ||
+          (b.firstPublished || "").toLowerCase().includes(query);
 
         const matchesVol = !selectedVol || b.volumeNumber === parseInt(selectedVol);
         const matchesStatus = !selectedStatus ||
@@ -6929,6 +6937,7 @@
       inputNewStageName.value = book.stageName;
       inputReadingOrder.value = book.readingOrder;
       inputYear.value = book.year;
+      if (inputFirstPublished) inputFirstPublished.value = book.firstPublished || "";
       inputStatus.value = book.status;
       inputEngine.value = book.engine;
       resetCoverUploadState();
@@ -6971,6 +6980,7 @@
         newStage: inputNewStageName.value,
         readingOrder: inputReadingOrder.value,
         year: inputYear.value,
+        firstPublished: inputFirstPublished ? inputFirstPublished.value : "",
         status: inputStatus.value,
         engine: inputEngine.value,
         cover: inputCover.value,
@@ -7195,7 +7205,12 @@
       detailStage.dataset.stage = book.stageNumber;
       detailStage.textContent = `${book.stageNumber} / ${book.stageName}`;
       detailOrder.textContent = `#${book.readingOrder} in stage`;
-      detailYear.textContent = book.year || '—';
+      {
+        const y = (book.year || "").trim();
+        const fp = (book.firstPublished || "").trim();
+        if (y && fp && y !== fp) detailYear.textContent = `${y} (first published ${fp})`;
+        else detailYear.textContent = y || fp || '—';
+      }
 
       // ISBN + find-this-book links (only when an ISBN exists).
       if (book.isbn) {
@@ -7746,6 +7761,7 @@
         stageName,
         readingOrder: parseInt(inputReadingOrder.value) || 1,
         year: inputYear.value.trim(),
+        firstPublished: inputFirstPublished ? inputFirstPublished.value.trim() : "",
         status: inputStatus.value,
         engine: newEngine,
         cover,
