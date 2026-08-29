@@ -4549,6 +4549,22 @@
       };
     }
 
+    // Parse free-text year for sorting: handles "65 CE", "400 BCE", "1st Century CE", "c. 1800"
+    function parseYearForSort(s) {
+      if (!s) return null;
+      let t = s.trim().toLowerCase().replace(/^(c\.|ca\.|circa|~)\s*/, '');
+      const isBCE = /\b(bce|bc)\b/.test(t);
+      const cent = t.match(/(\d+)\s*(st|nd|rd|th)?\s*century/);
+      if (cent) {
+        const c = parseInt(cent[1], 10);
+        return isBCE ? -(c * 100 - 50) : c * 100 - 50;
+      }
+      const n = t.match(/-?\d+/);
+      if (!n) return null;
+      let y = parseInt(n[0], 10);
+      return isBCE ? -Math.abs(y) : y;
+    }
+
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/[&<>"']/g, function(m) {
@@ -6525,8 +6541,14 @@
           if (a.stageNumber !== b.stageNumber) return a.stageNumber - b.stageNumber;
           return a.readingOrder - b.readingOrder;
         }
-        if (sortVal === 'year-desc') return (parseInt(b.year) || 0) - (parseInt(a.year) || 0);
-        if (sortVal === 'year-asc') return (parseInt(a.year) || 0) - (parseInt(b.year) || 0);
+        if (sortVal === 'year-desc' || sortVal === 'year-asc') {
+          const ya = parseYearForSort(a.firstPublished || a.year);
+          const yb = parseYearForSort(b.firstPublished || b.year);
+          if (ya === null && yb === null) return 0;
+          if (ya === null) return 1;
+          if (yb === null) return -1;
+          return sortVal === 'year-desc' ? yb - ya : ya - yb;
+        }
         // Date Added: books without a `created` stamp (no matching epub at
         // migration time) always sink to the end, whichever direction.
         if (sortVal === 'created-desc' || sortVal === 'created-asc') {
@@ -7208,8 +7230,8 @@
       {
         const y = (book.year || "").trim();
         const fp = (book.firstPublished || "").trim();
-        if (y && fp && y !== fp) detailYear.textContent = `${y} (first published ${fp})`;
-        else detailYear.textContent = y || fp || '—';
+        if (y && fp && y !== fp) detailYear.textContent = `${fp} (${y} edition)`;
+        else detailYear.textContent = fp || y || '—';
       }
 
       // ISBN + find-this-book links (only when an ISBN exists).

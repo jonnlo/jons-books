@@ -13,7 +13,7 @@ This started as a personal project to track and browse my reading — 223 books 
 - **Two views:** a visual **Grid** of cover cards and a **Volumes** ("roadmap") view that groups books into reading volumes and stages.
 - **Active Books:** three "reading engine" tracks — Deep Focus, Complementary, Exploration — that pin currently-read books.
 - **Search & filter:** full-text search (title, author, stage, notes, ISBN), plus **volume**, **status**, and multi-select **tag** filters.
-- **Sorting:** reading order (volume → stage → order), year (newest/oldest), date added (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
+- **Sorting:** reading order (volume → stage → order), Published (newest/oldest, by original publication date with fallback to edition year — handles `65 CE`, `400 BCE`, `1st Century CE`), date added (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
 - **Edit / View modes:** flip between maintaining the library and read-only browsing on the same data.
 - **Site Settings:** configure the site title, default sort, and an **accent color preset** (Ink, Indigo, Moss, Clay, Ocean, Plum) from one modal — each preset re-tints the whole palette while keeping contrast ratios intact. Saved to `site.json` so visitors get your configuration.
 - **Note formatting:** personal notes support light markdown at display time — `**bold**`, `*italic*`, and `[label](https://…)` external links.
@@ -77,6 +77,7 @@ All editing controls live in the toolbar and are hidden on the public site.
   "title": "Tools for Conviviality",
   "author": "Ivan Illich",
   "year": "1973",
+  "firstPublished": "1973",
   "isbn": "9781842300114",
   "cover": "covers/1786171495955.jpg",
   "status": "",
@@ -97,7 +98,8 @@ All editing controls live in the toolbar and are hidden on the public site.
 | `id` | string | Unique id (timestamp); also the cover filename |
 | `title` | string | |
 | `author` | string | |
-| `year` | string | |
+| `year` | string | This edition's publication year |
+| `firstPublished` | string | Optional original publication date (free-text, e.g. `1949`, `65 CE`, `1st Century CE`); shown as `1949 (2020 edition)` in details when both differ; `Published` sort uses `firstPublished \|\| year` |
 | `isbn` | string | Empty when unknown |
 | `cover` | string | `covers/<id>.jpg`, or `""` for the generated CSS-jacket fallback |
 | `status` | string | Opt-in: `""` (none), `To Read`, `Reading`, `Completed` |
