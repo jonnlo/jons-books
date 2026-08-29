@@ -1937,6 +1937,60 @@
       min-height: 80px;
     }
 
+    /* Edit modal — two-column layout on desktop */
+    @media (min-width: 860px) {
+      #book-modal .modal-content {
+        max-width: 920px;
+      }
+      #book-modal .form-grid--split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 28px;
+        align-items: stretch;
+      }
+      #book-modal .form-col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+      }
+      #book-modal .form-col .form-grid {
+        gap: 16px;
+      }
+      /* Right column stretches; textareas grow to fill available height */
+      #book-modal .form-col--content {
+        align-self: stretch;
+      }
+      #book-modal .form-group--grow {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      #book-modal .form-group--grow textarea {
+        flex: 1;
+        min-height: 160px;
+      }
+      #book-modal #book-notes-input {
+        min-height: 220px;
+      }
+      #book-modal #book-summary-input {
+        min-height: 180px;
+      }
+    }
+    @media (max-width: 859px) {
+      #book-modal .form-grid--split {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      #book-modal .form-col {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+      }
+    }
+
     /* Cover upload (local editing): click-or-drop cover slot */
     .cover-dropzone {
       position: relative;
@@ -3811,117 +3865,125 @@
       </div>
       <form id="book-form">
         <input type="hidden" id="book-id">
-        <div class="form-grid">
-          <div class="form-group full-width">
-            <label for="book-title-input">Book Title</label>
-            <input type="text" id="book-title-input" required placeholder="e.g. Agency as Art">
-          </div>
-          <div class="form-group full-width">
-            <label for="book-author-input">Author(s)</label>
-            <input type="text" id="book-author-input" required placeholder="e.g. C. Thi Nguyen">
-          </div>
-
-          <div class="form-group">
-            <label for="book-volume-input">Volume</label>
-            <select id="book-volume-input" required></select>
-          </div>
-          <div class="form-group" id="new-volume-name-group" hidden>
-            <label for="book-new-volume-name-input">New Volume Name</label>
-            <input type="text" id="book-new-volume-name-input" placeholder="e.g. Philosophy of Games">
-          </div>
-
-          <div class="form-group">
-            <label for="book-stage-input">Stage</label>
-            <select id="book-stage-input" required></select>
-          </div>
-          <div class="form-group" id="new-stage-name-group" hidden>
-            <label for="book-new-stage-name-input">New Stage Name</label>
-            <input type="text" id="book-new-stage-name-input" placeholder="e.g. Foundational Concepts">
-          </div>
-
-          <div class="form-group full-width">
-            <label for="book-reading-order-input">Reading Order (int)</label>
-            <input type="number" id="book-reading-order-input" min="1" step="1" required placeholder="e.g. 1">
-          </div>
-          <div class="form-group">
-            <label for="book-year-input">Publication Year</label>
-            <input type="text" id="book-year-input" placeholder="e.g. 2026">
-          </div>
-          <div class="form-group">
-            <label for="book-first-published-input">First Published</label>
-            <input type="text" id="book-first-published-input" placeholder="Original work date, e.g. 1949">
-          </div>
-
-          <div class="form-group">
-            <label for="book-status-input">Reading Status</label>
-            <select id="book-status-input">
-              <option value="">No status</option>
-              <option value="To Read">To Read</option>
-              <option value="Reading">Reading</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="book-engine-input">Active Reading</label>
-            <select id="book-engine-input">
-              <option value="None">None (Unassigned)</option>
-              <option value="Engine 1: Deep Focus">Engine 1: Deep Focus</option>
-              <option value="Engine 2: Complementary">Engine 2: Complementary</option>
-              <option value="Engine 3: Exploration">Engine 3: Exploration</option>
-            </select>
-          </div>
-
-          <div class="form-group full-width">
-            <label for="book-cover-file">Cover Image</label>
-            <div class="cover-dropzone" id="book-cover-dropzone" role="button" tabindex="0" aria-label="Upload cover image: click or drag a file here" title="Click or drag a cover image here">
-              <img id="book-cover-preview" class="cover-upload-preview" alt="Cover preview" hidden>
-              <span class="cover-dropzone-placeholder" id="cover-dropzone-placeholder" aria-hidden="true">
-                <i data-lucide="image" aria-hidden="true"></i>
-                <span class="cover-dropzone-text">Drop cover here or click to browse</span>
-              </span>
-              <button type="button" class="cover-remove-btn" id="book-cover-clear-btn" title="Remove cover" aria-label="Remove cover" hidden><i data-lucide="x" aria-hidden="true"></i></button>
-              <input type="file" id="book-cover-file" accept="image/*" hidden>
+        <div class="form-grid form-grid--split">
+          <!-- Left column: cover + identity & placement -->
+          <div class="form-col">
+            <div class="form-group">
+              <label for="book-title-input">Book Title</label>
+              <input type="text" id="book-title-input" required placeholder="e.g. Agency as Art">
             </div>
-            <p class="cover-upload-hint" id="book-cover-hint">Saved to <code>covers/</code> in this repo.</p>
-            <!-- Hidden field keeps inputCover.value as the saved cover path (covers/<id>.jpg). -->
-            <input type="hidden" id="book-cover-input">
-          </div>
-          <div class="form-group">
-            <label for="book-isbn-input">ISBN</label>
-            <input type="text" id="book-isbn-input" placeholder="e.g. 9780197686546">
-          </div>
-          <div class="form-group">
-            <label for="book-created-input">Added On</label>
-            <input type="datetime-local" id="book-created-input">
-          </div>
-          <div class="form-group">
-            <label for="book-pages-input">Pages (optional)</label>
-            <input type="number" id="book-pages-input" min="1" step="1" placeholder="e.g. 320">
-          </div>
-          <div class="form-group full-width">
-            <label for="book-notes-input">Personal Notes / Quotes</label>
-            <textarea id="book-notes-input" placeholder="Add annotations, key concepts, or takeaway notes..."></textarea>
-            <p class="form-hint">Formatting: <code>**bold**</code> · <code>*italic*</code> · <code>[link](https://…)</code> · <code>[[Book Title]]</code> to reference another book.</p>
-          </div>
-          <div class="form-group full-width">
-            <label for="book-summary-input">Summary</label>
-            <textarea id="book-summary-input" rows="5" placeholder="Publisher blurb (from Hardcover) — one paragraph per line. Leave blank if none."></textarea>
-          </div>
-          <div class="form-group full-width">
-            <label for="tag-editor-input">Tags</label>
-            <div class="tag-editor-wrap">
-              <div class="tag-editor" id="tag-editor">
-                <div class="tag-editor-chips" id="tag-editor-chips"></div>
-                <input type="text" id="tag-editor-input" placeholder="Add a tag…" autocomplete="off"
-                       role="combobox" aria-expanded="false" aria-controls="tag-dropdown" aria-autocomplete="list">
+            <div class="form-group">
+              <label for="book-author-input">Author(s)</label>
+              <input type="text" id="book-author-input" required placeholder="e.g. C. Thi Nguyen">
+            </div>
+            <div class="form-group">
+              <label for="book-cover-file">Cover Image</label>
+              <div class="cover-dropzone" id="book-cover-dropzone" role="button" tabindex="0" aria-label="Upload cover image: click or drag a file here" title="Click or drag a cover image here">
+                <img id="book-cover-preview" class="cover-upload-preview" alt="Cover preview" hidden>
+                <span class="cover-dropzone-placeholder" id="cover-dropzone-placeholder" aria-hidden="true">
+                  <i data-lucide="image" aria-hidden="true"></i>
+                  <span class="cover-dropzone-text">Drop cover here or click to browse</span>
+                </span>
+                <button type="button" class="cover-remove-btn" id="book-cover-clear-btn" title="Remove cover" aria-label="Remove cover" hidden><i data-lucide="x" aria-hidden="true"></i></button>
+                <input type="file" id="book-cover-file" accept="image/*" hidden>
               </div>
-              <!-- Custom type-ahead dropdown (the native <datalist> popup can't be styled). -->
-              <div class="tag-dropdown" id="tag-dropdown" role="listbox" aria-label="Tag suggestions" hidden></div>
+              <p class="cover-upload-hint" id="book-cover-hint">Saved to <code>covers/</code> in this repo.</p>
+              <!-- Hidden field keeps inputCover.value as the saved cover path (covers/<id>.jpg). -->
+              <input type="hidden" id="book-cover-input">
             </div>
-            <p class="form-hint">Click to see all tags, or type to filter. Pick a tag or press Enter to add.</p>
-            <!-- Hidden field keeps inputTags.value as the saved tag list (comma-separated). -->
-            <input type="hidden" id="book-tags-input">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="book-volume-input">Volume</label>
+                <select id="book-volume-input" required></select>
+              </div>
+              <div class="form-group">
+                <label for="book-stage-input">Stage</label>
+                <select id="book-stage-input" required></select>
+              </div>
+            </div>
+            <div class="form-group" id="new-volume-name-group" hidden>
+              <label for="book-new-volume-name-input">New Volume Name</label>
+              <input type="text" id="book-new-volume-name-input" placeholder="e.g. Philosophy of Games">
+            </div>
+            <div class="form-group" id="new-stage-name-group" hidden>
+              <label for="book-new-stage-name-input">New Stage Name</label>
+              <input type="text" id="book-new-stage-name-input" placeholder="e.g. Foundational Concepts">
+            </div>
+            <div class="form-group">
+              <label for="book-reading-order-input">Reading Order (int)</label>
+              <input type="number" id="book-reading-order-input" min="1" step="1" required placeholder="e.g. 1">
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="book-year-input">Publication Year</label>
+                <input type="text" id="book-year-input" placeholder="e.g. 2026">
+              </div>
+              <div class="form-group">
+                <label for="book-first-published-input">First Published</label>
+                <input type="text" id="book-first-published-input" placeholder="Original work date, e.g. 1949">
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="book-status-input">Reading Status</label>
+                <select id="book-status-input">
+                  <option value="">No status</option>
+                  <option value="To Read">To Read</option>
+                  <option value="Reading">Reading</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="book-engine-input">Active Reading</label>
+                <select id="book-engine-input">
+                  <option value="None">None (Unassigned)</option>
+                  <option value="Engine 1: Deep Focus">Engine 1: Deep Focus</option>
+                  <option value="Engine 2: Complementary">Engine 2: Complementary</option>
+                  <option value="Engine 3: Exploration">Engine 3: Exploration</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="book-isbn-input">ISBN</label>
+                <input type="text" id="book-isbn-input" placeholder="e.g. 9780197686546">
+              </div>
+              <div class="form-group">
+                <label for="book-pages-input">Pages (optional)</label>
+                <input type="number" id="book-pages-input" min="1" step="1" placeholder="e.g. 320">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="book-created-input">Added On</label>
+              <input type="datetime-local" id="book-created-input">
+            </div>
+          </div>
+          <!-- Right column: content (stretches to fill) -->
+          <div class="form-col form-col--content">
+            <div class="form-group form-group--grow">
+              <label for="book-notes-input">Personal Notes / Quotes</label>
+              <textarea id="book-notes-input" placeholder="Add annotations, key concepts, or takeaway notes..."></textarea>
+              <p class="form-hint">Formatting: <code>**bold**</code> · <code>*italic*</code> · <code>[link](https://…)</code> · <code>[[Book Title]]</code> to reference another book.</p>
+            </div>
+            <div class="form-group form-group--grow">
+              <label for="book-summary-input">Summary</label>
+              <textarea id="book-summary-input" rows="5" placeholder="Publisher blurb (from Hardcover) — one paragraph per line. Leave blank if none."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="tag-editor-input">Tags</label>
+              <div class="tag-editor-wrap">
+                <div class="tag-editor" id="tag-editor">
+                  <div class="tag-editor-chips" id="tag-editor-chips"></div>
+                  <input type="text" id="tag-editor-input" placeholder="Add a tag…" autocomplete="off"
+                         role="combobox" aria-expanded="false" aria-controls="tag-dropdown" aria-autocomplete="list">
+                </div>
+                <!-- Custom type-ahead dropdown (the native <datalist> popup can't be styled). -->
+                <div class="tag-dropdown" id="tag-dropdown" role="listbox" aria-label="Tag suggestions" hidden></div>
+              </div>
+              <p class="form-hint">Click to see all tags, or type to filter. Pick a tag or press Enter to add.</p>
+              <!-- Hidden field keeps inputTags.value as the saved tag list (comma-separated). -->
+              <input type="hidden" id="book-tags-input">
+            </div>
           </div>
         </div>
         <div class="modal-footer">
