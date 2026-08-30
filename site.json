@@ -1,5 +1,7 @@
 {
   "title": "jon's books",
   "defaultSort": "created-desc",
-  "accent": "ink"
+  "accent": "ink",
+  "adaptiveDetail": true,
+  "adaptiveDetailMode": "theme"
 }

@@ -229,7 +229,8 @@
        only). Mirrors the .view-toggle sliding-pill look but smaller. Hidden on
        the published site via body.site-public (NOT body.view-only, so it stays
        reachable in manual View mode and can switch back to editing). */
-    .mode-toggle {
+    .mode-toggle,
+    .adaptive-mode-toggle {
       position: relative;
       display: inline-flex;
       gap: 0;
@@ -249,7 +250,8 @@
 
     /* The sliding active pill (inset 3px, rounded). Both ends of the slide
        are explicit transforms so the interpolation is symmetric. */
-    .mode-toggle::before {
+    .mode-toggle::before,
+    .adaptive-mode-toggle::before {
       content: "";
       position: absolute;
       top: 3px;
@@ -265,18 +267,22 @@
     }
 
     /* View segment active → slide the pill to the right half.
-       Driven by a CLASS (.is-view, set in applyModeToggleState) instead of
+       Driven by a CLASS (.is-view / .is-theme, set in JS) instead of
        :has(): WebKit/Safari doesn't reliably START a transition when the
        changed property comes from a :has() match (the pill just jumps there),
        while class-based transitions animate in every engine. */
-    .mode-toggle.is-view::before {
+    .mode-toggle.is-view::before,
+    .mode-toggle.is-theme::before,
+    .adaptive-mode-toggle.is-view::before,
+    .adaptive-mode-toggle.is-theme::before {
       transform: translateX(calc(100% + 6px));
     }
 
     /* Icon + label color rides the SAME clock as the pill — lucide icons
        stroke with currentColor, so animating color covers both. Overrides
        the generic 0.2s ease inherited from the global * rule. */
-    .mode-toggle .btn-secondary {
+    .mode-toggle .btn-secondary,
+    .adaptive-mode-toggle .btn-secondary {
       transition: color var(--toggle-time) var(--toggle-ease),
         background-color 0.2s ease, border-color 0.2s ease;
     }
@@ -286,13 +292,15 @@
        interpolating color frame by frame, so icons/labels visibly trail the
        pill — reads as a slow fade, most noticeable in WebKit/Safari. Children
        must paint the button's color AS-IS: no second tween of their own.
-       (Serves both segmented controls.) */
+       (Serves all segmented controls.) */
     .mode-toggle :not(.btn-secondary),
-    .view-toggle :not(.btn-secondary) {
+    .view-toggle :not(.btn-secondary),
+    .adaptive-mode-toggle :not(.btn-secondary) {
       transition: none;
     }
 
-    .mode-toggle .btn-secondary {
+    .mode-toggle .btn-secondary,
+    .adaptive-mode-toggle .btn-secondary {
       position: relative;
       z-index: 2; /* keep icon + label above the pill */
       flex: 1 1 0;
@@ -306,20 +314,31 @@
       font-size: 0.8rem;
     }
 
-    .mode-toggle .btn-secondary.active {
+    .mode-toggle .btn-secondary.active,
+    .adaptive-mode-toggle .btn-secondary[aria-checked="true"] {
       background: transparent;
       color: white;
+    }
+    .adaptive-mode-toggle .btn-secondary[aria-checked="false"] {
+      color: var(--text-secondary);
+    }
+    .adaptive-mode-toggle .btn-secondary:focus-visible {
+      outline: 2px solid var(--border-accent);
+      outline-offset: -2px;
     }
 
     @media (prefers-reduced-motion: reduce) {
       .mode-toggle::before,
-      .mode-toggle .btn-secondary {
+      .mode-toggle .btn-secondary,
+      .adaptive-mode-toggle::before,
+      .adaptive-mode-toggle .btn-secondary {
         transition: none;
       }
     }
 
-    /* Hide the switch on the real published site (always view-only there). */
-    body.site-public .mode-toggle {
+    /* Hide the header switch on the real published site (always view-only there).
+       Scoped to #mode-toggle so the settings adaptive toggle is not hidden. */
+    body.site-public #mode-toggle {
       display: none !important;
     }
 
@@ -1368,6 +1387,20 @@
       outline-offset: 2px;
     }
 
+    /* Adaptive detail mode — reuses .mode-toggle segmented-control styles
+       (grouped selectors above). Only the per-state text colors + focus ring
+       are specific to the aria-checked radiogroup. */
+    .adaptive-mode-toggle .btn-secondary[aria-checked="true"] {
+      color: white;
+    }
+    .adaptive-mode-toggle .btn-secondary[aria-checked="false"] {
+      color: var(--text-secondary);
+    }
+    .adaptive-mode-toggle .btn-secondary:focus-visible {
+      outline: 2px solid var(--border-accent);
+      outline-offset: -2px;
+    }
+
     .results-count {
       font-size: 0.85rem;
       color: var(--text-secondary);
@@ -1481,7 +1514,7 @@
   
     /* @media (hover: hover) and (pointer: fine) { */
     .book-card:hover .cover-container {
-      background-color:var(--img-bg-hover);
+      background-color: var(--card-hover-bg, var(--img-bg-hover));
     /* } */
     }
     @media (hover: hover) and (pointer: fine) {
@@ -1848,6 +1881,19 @@
       }
     }
 
+    /* Fallback for Safari <18 (no transition-behavior: allow-discrete):
+       display:none→flex isn't transitionable there, so @starting-style
+       never fires. Use keyframe animations which do run on display change. */
+    @supports not (transition-behavior: allow-discrete) {
+      @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+      .modal-overlay.active { animation: modalFadeIn 0.2s ease-out; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      @supports not (transition-behavior: allow-discrete) {
+        .modal-overlay.active { animation: none; }
+      }
+    }
+
     .modal-content {
       background: var(--bg-main);
       border: 1px solid var(--border-color);
@@ -2143,6 +2189,16 @@
     @media (prefers-reduced-motion: reduce) {
       .book-detail-modal .modal-content {
         transition: none;
+      }
+    }
+
+    @supports not (transition-behavior: allow-discrete) {
+      @keyframes detailRiseIn { from { transform: translateY(24px); } to { transform: translateY(0); } }
+      .book-detail-modal.active .modal-content { animation: detailRiseIn 0.25s ease-out; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      @supports not (transition-behavior: allow-discrete) {
+        .book-detail-modal.active .modal-content { animation: none; }
       }
     }
 
@@ -2477,6 +2533,68 @@
 
     .detail-summary-toggle:hover {
       text-decoration: underline;
+    }
+
+    /* Adaptive detail modal — when data-adaptive is set, the modal tints from coverColor (ignores site accent hue) */
+    .book-detail-modal[data-adaptive] .modal-content {
+      background: var(--detail-bg);
+      border-color: var(--detail-border);
+      color: var(--detail-text);
+    }
+    .book-detail-modal[data-adaptive] .modal-header { border-color: var(--detail-border); }
+    .book-detail-modal[data-adaptive] .modal-header h2 { color: var(--detail-text-secondary); }
+    .book-detail-modal[data-adaptive] .close-btn { color: var(--detail-text-muted); }
+    .book-detail-modal[data-adaptive] .close-btn:hover { background: color-mix(in srgb, var(--detail-text) 8%, transparent); color: var(--detail-text); }
+    .book-detail-modal[data-adaptive] .detail-title { color: var(--detail-text); }
+    .book-detail-modal[data-adaptive] .detail-author { color: var(--detail-text-secondary); }
+    .book-detail-modal[data-adaptive] .detail-meta-label { color: var(--detail-text-faint); }
+    .book-detail-modal[data-adaptive] .detail-meta-value { color: var(--detail-text-secondary); }
+    .book-detail-modal[data-adaptive] .detail-meta-row { border-color: var(--detail-border); }
+    .book-detail-modal[data-adaptive] .detail-notes h4,
+    .book-detail-modal[data-adaptive] .detail-summary h4 { color: var(--detail-text-faint); }
+    .book-detail-modal[data-adaptive] .detail-notes p,
+    .book-detail-modal[data-adaptive] .detail-summary p { color: var(--detail-text); }
+    .book-detail-modal[data-adaptive] .detail-summary-toggle { color: var(--detail-accent); }
+    .book-detail-modal[data-adaptive] .status-pill { background: color-mix(in srgb, var(--detail-text) 8%, transparent); color: var(--detail-text-secondary); border: 1px solid var(--detail-border); }
+    .book-detail-modal[data-adaptive] .status-pill[data-status="Completed"] { background: var(--detail-accent); color: var(--detail-accent-contrast); border-color: var(--detail-accent); }
+    .book-detail-modal[data-adaptive] .engine-pill { background: color-mix(in srgb, var(--detail-text) 8%, transparent); color: var(--detail-text-secondary); border: 1px solid var(--detail-border); }
+    .book-detail-modal[data-adaptive] .detail-cover { filter: drop-shadow(0 8px 18px rgba(0,0,0,.18)); }
+    .book-detail-modal[data-adaptive] .detail-meta-link,
+    .book-detail-modal[data-adaptive] .detail-notes a,
+    .book-detail-modal[data-adaptive] .note-bookref { color: color-mix(in oklch, var(--detail-accent) 70%, var(--detail-bg) 30%); text-decoration-color: color-mix(in srgb, var(--detail-accent) 55%, transparent); }
+    /* Subtle tonal cast without mix-blend-mode (Safari renders luminosity inconsistently
+       with backdrop-filter/sticky). Pre-tint text/borders toward --detail-bg via color-mix. */
+    .book-detail-modal[data-adaptive] .modal-header { border-color: color-mix(in oklch, var(--detail-border) 82%, var(--detail-bg) 18%); }
+    .book-detail-modal[data-adaptive] .modal-header h2 { color: color-mix(in oklch, var(--detail-text-secondary) 85%, var(--detail-bg) 15%); }
+    .book-detail-modal[data-adaptive] .detail-meta-row { border-color: color-mix(in oklch, var(--detail-border) 80%, var(--detail-bg) 20%); }
+    .book-detail-modal[data-adaptive] .detail-title,
+    .book-detail-modal[data-adaptive] .detail-notes p,
+    .book-detail-modal[data-adaptive] .detail-summary p { color: color-mix(in oklch, var(--detail-text) 70%, var(--detail-bg) 30%); }
+    .book-detail-modal[data-adaptive] .detail-author,
+    .book-detail-modal[data-adaptive] .detail-meta-value { color: color-mix(in oklch, var(--detail-text-secondary) 70%, var(--detail-bg) 30%); }
+    .book-detail-modal[data-adaptive] .detail-meta-label,
+    .book-detail-modal[data-adaptive] .detail-notes h4,
+    .book-detail-modal[data-adaptive] .detail-summary h4 { color: color-mix(in oklch, var(--detail-text-faint) 80%, var(--detail-bg) 20%); }
+    .book-detail-modal[data-adaptive] .tag-chip { background: color-mix(in oklch, var(--detail-text) 7%, var(--detail-bg) 93%); color: color-mix(in oklch, var(--detail-text-secondary) 85%, var(--detail-bg) 15%); border-color: color-mix(in oklch, var(--detail-border) 80%, var(--detail-bg) 20%); }
+    .book-detail-modal[data-adaptive] .detail-link { background: color-mix(in oklch, var(--detail-text) 6%, var(--detail-bg) 94%); color: color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%); border-color: color-mix(in oklch, var(--detail-border) 82%, var(--detail-bg) 18%); }
+    @media (hover: hover) and (pointer: fine) {
+      .book-detail-modal[data-adaptive] .tag-chip:hover { background: color-mix(in oklch, var(--detail-text) 12%, var(--detail-bg) 88%); color: color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%); border-color: color-mix(in oklch, var(--detail-accent) 55%, var(--detail-border) 45%); }
+      .book-detail-modal[data-adaptive] .detail-link:hover { background: color-mix(in oklch, var(--detail-text) 10%, var(--detail-bg) 90%); border-color: color-mix(in oklch, var(--detail-accent) 50%, var(--detail-border) 50%); }
+    }
+    .book-detail-modal[data-adaptive] .detail-meta-link:hover { color: color-mix(in oklch,color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%) 60%,transparent 40%); text-decoration-color: var(--detail-accent); }
+    .book-detail-modal[data-adaptive] .detail-notes a:hover,
+    .book-detail-modal[data-adaptive] .note-bookref:hover { color: color-mix(in oklch,color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%) 60%,transparent 40%); text-decoration-color: var(--detail-accent); }
+    /* Dark adaptive: link vs value were converging (accent 78% vs secondary 74% → 4% apart).
+       Keep value muted (70/30) but let links stay near-pure accent (92/8) so the
+       dotted underline reads as interactive. Light already separates (0% vs 34%). */
+    .book-detail-modal[data-adaptive="dark"] .detail-meta-link,
+    .book-detail-modal[data-adaptive="dark"] .detail-notes a,
+    .book-detail-modal[data-adaptive="dark"] .note-bookref { color: color-mix(in oklch, var(--detail-accent) 92%, var(--detail-bg) 8%); }
+    .book-detail-modal[data-adaptive="dark"] .detail-meta-link:hover,
+    .book-detail-modal[data-adaptive="dark"] .detail-notes a:hover,
+    .book-detail-modal[data-adaptive="dark"] .note-bookref:hover { color: color-mix(in oklch, var(--detail-accent) 70%, var(--detail-bg) 30%); text-decoration-color: var(--detail-accent); }
+    @media (prefers-reduced-motion: reduce) {
+      .book-detail-modal[data-adaptive] .modal-content { transition: none; }
     }
 
     .book-detail-modal .modal-content :focus-visible {
@@ -3360,6 +3478,16 @@
         }
       }
 
+      @supports not (transition-behavior: allow-discrete) {
+        @keyframes detailSheetIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .book-detail-modal.active .modal-content { animation: detailSheetIn 0.45s cubic-bezier(0.32, 0.72, 0, 1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        @supports not (transition-behavior: allow-discrete) {
+          .book-detail-modal.active .modal-content { animation: none; }
+        }
+      }
+
     }
 
     /* ===== Filter bar — middle band (≤780px): Volume/Status/Sort collapse
@@ -3966,6 +4094,15 @@
               <!-- Hidden field keeps inputCover.value as the saved cover path (covers/<id>.jpg). -->
               <input type="hidden" id="book-cover-input">
             </div>
+            <div class="form-group" id="cover-color-group">
+              <label for="cover-color-input">Cover Color</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="color" id="cover-color-picker" value="#808080" style="width:36px;height:36px;padding:2px;border:1px solid var(--border-color);border-radius:8px;flex-shrink:0;">
+                <input type="text" id="cover-color-input" placeholder="#rrggbb" pattern="^#[0-9a-fA-F]{6}$" spellcheck="false" autocomplete="off" style="flex:1;">
+                <button type="button" class="btn-secondary" id="cover-color-extract-btn" title="Re-extract from cover image" style="white-space:nowrap;">Auto</button>
+              </div>
+              <p class="form-hint">Used for the adaptive detail modal tint. Auto-extracted from the cover; edit to override. Clear to disable tint.</p>
+            </div>
             <div class="form-grid">
               <div class="form-group">
                 <label for="book-volume-input">Volume</label>
@@ -4210,6 +4347,19 @@
             <option value="random">Random</option>
           </select>
         </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
+            <input type="checkbox" id="adaptive-detail-toggle" style="width:16px;height:16px;accent-color:var(--accent-fill)"> Adaptive detail modal
+          </label>
+          <p class="form-hint">Tint the detail modal from the cover's dominant color (Apple Music-style). When on, the modal ignores the site accent hue.</p>
+          <div id="adaptive-mode-group" style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+            <span style="font-size:.82rem;color:var(--text-secondary);">Text mode</span>
+            <div id="adaptive-detail-mode" class="adaptive-mode-toggle" role="radiogroup" aria-label="Adaptive text mode">
+              <button type="button" class="btn-secondary" data-mode="auto" role="radio" aria-checked="true">Dynamic</button>
+              <button type="button" class="btn-secondary" data-mode="theme" role="radio" aria-checked="false">Follow Theme</button>
+            </div>
+          </div>
+        </div>
         <p class="form-hint" style="margin-bottom: 4px;">Saving applies immediately and writes <code>site.json</code>.</p>
         <div class="modal-footer">
           <button type="button" class="btn-secondary" id="cancel-settings-btn">Cancel</button>
@@ -4236,8 +4386,9 @@
     const SITE_FILE = 'site.json';
     const SETTINGS_KEY = 'personal_library_settings_v1';
     const SITE_FILE_HANDLE_KEY = 'siteJsonFileHandle';
-    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink' };
+    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink', adaptiveDetail: true, adaptiveDetailMode: 'auto' };
     const VALID_SORTS = ['reading-order', 'year-desc', 'year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'];
+    const VALID_ADAPTIVE_MODES = ['auto', 'theme'];
 
     // Accent color presets — each one re-tints the whole palette by swapping
     // the hue of the theme tokens while keeping every contrast-validated
@@ -4424,6 +4575,75 @@
       });
     }
 
+    // --- Adaptive detail modal: OKLCH pipeline (perceptual) ---
+    // Ported from exp/adaptive-detail-modal.html — tuned defaults: chroma -0.02 / lum +0.03.
+    // When adaptiveDetail is on, the detail modal ignores the site accent hue and tints from coverColor.
+    function srgbToLinear(c){c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+    function linearToSrgb(c){c=Math.max(0,Math.min(1,c));return Math.round(255*(c<=0.0031308?12.92*c:1.055*Math.pow(c,1/2.4)-0.055))}
+    function hexToRgb(hex){const h=hex.replace('#','');const n=parseInt(h.length===3?h.split('').map(c=>c+c).join(''):h,16);return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}}
+    function rgbToHex(r,g,b){return '#'+[r,g,b].map(v=>Math.round(v).toString(16).padStart(2,'0')).join('')}
+    function rgbToOklch(r,g,b){
+      const lr=srgbToLinear(r),lg=srgbToLinear(g),lb=srgbToLinear(b);
+      const l=Math.cbrt(0.4122214708*lr+0.5363325363*lg+0.0514459929*lb);
+      const m=Math.cbrt(0.2119034982*lr+0.6806995451*lg+0.1073969566*lb);
+      const s=Math.cbrt(0.0883024619*lr+0.2817188376*lg+0.6299787005*lb);
+      const L=0.2104542553*l+0.7936177850*m-0.0040720468*s;
+      const A=1.9779984951*l-2.4285922050*m+0.4505937099*s;
+      const B=0.0259040371*l+0.7827717662*m-0.8086757660*s;
+      const C=Math.sqrt(A*A+B*B);
+      let H=Math.atan2(B,A)*180/Math.PI; if(H<0)H+=360;
+      return {L,C,H};
+    }
+    function oklchToRgb(L,C,H){
+      const h=H*Math.PI/180, a=C*Math.cos(h), b2=C*Math.sin(h);
+      const l_=L+0.3963377774*a+0.2158037573*b2;
+      const m_=L-0.1055613458*a-0.0638541728*b2;
+      const s_=L-0.0894841775*a-1.2914855480*b2;
+      const l3=l_*l_*l_, m3=m_*m_*m_, s3=s_*s_*s_;
+      return {r:linearToSrgb(4.0767416621*l3-3.3077115913*m3+0.2309699292*s3),g:linearToSrgb(-1.2684380046*l3+2.6097574011*m3-0.3413193965*s3),b:linearToSrgb(-0.0041960863*l3-0.7034186147*m3+1.7076147010*s3)};
+    }
+    function inGamut(rgb,tol=0.004){const check=v=>{const c=v/255;return c>=-tol&&c<=1+tol};return check(rgb.r)&&check(rgb.g)&&check(rgb.b)}
+    function clampChroma(L,C,H){if(inGamut(oklchToRgb(L,C,H)))return C;let lo=0,hi=C;for(let i=0;i<12;i++){const mid=(lo+hi)/2;if(inGamut(oklchToRgb(L,mid,H)))lo=mid;else hi=mid}return lo}
+    function adaptiveFromHex(hex, opts){
+      const satPct = opts && typeof opts.satPct === 'number' ? opts.satPct : 25;
+      const lumPct = opts && typeof opts.lumPct === 'number' ? opts.lumPct : 80;
+      const forcedMode = opts && opts.forcedMode;
+      const {r,g,b}=hexToRgb(hex);
+      const {L:Lo,C:Craw,H}=rgbToOklch(r,g,b);
+      // Keep near-grays gray: below 0.03 chroma is noise/hue is random, so
+      // scale with source chroma instead of adding saturation (which invents color).
+      let scaled;
+      if (Craw < 0.03) {
+        scaled = Craw * 0.35;
+      } else {
+        const t = Math.max(0, Math.min(1, (Craw - 0.03) / 0.19));
+        const Cbase = 0.04 + t * 0.08;
+        scaled = Math.max(0.01, Math.min(0.16, Cbase + ((satPct - 50) / 100) * 0.08));
+      }
+      let isDark;
+      if(forcedMode==='theme') isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      else isDark=Lo < 0.58;
+      // Light backgrounds show chroma more strongly — desaturate light adaptive
+      // colors so they don't feel oversaturated while dark stays rich.
+      if (!isDark) scaled *= 0.55;
+      let Lbase;
+      if(isDark){ const t=Math.max(0,Math.min(1,(Lo-0.15)/0.30)); Lbase=0.16+t*0.12; }
+      else { const t=Math.max(0,Math.min(1,(Lo-0.50)/0.35)); Lbase=0.90+t*0.07; }
+      const lumOffset=((lumPct-50)/100)*0.10;
+      const L=Math.max(isDark?0.12:0.86,Math.min(isDark?0.34:0.99,Lbase+lumOffset));
+      const C=clampChroma(L,scaled,H);
+      const {r:r2,g:g2,b:b2}=oklchToRgb(L,C,H);
+      return {hex:rgbToHex(r2,g2,b2), isDark, Lo, Craw, L, C};
+    }
+    function isValidHexColor(s){return typeof s==='string' && /^#[0-9a-f]{6}$/i.test(s.trim())}
+    function resolveAdaptiveForBook(book){
+      if(!siteSettings.adaptiveDetail) return null;
+      const hex=(book && book.coverColor || '').trim();
+      if(!isValidHexColor(hex)) return null;
+      const forcedMode = siteSettings.adaptiveDetailMode !== 'auto' ? siteSettings.adaptiveDetailMode : null;
+      return adaptiveFromHex(hex, { forcedMode });
+    }
+
     // Collapsible States (volumes only — stages are compact rows now, so they
     // aren't collapsible; dragging between rows is easy enough.)
     let collapsedVolumes = new Set(JSON.parse(localStorage.getItem(COLLAPSED_VOLUMES_KEY) || '[]'));
@@ -4570,6 +4790,7 @@
       return booksArray;
     }
 
+    // Backfill coverColor into a localStorage copy from the committed books.json.
     // LocalStorage Operations
     // Prefer existing localStorage. On a fresh start (no usable stored data) we
     // bootstrap from the committed books.json when it's reachable (e.g. served
@@ -4680,6 +4901,7 @@
         // Date Added (ISO datetime). Backfilled from epub file creation dates
         // by scripts/add-created-dates.mjs; new books are stamped at save time.
         created: b.created || "",
+        coverColor: (typeof b.coverColor === 'string' && /^#[0-9a-f]{6}$/i.test(b.coverColor.trim())) ? b.coverColor.trim().toLowerCase() : "",
         tags: Array.isArray(b.tags)
           ? [...new Set(b.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean))]
           : []
@@ -5229,10 +5451,12 @@
     const coverPlaceholder = document.getElementById('cover-dropzone-placeholder');
     const coverHint = document.getElementById('book-cover-hint');
     let pendingCoverBlob = null; // downscaled cover chosen but not yet saved
+    let pendingCoverColor = ""; // hex extracted from pendingCoverBlob (client-side, mirrors extract-cover-colors.mjs)
     let formBaseline = null; // form snapshot taken on open — for unsaved-change detection
 
     function resetCoverUploadState() {
       pendingCoverBlob = null;
+      pendingCoverColor = "";
       inputCover.value = ''; // hidden source-of-truth — don't rely on bookForm.reset() to clear it
       coverPreview.hidden = true;
       coverPreview.removeAttribute('src');
@@ -5241,6 +5465,60 @@
       coverFileInput.value = '';
       coverHint.textContent = 'Saved to covers/ in this repo.';
     }
+
+    // Client-side dominant color extraction — mirrors scripts/extract-cover-colors.mjs (64×64 + 16-step quantize + histogram peak).
+    // Runs on the downscaled blob before writeCoverBlob so coverColor is saved with the book.
+    async function extractCoverColorFromBlob(blob){
+      try{
+        const bmp = await createImageBitmap(blob);
+        const W=64,H=64;
+        const c=document.createElement('canvas'); c.width=W; c.height=H;
+        const ctx=c.getContext('2d'); ctx.drawImage(bmp,0,0,W,H);
+        if(typeof bmp.close==='function') bmp.close();
+        const data=ctx.getImageData(0,0,W,H).data;
+        const Q=16, buckets=new Map();
+        for(let i=0;i<data.length;i+=4){
+          const a=data[i+3]; if(a<128) continue;
+          const r=Math.floor(data[i]/Q)*Q, g=Math.floor(data[i+1]/Q)*Q, b=Math.floor(data[i+2]/Q)*Q;
+          const k=(r<<16)|(g<<8)|b;
+          buckets.set(k,(buckets.get(k)||0)+1);
+        }
+        let best=null, bestN=-1;
+        for(const [k,n] of buckets){ if(n>bestN){bestN=n; best=k} }
+        if(best===null) return "";
+        const r=(best>>16)&255, g=(best>>8)&255, b=best&255;
+        return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+      }catch{ return ""; }
+    }
+    const coverColorInput = document.getElementById('cover-color-input');
+    const coverColorPicker = document.getElementById('cover-color-picker');
+    const coverColorExtractBtn = document.getElementById('cover-color-extract-btn');
+    function syncCoverColorUI(hex){
+      const v = (hex && /^#[0-9a-f]{6}$/i.test(hex.trim())) ? hex.trim().toLowerCase() : "";
+      if(coverColorInput) coverColorInput.value = v;
+      if(coverColorPicker) coverColorPicker.value = v || "#808080";
+    }
+    if(coverColorPicker) coverColorPicker.addEventListener('input', ()=>{ if(coverColorInput) coverColorInput.value = coverColorPicker.value.toLowerCase(); });
+    if(coverColorInput) coverColorInput.addEventListener('input', ()=>{
+      const v=coverColorInput.value.trim();
+      if(/^#[0-9a-f]{6}$/i.test(v) && coverColorPicker) coverColorPicker.value = v.toLowerCase();
+    });
+    if(coverColorExtractBtn) coverColorExtractBtn.addEventListener('click', async ()=>{
+      coverColorExtractBtn.disabled=true; const prev=coverColorExtractBtn.textContent; coverColorExtractBtn.textContent='…';
+      try{
+        let hex="";
+        if(pendingCoverBlob) hex = pendingCoverColor || await extractCoverColorFromBlob(pendingCoverBlob);
+        else if(coverPreview && !coverPreview.hidden && coverPreview.src){
+          try{
+            const res=await fetch(coverPreview.src, {cache:'no-store'});
+            const blob=await res.blob();
+            hex = await extractCoverColorFromBlob(blob);
+          }catch{}
+        }
+        if(hex) syncCoverColorUI(hex);
+        else alert('No cover image to extract from.');
+      } finally { coverColorExtractBtn.disabled=false; coverColorExtractBtn.textContent=prev; }
+    });
     const inputIsbn = document.getElementById('book-isbn-input');
     const inputPages = document.getElementById('book-pages-input');
     const inputNotes = document.getElementById('book-notes-input');
@@ -6288,9 +6566,11 @@
         </div>
       ` : '';
 
+      const adp = resolveAdaptiveForBook(book);
+      const hoverStyle = adp ? ` style="--card-hover-bg:${adp.hex}"` : '';
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
-          <div class="cover-container">
+          <div class="cover-container"${hoverStyle}>
             ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages })}
           </div>
           <div class="book-info">
@@ -6312,9 +6592,11 @@
     // <article class="book-card" data-id onclick> contract as the grid card so
     // click→detail/edit and SortableJS keep working.
     function renderRowCardHtml(book) {
+      const adp2 = resolveAdaptiveForBook(book);
+      const hoverStyle2 = adp2 ? ` style="--card-hover-bg:${adp2.hex}"` : '';
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
-          <div class="cover-container">
+          <div class="cover-container"${hoverStyle2}>
             <span class="order-badge" title="Reading order in stage">${book.readingOrder}</span>
             ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages })}
           </div>
@@ -7012,6 +7294,7 @@
       inputId.value = "";
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
+      syncCoverColorUI("");
       resetTagEditor();       // ...or the tag chips/editor.
       inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
 
@@ -7036,6 +7319,7 @@
       modalTitle.textContent = `Add Book to Stage ${stageNum}: ${stageName}`;
       inputId.value = "";
       bookForm.reset();
+      syncCoverColorUI("");
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       resetTagEditor();       // ...or the tag chips/editor.
       inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
@@ -7058,6 +7342,7 @@
       inputId.value = "";
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
+      syncCoverColorUI("");
       resetTagEditor();       // ...or the tag chips/editor.
       inputCreated.value = toDatetimeLocalValue(new Date().toISOString()); // "Added On" defaults to now
 
@@ -7116,6 +7401,7 @@
         coverPlaceholder.hidden = true;
         coverClearBtn.hidden = false;
       }
+      syncCoverColorUI(book.coverColor || "");
       inputIsbn.value = book.isbn;
       inputPages.value = book.pages != null ? String(book.pages) : '';
       inputCreated.value = toDatetimeLocalValue(book.created);
@@ -7152,6 +7438,7 @@
         status: inputStatus.value,
         engine: inputEngine.value,
         cover: inputCover.value,
+        coverColor: coverColorInput ? coverColorInput.value.trim().toLowerCase() : "",
         isbn: inputIsbn.value,
         pages: inputPages.value,
         created: inputCreated.value,
@@ -7439,6 +7726,34 @@
       }
 
       if (window.lucide) lucide.createIcons();
+      // Adaptive tint — when enabled and the book has a coverColor, tint the modal from it (ignores site accent hue).
+      (function applyAdaptiveDetail(){
+        const adp = resolveAdaptiveForBook(book);
+        if(adp){
+          detailModal.setAttribute('data-adaptive', adp.isDark ? 'dark' : 'light');
+          detailSheet.style.setProperty('--detail-bg', adp.hex);
+          if(adp.isDark){
+            detailSheet.style.setProperty('--detail-text','hsl(220,8%,93%)');
+            detailSheet.style.setProperty('--detail-text-secondary','hsl(220,6%,74%)');
+            detailSheet.style.setProperty('--detail-text-muted','hsl(220,5%,58%)');
+            detailSheet.style.setProperty('--detail-text-faint','hsl(220,5%,45%)');
+            detailSheet.style.setProperty('--detail-border','hsla(0,0%,100%,.12)');
+            detailSheet.style.setProperty('--detail-accent','hsl(220,8%,78%)');
+            detailSheet.style.setProperty('--detail-accent-contrast','#161618');
+          } else {
+            detailSheet.style.setProperty('--detail-text','hsl(222,0%,11%)');
+            detailSheet.style.setProperty('--detail-text-secondary','hsl(215,0%,34%)');
+            detailSheet.style.setProperty('--detail-text-muted','hsl(215,0%,44%)');
+            detailSheet.style.setProperty('--detail-text-faint','hsl(215,0%,57%)');
+            detailSheet.style.setProperty('--detail-border','hsla(0,0%,0%,.10)');
+            detailSheet.style.setProperty('--detail-accent','hsl(0,0%,0%)');
+            detailSheet.style.setProperty('--detail-accent-contrast','#ffffff');
+          }
+        } else {
+          detailModal.removeAttribute('data-adaptive');
+          ['--detail-bg','--detail-text','--detail-text-secondary','--detail-text-muted','--detail-text-faint','--detail-border','--detail-accent','--detail-accent-contrast'].forEach(k=>detailSheet.style.removeProperty(k));
+        }
+      })();
       // Clear any leftover drag state so the sheet never opens stuck translated
       // and the entrance rise + overlay fade replay on every open.
       detailSheet.style.transform = '';
@@ -7520,6 +7835,8 @@
       if (getBookIdFromHash()) {
         history.replaceState(null, '', location.pathname + location.search);
       }
+      detailModal.removeAttribute('data-adaptive');
+      ['--detail-bg','--detail-text','--detail-text-secondary','--detail-text-muted','--detail-text-faint','--detail-border','--detail-accent','--detail-accent-contrast'].forEach(k=>detailSheet.style.removeProperty(k));
       detailModal.classList.remove('active');
       detailModal.classList.remove('demo-run');
       detailModal.classList.remove('anim-in');
@@ -7936,15 +8253,26 @@
 
       // Persist any newly picked cover before saving the record.
       let cover = inputCover.value.trim();
+      const manualRaw = coverColorInput ? coverColorInput.value.trim() : "";
+      if (manualRaw !== "" && !/^#[0-9a-f]{6}$/i.test(manualRaw)) { alert('Cover color must be #rrggbb or empty.'); return; }
+      const manualHex = manualRaw ? manualRaw.toLowerCase() : "";
+      let finalCoverColor = "";
       if (pendingCoverBlob) {
         const written = await writeCoverBlob(pendingCoverBlob, newId);
-        if (written) cover = written; // null = user cancelled the folder picker → keep old cover
+        if (written) cover = written;
+        if (!cover) finalCoverColor = "";
+        else if (manualHex) finalCoverColor = manualHex;
+        else finalCoverColor = pendingCoverColor || "";
         pendingCoverBlob = null;
+        pendingCoverColor = "";
         coverPreview.hidden = true;
         coverPreview.removeAttribute('src');
         coverPlaceholder.hidden = false;
         coverClearBtn.hidden = true;
         coverFileInput.value = '';
+      } else {
+        if (!cover) finalCoverColor = "";
+        else finalCoverColor = manualHex; // manual field is source of truth (empty = no tint)
       }
 
       const bookData = normalizeBook({
@@ -7961,6 +8289,7 @@
         status: inputStatus.value,
         engine: newEngine,
         cover,
+        coverColor: finalCoverColor,
         isbn: inputIsbn.value.trim(),
         pages: inputPages.value ? parseInt(inputPages.value, 10) : undefined,
         created: createdToIso(inputCreated.value) || fallbackCreated,
@@ -8015,6 +8344,8 @@
       try {
         const { blob } = await processCoverImage(file);
         pendingCoverBlob = blob;
+        pendingCoverColor = await extractCoverColorFromBlob(blob);
+        if (pendingCoverColor) syncCoverColorUI(pendingCoverColor);
         if (coverPreview.src && coverPreview.src.startsWith('blob:')) URL.revokeObjectURL(coverPreview.src);
         coverPreview.src = URL.createObjectURL(blob);
         coverPreview.hidden = false;
@@ -8297,10 +8628,15 @@
 
     function normalizeSiteSettings(raw) {
       const src = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+      let m = src.adaptiveDetailMode;
+      // Migrate legacy 'light'/'dark' (pre 2026-08-31) → 'theme' (follow light/dark setting)
+      if(m === 'light' || m === 'dark') m = 'theme';
       return {
         title: (typeof src.title === 'string' && src.title.trim()) ? src.title.trim() : DEFAULT_SETTINGS.title,
         defaultSort: VALID_SORTS.includes(src.defaultSort) ? src.defaultSort : DEFAULT_SETTINGS.defaultSort,
-        accent: VALID_ACCENTS.includes(src.accent) ? src.accent : DEFAULT_SETTINGS.accent
+        accent: VALID_ACCENTS.includes(src.accent) ? src.accent : DEFAULT_SETTINGS.accent,
+        adaptiveDetail: typeof src.adaptiveDetail === 'boolean' ? src.adaptiveDetail : DEFAULT_SETTINGS.adaptiveDetail,
+        adaptiveDetailMode: VALID_ADAPTIVE_MODES.includes(m) ? m : DEFAULT_SETTINGS.adaptiveDetailMode
       };
     }
 
@@ -8495,6 +8831,34 @@
       return (checked && VALID_ACCENTS.includes(checked.dataset.accent)) ? checked.dataset.accent : DEFAULT_SETTINGS.accent;
     }
 
+    const adaptiveToggle = document.getElementById('adaptive-detail-toggle');
+    const adaptiveModeGroup = document.getElementById('adaptive-mode-group');
+    const adaptiveModeWrap = document.getElementById('adaptive-detail-mode');
+    function selectedAdaptiveModeFromUI(){
+      const c = adaptiveModeWrap && adaptiveModeWrap.querySelector('[data-mode][aria-checked="true"]');
+      return c && VALID_ADAPTIVE_MODES.includes(c.dataset.mode) ? c.dataset.mode : DEFAULT_SETTINGS.adaptiveDetailMode;
+    }
+    function syncAdaptiveModePill(){
+      if(!adaptiveModeWrap) return;
+      const m = selectedAdaptiveModeFromUI();
+      adaptiveModeWrap.classList.toggle('is-theme', m === 'theme');
+    }
+    function syncAdaptiveModeUI(){
+      const on = adaptiveToggle ? adaptiveToggle.checked : true;
+      if(adaptiveModeGroup) adaptiveModeGroup.style.opacity = on ? '1' : '0.45';
+      if(adaptiveModeWrap){
+        adaptiveModeWrap.querySelectorAll('[data-mode]').forEach(b=>{ b.disabled = !on; b.style.opacity = on ? '1' : '0.6'; });
+        adaptiveModeWrap.style.pointerEvents = on ? '' : 'none';
+      }
+      syncAdaptiveModePill();
+    }
+    if(adaptiveToggle) adaptiveToggle.addEventListener('change', syncAdaptiveModeUI);
+    if(adaptiveModeWrap) adaptiveModeWrap.addEventListener('click', (e)=>{
+      const btn=e.target.closest('[data-mode]'); if(!btn || btn.disabled) return;
+      adaptiveModeWrap.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-checked', String(b===btn)));
+      syncAdaptiveModePill();
+    });
+
     function openSettingsModal() {
       if (viewOnly) return; // editing surface — never in view-only mode
       inputSiteTitle.value = siteSettings.title;
@@ -8503,6 +8867,13 @@
         accentSwatchWrap.querySelectorAll('.accent-swatch').forEach(b =>
           b.setAttribute('aria-checked', String(b.dataset.accent === siteSettings.accent)));
       }
+      if(adaptiveToggle) adaptiveToggle.checked = !!siteSettings.adaptiveDetail;
+      if(adaptiveModeWrap){
+        const m = VALID_ADAPTIVE_MODES.includes(siteSettings.adaptiveDetailMode) ? siteSettings.adaptiveDetailMode : DEFAULT_SETTINGS.adaptiveDetailMode;
+        adaptiveModeWrap.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.mode===m)));
+        syncAdaptiveModePill();
+      }
+      syncAdaptiveModeUI();
       settingsModal.classList.add('active');
     }
 
@@ -8540,7 +8911,9 @@
       const s = normalizeSiteSettings({
         title: inputSiteTitle.value,
         defaultSort: inputSettingsSort.value,
-        accent: selectedAccentFromUI()
+        accent: selectedAccentFromUI(),
+        adaptiveDetail: adaptiveToggle ? !!adaptiveToggle.checked : DEFAULT_SETTINGS.adaptiveDetail,
+        adaptiveDetailMode: selectedAdaptiveModeFromUI()
       });
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
       applySettings(s);
