@@ -2116,7 +2116,7 @@
 
     /* Read-Only Book Details Modal (public / view-only) */
     .book-detail-modal .modal-content {
-      max-width: 820px;
+      max-width: 880px;
       overscroll-behavior: contain;
     }
 
@@ -2158,8 +2158,9 @@
     }
 
     .detail-cover {
-      width: 300px;
-      flex-shrink: 0;
+      width: clamp(220px, 32vw, 360px);
+      flex: 0 1 360px;
+      min-width: 180px;
       aspect-ratio: 2 / 3;
       background: none;
       border-radius: 12px;
@@ -2262,8 +2263,8 @@
     }
 
     .detail-info {
-      flex: 1;
-      min-width: 0;
+      flex: 1 1 320px;
+      min-width: 280px;
     }
 
     .detail-title {
@@ -5046,7 +5047,16 @@
     let resizeRaf = null;
     window.addEventListener('resize', () => {
       if (resizeRaf) return;
-      resizeRaf = requestAnimationFrame(() => { resizeRaf = null; sizeAllBook3D(); });
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = null;
+        sizeAllBook3D();
+        // Detail modal lives outside bookGrid — re-measure it live while open
+        // so the cover shrinks/grows with the viewport without needing a refresh.
+        if (window.sizeDetailBook3D) {
+          const dm = document.getElementById('book-detail-modal');
+          if (dm && dm.classList.contains('active')) window.sizeDetailBook3D();
+        }
+      });
     });
 
     const searchInput = document.getElementById('search-input');
