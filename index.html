@@ -3292,7 +3292,7 @@
       }
 
       .detail-cover {
-        width: 200px;
+        width: 240px;
         /* Override the desktop `align-self: flex-start` so the cover centers
            once the body stacks into a column on small screens. Also drop the
            sticky pin: in a column a sticky cover would float over the text
@@ -3319,6 +3319,45 @@
 
       .detail-meta-row {
         font-size: 0.8rem;
+      }
+
+      /* Detail modal as bottom sheet — edge-to-edge, immersive for adaptive color */
+      .book-detail-modal {
+        align-items: flex-end;
+        padding: env(safe-area-inset-top, 0px) 0 0 0;
+      }
+
+      .book-detail-modal .modal-content {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        border:0.5px solid var(--border-color);
+        margin-top: auto;
+        border-radius: 16px 16px 0 0;
+        max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px));
+        padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .book-detail-modal .modal-content {
+        transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+      }
+
+      .book-detail-modal.active .modal-content {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      @starting-style {
+        .book-detail-modal.active .modal-content {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .book-detail-modal .modal-content {
+          transition: none;
+        }
       }
 
     }
@@ -7165,8 +7204,8 @@
     // gesture belongs to the tilt, so drag-to-dismiss stays disengaged for
     // the whole touch (touch events keep targeting the start element).
     let sheetDragOnCover = false;
-    const DRAG_DIST = 140; // px of downward travel to dismiss
-    const DRAG_VEL = 0.9;  // px/ms (~900px/s) flick to dismiss
+    const DRAG_DIST = 120; // px of downward travel to dismiss
+    const DRAG_VEL = 0.8;  // px/ms (~900px/s) flick to dismiss
     const closeDetailModalBtn = document.getElementById('close-detail-modal');
     const detailCover = document.getElementById('detail-cover');
     const detailTitle = document.getElementById('detail-title');
