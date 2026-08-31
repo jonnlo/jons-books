@@ -25,25 +25,26 @@
     @property --gy { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
     :root {
       /* Dark surfaces — one quiet ladder (~4% L steps), faint cool cast.
-         bg-main sits at 9% so the page reads charcoal, not OLED black. */
-      --bg-main: hsl(222, 5%, 9%);
-      --bg-surface: hsl(222, 5%, 12%);
-      --bg-card: hsl(222, 5%, 15%);
-      --bg-card-hover: hsl(222, 5%, 19%);
-      --bg-input: hsl(222, 6%, 11%);
-      --border-color: hsl(222, 6%, 20%);
+         bg-main sits at 9% so the page reads charcoal, not OLED black.
+         All tokens in oklch so adaptive detail can keep L and inject C/H from coverColor. */
+      --bg-main: oklch(0.2011 0.0039 286);
+      --bg-surface: oklch(0.2348 0.0041 264.5);
+      --bg-card: oklch(0.2646 0.0057 271.2);
+      --bg-card-hover: oklch(0.3057 0.0073 274.7);
+      --bg-input: oklch(0.2223 0.006 271.1);
+      --border-color: oklch(0.3167 0.0076 264.5);
       --border-accent: var(--accent-color);
       /* Text — real hierarchy: primary pops, secondary supports,
          muted stays ≥5:1 on every surface. Faint is for DECORATIVE
          uppercase micro-labels only — never body/content text. */
-      --text-primary: hsl(220, 8%, 93%);
-      --text-secondary: hsl(220, 6%, 74%);
-      --text-muted: hsl(220, 5%, 58%);
-      --text-faint: hsl(220, 5%, 45%);
-      --img-bg: hsl(222, 5%, 12%);
-      --img-bg-hover: hsl(222, 5%, 16%);
-      --btn-secondary-bg: hsl(222, 5%, 20%);
-      --btn-secondary-bg-hover: hsl(222, 5%, 25%);
+      --text-primary: oklch(0.9459 0.0029 264.5);
+      --text-secondary: oklch(0.7923 0.0087 271.3);
+      --text-muted: oklch(0.6597 0.0109 267.3);
+      --text-faint: oklch(0.5475 0.0119 261.8);
+      --img-bg: oklch(0.2348 0.0041 264.5);
+      --img-bg-hover: oklch(0.277 0.0057 271.2);
+      --btn-secondary-bg: oklch(0.3167 0.0076 264.5);
+      --btn-secondary-bg-hover: oklch(0.3648 0.0086 276.9);
       --engine-1: #3b82f6;
       --engine-2: #06b6d4;
       --engine-3: #f59e0b;
@@ -51,36 +52,63 @@
          (text, borders, focus rings, decorative stripes); --accent-fill is
          the solid fill that carries WHITE text (buttons, pills, badges).
          One value can't serve both roles on a dark theme. */
-      --accent-color: hsl(220, 8%, 78%);
-      --accent-fill: hsl(222, 6%, 32%);
-      --success-color: #34d399;
+      --accent-color: oklch(0.8229 0.009 264.5);
+      --accent-fill: oklch(0.4307 0.0106 264.5);
+      --success-color: oklch(0.7729 0.1535 163.2);
+      /* ── Shadow tuning (geometry) ── tweak y / blur here; alpha is in JS (SHADOW_TUNING below) */
+      --card-shadow-y: 6px;
+      --card-shadow-blur: 20px;
+      --detail-shadow-y: 8px;
+      --detail-shadow-blur: 20px;
+      --detail-shadow-y-mobile: 8px;
+      --detail-shadow-blur-mobile: 20px;
     }
 
     [data-theme="light"] {
-      --bg-main: hsl(220, 0%, 99%);
-      --bg-surface: hsl(200, 0%, 96%);
-      --bg-card: hsl(210, 0%, 96%);
-      --bg-card-hover: hsl(214, 0%, 91%);
-      --bg-input: #ffffff;
-      --border-color: hsl(213, 0%, 84%);
-      --border-accent: hsl(0, 0%, 40%);      /* was 60% */
-      --text-primary: hsl(222, 0%, 11%);
-      --text-secondary: hsl(215, 0%, 34%);   /* was 45% */
-      --text-muted: hsl(215, 0%, 44%);       /* was 57% */
-      --text-faint: hsl(215, 0%, 57%);       /* decorative micro-labels only */
-      --img-bg: hsl(200, 0%, 96.5%);
-      --img-bg-hover: hsl(200, 0%, 93%);     /* was 94% */
-      --btn-secondary-bg: #ffffff;
-      --btn-secondary-bg-hover: hsl(214, 0%, 95%);
-      --accent-color: hsl(0, 0%, 0%);
-      --accent-fill: hsl(0, 0%, 0%); /* same ink — light-mode fills are already dark */
-      --success-color: #16a34a;
+      --bg-main: oklch(0.9911 0 89.9);
+      --bg-surface: oklch(0.9702 0 89.9);
+      --bg-card: oklch(0.9702 0 89.9);
+      --bg-card-hover: oklch(0.931 0 89.9);
+      --bg-input: oklch(1 0 89.9);
+      --border-color: oklch(0.8761 0 89.9);
+      --border-accent: oklch(0.5103 0 89.9);      /* was 60% */
+      --text-primary: oklch(0.2264 0 89.9);
+      --text-secondary: oklch(0.4568 0 89.9);   /* was 45% */
+      --text-muted: oklch(0.5452 0 89.9);       /* was 57% */
+      --text-faint: oklch(0.6567 0 89.9);       /* decorative micro-labels only */
+      --img-bg: oklch(0.9731 0 89.9);
+      --img-bg-hover: oklch(0.9461 0 89.9);     /* was 94% */
+      --btn-secondary-bg: oklch(1 0 89.9);
+      --btn-secondary-bg-hover: oklch(0.9612 0 89.9);
+      --accent-color: oklch(0 0 0);
+      --accent-fill: oklch(0 0 0); /* same ink — light-mode fills are already dark */
+      --success-color: oklch(0.6271 0.1699 149.2);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    :root,
+    body,
+    .book-card,
+    .cover-container,
+    .modal-content,
+    .btn-secondary,
+    .filter-bar,
+    .header-stats,
+    .book-controls,
+    .engine-slot,
+    .tag-filter-chip,
+    .tag-chip,
+    .status-pill,
+    .engine-pill,
+    .detail-link,
+    .view-toggle,
+    .mode-toggle,
+    .adaptive-mode-toggle {
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
@@ -1513,6 +1541,10 @@
    
   
     /* @media (hover: hover) and (pointer: fine) { */
+    /* Hover = --img-bg-hover tinted from the cover's dominant color (set
+       per-card as --card-hover-bg in JS via cardHoverTintHex — same "keep L
+       from the token, inject C/H from coverColor" logic as the oklch ladder).
+       Falls back to plain --img-bg-hover when there's no coverColor. */
     .book-card:hover .cover-container {
       background-color: var(--card-hover-bg, var(--img-bg-hover));
     /* } */
@@ -1571,7 +1603,7 @@
     }
     @media (hover: hover) and (pointer: fine) {
     .book-card:hover .book3d__front {
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 var(--card-shadow-y, 8px) var(--card-shadow-blur, 24px) var(--card-shadow, rgba(0, 0, 0, 0.3));
     }
     }
     .book3d__front .cover-img,
@@ -2555,44 +2587,29 @@
     .book-detail-modal[data-adaptive] .detail-notes p,
     .book-detail-modal[data-adaptive] .detail-summary p { color: var(--detail-text); }
     .book-detail-modal[data-adaptive] .detail-summary-toggle { color: var(--detail-accent); }
-    .book-detail-modal[data-adaptive] .status-pill { background: color-mix(in srgb, var(--detail-text) 8%, transparent); color: var(--detail-text-secondary); border: 1px solid var(--detail-border); }
+    /* Surface tokens — derived from --detail-bg in JS (mirrors --bg-surface / --img-bg ladder).
+       Using a proper surface base instead of tinting --detail-text keeps elevation
+       consistent and avoids muddy gray when coverColor is saturated. */
+    .book-detail-modal[data-adaptive] .status-pill { background: var(--detail-chip-bg); color: var(--detail-text-secondary); }
+    .book-detail-modal[data-adaptive] .status-pill[data-status="Reading"] { background: var(--detail-chip-hover); color: var(--detail-text); border-color: color-mix(in srgb, var(--detail-accent) 70%, var(--detail-bg)); }
     .book-detail-modal[data-adaptive] .status-pill[data-status="Completed"] { background: var(--detail-accent); color: var(--detail-accent-contrast); border-color: var(--detail-accent); }
-    .book-detail-modal[data-adaptive] .engine-pill { background: color-mix(in srgb, var(--detail-text) 8%, transparent); color: var(--detail-text-secondary); border: 1px solid var(--detail-border); }
-    .book-detail-modal[data-adaptive] .detail-cover { filter: drop-shadow(0 8px 18px rgba(0,0,0,.18)); }
+    .book-detail-modal[data-adaptive] .engine-pill { background: var(--detail-chip-bg); color: var(--detail-text-secondary); border: 1px solid var(--detail-border); }
+    .book-detail-modal[data-adaptive] .detail-cover { filter: drop-shadow(0 var(--detail-shadow-y, 10px) var(--detail-shadow-blur, 22px) var(--detail-shadow, rgba(0,0,0,.18))); }
+    @media (max-width: 600px) {
+      .book-detail-modal[data-adaptive] .detail-cover { filter: drop-shadow(0 var(--detail-shadow-y-mobile, 8px) var(--detail-shadow-blur-mobile, 24px) var(--detail-shadow, rgba(0,0,0,.18))); }
+    }
     .book-detail-modal[data-adaptive] .detail-meta-link,
     .book-detail-modal[data-adaptive] .detail-notes a,
-    .book-detail-modal[data-adaptive] .note-bookref { color: color-mix(in oklch, var(--detail-accent) 70%, var(--detail-bg) 30%); text-decoration-color: color-mix(in srgb, var(--detail-accent) 55%, transparent); }
-    /* Subtle tonal cast without mix-blend-mode (Safari renders luminosity inconsistently
-       with backdrop-filter/sticky). Pre-tint text/borders toward --detail-bg via color-mix. */
-    .book-detail-modal[data-adaptive] .modal-header { border-color: color-mix(in oklch, var(--detail-border) 82%, var(--detail-bg) 18%); }
-    .book-detail-modal[data-adaptive] .modal-header h2 { color: color-mix(in oklch, var(--detail-text-secondary) 85%, var(--detail-bg) 15%); }
-    .book-detail-modal[data-adaptive] .detail-meta-row { border-color: color-mix(in oklch, var(--detail-border) 80%, var(--detail-bg) 20%); }
-    .book-detail-modal[data-adaptive] .detail-title,
-    .book-detail-modal[data-adaptive] .detail-notes p,
-    .book-detail-modal[data-adaptive] .detail-summary p { color: color-mix(in oklch, var(--detail-text) 70%, var(--detail-bg) 30%); }
-    .book-detail-modal[data-adaptive] .detail-author,
-    .book-detail-modal[data-adaptive] .detail-meta-value { color: color-mix(in oklch, var(--detail-text-secondary) 70%, var(--detail-bg) 30%); }
-    .book-detail-modal[data-adaptive] .detail-meta-label,
-    .book-detail-modal[data-adaptive] .detail-notes h4,
-    .book-detail-modal[data-adaptive] .detail-summary h4 { color: color-mix(in oklch, var(--detail-text-faint) 80%, var(--detail-bg) 20%); }
-    .book-detail-modal[data-adaptive] .tag-chip { background: color-mix(in oklch, var(--detail-text) 7%, var(--detail-bg) 93%); color: color-mix(in oklch, var(--detail-text-secondary) 85%, var(--detail-bg) 15%); border-color: color-mix(in oklch, var(--detail-border) 80%, var(--detail-bg) 20%); }
-    .book-detail-modal[data-adaptive] .detail-link { background: color-mix(in oklch, var(--detail-text) 6%, var(--detail-bg) 94%); color: color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%); border-color: color-mix(in oklch, var(--detail-border) 82%, var(--detail-bg) 18%); }
+    .book-detail-modal[data-adaptive] .note-bookref { color: var(--detail-accent); text-decoration-color: color-mix(in srgb, var(--detail-accent) 55%, transparent); }
+    .book-detail-modal[data-adaptive] .tag-chip { background: var(--detail-chip-bg); color: var(--detail-text-secondary);  }
+    .book-detail-modal[data-adaptive] .detail-link { background: var(--detail-surface); color: var(--detail-text); border: 1px solid var(--detail-border); }
     @media (hover: hover) and (pointer: fine) {
-      .book-detail-modal[data-adaptive] .tag-chip:hover { background: color-mix(in oklch, var(--detail-text) 12%, var(--detail-bg) 88%); color: color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%); border-color: color-mix(in oklch, var(--detail-accent) 55%, var(--detail-border) 45%); }
-      .book-detail-modal[data-adaptive] .detail-link:hover { background: color-mix(in oklch, var(--detail-text) 10%, var(--detail-bg) 90%); border-color: color-mix(in oklch, var(--detail-accent) 50%, var(--detail-border) 50%); }
+      .book-detail-modal[data-adaptive] .tag-chip:hover { background: var(--detail-chip-hover); color: var(--detail-text); }
+      .book-detail-modal[data-adaptive] .detail-link:hover { background: var(--detail-surface-hover); border-color: color-mix(in oklch, var(--detail-accent) 50%, var(--detail-border) 50%); }
     }
-    .book-detail-modal[data-adaptive] .detail-meta-link:hover { color: color-mix(in oklch,color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%) 60%,transparent 40%); text-decoration-color: var(--detail-accent); }
+    .book-detail-modal[data-adaptive] .detail-meta-link:hover,
     .book-detail-modal[data-adaptive] .detail-notes a:hover,
-    .book-detail-modal[data-adaptive] .note-bookref:hover { color: color-mix(in oklch,color-mix(in oklch, var(--detail-text) 88%, var(--detail-bg) 12%) 60%,transparent 40%); text-decoration-color: var(--detail-accent); }
-    /* Dark adaptive: link vs value were converging (accent 78% vs secondary 74% → 4% apart).
-       Keep value muted (70/30) but let links stay near-pure accent (92/8) so the
-       dotted underline reads as interactive. Light already separates (0% vs 34%). */
-    .book-detail-modal[data-adaptive="dark"] .detail-meta-link,
-    .book-detail-modal[data-adaptive="dark"] .detail-notes a,
-    .book-detail-modal[data-adaptive="dark"] .note-bookref { color: color-mix(in oklch, var(--detail-accent) 92%, var(--detail-bg) 8%); }
-    .book-detail-modal[data-adaptive="dark"] .detail-meta-link:hover,
-    .book-detail-modal[data-adaptive="dark"] .detail-notes a:hover,
-    .book-detail-modal[data-adaptive="dark"] .note-bookref:hover { color: color-mix(in oklch, var(--detail-accent) 70%, var(--detail-bg) 30%); text-decoration-color: var(--detail-accent); }
+    .book-detail-modal[data-adaptive] .note-bookref:hover { color: var(--detail-text-muted); text-decoration-color: var(--detail-accent); }
     @media (prefers-reduced-motion: reduce) {
       .book-detail-modal[data-adaptive] .modal-content { transition: none; }
     }
@@ -2600,6 +2617,9 @@
     .book-detail-modal .modal-content :focus-visible {
       outline: 2px solid var(--border-accent);
       outline-offset: 2px;
+    }
+    .book-detail-modal[data-adaptive] .modal-content :focus-visible {
+      outline-color: var(--detail-accent);
     }
      /* Remove iPhone/touch focus outline for the modal close button only */
     .book-detail-modal .modal-content .close-btn:focus,
@@ -4643,6 +4663,77 @@
       const forcedMode = siteSettings.adaptiveDetailMode !== 'auto' ? siteSettings.adaptiveDetailMode : null;
       return adaptiveFromHex(hex, { forcedMode });
     }
+    // ── Shadow tuning ── ONE place to tune shadows.
+    // Alpha = opacity (0→1). Chroma cap/scale = saturation — higher = more vivid shadow.
+    // Lightness: dark = offset from bg L (higher offset = darker shadow), light = fixed L (lower = darker).
+    // Geometry (y/blur) is in CSS :root — mobile detail has its own y/blur there, color stays shared.
+    const SHADOW_TUNING = {
+      cardDarkAlpha: 0.52,        // card hover on dark adaptive bg
+      cardLightAlpha: 0.34,       // card hover on light adaptive bg
+      detailDarkAlpha: 0.60,      // detail modal on dark adaptive bg
+      detailLightAlpha: 0.45,     // detail modal on light adaptive bg
+      // Saturation — raise cap/scale for more vivid tone-on-tone shadows.
+      // Previous defaults were cap 0.05/0.07 scale 0.38/0.42 (muted). Bumped for punch.
+      cardDarkChromaCap: 0.2, cardDarkChromaScale: 0.85,
+      cardLightChromaCap: 0.5, cardLightChromaScale: 0.90,
+      detailDarkChromaCap: 0.2, detailDarkChromaScale: 0.85,
+      detailLightChromaCap: 1, detailLightChromaScale: 0.90,
+      grayChromaScale: 0.45,      // near-grays (Craw<0.03) — keep low so grays don't invent color
+      // Lightness — tune shadow darkness
+      cardDarkLightnessOffset: 0.3,  // dark bg: shadow L = adp.L - offset (higher = darker)
+      cardLightLs: 0.4,              // light bg: fixed shadow L (lower = darker, 0.40 dark / 0.60 light)
+      detailDarkLightnessOffset: 0.3,
+      detailLightLs: 0.6,
+      detailDarkLightnessFloor: 0.08  // dark bg: minimum L so shadow never goes pure black
+    };
+    // Tone-on-tone shadow for book cards — same OKLCH pipeline as detail modal,
+    // emitted as rgba() so it works everywhere (no color-mix).
+    function cardShadowRgba(book, adp){
+      if(!adp) return null;
+      const srcHex=(book && book.coverColor || '').trim();
+      if(!isValidHexColor(srcHex)) return null;
+      const {C:Craw,H}=rgbToOklch(...Object.values(hexToRgb(srcHex)));
+      let Ls, Cs, alpha;
+      if(adp.isDark){
+        Ls=Math.max(SHADOW_TUNING.detailDarkLightnessFloor, adp.L - SHADOW_TUNING.cardDarkLightnessOffset);
+        Cs=Craw < 0.03 ? Craw * SHADOW_TUNING.grayChromaScale : Math.min(SHADOW_TUNING.cardDarkChromaCap, Craw * SHADOW_TUNING.cardDarkChromaScale);
+        alpha=SHADOW_TUNING.cardDarkAlpha;
+      } else {
+        Ls=SHADOW_TUNING.cardLightLs;
+        Cs=Craw < 0.03 ? Craw * SHADOW_TUNING.grayChromaScale : Math.min(SHADOW_TUNING.cardLightChromaCap, Craw * SHADOW_TUNING.cardLightChromaScale);
+        alpha=SHADOW_TUNING.cardLightAlpha;
+      }
+      const c=clampChroma(Ls, Cs, H);
+      const {r,g,b}=oklchToRgb(Ls, c, H);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // ── Card hover tint ── ONE place to tune the cover-container hover wash.
+    // Same "keep L from the theme token, inject C/H from coverColor" logic the
+    // oklch token ladder uses: the hover stays at the --img-bg-hover lightness
+    // step (so it reads as the same surface in both themes and follows accent
+    // presets) and only picks up a quiet tint from the cover's dominant color.
+    // Falls back to plain --img-bg-hover (via the CSS var fallback) when the
+    // book has no usable coverColor.
+    const HOVER_TINT_TUNING = {
+      maxChroma: 0.08,        // tint strength cap (token ladder sits at ~0.005–0.01)
+      chromaScale: 0.4,       // how much of the cover's own chroma carries over
+      grayChromaScale: 0.35   // near-grays (Craw<0.03) — keep low so grays don't invent color
+    };
+    function cardHoverTintHex(book) {
+      const srcHex=(book && book.coverColor || '').trim();
+      if(!isValidHexColor(srcHex)) return null;
+      const baseHex=resolveTokenHex('--img-bg-hover');
+      if(!baseHex) return null;
+      const {L}=rgbToOklch(...Object.values(hexToRgb(baseHex)));
+      const {C:Craw,H}=rgbToOklch(...Object.values(hexToRgb(srcHex)));
+      const rawC=Craw < 0.03
+        ? Craw * HOVER_TINT_TUNING.grayChromaScale
+        : Math.min(HOVER_TINT_TUNING.maxChroma, Craw * HOVER_TINT_TUNING.chromaScale);
+      const c=clampChroma(L, rawC, H);
+      const {r,g,b}=oklchToRgb(L, c, H);
+      return rgbToHex(r, g, b);
+    }
 
     // Collapsible States (volumes only — stages are compact rows now, so they
     // aren't collapsible; dragging between rows is easy enough.)
@@ -6567,7 +6658,15 @@
       ` : '';
 
       const adp = resolveAdaptiveForBook(book);
-      const hoverStyle = adp ? ` style="--card-hover-bg:${adp.hex}"` : '';
+      const shadow = adp ? cardShadowRgba(book, adp) : null;
+      // Hover = --img-bg-hover tinted from coverColor (token-ladder logic);
+      // shadow stays tied to the adaptive detail setting.
+      const hoverTint = cardHoverTintHex(book);
+      const hoverVars = [
+        hoverTint ? `--card-hover-bg:${hoverTint}` : '',
+        shadow ? `--card-shadow:${shadow}` : ''
+      ].filter(Boolean).join(';');
+      const hoverStyle = hoverVars ? ` style="${hoverVars}"` : '';
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container"${hoverStyle}>
@@ -6593,7 +6692,13 @@
     // click→detail/edit and SortableJS keep working.
     function renderRowCardHtml(book) {
       const adp2 = resolveAdaptiveForBook(book);
-      const hoverStyle2 = adp2 ? ` style="--card-hover-bg:${adp2.hex}"` : '';
+      const shadow2 = adp2 ? cardShadowRgba(book, adp2) : null;
+      const hoverTint2 = cardHoverTintHex(book);
+      const hoverVars2 = [
+        hoverTint2 ? `--card-hover-bg:${hoverTint2}` : '',
+        shadow2 ? `--card-shadow:${shadow2}` : ''
+      ].filter(Boolean).join(';');
+      const hoverStyle2 = hoverVars2 ? ` style="${hoverVars2}"` : '';
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container"${hoverStyle2}>
@@ -7732,26 +7837,74 @@
         if(adp){
           detailModal.setAttribute('data-adaptive', adp.isDark ? 'dark' : 'light');
           detailSheet.style.setProperty('--detail-bg', adp.hex);
-          if(adp.isDark){
-            detailSheet.style.setProperty('--detail-text','hsl(220,8%,93%)');
-            detailSheet.style.setProperty('--detail-text-secondary','hsl(220,6%,74%)');
-            detailSheet.style.setProperty('--detail-text-muted','hsl(220,5%,58%)');
-            detailSheet.style.setProperty('--detail-text-faint','hsl(220,5%,45%)');
-            detailSheet.style.setProperty('--detail-border','hsla(0,0%,100%,.12)');
-            detailSheet.style.setProperty('--detail-accent','hsl(220,8%,78%)');
-            detailSheet.style.setProperty('--detail-accent-contrast','#161618');
-          } else {
-            detailSheet.style.setProperty('--detail-text','hsl(222,0%,11%)');
-            detailSheet.style.setProperty('--detail-text-secondary','hsl(215,0%,34%)');
-            detailSheet.style.setProperty('--detail-text-muted','hsl(215,0%,44%)');
-            detailSheet.style.setProperty('--detail-text-faint','hsl(215,0%,57%)');
-            detailSheet.style.setProperty('--detail-border','hsla(0,0%,0%,.10)');
-            detailSheet.style.setProperty('--detail-accent','hsl(0,0%,0%)');
-            detailSheet.style.setProperty('--detail-accent-contrast','#ffffff');
+          // Derive surface tokens from --detail-bg via OKLCH L shift (mirrors --bg-surface / --img-bg ladder).
+          // Dark: surfaces lighter than bg (+3-6% L); Light: surfaces darker than bg (-2.5-6% L).
+          function detailSurface(deltaL){
+            const {r,g,b}=hexToRgb(adp.hex);
+            const {L,C,H}=rgbToOklch(r,g,b);
+            const nL=Math.max(0,Math.min(1,L+deltaL));
+            const nC=clampChroma(nL,C,H);
+            const {r:r2,g:g2,b:b2}=oklchToRgb(nL,nC,H);
+            return rgbToHex(r2,g2,b2);
           }
+          // Text/border/accent keep perceived lightness (L) from default theme, inject C/H from coverColor.
+          // Surfaces already derived via detailSurface(deltaL) above.
+          function detailText(L, scale){
+            const {C:Ca, H:Ha}=rgbToOklch(...Object.values(hexToRgb(adp.hex)));
+            let Ct = Ca < 0.03 ? Ca*0.35 : Math.min(0.04, Ca*scale);
+            if(!adp.isDark) Ct *= 0.55;
+            const c = clampChroma(L, Ct, Ha);
+            const {r,g,b}=oklchToRgb(L,c,Ha);
+            return rgbToHex(r,g,b);
+          }
+          if(adp.isDark){
+            detailSheet.style.setProperty('--detail-text', detailText(0.9459, 0.25));
+            detailSheet.style.setProperty('--detail-text-secondary', detailText(0.7923, 0.30));
+            detailSheet.style.setProperty('--detail-text-muted', detailText(0.6597, 0.25));
+            detailSheet.style.setProperty('--detail-text-faint', detailText(0.5475, 0.60));
+            detailSheet.style.setProperty('--detail-border', detailSurface(0.08));
+            detailSheet.style.setProperty('--detail-accent', detailText(0.9459, 0.50));
+            detailSheet.style.setProperty('--detail-accent-contrast','#161618');
+            detailSheet.style.setProperty('--detail-surface', detailSurface(0.03));
+            detailSheet.style.setProperty('--detail-surface-hover', detailSurface(0.06));
+            detailSheet.style.setProperty('--detail-chip-bg', detailSurface(0.03));
+            detailSheet.style.setProperty('--detail-chip-hover', detailSurface(0.07));
+          } else {
+            detailSheet.style.setProperty('--detail-text', detailText(0.3, 0.6));
+            detailSheet.style.setProperty('--detail-text-secondary', detailText(0.4568, 0.30));
+            detailSheet.style.setProperty('--detail-text-muted', detailText(0.5452, 0.25));
+            detailSheet.style.setProperty('--detail-text-faint', detailText(0.7, 0.90));
+            detailSheet.style.setProperty('--detail-border', detailSurface(-0.08));
+            detailSheet.style.setProperty('--detail-accent', detailText(0.18, 0.50));
+            detailSheet.style.setProperty('--detail-accent-contrast','#ffffff');
+            detailSheet.style.setProperty('--detail-surface', detailSurface(-0.03));
+            detailSheet.style.setProperty('--detail-surface-hover', detailSurface(-0.06));
+            detailSheet.style.setProperty('--detail-chip-bg', detailSurface(-0.025));
+            detailSheet.style.setProperty('--detail-chip-hover', detailSurface(-0.055));
+          }
+          // Tone-on-tone book shadow — same hue as cover, no color-mix needed.
+          // Color is shared desktop/mobile; only geometry (y/blur) splits in CSS.
+          (function setDetailShadow(){
+            const srcHex = (book && book.coverColor || adp.hex || '').trim();
+            if(!isValidHexColor(srcHex)) return;
+            const {C:Craw, H} = rgbToOklch(...Object.values(hexToRgb(srcHex)));
+            let Ls, Cs, alpha;
+            if(adp.isDark){
+              Ls = Math.max(SHADOW_TUNING.detailDarkLightnessFloor, adp.L - SHADOW_TUNING.detailDarkLightnessOffset);
+              Cs = Craw < 0.03 ? Craw * SHADOW_TUNING.grayChromaScale : Math.min(SHADOW_TUNING.detailDarkChromaCap, Craw * SHADOW_TUNING.detailDarkChromaScale);
+              alpha = SHADOW_TUNING.detailDarkAlpha;
+            } else {
+              Ls = SHADOW_TUNING.detailLightLs;
+              Cs = Craw < 0.03 ? Craw * SHADOW_TUNING.grayChromaScale : Math.min(SHADOW_TUNING.detailLightChromaCap, Craw * SHADOW_TUNING.detailLightChromaScale);
+              alpha = SHADOW_TUNING.detailLightAlpha;
+            }
+            const c = clampChroma(Ls, Cs, H);
+            const {r:r2,g:g2,b:b2} = oklchToRgb(Ls, c, H);
+            detailSheet.style.setProperty('--detail-shadow', `rgba(${r2}, ${g2}, ${b2}, ${alpha})`);
+          })();
         } else {
           detailModal.removeAttribute('data-adaptive');
-          ['--detail-bg','--detail-text','--detail-text-secondary','--detail-text-muted','--detail-text-faint','--detail-border','--detail-accent','--detail-accent-contrast'].forEach(k=>detailSheet.style.removeProperty(k));
+          ['--detail-bg','--detail-text','--detail-text-secondary','--detail-text-muted','--detail-text-faint','--detail-border','--detail-accent','--detail-accent-contrast','--detail-surface','--detail-surface-hover','--detail-chip-bg','--detail-chip-hover','--detail-shadow'].forEach(k=>detailSheet.style.removeProperty(k));
         }
       })();
       // Clear any leftover drag state so the sheet never opens stuck translated
@@ -7836,7 +7989,7 @@
         history.replaceState(null, '', location.pathname + location.search);
       }
       detailModal.removeAttribute('data-adaptive');
-      ['--detail-bg','--detail-text','--detail-text-secondary','--detail-text-muted','--detail-text-faint','--detail-border','--detail-accent','--detail-accent-contrast'].forEach(k=>detailSheet.style.removeProperty(k));
+      ['--detail-bg','--detail-text','--detail-text-secondary','--detail-text-muted','--detail-text-faint','--detail-border','--detail-accent','--detail-accent-contrast','--detail-surface','--detail-surface-hover','--detail-chip-bg','--detail-chip-hover','--detail-shadow'].forEach(k=>detailSheet.style.removeProperty(k));
       detailModal.classList.remove('active');
       detailModal.classList.remove('demo-run');
       detailModal.classList.remove('anim-in');
@@ -8552,12 +8705,18 @@
     // Theme Switcher
     const themeToggleBtn = document.getElementById('theme-toggle');
 
-    // Resolve the current --bg-main token to a hex for <meta theme-color>.
+    // Resolve any color token (--bg-main, --img-bg-hover, …) to a hex.
     // Custom properties resolve instantly after a preset swap (only PAINTED
     // values lag), so this is safe to call right after applyThemeColors.
-    function resolveBgMainHex() {
-      const raw = getComputedStyle(document.documentElement).getPropertyValue('--bg-main').trim();
+    function resolveTokenHex(name) {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       if (/^#[0-9a-f]{3,8}$/i.test(raw)) return raw;
+      const oklchMatch = raw.match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*[\d.]+%?)?\s*\)$/i);
+      if (oklchMatch) {
+        const L = parseFloat(oklchMatch[1]), C = parseFloat(oklchMatch[2]), H = parseFloat(oklchMatch[3]);
+        const {r,g,b} = oklchToRgb(L,C,H);
+        return rgbToHex(r,g,b);
+      }
       const m = raw.match(/^hsl\(\s*([\d.]+)(?:deg)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%\s*\)$/i);
       if (!m) return null;
       const h = parseFloat(m[1]) / 360, s = parseFloat(m[2]) / 100, l = parseFloat(m[3]) / 100;
@@ -8575,6 +8734,31 @@
       return '#' + to255(r) + to255(g) + to255(b);
     }
 
+    function resolveBgMainHex() {
+      return resolveTokenHex('--bg-main');
+    }
+
+    function refreshCardHoverTint() {
+      document.querySelectorAll('.book-card .cover-container').forEach(c => {
+        const card = c.closest('.book-card');
+        if (!card) return;
+        const b = books.find(x => x.id === card.dataset.id);
+        // Hover tint reads the resolved --img-bg-hover token (theme + accent
+        // preset dependent), so it must refresh on theme changes.
+        const tint = b && cardHoverTintHex(b);
+        if (tint) c.style.setProperty('--card-hover-bg', tint);
+        else c.style.removeProperty('--card-hover-bg');
+        const a = b && resolveAdaptiveForBook(b);
+        if (a) {
+          const sh = cardShadowRgba(b, a);
+          if(sh) c.style.setProperty('--card-shadow', sh);
+          else c.style.removeProperty('--card-shadow');
+        } else {
+          c.style.removeProperty('--card-shadow');
+        }
+      });
+    }
+
     function applyTheme(theme) {
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('theme', theme);
@@ -8587,6 +8771,10 @@
         const fallback = theme === 'light' ? '#fcfcfc' : '#161618';
         themeColorMeta.content = resolveBgMainHex() || fallback;
       }
+      // Card hover tint is per-book inline --card-hover-bg (cardHoverTintHex
+      // reads the resolved --img-bg-hover token, which changes with theme and
+      // accent preset), so refresh it live without a full re-render.
+      refreshCardHoverTint();
       // The icon shows the theme the button will SWITCH TO (moon in light, sun
       // in dark). Re-query it each time: lucide.createIcons() replaces the <i>
       // with an <svg>, so a cached reference would silently stop updating.
