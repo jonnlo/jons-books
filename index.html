@@ -3459,17 +3459,57 @@
         font-size: 0.8rem;
       }
 
-      /* Detail modal as bottom sheet — edge-to-edge, immersive for adaptive color */
+      /* Detail modal as bottom sheet — leaves a gap at the top so the page
+         peeks through, dimmed to match the status bar. History: a full-screen
+         variant (sheet stretched to the top edge, no dim) was tried so the
+         status bar would sample --detail-bg too — but iOS 26 Safari's chrome
+         sampler never re-evaluates on DOM/style changes (only on real
+         viewport gestures like pinch-zoom), so the status bar stayed theme
+         color regardless. Reverted: the transparent overlay below the dim
+         strip keeps the BOTTOM toolbar sampler working (a full dim + blur
+         blocks it — exp/bottom-tint-exp.html), and the top gap gets its own
+         dim strip matching the theme-color status bar. */
       .book-detail-modal {
         align-items: flex-end;
         padding: env(safe-area-inset-top, 0px) 0 0 0;
+      }
+
+      /* The overlay itself stays FULLY transparent — a flat dim + blur here
+         blocks the bottom toolbar's sampler. */
+      .book-detail-modal.active {
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      /* Partial overlay dim: the ORIGINAL dim look (80% --bg-main + blur)
+         confined to the TOP ~70% of the viewport, fading out over its last
+         stretch. Covers the status bar + the sheet's top gap AND the page
+         behind the sheet while it slides up — but never paints in the bottom
+         band, so the bottom toolbar's sampler stays unblocked (a FULL dim +
+         blur blocks it — exp/bottom-tint-exp.html). Paints above the tint
+         shim (inside the z-1000 overlay) and below the sheet. TUNE: height
+         = how far the dim reaches; the mask's 82% = where the fade begins. */
+      .book-detail-modal.active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 70%;
+        background: color-mix(in srgb, var(--bg-main) 80%, transparent);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+        pointer-events: none;
       }
 
       .book-detail-modal .modal-content {
         width: 100%;
         max-width: none;
         margin: 0;
-        border:0.5px solid var(--border-color);
+        border: 0.5px solid var(--border-color);
         margin-top: auto;
         border-radius: 16px 16px 0 0;
         max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px));
