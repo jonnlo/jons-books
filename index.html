@@ -237,6 +237,52 @@
       }
     }
 
+    .stat-item {
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      border: 0;
+      padding: 2px 6px;
+      margin: -2px -6px;
+      border-radius: 8px;
+      font: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0;
+      transition: background-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .stat-item strong{
+      font-weight: 600;
+    }
+
+    .stat-item:hover strong{
+      background: var(--bg-card);
+      color:var(--text-muted);
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+      text-decoration-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
+    }
+
+
+    .stat-item:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: 2px;
+    }
+
+   
+
+    .stat-item.is-active strong {
+      text-decoration-line: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+      text-decoration-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
+    }
+
     .stat-item span {
       color: var(--text-secondary);
       margin-right: 4px;
@@ -340,6 +386,10 @@
       background: transparent;
       padding: 6px 10px;
       font-size: 0.8rem;
+    }
+    
+    .adaptive-mode-toggle .btn-secondary {
+      min-width: 100px;
     }
 
     .mode-toggle .btn-secondary.active,
@@ -1415,18 +1465,42 @@
       outline-offset: 2px;
     }
 
-    /* Adaptive detail mode — reuses .mode-toggle segmented-control styles
-       (grouped selectors above). Only the per-state text colors + focus ring
-       are specific to the aria-checked radiogroup. */
-    .adaptive-mode-toggle .btn-secondary[aria-checked="true"] {
-      color: white;
+    /* iOS-style pill switch — used for Adaptive detail modal on/off */
+    .ios-switch {
+      position: relative;
+      width: 51px;
+      height: 31px;
+      border-radius: 999px;
+      border: none;
+      padding: 2px;
+      background: var(--border-color);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.22s ease;
+      -webkit-tap-highlight-color: transparent;
     }
-    .adaptive-mode-toggle .btn-secondary[aria-checked="false"] {
-      color: var(--text-secondary);
+    .ios-switch[aria-checked="true"] {
+      background: var(--accent-fill);
     }
-    .adaptive-mode-toggle .btn-secondary:focus-visible {
+    .ios-switch-thumb {
+      display: block;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 0 0 0.5px rgba(0,0,0,0.08);
+      transform: translateX(0);
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ios-switch[aria-checked="true"] .ios-switch-thumb {
+      transform: translateX(20px);
+    }
+    .ios-switch:focus-visible {
       outline: 2px solid var(--border-accent);
-      outline-offset: -2px;
+      outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ios-switch, .ios-switch-thumb { transition: none; }
     }
 
     .results-count {
@@ -3890,10 +3964,10 @@
         </div>
       </div>
 
-      <div class="header-stats">
-        <div class="stat-item"><span>Total:</span> <strong id="stat-total">0</strong></div>
-        <div class="stat-item"><span>Reading:</span> <strong id="stat-reading">0</strong></div>
-        <div class="stat-item"><span>Completed:</span> <strong id="stat-completed">0</strong></div>
+      <div class="header-stats" role="group" aria-label="Filter by status">
+        <button type="button" class="stat-item" data-filter="all" aria-pressed="false" title="Show all books"><span>Total:</span> <strong id="stat-total">0</strong></button>
+        <button type="button" class="stat-item" data-filter="To Read" aria-pressed="false" title="Filter: To Read"><span>To Read:</span> <strong id="stat-toread">0</strong></button>
+        <button type="button" class="stat-item" data-filter="Reading" aria-pressed="false" title="Filter: Reading"><span>Reading:</span> <strong id="stat-reading">0</strong></button>
       </div>
 
       <div class="header-actions">
@@ -4407,17 +4481,20 @@
             <option value="random">Random</option>
           </select>
         </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;">
-            <input type="checkbox" id="adaptive-detail-toggle" style="width:16px;height:16px;accent-color:var(--accent-fill)"> Adaptive detail modal
-          </label>
-          <p class="form-hint">Tint the detail modal from the cover's dominant color (Apple Music-style). When on, the modal ignores the site accent hue.</p>
-          <div id="adaptive-mode-group" style="margin-top:10px;display:flex;gap:8px;align-items:center;">
-            <span style="font-size:.82rem;color:var(--text-secondary);">Text mode</span>
-            <div id="adaptive-detail-mode" class="adaptive-mode-toggle" role="radiogroup" aria-label="Adaptive text mode">
-              <button type="button" class="btn-secondary" data-mode="auto" role="radio" aria-checked="true">Dynamic</button>
-              <button type="button" class="btn-secondary" data-mode="theme" role="radio" aria-checked="false">Follow Theme</button>
-            </div>
+        <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+          <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Adaptive detail modal</h3>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <label for="adaptive-detail-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Enabled</label>
+            <button type="button" role="switch" id="adaptive-detail-toggle" class="ios-switch" aria-checked="true" aria-label="Enable adaptive detail modal"><span class="ios-switch-thumb"></span></button>
+          </div>
+          <p class="form-hint">Tint the detail modal from the cover's dominant color. When on, the modal ignores the site accent hue.</p>
+          <div id="adaptive-mode-group" style="margin-top:12px;">
+            <label for="adaptive-detail-mode" style="font-size:.82rem;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">Text color</label>
+            <select id="adaptive-detail-mode" aria-describedby="adaptive-mode-hint">
+              <option value="auto">Match cover</option>
+              <option value="theme">Match theme</option>
+            </select>
+            <p class="form-hint" id="adaptive-mode-hint" aria-live="polite"></p>
           </div>
         </div>
         <p class="form-hint" style="margin-bottom: 4px;">Saving applies immediately and writes <code>site.json</code>.</p>
@@ -4761,6 +4838,7 @@
       grayChromaScale: 0.35   // near-grays (Craw<0.03) — keep low so grays don't invent color
     };
     function cardHoverTintHex(book) {
+      if(!siteSettings.adaptiveDetail) return null;
       const srcHex=(book && book.coverColor || '').trim();
       if(!isValidHexColor(srcHex)) return null;
       const baseHex=resolveTokenHex('--img-bg-hover');
@@ -5541,9 +5619,35 @@
 
     // Header Stats
     const statTotal = document.getElementById('stat-total');
+    const statToRead = document.getElementById('stat-toread');
     const statReading = document.getElementById('stat-reading');
-    const statCompleted = document.getElementById('stat-completed');
     const displayedCount = document.getElementById('displayed-count');
+    const headerStatBtns = document.querySelectorAll('.header-stats .stat-item');
+
+    function syncHeaderStatActive() {
+      const cur = filterStatus.value;
+      headerStatBtns.forEach(btn => {
+        const f = btn.dataset.filter;
+        const active = (f === 'all' && cur === '') || f === cur;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+    }
+
+    headerStatBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.filter === 'all' ? '' : btn.dataset.filter;
+        // Toggle: clicking the active filter clears it (except Total which is already "all")
+        if (filterStatus.value === target) {
+          if (target === '') return;
+          filterStatus.value = '';
+        } else {
+          filterStatus.value = target;
+        }
+        renderBooks();
+        scrollToFirstBooks();
+      });
+    });
 
     // Engine Slots
     const slot1 = document.getElementById('engine-slot-1');
@@ -7189,8 +7293,9 @@
       // Update Header Stats
       displayedCount.textContent = filtered.length;
       statTotal.textContent = books.length;
+      statToRead.textContent = books.filter(b => b.status === 'To Read').length;
       statReading.textContent = books.filter(b => b.status === 'Reading').length;
-      statCompleted.textContent = books.filter(b => b.status === 'Completed').length;
+      syncHeaderStatActive();
 
       // Render View
       if (currentView === 'grid') {
@@ -9062,30 +9167,37 @@
     const adaptiveToggle = document.getElementById('adaptive-detail-toggle');
     const adaptiveModeGroup = document.getElementById('adaptive-mode-group');
     const adaptiveModeWrap = document.getElementById('adaptive-detail-mode');
+    const adaptiveModeHint = document.getElementById('adaptive-mode-hint');
+    const ADAPTIVE_MODE_HINTS = {
+      auto: 'Picks light or dark text based on the cover color for best contrast.',
+      theme: 'Uses your light/dark theme setting for text, regardless of cover.'
+    };
     function selectedAdaptiveModeFromUI(){
-      const c = adaptiveModeWrap && adaptiveModeWrap.querySelector('[data-mode][aria-checked="true"]');
-      return c && VALID_ADAPTIVE_MODES.includes(c.dataset.mode) ? c.dataset.mode : DEFAULT_SETTINGS.adaptiveDetailMode;
+      const v = adaptiveModeWrap ? adaptiveModeWrap.value : '';
+      return VALID_ADAPTIVE_MODES.includes(v) ? v : DEFAULT_SETTINGS.adaptiveDetailMode;
     }
-    function syncAdaptiveModePill(){
-      if(!adaptiveModeWrap) return;
+    function syncAdaptiveModeHint(){
+      if(!adaptiveModeHint) return;
       const m = selectedAdaptiveModeFromUI();
-      adaptiveModeWrap.classList.toggle('is-theme', m === 'theme');
+      adaptiveModeHint.textContent = ADAPTIVE_MODE_HINTS[m] || '';
+    }
+    function isAdaptiveEnabled(){
+      return adaptiveToggle ? adaptiveToggle.getAttribute('aria-checked') === 'true' : true;
     }
     function syncAdaptiveModeUI(){
-      const on = adaptiveToggle ? adaptiveToggle.checked : true;
+      const on = isAdaptiveEnabled();
       if(adaptiveModeGroup) adaptiveModeGroup.style.opacity = on ? '1' : '0.45';
       if(adaptiveModeWrap){
-        adaptiveModeWrap.querySelectorAll('[data-mode]').forEach(b=>{ b.disabled = !on; b.style.opacity = on ? '1' : '0.6'; });
-        adaptiveModeWrap.style.pointerEvents = on ? '' : 'none';
+        adaptiveModeWrap.disabled = !on;
       }
-      syncAdaptiveModePill();
+      syncAdaptiveModeHint();
     }
-    if(adaptiveToggle) adaptiveToggle.addEventListener('change', syncAdaptiveModeUI);
-    if(adaptiveModeWrap) adaptiveModeWrap.addEventListener('click', (e)=>{
-      const btn=e.target.closest('[data-mode]'); if(!btn || btn.disabled) return;
-      adaptiveModeWrap.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-checked', String(b===btn)));
-      syncAdaptiveModePill();
+    if(adaptiveToggle) adaptiveToggle.addEventListener('click', () => {
+      const on = adaptiveToggle.getAttribute('aria-checked') === 'true';
+      adaptiveToggle.setAttribute('aria-checked', String(!on));
+      syncAdaptiveModeUI();
     });
+    if(adaptiveModeWrap) adaptiveModeWrap.addEventListener('change', syncAdaptiveModeHint);
 
     function openSettingsModal() {
       if (viewOnly) return; // editing surface — never in view-only mode
@@ -9095,11 +9207,10 @@
         accentSwatchWrap.querySelectorAll('.accent-swatch').forEach(b =>
           b.setAttribute('aria-checked', String(b.dataset.accent === siteSettings.accent)));
       }
-      if(adaptiveToggle) adaptiveToggle.checked = !!siteSettings.adaptiveDetail;
+      if(adaptiveToggle) adaptiveToggle.setAttribute('aria-checked', String(!!siteSettings.adaptiveDetail));
       if(adaptiveModeWrap){
         const m = VALID_ADAPTIVE_MODES.includes(siteSettings.adaptiveDetailMode) ? siteSettings.adaptiveDetailMode : DEFAULT_SETTINGS.adaptiveDetailMode;
-        adaptiveModeWrap.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-checked', String(b.dataset.mode===m)));
-        syncAdaptiveModePill();
+        adaptiveModeWrap.value = m;
       }
       syncAdaptiveModeUI();
       settingsModal.classList.add('active');
@@ -9140,7 +9251,7 @@
         title: inputSiteTitle.value,
         defaultSort: inputSettingsSort.value,
         accent: selectedAccentFromUI(),
-        adaptiveDetail: adaptiveToggle ? !!adaptiveToggle.checked : DEFAULT_SETTINGS.adaptiveDetail,
+        adaptiveDetail: adaptiveToggle ? adaptiveToggle.getAttribute('aria-checked') === 'true' : DEFAULT_SETTINGS.adaptiveDetail,
         adaptiveDetailMode: selectedAdaptiveModeFromUI()
       });
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
