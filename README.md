@@ -4,6 +4,8 @@ A personal book-library web app — built for my own reading collection, but fre
 
 **Live site:** https://jonnlo.github.io/jons-books/
 
+**Download to use locally:** [jons-books.zip](https://github.com/jonnlo/jons-books/archive/refs/heads/main.zip)
+
 ## About
 
 This started as a personal project to track and browse my reading — 223 books organized into reading volumes and stages, with tags, publisher summaries, and cover images. You can browse the collection on the live site above, or clone this repo and run your own copy locally, where you get the full editing UI to add, organize, and reorder books in your own catalog.
