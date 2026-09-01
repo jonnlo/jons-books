@@ -4537,126 +4537,130 @@
     // keep their exact L values with a faint hue cast; text tokens shift hue
     // at low saturation so the AA ratios hold.
     const VALID_ACCENTS = ['ink', 'indigo', 'moss', 'clay', 'ocean', 'plum'];
+    // All themes share ink's L/C ladder — only H shifts per hue. Keeps
+    // contrast ratios identical across themes; hue is the only variable.
+    // Neutrals use ink's exact L/C with theme H; accents use ink's L/C
+    // ladder for fills/inks but with theme H and tuned C for vividness.
     const ACCENT_PRESETS = {
       ink:   { name: 'Ink',   swatch: '#4d5058', dark: {}, light: {} },
       indigo: {
         name: 'Indigo', swatch: '#4f46e5',
         dark: {
-          '--bg-main': 'hsl(245, 12%, 9%)', '--bg-surface': 'hsl(245, 12%, 12%)',
-          '--bg-card': 'hsl(245, 12%, 15%)', '--bg-card-hover': 'hsl(245, 12%, 19%)',
-          '--bg-input': 'hsl(245, 13%, 11%)', '--border-color': 'hsl(245, 12%, 20%)',
-          '--text-primary': 'hsl(243, 14%, 93%)', '--text-secondary': 'hsl(243, 11%, 74%)',
-          '--text-muted': 'hsl(243, 9%, 58%)', '--text-faint': 'hsl(243, 9%, 45%)',
-          '--img-bg': 'hsl(245, 12%, 12%)', '--img-bg-hover': 'hsl(245, 12%, 16%)',
-          '--btn-secondary-bg': 'hsl(245, 12%, 20%)', '--btn-secondary-bg-hover': 'hsl(245, 12%, 25%)',
-          '--accent-color': '#a5b4fc', '--accent-fill': '#4f46e5'
+          '--bg-main': 'oklch(0.2011 0.015 277)', '--bg-surface': 'oklch(0.2348 0.018 277)',
+          '--bg-card': 'oklch(0.2646 0.022 277)', '--bg-card-hover': 'oklch(0.3057 0.028 277)',
+          '--bg-input': 'oklch(0.2223 0.02 277)', '--border-color': 'oklch(0.3167 0.025 277)',
+          '--text-primary': 'oklch(0.9459 0.0029 277)', '--text-secondary': 'oklch(0.7923 0.0087 277)',
+          '--text-muted': 'oklch(0.6597 0.0109 277)', '--text-faint': 'oklch(0.5475 0.0119 277)',
+          '--img-bg': 'oklch(0.2348 0.018 277)', '--img-bg-hover': 'oklch(0.277 0.022 277)',
+          '--btn-secondary-bg': 'oklch(0.3167 0.025 277)', '--btn-secondary-bg-hover': 'oklch(0.3648 0.03 277)',
+          '--accent-color': 'oklch(0.7853 0.1041 277)', '--accent-fill': 'oklch(0.5106 0.2301 277)'
         },
         light: {
-          '--bg-main': 'hsl(245, 40%, 99%)', '--bg-surface': 'hsl(245, 30%, 96%)',
-          '--bg-card': 'hsl(245, 30%, 96%)', '--bg-card-hover': 'hsl(245, 26%, 91%)',
-          '--bg-input': '#ffffff', '--border-color': 'hsl(245, 20%, 84%)',
+          '--bg-main': 'oklch(0.9911 0.008 277)', '--bg-surface': 'oklch(0.9702 0.015 277)',
+          '--bg-card': 'oklch(0.9702 0.015 277)', '--bg-card-hover': 'oklch(0.931 0.02 277)',
+          '--bg-input': 'oklch(1 0.005 277)', '--border-color': 'oklch(0.8761 0.02 277)',
           '--border-accent': 'var(--accent-color)',
-          '--text-primary': 'hsl(245, 25%, 11%)', '--text-secondary': 'hsl(245, 16%, 34%)',
-          '--text-muted': 'hsl(245, 13%, 44%)', '--text-faint': 'hsl(245, 11%, 57%)',
-          '--img-bg': 'hsl(245, 30%, 96.5%)', '--img-bg-hover': 'hsl(245, 30%, 93%)',
-          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(245, 30%, 95%)',
-          '--accent-color': '#4338ca', '--accent-fill': '#4f46e5'
+          '--text-primary': 'oklch(0.2264 0 277)', '--text-secondary': 'oklch(0.4568 0 277)',
+          '--text-muted': 'oklch(0.5452 0 277)', '--text-faint': 'oklch(0.6567 0 277)',
+          '--img-bg': 'oklch(0.9731 0.012 277)', '--img-bg-hover': 'oklch(0.9461 0.018 277)',
+          '--btn-secondary-bg': 'oklch(1 0.005 277)', '--btn-secondary-bg-hover': 'oklch(0.9612 0.015 277)',
+          '--accent-color': 'oklch(0.4568 0.2146 277)', '--accent-fill': 'oklch(0.5106 0.2301 277)'
         }
       },
       moss: {
         name: 'Moss', swatch: '#15803d',
         dark: {
-          '--bg-main': 'hsl(150, 8%, 9%)', '--bg-surface': 'hsl(150, 8%, 12%)',
-          '--bg-card': 'hsl(150, 8%, 15%)', '--bg-card-hover': 'hsl(150, 8%, 19%)',
-          '--bg-input': 'hsl(150, 9%, 11%)', '--border-color': 'hsl(150, 8%, 20%)',
-          '--text-primary': 'hsl(148, 10%, 93%)', '--text-secondary': 'hsl(148, 8%, 74%)',
-          '--text-muted': 'hsl(148, 7%, 58%)', '--text-faint': 'hsl(148, 7%, 45%)',
-          '--img-bg': 'hsl(150, 8%, 12%)', '--img-bg-hover': 'hsl(150, 8%, 16%)',
-          '--btn-secondary-bg': 'hsl(150, 8%, 20%)', '--btn-secondary-bg-hover': 'hsl(150, 8%, 25%)',
-          '--accent-color': '#86efac', '--accent-fill': '#15803d'
+          '--bg-main': 'oklch(0.2011 0.015 150.1)', '--bg-surface': 'oklch(0.2348 0.018 150.1)',
+          '--bg-card': 'oklch(0.2646 0.022 150.1)', '--bg-card-hover': 'oklch(0.3057 0.028 150.1)',
+          '--bg-input': 'oklch(0.2223 0.02 150.1)', '--border-color': 'oklch(0.3167 0.025 150.1)',
+          '--text-primary': 'oklch(0.9459 0.0029 150.1)', '--text-secondary': 'oklch(0.7923 0.0087 150.1)',
+          '--text-muted': 'oklch(0.6597 0.0109 150.1)', '--text-faint': 'oklch(0.5475 0.0119 150.1)',
+          '--img-bg': 'oklch(0.2348 0.018 150.1)', '--img-bg-hover': 'oklch(0.277 0.022 150.1)',
+          '--btn-secondary-bg': 'oklch(0.3167 0.025 150.1)', '--btn-secondary-bg-hover': 'oklch(0.3648 0.03 150.1)',
+          '--accent-color': 'oklch(0.8712 0.1363 154.5)', '--accent-fill': 'oklch(0.5273 0.1371 150.1)'
         },
         light: {
-          '--bg-main': 'hsl(150, 30%, 99%)', '--bg-surface': 'hsl(150, 22%, 96%)',
-          '--bg-card': 'hsl(150, 22%, 96%)', '--bg-card-hover': 'hsl(150, 20%, 91%)',
-          '--bg-input': '#ffffff', '--border-color': 'hsl(150, 15%, 84%)',
+          '--bg-main': 'oklch(0.9911 0.008 150.1)', '--bg-surface': 'oklch(0.9702 0.015 150.1)',
+          '--bg-card': 'oklch(0.9702 0.015 150.1)', '--bg-card-hover': 'oklch(0.931 0.02 150.1)',
+          '--bg-input': 'oklch(1 0.005 150.1)', '--border-color': 'oklch(0.8761 0.02 150.1)',
           '--border-accent': 'var(--accent-color)',
-          '--text-primary': 'hsl(150, 25%, 11%)', '--text-secondary': 'hsl(150, 16%, 34%)',
-          '--text-muted': 'hsl(150, 6%, 42%)', '--text-faint': 'hsl(150, 11%, 57%)',
-          '--img-bg': 'hsl(150, 22%, 96.5%)', '--img-bg-hover': 'hsl(150, 22%, 93%)',
-          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(150, 22%, 95%)',
-          '--accent-color': '#166534', '--accent-fill': '#15803d'
+          '--text-primary': 'oklch(0.2264 0 150.1)', '--text-secondary': 'oklch(0.4568 0 150.1)',
+          '--text-muted': 'oklch(0.5452 0 150.1)', '--text-faint': 'oklch(0.6567 0 150.1)',
+          '--img-bg': 'oklch(0.9731 0.012 150.1)', '--img-bg-hover': 'oklch(0.9461 0.018 150.1)',
+          '--btn-secondary-bg': 'oklch(1 0.005 150.1)', '--btn-secondary-bg-hover': 'oklch(0.9612 0.015 150.1)',
+          '--accent-color': 'oklch(0.4479 0.1083 151.3)', '--accent-fill': 'oklch(0.5273 0.1371 150.1)'
         }
       },
       clay: {
         name: 'Clay', swatch: '#c2410c',
         dark: {
-          '--bg-main': 'hsl(22, 10%, 9%)', '--bg-surface': 'hsl(22, 10%, 12%)',
-          '--bg-card': 'hsl(22, 10%, 15%)', '--bg-card-hover': 'hsl(22, 10%, 19%)',
-          '--bg-input': 'hsl(22, 11%, 11%)', '--border-color': 'hsl(22, 10%, 20%)',
-          '--text-primary': 'hsl(20, 12%, 93%)', '--text-secondary': 'hsl(20, 9%, 74%)',
-          '--text-muted': 'hsl(20, 8%, 58%)', '--text-faint': 'hsl(20, 8%, 45%)',
-          '--img-bg': 'hsl(22, 10%, 12%)', '--img-bg-hover': 'hsl(22, 10%, 16%)',
-          '--btn-secondary-bg': 'hsl(22, 10%, 20%)', '--btn-secondary-bg-hover': 'hsl(22, 10%, 25%)',
-          '--accent-color': '#fdba74', '--accent-fill': '#c2410c'
+          '--bg-main': 'oklch(0.2011 0.015 38.4)', '--bg-surface': 'oklch(0.2348 0.018 38.4)',
+          '--bg-card': 'oklch(0.2646 0.022 38.4)', '--bg-card-hover': 'oklch(0.3057 0.028 38.4)',
+          '--bg-input': 'oklch(0.2223 0.02 38.4)', '--border-color': 'oklch(0.3167 0.025 38.4)',
+          '--text-primary': 'oklch(0.9459 0.0029 38.4)', '--text-secondary': 'oklch(0.7923 0.0087 38.4)',
+          '--text-muted': 'oklch(0.6597 0.0109 38.4)', '--text-faint': 'oklch(0.5475 0.0119 38.4)',
+          '--img-bg': 'oklch(0.2348 0.018 38.4)', '--img-bg-hover': 'oklch(0.277 0.022 38.4)',
+          '--btn-secondary-bg': 'oklch(0.3167 0.025 38.4)', '--btn-secondary-bg-hover': 'oklch(0.3648 0.03 38.4)',
+          '--accent-color': 'oklch(0.8366 0.1165 66.3)', '--accent-fill': 'oklch(0.5534 0.1739 38.4)'
         },
         light: {
-          '--bg-main': 'hsl(22, 40%, 99%)', '--bg-surface': 'hsl(22, 30%, 96%)',
-          '--bg-card': 'hsl(22, 30%, 96%)', '--bg-card-hover': 'hsl(22, 26%, 91%)',
-          '--bg-input': '#ffffff', '--border-color': 'hsl(22, 20%, 84%)',
+          '--bg-main': 'oklch(0.9911 0.008 38.4)', '--bg-surface': 'oklch(0.9702 0.015 38.4)',
+          '--bg-card': 'oklch(0.9702 0.015 38.4)', '--bg-card-hover': 'oklch(0.931 0.02 38.4)',
+          '--bg-input': 'oklch(1 0.005 38.4)', '--border-color': 'oklch(0.8761 0.02 38.4)',
           '--border-accent': 'var(--accent-color)',
-          '--text-primary': 'hsl(22, 25%, 11%)', '--text-secondary': 'hsl(22, 16%, 34%)',
-          '--text-muted': 'hsl(22, 13%, 44%)', '--text-faint': 'hsl(22, 11%, 57%)',
-          '--img-bg': 'hsl(22, 30%, 96.5%)', '--img-bg-hover': 'hsl(22, 30%, 93%)',
-          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(22, 30%, 95%)',
-          '--accent-color': '#9a3412', '--accent-fill': '#c2410c'
+          '--text-primary': 'oklch(0.2264 0 38.4)', '--text-secondary': 'oklch(0.4568 0 38.4)',
+          '--text-muted': 'oklch(0.5452 0 38.4)', '--text-faint': 'oklch(0.6567 0 38.4)',
+          '--img-bg': 'oklch(0.9731 0.012 38.4)', '--img-bg-hover': 'oklch(0.9461 0.018 38.4)',
+          '--btn-secondary-bg': 'oklch(1 0.005 38.4)', '--btn-secondary-bg-hover': 'oklch(0.9612 0.015 38.4)',
+          '--accent-color': 'oklch(0.4698 0.143 37.3)', '--accent-fill': 'oklch(0.5534 0.1739 38.4)'
         }
       },
       ocean: {
         name: 'Ocean', swatch: '#0369a1',
         dark: {
-          '--bg-main': 'hsl(210, 12%, 9%)', '--bg-surface': 'hsl(210, 12%, 12%)',
-          '--bg-card': 'hsl(210, 12%, 15%)', '--bg-card-hover': 'hsl(210, 12%, 19%)',
-          '--bg-input': 'hsl(210, 13%, 11%)', '--border-color': 'hsl(210, 12%, 20%)',
-          '--text-primary': 'hsl(205, 14%, 93%)', '--text-secondary': 'hsl(205, 11%, 74%)',
-          '--text-muted': 'hsl(205, 9%, 58%)', '--text-faint': 'hsl(205, 9%, 45%)',
-          '--img-bg': 'hsl(210, 12%, 12%)', '--img-bg-hover': 'hsl(210, 12%, 16%)',
-          '--btn-secondary-bg': 'hsl(210, 12%, 20%)', '--btn-secondary-bg-hover': 'hsl(210, 12%, 25%)',
-          '--accent-color': '#7dd3fc', '--accent-fill': '#0369a1'
+          '--bg-main': 'oklch(0.2011 0.015 242.7)', '--bg-surface': 'oklch(0.2348 0.018 242.7)',
+          '--bg-card': 'oklch(0.2646 0.022 242.7)', '--bg-card-hover': 'oklch(0.3057 0.028 242.7)',
+          '--bg-input': 'oklch(0.2223 0.02 242.7)', '--border-color': 'oklch(0.3167 0.025 242.7)',
+          '--text-primary': 'oklch(0.9459 0.0029 242.7)', '--text-secondary': 'oklch(0.7923 0.0087 242.7)',
+          '--text-muted': 'oklch(0.6597 0.0109 242.7)', '--text-faint': 'oklch(0.5475 0.0119 242.7)',
+          '--img-bg': 'oklch(0.2348 0.018 242.7)', '--img-bg-hover': 'oklch(0.277 0.022 242.7)',
+          '--btn-secondary-bg': 'oklch(0.3167 0.025 242.7)', '--btn-secondary-bg-hover': 'oklch(0.3648 0.03 242.7)',
+          '--accent-color': 'oklch(0.8276 0.1013 230.3)', '--accent-fill': 'oklch(0.5 0.1193 242.7)'
         },
         light: {
-          '--bg-main': 'hsl(210, 40%, 99%)', '--bg-surface': 'hsl(210, 30%, 96%)',
-          '--bg-card': 'hsl(210, 30%, 96%)', '--bg-card-hover': 'hsl(210, 26%, 91%)',
-          '--bg-input': '#ffffff', '--border-color': 'hsl(210, 20%, 84%)',
+          '--bg-main': 'oklch(0.9911 0.008 242.7)', '--bg-surface': 'oklch(0.9702 0.015 242.7)',
+          '--bg-card': 'oklch(0.9702 0.015 242.7)', '--bg-card-hover': 'oklch(0.931 0.02 242.7)',
+          '--bg-input': 'oklch(1 0.005 242.7)', '--border-color': 'oklch(0.8761 0.02 242.7)',
           '--border-accent': 'var(--accent-color)',
-          '--text-primary': 'hsl(210, 25%, 11%)', '--text-secondary': 'hsl(210, 16%, 34%)',
-          '--text-muted': 'hsl(210, 13%, 44%)', '--text-faint': 'hsl(210, 11%, 57%)',
-          '--img-bg': 'hsl(210, 30%, 96.5%)', '--img-bg-hover': 'hsl(210, 30%, 93%)',
-          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(210, 30%, 95%)',
-          '--accent-color': '#075985', '--accent-fill': '#0369a1'
+          '--text-primary': 'oklch(0.2264 0 242.7)', '--text-secondary': 'oklch(0.4568 0 242.7)',
+          '--text-muted': 'oklch(0.5452 0 242.7)', '--text-faint': 'oklch(0.6567 0 242.7)',
+          '--img-bg': 'oklch(0.9731 0.012 242.7)', '--img-bg-hover': 'oklch(0.9461 0.018 242.7)',
+          '--btn-secondary-bg': 'oklch(1 0.005 242.7)', '--btn-secondary-bg-hover': 'oklch(0.9612 0.015 242.7)',
+          '--accent-color': 'oklch(0.4434 0.1 240.8)', '--accent-fill': 'oklch(0.5 0.1193 242.7)'
         }
       },
       plum: {
         name: 'Plum', swatch: '#a21caf',
         dark: {
-          '--bg-main': 'hsl(300, 8%, 9%)', '--bg-surface': 'hsl(300, 8%, 12%)',
-          '--bg-card': 'hsl(300, 8%, 15%)', '--bg-card-hover': 'hsl(300, 8%, 19%)',
-          '--bg-input': 'hsl(300, 9%, 11%)', '--border-color': 'hsl(300, 8%, 20%)',
-          '--text-primary': 'hsl(298, 10%, 93%)', '--text-secondary': 'hsl(298, 8%, 74%)',
-          '--text-muted': 'hsl(298, 7%, 58%)', '--text-faint': 'hsl(298, 7%, 45%)',
-          '--img-bg': 'hsl(300, 8%, 12%)', '--img-bg-hover': 'hsl(300, 8%, 16%)',
-          '--btn-secondary-bg': 'hsl(300, 8%, 20%)', '--btn-secondary-bg-hover': 'hsl(300, 8%, 25%)',
-          '--accent-color': '#f0abfc', '--accent-fill': '#a21caf'
+          '--bg-main': 'oklch(0.2011 0.015 323.9)', '--bg-surface': 'oklch(0.2348 0.018 323.9)',
+          '--bg-card': 'oklch(0.2646 0.022 323.9)', '--bg-card-hover': 'oklch(0.3057 0.028 323.9)',
+          '--bg-input': 'oklch(0.2223 0.02 323.9)', '--border-color': 'oklch(0.3167 0.025 323.9)',
+          '--text-primary': 'oklch(0.9459 0.0029 323.9)', '--text-secondary': 'oklch(0.7923 0.0087 323.9)',
+          '--text-muted': 'oklch(0.6597 0.0109 323.9)', '--text-faint': 'oklch(0.5475 0.0119 323.9)',
+          '--img-bg': 'oklch(0.2348 0.018 323.9)', '--img-bg-hover': 'oklch(0.277 0.022 323.9)',
+          '--btn-secondary-bg': 'oklch(0.3167 0.025 323.9)', '--btn-secondary-bg-hover': 'oklch(0.3648 0.03 323.9)',
+          '--accent-color': 'oklch(0.833 0.1322 321.4)', '--accent-fill': 'oklch(0.518 0.2258 323.9)'
         },
         light: {
-          '--bg-main': 'hsl(300, 30%, 99%)', '--bg-surface': 'hsl(300, 22%, 96%)',
-          '--bg-card': 'hsl(300, 22%, 96%)', '--bg-card-hover': 'hsl(300, 20%, 91%)',
-          '--bg-input': '#ffffff', '--border-color': 'hsl(300, 15%, 84%)',
+          '--bg-main': 'oklch(0.9911 0.008 323.9)', '--bg-surface': 'oklch(0.9702 0.015 323.9)',
+          '--bg-card': 'oklch(0.9702 0.015 323.9)', '--bg-card-hover': 'oklch(0.931 0.02 323.9)',
+          '--bg-input': 'oklch(1 0.005 323.9)', '--border-color': 'oklch(0.8761 0.02 323.9)',
           '--border-accent': 'var(--accent-color)',
-          '--text-primary': 'hsl(300, 20%, 11%)', '--text-secondary': 'hsl(300, 14%, 34%)',
-          '--text-muted': 'hsl(300, 11%, 44%)', '--text-faint': 'hsl(300, 9%, 57%)',
-          '--img-bg': 'hsl(300, 22%, 96.5%)', '--img-bg-hover': 'hsl(300, 22%, 93%)',
-          '--btn-secondary-bg': '#ffffff', '--btn-secondary-bg-hover': 'hsl(300, 22%, 95%)',
-          '--accent-color': '#86198f', '--accent-fill': '#a21caf'
+          '--text-primary': 'oklch(0.2264 0 323.9)', '--text-secondary': 'oklch(0.4568 0 323.9)',
+          '--text-muted': 'oklch(0.5452 0 323.9)', '--text-faint': 'oklch(0.6567 0 323.9)',
+          '--img-bg': 'oklch(0.9731 0.012 323.9)', '--img-bg-hover': 'oklch(0.9461 0.018 323.9)',
+          '--btn-secondary-bg': 'oklch(1 0.005 323.9)', '--btn-secondary-bg-hover': 'oklch(0.9612 0.015 323.9)',
+          '--accent-color': 'oklch(0.4519 0.1922 324.6)', '--accent-fill': 'oklch(0.518 0.2258 323.9)'
         }
       }
     };
