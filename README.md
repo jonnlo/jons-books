@@ -11,18 +11,52 @@ This started as a personal project to track and browse my reading — 223 books 
 ### Features
 
 - **Two views:** a visual **Grid** of cover cards and a **Volumes** ("roadmap") view that groups books into reading volumes and stages.
+
+  <p>
+    <img src="https://github.com/user-attachments/assets/fb8323c0-433c-4fec-8ffd-58bf9ce6eb40" alt="Main — Grid view" width="600" style="max-width:100%;" /><br />
+    <sub><em>Grid view — cover cards with search, filters, and sorting</em></sub>
+  </p>
+  <p>
+    <img src="https://github.com/user-attachments/assets/40a62b2d-1bfb-4ca2-9af1-40bdf5ec771a" alt="Volumes view" width="600" style="max-width:100%;" /><br />
+    <sub><em>Volumes view — books grouped into volumes and stages</em></sub>
+  </p>
+
 - **Active Books:** three "reading engine" tracks — Deep Focus, Complementary, Exploration — that pin currently-read books.
 - **Search & filter:** full-text search (title, author, stage, notes, ISBN), plus **volume**, **status**, and multi-select **tag** filters.
 - **Sorting:** reading order (volume → stage → order), Published (newest/oldest, by original publication date with fallback to edition year — handles `65 CE`, `400 BCE`, `1st Century CE`), date added (newest/oldest), title (A–Z) — plus **Random** mode with a **Shuffle** button and a **Surprise Me** pick.
+
+  <p>
+    <video src="https://github.com/user-attachments/assets/790b1f0f-de5d-42bf-89cb-5eb0115791ef" width="600" style="max-width:100%;" autoplay loop muted playsinline controls></video><br />
+    <sub><em>Shuffle mode — randomize the grid with one click</em></sub>
+  </p>
+
 - **Edit / View modes:** flip between maintaining the library and read-only browsing on the same data.
+
+  <p>
+    <img src="https://github.com/user-attachments/assets/ccaf51f1-0691-4836-b745-a27bb45453b5" alt="Edit book modal" width="600" style="max-width:100%;" /><br />
+    <sub><em>Edit book — update details, tags, notes, and cover</em></sub>
+  </p>
+
 - **Site Settings:** configure the site title, default sort, and an **accent color preset** (Ink, Indigo, Moss, Clay, Ocean, Plum) from one modal — each preset re-tints the whole palette while keeping contrast ratios intact. Saved to `site.json` so visitors get your configuration.
 - **Note formatting:** personal notes support light markdown at display time — `**bold**`, `*italic*`, and `[label](https://…)` external links.
 - **Book cross-references:** type `[[Book Title]]` in notes to insert a tappable chip that opens that book's details — great for "read after…" or "pairs with…" annotations.
 - **Deep linking:** every book has a shareable `#book=<id>` URL that opens its details directly; Back/Forward navigate the modal like a page.
 - **Book details modal:** interactive 3D cover (hover tilt + gloss sheen on desktop, touch-drag rotation on mobile), volume/stage, reading order, publisher **summary** (collapsible), formatted notes, tags, and an ISBN link to Goodreads. Clicking the Volume or Stage value jumps straight to that spot in Volumes view.
+
+  <p>
+    <img src="https://github.com/user-attachments/assets/e9a8564e-217e-4712-9ad2-e326f10f7ed1" alt="Book details modal" width="600" style="max-width:100%;" /><br />
+    <sub><em>Book details — 3D cover, summary, notes, and tags</em></sub>
+  </p>
+
 - **Status tracking:** opt-in *To Read / Reading / Completed*, with distinct pill styles — To Read neutral, Reading accent outline, Completed solid accent fill.
 - **Covers:** local JPEGs in `covers/`, uploaded via a click-or-drop zone (drag in a cover image file or even a raw image URL). Each cover is rendered as a 3D book — spine texture is derived live from the cover's left edge, and the book's depth scales with its page count.
 - **Dark / light themes**, with browser-chrome tinting tuned for iOS Safari 26.
+
+  <p>
+    <img src="https://github.com/user-attachments/assets/fd0ae1c7-2f20-4ce8-9235-2e6a1a10a493" alt="Dark mode" width="600" style="max-width:100%;" /><br />
+    <sub><em>Dark mode — same layout, tuned for low light</em></sub>
+  </p>
+
 - **Accessibility:** focus-trapped modals, ARIA labels, keyboard/Escape support, touch drag-to-dismiss on mobile, and `prefers-reduced-motion` support.
 
 ### How it works: one file, two modes
