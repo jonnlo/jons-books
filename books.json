@@ -1,5 +1,31 @@
 [
   {
+    "id": "1788517638530",
+    "title": "Is the River Alive?",
+    "author": "Robert Macfarlane",
+    "volumeNumber": 2,
+    "volumeName": "The Observer",
+    "stageNumber": 1,
+    "stageName": "Learning to See",
+    "readingOrder": 5,
+    "year": "2025",
+    "firstPublished": "",
+    "status": "To Read",
+    "engine": "None",
+    "cover": "covers/1788517638530.jpg",
+    "notes": "An exploration of rivers, ecology, and the ways humans understand the living world. It extends the collection’s interest in attention and perception into ecological thinking, connecting [[The Art of Noticing]] and [[The Poetics of Space]] with broader questions about how we define nature, life, and our place within them.",
+    "summary": "The renowned nature writer and author of the best-selling author of Underland delivers a revelatory book that transforms how we look at the natural world—and life itself.\n\nHailed as “a naturalist who can unfurl a sentence with the breathless ease of a master angler” (Holly Morris, New York Times), Robert Macfarlane brings his glittering style to a profound work of travel writing, reporting, and natural history. Is a River Alive? is a joyous exploration into an ancient, urgent idea: that rivers are living beings who should be recognized as such in imagination and law. Macfarlane takes readers on three unforgettable journeys teeming with extraordinary people and places: to the miraculous cloud-forests and mountain streams of Ecuador, to the wounded creeks and lagoons of India, and to the spectacular wild rivers of Canada—imperiled by mining, pollution, and dams. Braiding these journeys is the life story of the fragile chalk stream a mile from Macfarlane’s house, which flows through his own years and days. Powered by Macfarlane’s dazzling prose and lit throughout by other voices, Is a River Alive? will open hearts, challenge perspectives, and remind us that our fate flows with that of rivers—and always has.",
+    "isbn": "9780393242133",
+    "pages": 384,
+    "created": "2026-09-04T10:24:00.000Z",
+    "coverColor": "#10a0d0",
+    "tags": [
+      "nature",
+      "essays",
+      "society"
+    ]
+  },
+  {
     "id": "1788004214450",
     "title": "I Who Have Never Known Men",
     "author": "Jacqueline Harpman",
@@ -59,7 +85,7 @@
     "volumeName": "The Observer",
     "stageNumber": 1,
     "stageName": "Learning to See",
-    "readingOrder": 5,
+    "readingOrder": 6,
     "year": "2016",
     "firstPublished": "",
     "status": "",
