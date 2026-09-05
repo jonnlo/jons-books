@@ -2936,6 +2936,14 @@
       top: calc(-1 * env(safe-area-inset-top, 0px));
     }
 
+    /* Keyboard focus ring for the disclosure header (role=button + tabindex in
+       the template). Inset so the ring hugs the full-width header band instead
+       of overpainting the rows above/below it. */
+    .volume-header:focus-visible {
+      outline: 2px solid var(--accent-color);
+      outline-offset: -4px;
+    }
+
     .volume-title-group {
       display: flex;
       align-items: center;
@@ -5216,12 +5224,56 @@
 
     function toggleVolumeCollapse(volNum) {
       const key = `vol-${volNum}`;
-      if (collapsedVolumes.has(key)) {
-        collapsedVolumes.delete(key);
-      } else {
-        collapsedVolumes.add(key);
+      const collapsing = !collapsedVolumes.has(key);
+
+      // Collapsing re-renders the whole roadmap while the scroll offset stays
+      // put — the collapsed volume's content is removed, everything below it
+      // slides up, and the viewport lands MID-WAY inside the next volume. When
+      // this volume's header is pinned at (or has scrolled past) its sticky
+      // point, rest the scroll on the collapsed section instead: the header
+      // keeps its position at the top of the viewport and the next volume
+      // starts right below it. A header still in natural flow (clicked before
+      // it ever pinned) doesn't move when content below it collapses, so no
+      // correction is needed there.
+      let restOnCollapsedHeader = false;
+      if (collapsing) {
+        const header = document.querySelector(
+          `.volume-section[data-vol-num="${volNum}"] .volume-header`
+        );
+        if (header) {
+          // Same stick test syncVolumeHeaderStuck uses: the computed `top` IS
+          // the sticky point (safe-area inset; plus the pinned bar height in
+          // always-bar mode).
+          const stickyTop = parseFloat(getComputedStyle(header).top) || 0;
+          restOnCollapsedHeader = header.getBoundingClientRect().top <= stickyTop + 1;
+        }
       }
+
+      if (collapsing) collapsedVolumes.add(key);
+      else collapsedVolumes.delete(key);
       renderBooks();
+
+      if (restOnCollapsedHeader) {
+        // Land on the collapsed SECTION — never the header (it's sticky; the
+        // section always reports its true position, same contract as
+        // jumpToVolumeStage). scrollIntoView resolves the target atomically at
+        // scroll time against the already-swapped DOM, so it can run
+        // synchronously right after renderBooks — no rAF wait, and no
+        // intermediate frame ever paints the mid-next-volume state. The
+        // section's scroll-margin-top supplies the safe-area / pinned-bar
+        // clearance in every mode.
+        const section = document.querySelector(`.volume-section[data-vol-num="${volNum}"]`);
+        if (section) {
+          // Reset the velocity baseline so the programmatic jump isn't read as
+          // a user flick (which would wrongly reveal the filter bar) — same
+          // reset jumpToVolumeStage performs for its jumps.
+          scrollSamples.length = 0;
+          lastScrollY = window.scrollY;
+          lastScrollDir = 'down';
+          syncStickyBar();
+          section.scrollIntoView({ block: 'start' });
+        }
+      }
     }
 
     function normalizeBook(b) {
@@ -7136,6 +7188,9 @@
               const volNum = volSection.getAttribute('data-vol-num');
               volSection.classList.remove('collapsed-volume');
               collapsedVolumes.delete(`vol-${volNum}`);
+              // This path mutates in place (no renderBooks), so keep the
+              // disclosure state in sync with the expansion.
+              header.setAttribute('aria-expanded', 'true');
               const icon = header.querySelector('.vol-expand-icon');
               if (icon) {
                 icon.setAttribute('data-lucide', 'minus');
@@ -7363,7 +7418,19 @@
 
         html += `
           <section class="volume-section ${isVolCollapsed ? 'collapsed-volume' : ''}" data-vol-num="${volNum}">
-            <h2 class="volume-header" onclick="toggleVolumeCollapse(${volNum})">
+            <!-- Disclosure header: role=button + tabindex + aria-expanded make
+                 the collapse keyboard-operable and announced to AT (the header
+                 was click-only before). aria-label overrides the inner content
+                 (incl. the action buttons) for a clean "Volume N — Name"
+                 announcement. The keydown guard (event.target === this) keeps
+                 Enter/Space on the INNER action buttons from also toggling. -->
+            <h2 class="volume-header"
+                role="button"
+                tabindex="0"
+                aria-expanded="${!isVolCollapsed}"
+                aria-label="Volume ${volNum} — ${escapeHtml(volData.volumeName)}"
+                onclick="toggleVolumeCollapse(${volNum})"
+                onkeydown="if ((event.key === 'Enter' || event.key === ' ') && event.target === this) { event.preventDefault(); toggleVolumeCollapse(${volNum}); }">
               <div class="volume-title-group">
                 <i data-lucide="${isVolCollapsed ? 'plus' : 'minus'}" class="vol-expand-icon"></i>
                 <!-- Sibling spans (NOT nested): when the name wraps, its 2nd
