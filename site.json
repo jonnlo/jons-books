@@ -3,5 +3,6 @@
   "defaultSort": "created-desc",
   "accent": "ink",
   "adaptiveDetail": true,
-  "adaptiveDetailMode": "theme"
+  "adaptiveDetailMode": "theme",
+  "filterBarAlwaysVisible": false
 }

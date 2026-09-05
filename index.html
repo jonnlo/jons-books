@@ -903,6 +903,68 @@
       }
     }
 
+    /* ===== Always-visible filter bar mode (siteSettings.filterBarAlwaysVisible) =====
+       The bar is pinned at the top at EVERY scroll position and the tags are
+       ONE horizontal scrollable row — the bar's height never changes, so
+       pinning is layout-neutral: no flow shim, no reserved space, and the
+       stick decision (a pure rect read) cannot feed back into the layout.
+       JS toggles .is-stuck (shadow only) via syncAlwaysBarStuck; the
+       tuck/reveal/pin machinery is bypassed. Roadmap headers and jump
+       clearances read --filter-bar-h (written by JS). */
+    .filter-bar.is-always {
+      position: sticky;
+      /* Home-Screen installs: pin below the status bar (inset is 0 in the
+         browser → identical to top:0 there). */
+      top: env(safe-area-inset-top, 0px);
+      z-index: 60; /* overlays the roadmap volume header (z 10) while pinned */
+      background: var(--bg-main);
+      /* Belt-and-braces: the height never changes in this mode, but if it
+         ever did, Chrome's scroll anchoring must not "compensate" by
+         scrolling the page (observed as a jump equal to the height delta). */
+      overflow-anchor: none;
+    }
+    
+    @media (min-width: 781px) {
+      /* ≥781px the tags would otherwise wrap (updateTagRowWrap is bypassed
+         in this mode) — force the single scrollable strip so the height
+         stays constant. ≤780px is already single-row by design. */
+      .filter-bar.is-always {
+        padding: 12px 0; /* matches the compact pinned-bar look */
+      }
+      .filter-bar.is-always .tag-filters {
+        flex: 0 0 100%;
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(95% - 22px), transparent 100%);
+      }
+      .filter-bar.is-always .tag-filters::-webkit-scrollbar {
+        display: none;
+      }
+      .filter-bar.is-always .tag-filter-chip {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+      /* Strip fade states — same recipe as the pinned bar's. */
+      .filter-bar.is-always .tag-filters.at-start {
+        -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+        mask-image: linear-gradient(to right, #000 0, #000 calc(95% - 22px), transparent 100%);
+      }
+      .filter-bar.is-always .tag-filters.at-end {
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 100%);
+      }
+      .filter-bar.is-always .tag-filters.at-start.at-end {
+        -webkit-mask-image: none;
+        mask-image: none;
+      }
+    }
+
     .search-input-wrap {
       flex: 2;
       width: clamp(100px, 100%, 160px);
@@ -2806,6 +2868,27 @@
       scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 4px);
     }
 
+    /* Always-visible bar mode: the volume header pins BELOW the pinned bar
+       with an 8px overlap fold (the opaque bar covers the fold — no hairline
+       gap). --filter-bar-h is the bar's visual height, written by JS. */
+    body.filter-always .volume-header {
+      top: calc(env(safe-area-inset-top, 0px) + var(--filter-bar-h, 0px) - 8px);
+    }
+    /* Detail-modal jump clearance must clear the pinned bar too. */
+    body.filter-always .volume-section {
+      scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--filter-bar-h, 0px) + 4px);
+    }
+    body.filter-always .stage-block {
+      scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--filter-bar-h, 0px) + 72px);
+    }
+    @media (max-width: 600px) {
+      /* Mobile volume header is taller (min-height 64px) — same extra
+         clearance the non-always rules use. */
+      body.filter-always .stage-block {
+        scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--filter-bar-h, 0px) + 84px);
+      }
+    }
+
     .volume-header {
       position: sticky;
       /* Pin BELOW the status bar on Home-Screen installs (inset is 0 in the
@@ -2817,7 +2900,7 @@
       padding-top: 12px;
       padding-bottom: 12px;
       margin-bottom: 16px;
-      border-bottom: 1px solid var(--text-secondary);
+      border-bottom: 1px solid var(--text-muted);
       font-size: 1.35rem;
       font-weight: 600;
       color: var(--text-primary);
@@ -3423,7 +3506,7 @@
       .volume-header {
         font-size: 0.95rem;
         gap: 8px;
-        min-height: 64px; /* reserve room for 2-line titles so the sticky offset stays valid */
+        min-height: 56px; /* reserve room for 2-line titles so the sticky offset stays valid */
         isolation: isolate;
         background: transparent;
         border-bottom: 0;
@@ -4482,6 +4565,14 @@
           </select>
         </div>
         <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+          <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Filter bar</h3>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <label for="filter-bar-always-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Always visible</label>
+            <button type="button" role="switch" id="filter-bar-always-toggle" class="ios-switch" aria-checked="false" aria-label="Keep the filter bar always visible"><span class="ios-switch-thumb"></span></button>
+          </div>
+          <p class="form-hint">When on, the filter bar stays pinned at the top at all times. When off, it tucks away while scrolling down and returns when you scroll up.</p>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
           <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Adaptive detail modal</h3>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <label for="adaptive-detail-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Enabled</label>
@@ -4509,11 +4600,11 @@
   <script>
     // LocalStorage Keys
     const STORAGE_KEY = 'personal_library_books_v2';
-    const COLLAPSED_VOLUMES_KEY = 'personal_library_collapsed_volumes';
     const LAST_MODIFIED_KEY = 'personal_library_last_modified';
     const LAST_EXPORTED_KEY = 'personal_library_last_exported';
     const STATUS_CLEANUP_KEY = 'personal_library_status_cleanup_v1';
     const ORDER_CLEANUP_KEY = 'personal_library_order_cleanup_v1';
+    const STAGE_CLEANUP_KEY = 'personal_library_stage_cleanup_v1';
 
     // Site settings (site.json) — owner config for the site title + default
     // sort. Layered at startup: these defaults < fetched site.json < the
@@ -4523,7 +4614,7 @@
     const SITE_FILE = 'site.json';
     const SETTINGS_KEY = 'personal_library_settings_v1';
     const SITE_FILE_HANDLE_KEY = 'siteJsonFileHandle';
-    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink', adaptiveDetail: true, adaptiveDetailMode: 'auto' };
+    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink', adaptiveDetail: true, adaptiveDetailMode: 'auto', filterBarAlwaysVisible: false };
     const VALID_SORTS = ['reading-order', 'year-desc', 'year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'];
     const VALID_ADAPTIVE_MODES = ['auto', 'theme'];
 
@@ -4859,7 +4950,9 @@
 
     // Collapsible States (volumes only — stages are compact rows now, so they
     // aren't collapsible; dragging between rows is easy enough.)
-    let collapsedVolumes = new Set(JSON.parse(localStorage.getItem(COLLAPSED_VOLUMES_KEY) || '[]'));
+    // SESSION-ONLY by design: collapse state lives in memory for the current
+    // page load and resets to all-expanded on every reload. Never persisted.
+    let collapsedVolumes = new Set();
 
     // Default Seed Dataset
     const defaultBooksSeed = [
@@ -5003,6 +5096,50 @@
       return booksArray;
     }
 
+    // Renumber volume numbers 1..n, then every volume's stages 1..n, each
+    // preserving the current relative order (names — volumeName/stageName —
+    // live on the books and are untouched). Both number sets are DERIVED from
+    // the books, so once a volume/stage loses its last book the number is
+    // gone for good and the sequence shows gaps (e.g. 1,2,4,5…). This closes
+    // those gaps. A no-op on already-clean data, hence safe to run unguarded
+    // (e.g. on imports). Volumes are relabelled FIRST — stage grouping is
+    // unaffected (same books per group), so the stage pass runs after.
+    function normalizeAllVolumeStageNumbers(booksArray) {
+      const volNums = Array.from(new Set(booksArray.map(b => b.volumeNumber))).sort((a, b) => a - b);
+      const volMap = new Map(); // oldVolumeNumber → newVolumeNumber
+      volNums.forEach((oldNum, i) => volMap.set(oldNum, i + 1));
+      booksArray.forEach(b => { b.volumeNumber = volMap.get(b.volumeNumber); });
+
+      const vols = new Map();
+      booksArray.forEach(b => {
+        if (!vols.has(b.volumeNumber)) vols.set(b.volumeNumber, new Set());
+        vols.get(b.volumeNumber).add(b.stageNumber);
+      });
+      const remap = new Map(); // volumeNumber → Map(oldStageNum → newStageNum)
+      vols.forEach((stageSet, volNum) => {
+        const sorted = Array.from(stageSet).sort((a, b) => a - b);
+        const map = new Map();
+        sorted.forEach((oldNum, i) => map.set(oldNum, i + 1));
+        remap.set(volNum, map);
+      });
+      booksArray.forEach(b => {
+        const map = remap.get(b.volumeNumber);
+        if (map) b.stageNumber = map.get(b.stageNumber);
+      });
+      return booksArray;
+    }
+
+    // One-time migration: deleting a stage (or dragging its last book out)
+    // left permanent gaps in the stage numbering (volume 5 went 1,2,4,5,6,7);
+    // the same shape applies to deleted volumes. Heal pre-fix localStorage
+    // copies once per browser.
+    function migrateStageNumbers(booksArray) {
+      if (localStorage.getItem(STAGE_CLEANUP_KEY)) return booksArray;
+      normalizeAllVolumeStageNumbers(booksArray);
+      localStorage.setItem(STAGE_CLEANUP_KEY, '1');
+      return booksArray;
+    }
+
     // Backfill coverColor into a localStorage copy from the committed books.json.
     // LocalStorage Operations
     // Prefer existing localStorage. On a fresh start (no usable stored data) we
@@ -5014,7 +5151,7 @@
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const data = migrateReadingOrders(migrateLegacyToRead(parsed.map(normalizeBook)));
+            const data = migrateStageNumbers(migrateReadingOrders(migrateLegacyToRead(parsed.map(normalizeBook))));
             // Persist the cleanup so it survives reloads even without a later save.
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
             return data;
@@ -5034,7 +5171,7 @@
           try {
             const data = await readBooksJsonData();
             if (Array.isArray(data) && data.length > 0) {
-              const seeded = migrateReadingOrders(migrateLegacyToRead(data.map(normalizeBook)));
+              const seeded = migrateStageNumbers(migrateReadingOrders(migrateLegacyToRead(data.map(normalizeBook))));
               localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
               localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
               return seeded;
@@ -5055,7 +5192,7 @@
         if (response.ok) {
           const parsed = await response.json();
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const seeded = migrateReadingOrders(migrateLegacyToRead(parsed.map(normalizeBook)));
+            const seeded = migrateStageNumbers(migrateReadingOrders(migrateLegacyToRead(parsed.map(normalizeBook))));
             localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
             // Matches the committed books.json — no export reminder needed.
             localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -5077,10 +5214,6 @@
       updateExportReminder();
     }
 
-    function saveCollapsedStates() {
-      localStorage.setItem(COLLAPSED_VOLUMES_KEY, JSON.stringify(Array.from(collapsedVolumes)));
-    }
-
     function toggleVolumeCollapse(volNum) {
       const key = `vol-${volNum}`;
       if (collapsedVolumes.has(key)) {
@@ -5088,7 +5221,6 @@
       } else {
         collapsedVolumes.add(key);
       }
-      saveCollapsedStates();
       renderBooks();
     }
 
@@ -5615,6 +5747,79 @@
     const REVEAL_UP_VELOCITY = 0.25; // px/ms upward needed to reveal the bar
     const HIDE_DOWN_VELOCITY = 0.35; // px/ms downward needed to hide it
 
+    // ===== Always-visible filter bar mode (siteSettings.filterBarAlwaysVisible) =====
+    // When enabled, `.is-always` pins the bar at the top at EVERY scroll
+    // position and the tags are ONE horizontal scrollable row — so the bar's
+    // height NEVER changes and pinning is layout-neutral: no flow shim, no
+    // reserved space, and the stick decision (a pure rect read) cannot feed
+    // back into the layout. That kills the flicker loop structurally — the
+    // loop the first attempt fought existed only because the bar's height
+    // changed when it stuck. The tuck/reveal/pin machinery above is bypassed:
+    // applyStickyBarState early-returns and the scroll listener routes here.
+    // Stick detection is rounding-only hysteresis: stick at rectTop ≤ top+0.5,
+    // unstick at > top+2 (the class only adds a shadow — height is constant).
+    let alwaysBarStuck = false;
+
+    // Visual height the content below must clear — volume headers pin below
+    // the bar via --filter-bar-h (with an 8px overlap fold). Constant while
+    // scrolled; re-written on resize/zoom/font changes.
+    function syncAlwaysBarMetrics() {
+      document.documentElement.style.setProperty('--filter-bar-h', `${filterBar.offsetHeight}px`);
+    }
+
+    // The bar's height changes OUTSIDE the stuck flip too — renderBooks
+    // populates the tag strip after applySettings runs (init measures a
+    // chipless bar), webfonts change chip metrics, viewport resizes rewrap.
+    // A ResizeObserver catches every source; without it the header offset
+    // goes stale (observed: 78px pre-render vs 114px post-render).
+    const alwaysBarRO = new ResizeObserver(() => {
+      if (filterBar.classList.contains('is-always')) syncAlwaysBarMetrics();
+    });
+    alwaysBarRO.observe(filterBar);
+    const syncAlwaysBarMetricsIfActive = () => {
+      if (filterBar.classList.contains('is-always')) syncAlwaysBarMetrics();
+    };
+    window.addEventListener('resize', syncAlwaysBarMetricsIfActive);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncAlwaysBarMetricsIfActive);
+
+    function syncAlwaysBarStuck() {
+      // Keep the header offset fresh on every sync — covers viewport resizes
+      // that arrive between renders (idempotent when the value is unchanged).
+      syncAlwaysBarMetrics();
+      const stickyTop = parseFloat(getComputedStyle(filterBar).top) || 0;
+      const rectTop = filterBar.getBoundingClientRect().top;
+      const stuck = alwaysBarStuck ? rectTop <= stickyTop + 2 : rectTop <= stickyTop + 0.5;
+      if (stuck === alwaysBarStuck) return;
+      alwaysBarStuck = stuck;
+      filterBar.classList.toggle('is-stuck', stuck);
+      updateTagFiltersFade();
+    }
+
+    // Mode switch — the ONLY writer of .is-always / body.filter-always.
+    // Called from applySettings (init + settings save).
+    function applyFilterBarMode() {
+      const always = siteSettings.filterBarAlwaysVisible === true;
+      filterBar.classList.toggle('is-always', always);
+      document.body.classList.toggle('filter-always', always);
+      if (always) {
+        // Strip every auto-mode state so the two machines can never fight.
+        filterBar.classList.remove('is-past', 'is-revealed', 'is-pinned', 'is-stuck');
+        filterBar.style.transition = '';
+        filterBarFlowShim.style.height = '0px';
+        barPastTop = false;
+        barLandingLock = false;
+        alwaysBarStuck = false;
+        syncAlwaysBarMetrics();
+        syncAlwaysBarStuck();
+      } else {
+        filterBar.classList.remove('is-stuck');
+        alwaysBarStuck = false;
+        document.documentElement.style.removeProperty('--filter-bar-h');
+        syncStickyBar(); // restore the tuck/reveal/pin state for the current scroll
+      }
+      updateTagFiltersFade();
+    }
+
     // Active tag filter (multi-select, OR).
     let activeTags = new Set();
 
@@ -6065,6 +6270,18 @@
     // wrapped height, compare against a 2-row budget. Re-run on resize (rAF-
     // debounced) and after webfonts load (they change chip widths).
     function updateTagRowWrap() {
+      // Always-visible mode: the tags are a single scrollable row via CSS
+      // (.filter-bar.is-always .tag-filters) — the wrap measurement is
+      // bypassed so the bar's height can never change. Re-write the header
+      // offset here too: this runs at the end of every render, after the
+      // tag strip has been populated (the RO alone misses the post-render
+      // growth in throttled environments).
+      if (filterBar.classList.contains('is-always')) {
+        tagFilters.classList.remove('strip-scroll');
+        syncAlwaysBarMetrics();
+        updateTagFiltersFade();
+        return;
+      }
       if (typeof narrowPanel !== 'undefined' && narrowPanel.matches) return; // ≤780px is always single-row
       if (tagFilters.hidden) { tagFilters.classList.remove('strip-scroll'); return; }
       tagFilters.classList.remove('strip-scroll');
@@ -6204,13 +6421,29 @@
       const target = document.getElementById('book-grid');
       if (!target) return;
       const docTop = target.getBoundingClientRect().top + window.scrollY;
+      const alwaysMode = filterBar.classList.contains('is-always');
 
       if (currentView !== 'grid') {
-        // Volumes: the bar is static (scrolls away) on both breakpoints.
-        const landingY = Math.max(0, Math.round(docTop - 4));
+        // Volumes: auto-mode → the bar is static (scrolls away), land flush.
+        // Always-mode → the bar is pinned above the first volume; clear it.
+        const clearance = alwaysMode ? ((filterBar.offsetHeight || 0) + 4) : 4;
+        const landingY = Math.max(0, Math.round(docTop - clearance));
         if (window.scrollY <= landingY) return;
-        scrollSamples.length = 0;
-        lastScrollY = window.scrollY;
+        if (!alwaysMode) {
+          scrollSamples.length = 0;
+          lastScrollY = window.scrollY;
+        }
+        window.scrollTo(0, landingY);
+        return;
+      }
+
+      if (alwaysMode) {
+        // Always-mode Grid: the bar is pinned at every depth with a CONSTANT
+        // height (no compaction shift), so land the first book just below it —
+        // no coexist dance, no re-measure after a reveal.
+        const landingY = Math.max(0, Math.round(docTop - ((filterBar.offsetHeight || 0) + 8)));
+        if (window.scrollY <= landingY) return; // near/above the landing → no-op
+        syncAlwaysBarStuck();
         window.scrollTo(0, landingY);
         return;
       }
@@ -6265,6 +6498,9 @@
     // MOBILE (≤600px): unchanged — the bar tucks away on scroll-down and
     // re-reveals pinned on scroll-up (.is-past / .is-revealed).
     function applyStickyBarState(forceReveal = false) {
+      // Always-visible mode: syncAlwaysBarStuck owns the bar — the tuck/reveal
+      // machinery below must never touch it (no is-past/is-pinned writes).
+      if (filterBar.classList.contains('is-always')) return;
       if (!mobileView.matches) {
         // Desktop: the compact bar may engage as soon as its OWN top reaches
         // the viewport top (barTopGone), so it can pin while the first book is
@@ -6375,6 +6611,12 @@
     // for sliding it up (the bar must be fully above the viewport). Desktop
     // uses the same below-bar sentinel for its compact-pin logic.
     function syncStickyBar() {
+      // Always-visible mode: re-sync the pinned bar + header stuck states.
+      if (filterBar.classList.contains('is-always')) {
+        syncAlwaysBarStuck();
+        syncVolumeHeaderStuck();
+        return;
+      }
       barPastTop = filterBarGoneSentinel.getBoundingClientRect().bottom <= 0;
       applyStickyBarState();
       syncVolumeHeaderStuck();
@@ -6407,6 +6649,12 @@
 
     window.addEventListener('scroll', () => {
       const y = window.scrollY || 0;
+      // Always-visible mode: the pinned bar's own single state writer owns
+      // the scroll; the velocity/tuck machinery below is bypassed entirely.
+      if (filterBar.classList.contains('is-always')) {
+        syncAlwaysBarStuck();
+        return;
+      }
       const t = performance.now();
       if (y === lastScrollY) return;
       lastScrollDelta = y - lastScrollY;
@@ -6888,7 +7136,6 @@
               const volNum = volSection.getAttribute('data-vol-num');
               volSection.classList.remove('collapsed-volume');
               collapsedVolumes.delete(`vol-${volNum}`);
-              saveCollapsedStates();
               const icon = header.querySelector('.vol-expand-icon');
               if (icon) {
                 icon.setAttribute('data-lucide', 'minus');
@@ -7018,6 +7265,17 @@
                 }
               });
             }
+
+            // Dragging a stage's last book out leaves an empty stage, which
+            // (being derived from books) vanishes and gaps the numbering.
+            // Renumber both affected volumes' stages 1..n in visual order,
+            // then the volume numbers themselves (a cross-volume drag can
+            // empty the source volume entirely). Stage renumbers MUST run
+            // first — they filter by the current volume numbers.
+            renumberVolumeStages(targetVolNum);
+            const sourceVolNum = parseInt(sourceGrid.getAttribute('data-vol-num'));
+            if (sourceVolNum !== targetVolNum) renumberVolumeStages(sourceVolNum);
+            renumberVolumeNumbers();
 
             // renderBooks() rebuilds the whole roadmap DOM, which resets each
             // stage row's horizontal scroll to 0. Remember the scroll offset
@@ -7340,6 +7598,9 @@
         }
       });
 
+      // The swap preserves the visual order but reuses the old (possibly
+      // gapped) numbers — renumber 1..n so the sequence stays contiguous.
+      renumberVolumeNumbers();
       saveBooksToStorage(books);
       renderBooks();
     }
@@ -7365,6 +7626,9 @@
         }
       });
 
+      // The swap preserves the visual order but reuses the old (possibly
+      // gapped) numbers — renumber 1..n so the sequence stays contiguous.
+      renumberVolumeStages(volNum);
       saveBooksToStorage(books);
       renderBooks();
     }
@@ -7450,6 +7714,9 @@
       const volName = volBooks[0].volumeName || `Volume ${volNum}`;
       if (confirm(`Are you sure you want to delete Volume ${volNum}: "${volName}" and all ${volBooks.length} book(s) in it?`)) {
         books = books.filter(b => b.volumeNumber !== volNum);
+        // Volumes are derived from books — removing this one leaves a
+        // numbering gap (1,2,4…). Close it so the sequence stays contiguous.
+        renumberVolumeNumbers();
         saveBooksToStorage(books);
         renderBooks();
       }
@@ -7533,6 +7800,9 @@
       const stageName = stageBooks[0].stageName || `Stage ${stageNum}`;
       if (confirm(`Are you sure you want to delete Stage ${stageNum}: "${stageName}" and all ${stageBooks.length} book(s) in it?`)) {
         books = books.filter(b => !(b.volumeNumber === volNum && b.stageNumber === stageNum));
+        // Stages are derived from books — removing this one leaves a numbering
+        // gap (1,2,4…). Close it so the sequence stays contiguous.
+        renumberVolumeStages(volNum);
         saveBooksToStorage(books);
         renderBooks();
       }
@@ -7823,7 +8093,6 @@
         const volKey = `vol-${volNum}`;
         if (collapsedVolumes.has(volKey)) {
           collapsedVolumes.delete(volKey);
-          saveCollapsedStates();
         }
         renderBooks();
         // Scroll via scrollIntoView — the browser resolves the target position
@@ -8493,6 +8762,38 @@
         .forEach((b, i) => { b.readingOrder = i + 1; });
     }
 
+    // Renumber one volume's STAGE numbers 1..n in the current visual order.
+    // Stage numbers are stored per book and stages are derived from them, so
+    // any mutation that empties a stage (delete, drag its last book out) or
+    // swaps numbers (moveStage) would otherwise leave a permanent gap. Call
+    // after every stage-number mutation; a no-op on contiguous numbering.
+    function renumberVolumeStages(volNum) {
+      const stageNums = Array.from(new Set(
+        books.filter(b => b.volumeNumber === volNum).map(b => b.stageNumber)
+      )).sort((a, b) => a - b);
+      stageNums.forEach((oldNum, i) => {
+        if (oldNum === i + 1) return; // already correct — skip
+        books.forEach(b => {
+          if (b.volumeNumber === volNum && b.stageNumber === oldNum) b.stageNumber = i + 1;
+        });
+      });
+    }
+
+    // Renumber ALL volume numbers 1..n in the current visual order. Volumes
+    // are derived from books just like stages, so deleting one (or dragging
+    // its last book out) would otherwise leave a permanent gap — and
+    // moveVolume() swaps numbers, which can never close one. Ascending
+    // processing is collision-safe (target i+1 ≤ oldNum). No-op when clean.
+    function renumberVolumeNumbers() {
+      const volNums = Array.from(new Set(books.map(b => b.volumeNumber))).sort((a, b) => a - b);
+      volNums.forEach((oldNum, i) => {
+        if (oldNum === i + 1) return; // already correct — skip
+        books.forEach(b => {
+          if (b.volumeNumber === oldNum) b.volumeNumber = i + 1;
+        });
+      });
+    }
+
     // Treat the form's reading-order value as the POSITION the book should
     // hold in its (possibly new) stage. The stage's other books — the moving
     // book is already excluded by the caller — are rebuilt around it: splice
@@ -8614,7 +8915,15 @@
           books.splice(idx, 1);
           placeBookAtOrder(bookData, requestedOrder);
           books.splice(idx, 0, bookData);
-          if (leftStage) renumberStage(previous.volumeNumber, previous.stageNumber);
+          if (leftStage) {
+            renumberStage(previous.volumeNumber, previous.stageNumber);
+            // The stage the book left may now be empty (derived stages vanish)
+            // — close any stage-numbering gap it left behind.
+            renumberVolumeStages(previous.volumeNumber);
+            // Same for the volume itself (a cross-volume move can empty it).
+            // Must run AFTER both calls above — they filter by the old number.
+            renumberVolumeNumbers();
+          }
         }
       } else {
         placeBookAtOrder(bookData, requestedOrder);
@@ -8842,7 +9151,6 @@
       if (confirm("Reset catalog to sample default dataset? (This will override current localStorage)")) {
         books = [...defaultBooksSeed];
         collapsedVolumes.clear();
-        saveCollapsedStates();
         saveBooksToStorage(books);
         // After a reset, the library is back to a fresh known state — no export reminder.
         localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -8973,7 +9281,8 @@
         defaultSort: VALID_SORTS.includes(src.defaultSort) ? src.defaultSort : DEFAULT_SETTINGS.defaultSort,
         accent: VALID_ACCENTS.includes(src.accent) ? src.accent : DEFAULT_SETTINGS.accent,
         adaptiveDetail: typeof src.adaptiveDetail === 'boolean' ? src.adaptiveDetail : DEFAULT_SETTINGS.adaptiveDetail,
-        adaptiveDetailMode: VALID_ADAPTIVE_MODES.includes(m) ? m : DEFAULT_SETTINGS.adaptiveDetailMode
+        adaptiveDetailMode: VALID_ADAPTIVE_MODES.includes(m) ? m : DEFAULT_SETTINGS.adaptiveDetailMode,
+        filterBarAlwaysVisible: typeof src.filterBarAlwaysVisible === 'boolean' ? src.filterBarAlwaysVisible : DEFAULT_SETTINGS.filterBarAlwaysVisible
       };
     }
 
@@ -8996,6 +9305,7 @@
       // it, which would bounce straight back to Volumes.
       if (def !== 'reading-order') lastGridSort = def;
       syncViewFromSort(); // a 'reading-order' default boots into Volumes view
+      applyFilterBarMode(); // always-visible vs tuck/reveal bar mode
     }
 
     // --- Accent preset engine ---
@@ -9136,6 +9446,7 @@
     const closeSettingsModalBtn = document.getElementById('close-settings-modal');
     const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
     const settingsBtn = document.getElementById('settings-btn');
+    const filterBarAlwaysToggle = document.getElementById('filter-bar-always-toggle');
 
     // Build the accent swatch radiogroup once from ACCENT_PRESETS. Real
     // <button>s → natively keyboard-operable (Tab + Enter/Space); role=radio +
@@ -9201,6 +9512,10 @@
       adaptiveToggle.setAttribute('aria-checked', String(!on));
       syncAdaptiveModeUI();
     });
+    if(filterBarAlwaysToggle) filterBarAlwaysToggle.addEventListener('click', () => {
+      const on = filterBarAlwaysToggle.getAttribute('aria-checked') === 'true';
+      filterBarAlwaysToggle.setAttribute('aria-checked', String(!on));
+    });
     if(adaptiveModeWrap) adaptiveModeWrap.addEventListener('change', syncAdaptiveModeHint);
 
     function openSettingsModal() {
@@ -9212,6 +9527,7 @@
           b.setAttribute('aria-checked', String(b.dataset.accent === siteSettings.accent)));
       }
       if(adaptiveToggle) adaptiveToggle.setAttribute('aria-checked', String(!!siteSettings.adaptiveDetail));
+      if(filterBarAlwaysToggle) filterBarAlwaysToggle.setAttribute('aria-checked', String(siteSettings.filterBarAlwaysVisible === true));
       if(adaptiveModeWrap){
         const m = VALID_ADAPTIVE_MODES.includes(siteSettings.adaptiveDetailMode) ? siteSettings.adaptiveDetailMode : DEFAULT_SETTINGS.adaptiveDetailMode;
         adaptiveModeWrap.value = m;
@@ -9256,7 +9572,8 @@
         defaultSort: inputSettingsSort.value,
         accent: selectedAccentFromUI(),
         adaptiveDetail: adaptiveToggle ? adaptiveToggle.getAttribute('aria-checked') === 'true' : DEFAULT_SETTINGS.adaptiveDetail,
-        adaptiveDetailMode: selectedAdaptiveModeFromUI()
+        adaptiveDetailMode: selectedAdaptiveModeFromUI(),
+        filterBarAlwaysVisible: filterBarAlwaysToggle ? filterBarAlwaysToggle.getAttribute('aria-checked') === 'true' : DEFAULT_SETTINGS.filterBarAlwaysVisible
       });
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
       applySettings(s);
@@ -9517,7 +9834,7 @@
       // Normalize reading orders on import too — a stale backup (pre-fix
       // export, old bkup/*.json) may carry gaps or duplicates; the one-time
       // migration flag won't fire again, so imports get the same heal.
-      books = normalizeAllReadingOrders(parsed.map(normalizeBook)); // ids are preserved from the file.
+      books = normalizeAllVolumeStageNumbers(normalizeAllReadingOrders(parsed.map(normalizeBook))); // ids are preserved from the file.
       saveBooksToStorage(books);
       // After importing books.json, the library matches an exported file — no reminder.
       localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
@@ -9818,8 +10135,9 @@
     function applyFirstRunData(data) {
       try {
         if (!Array.isArray(data) || data.length === 0) throw new Error('empty catalog');
-        // A picked file may predate the reading-order fix — normalize on the way in.
-        books = normalizeAllReadingOrders(data.map(normalizeBook));
+        // A picked file may predate the reading-order/volume+stage-number
+        // fixes — normalize all three on the way in.
+        books = normalizeAllVolumeStageNumbers(normalizeAllReadingOrders(data.map(normalizeBook)));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
         localStorage.setItem(LAST_EXPORTED_KEY, new Date().toISOString());
         hideFirstRunBanner();
