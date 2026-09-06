@@ -9487,10 +9487,12 @@
     // 'system' resolves to the OS preference live. The data-theme attribute
     // only ever holds the RESOLVED 'light'/'dark' — CSS and the adaptive
     // modal's "Match theme" mode read it, so it must never be 'system'.
+    function systemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
     function resolvedTheme() {
       const mode = effectiveThemeMode();
-      if (mode !== 'system') return mode;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return mode !== 'system' ? mode : systemTheme();
     }
 
     function applyTheme(theme) {
@@ -9498,12 +9500,23 @@
       // NOTE: no persistence here — the visitor's choice is written by the
       // toggle handler only, so system flips and site.json defaults never
       // overwrite the "follow system" mode.
+      // Simplify a redundant override: when the visitor's explicit light/dark
+      // agrees with what their OS already resolves to, it is visually
+      // identical to following the system — downgrade it to 'system'. That
+      // keeps the toggle a pure flip (every click changes the look; no dead
+      // click when cycling back to the OS theme) and returns the visitor to
+      // follow-system mode. Site defaults (no override) are left untouched.
+      let mode = effectiveThemeMode();
+      const override = localStorage.getItem(THEME_MODE_KEY);
+      if ((override === 'light' || override === 'dark') && theme === systemTheme()) {
+        localStorage.setItem(THEME_MODE_KEY, 'system');
+        mode = 'system';
+      }
       // Anti-flash paint hint for the NEXT boot: remember the resolved theme
       // ONLY when this paint was forced (visitor override or site default).
       // In system mode the hint is removed — the live matchMedia read at boot
       // is always fresher than a remembered value, so there is nothing to
       // hint about.
-      const mode = effectiveThemeMode();
       if (mode === 'light' || mode === 'dark') localStorage.setItem(THEME_HINT_KEY, theme);
       else localStorage.removeItem(THEME_HINT_KEY);
       // Keep the Android status-bar color in sync with the current theme.
@@ -9519,31 +9532,33 @@
       // reads the resolved --img-bg-hover token, which changes with theme and
       // accent preset), so refresh it live without a full re-render.
       refreshCardHoverTint();
-      // The icon shows the CURRENT mode (sun-moon = following the system,
-      // sun = light, moon = dark); the title/aria-label spell out what a
-      // click does. Re-query the icon each time: lucide.createIcons()
-      // replaces the <i> with an <svg>, so a cached reference would silently
-      // stop updating.
-      const themeIcon = document.getElementById('theme-icon');
-      if (themeIcon) themeIcon.setAttribute('data-lucide', mode === 'system' ? 'sun-moon' : (theme === 'light' ? 'sun' : 'moon'));
+      // The icon previews the state a click will SWITCH TO (sun = light,
+      // moon = dark, eclipse = back to system) — the same glyph the
+      // destination state would show, so the button always advertises its
+      // own action; the title/aria-label spell it out too. Re-query the icon
+      // each time: lucide.createIcons() replaces the <i> with an <svg>, so a
+      // cached reference would silently stop updating.
       const stateLabel = mode === 'system' ? 'System' : (mode === 'light' ? 'Light' : 'Dark');
       const nextLabel = mode === 'system' ? (theme === 'dark' ? 'Light' : 'Dark')
                       : mode === 'light' ? 'Dark' : 'System';
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) themeIcon.setAttribute('data-lucide', nextLabel === 'Light' ? 'sun' : nextLabel === 'Dark' ? 'moon' : 'eclipse');
       const label = 'Theme: ' + stateLabel + ' — click for ' + nextLabel;
       themeToggleBtn.title = label;
       themeToggleBtn.setAttribute('aria-label', label);
       if (window.lucide) lucide.createIcons();
     }
 
-    // Cycle the visitor override: system → (opposite of what's on screen) →
-    // the other explicit theme → back to system. Jumping from system to the
-    // opposite of the RESOLVED theme guarantees every click changes the look.
+    // The toggle is a pure VISUAL flip (light ↔ dark) — every click changes
+    // the look, in every OS state. applyTheme downgrades an override that
+    // agrees with the OS back to 'system', so flipping back to your OS theme
+    // silently returns you to follow-system mode (the eclipse icon marks the
+    // pinned-away-from-OS state; there is no dead click anywhere in the
+    // cycle).
     themeToggleBtn.addEventListener('click', () => {
-      const mode = effectiveThemeMode();
-      const next = mode === 'system' ? (resolvedTheme() === 'dark' ? 'light' : 'dark')
-                 : mode === 'light' ? 'dark' : 'system';
+      const next = resolvedTheme() === 'dark' ? 'light' : 'dark';
       localStorage.setItem(THEME_MODE_KEY, next);
-      applyTheme(resolvedTheme());
+      applyTheme(next);
     });
 
     // Follow the OS live: while the mode is 'system', a dark-mode flip in the
