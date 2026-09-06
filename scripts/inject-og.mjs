@@ -17,6 +17,11 @@
 //                                                 (content hash cache-bust)
 //   - og:image:alt / twitter:image:alt          <- "A grid of book covers from <title>"
 //   - og:url / <link rel=canonical>             <- <base-url>/
+//   - window.__BAKED_THEME + <html data-theme>  <- site.json theme, ONLY when
+//                                                 forced light/dark ('system'
+//                                                 or missing bakes null — the
+//                                                 page resolves the OS
+//                                                 preference live at boot)
 //
 // Usage (in deploy.yml, after staging _site/):
 //   node scripts/inject-og.mjs --dir _site --base-url "${{ steps.pages.outputs.base_url }}"
@@ -128,6 +133,31 @@ span = span.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${esc(pageUrl)}
 
 html = html.replace(SPAN_RE, `<!-- og:sync:start -->${span}<!-- og:sync:end -->`);
 
+// Color theme (site.json "theme"): bake a forced light/dark into the staged
+// HTML so the first paint is already correct — no flash for visitors whose OS
+// preference differs. 'system' (or a missing/invalid key) bakes null: the
+// page's own boot script resolves the OS preference live.
+const rawTheme = haveSettings && typeof settings.theme === 'string' ? settings.theme.trim() : '';
+const bakedTheme = (rawTheme === 'light' || rawTheme === 'dark') ? rawTheme : null;
+const THEME_SPAN_RE = /<!-- theme:sync:start -->([\s\S]*?)<!-- theme:sync:end -->/;
+const themeSpanMatch = html.match(THEME_SPAN_RE);
+if (themeSpanMatch) {
+  const themeAssignRe = /window\.__BAKED_THEME\s*=\s*(?:"(?:light|dark)"|null)\s*;/;
+  if (!themeAssignRe.test(themeSpanMatch[1])) {
+    console.warn('inject-og: theme:sync span found but no __BAKED_THEME assignment — skipped');
+  } else {
+    html = html.replace(THEME_SPAN_RE, (_m, inner) =>
+      `<!-- theme:sync:start -->${inner.replace(themeAssignRe, `window.__BAKED_THEME = ${bakedTheme === null ? 'null' : JSON.stringify(bakedTheme)};`)}<!-- theme:sync:end -->`);
+    // Pre-JS paint: on very slow devices the parser can paint before the
+    // end-of-body boot script runs, so also pin the static <html data-theme>.
+    if (bakedTheme) {
+      html = html.replace(/(<html[^>]*data-theme=")(?:light|dark)(")/, `$1${bakedTheme}$2`);
+    }
+  }
+} else {
+  console.warn('inject-og: theme:sync span not found — skipping theme bake (older index.html?)');
+}
+
 // Atomic write so a failed run never leaves a half-patched page in staging.
 const tmp = htmlPath + '.tmp';
 fs.writeFileSync(tmp, html);
@@ -137,4 +167,5 @@ console.log(`inject-og: title=${title ? JSON.stringify(title) : '(as committed)'
 console.log(`inject-og: description=${ogDescription ? JSON.stringify(ogDescription) : '(default as committed)'}`);
 console.log(`inject-og: image=${imageUrl}`);
 console.log(`inject-og: url=${pageUrl}`);
+console.log(`inject-og: theme=${bakedTheme ? JSON.stringify(bakedTheme) : '(system — null)'}`);
 console.log('inject-og: done');

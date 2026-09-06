@@ -2,6 +2,7 @@
   "title": "jon's books",
   "defaultSort": "created-desc",
   "accent": "ink",
+  "theme": "system",
   "adaptiveDetail": true,
   "adaptiveDetailMode": "theme",
   "filterBarAlwaysVisible": false,
