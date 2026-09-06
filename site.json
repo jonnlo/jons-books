@@ -4,5 +4,6 @@
   "accent": "ink",
   "adaptiveDetail": true,
   "adaptiveDetailMode": "theme",
-  "filterBarAlwaysVisible": false
+  "filterBarAlwaysVisible": false,
+  "ogDescription": "A structural library, organized not as a to-read list, but as a framework for understanding the world and oneself."
 }

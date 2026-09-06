@@ -179,12 +179,24 @@ HARDCOVER_TOKEN=... node scripts/hardcover-summary.mjs --backfill --dry-run  # r
 
 The token is read from the `HARDCOVER_TOKEN` env var or a gitignored `.hardcover-token` file (never committed). Requests are throttled to ~1/second to stay under Hardcover's 60/min limit. Misses are logged to `scripts/hardcover-summary-misses.txt` (gitignored).
 
+## Link preview (social card)
+
+When someone shares the site link (iMessage, WhatsApp, X, Facebook, Slack, Google), the preview comes from the Open Graph meta tags in `index.html` plus a 1200×630 card image, `og-card.jpg`, at the repo root.
+
+- **Default image:** generate the auto card with `node scripts/make-og-card.mjs` (from the repo root) — the 10 most recently added covers in a 5×2 grid at their original aspect ratio (spaced out, uncropped) on the site's light image background. Re-run it whenever the library changes; commit + push to publish.
+- **Custom image:** Settings → **Link preview** → *Replace image…* writes a new `og-card.jpg` straight to the repo root (any image is cropped to exactly 1200×630). Commit + push to publish.
+- **Description:** Settings → **Link preview** → Description overrides the default sentence ("A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs."). It is saved into `site.json` as `ogDescription`; leave it empty to keep the default.
+- **Title:** the preview title is your Settings → **Site Title**.
+
+Link previews are baked in at **deploy time** — crawlers don't run JavaScript, so the deploy workflow runs `scripts/inject-og.mjs` to rewrite the `og:` tags in the staged HTML from your `site.json` and your real site URL. Changes publish on the next deploy, not instantly.
+
 ## Deploy it publicly
 
 The public site is served from GitHub Pages, driven by `.github/workflows/deploy.yml`:
 
-- Stages `_site/` = `index.html` + `books.json` + the `covers/` folder.
+- Stages `_site/` = `index.html` + `books.json` + the `covers/` folder + `site.json` + `og-card.jpg`.
+- Runs `scripts/inject-og.mjs` to write the link-preview meta (title, description, canonical URL, cache-busted card image) into the staged HTML from `site.json` and the deployed Pages URL.
 - Deploys via `actions/deploy-pages`, with `workflow_dispatch` available for manual runs.
-- Triggers on pushes to `main` touching `books.json`, `index.html`, `scripts/**`, `covers/**`, or the workflow file.
+- Triggers on pushes to `main` touching `books.json`, `index.html`, `scripts/**`, `covers/**`, `site.json`, `og-card.jpg`, or the workflow file.
 
 Live: **https://jonnlo.github.io/jons-books/** — the deploy turns this same file into the public, view-only site.

@@ -12,6 +12,32 @@
   <title>jon's books</title>
   <!-- Emoji favicon (inline SVG data URI) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <!-- Open Graph / Twitter card — what a shared link looks like (iMessage,
+       WhatsApp, X, Facebook, Slack, Google). Crawlers do NOT run JavaScript,
+       so these are deploy-time values: scripts/inject-og.mjs rewrites the
+       og:sync span in the staged HTML from site.json (title + optional
+       description), the deployer's real site URL, and a content-hash
+       cache-bust on the image URL. The values below are static fallbacks. -->
+  <!-- og:sync:start -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="jon's books">
+  <meta property="og:title" content="jon's books">
+  <meta property="og:description" content="A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs.">
+  <meta property="og:url" content="https://jonnlo.github.io/jons-books/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://jonnlo.github.io/jons-books/og-card.jpg?v=1">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="A grid of book covers from jon's books">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="jon's books">
+  <meta name="twitter:description" content="A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs.">
+  <meta name="twitter:image" content="https://jonnlo.github.io/jons-books/og-card.jpg?v=1">
+  <meta name="twitter:image:alt" content="A grid of book covers from jon's books">
+  <meta name="description" content="A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs.">
+  <link rel="canonical" href="https://jonnlo.github.io/jons-books/">
+  <!-- og:sync:end -->
   <!-- Inter Font (variable, weights 400-800) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4596,6 +4622,19 @@
             <p class="form-hint" id="adaptive-mode-hint" aria-live="polite"></p>
           </div>
         </div>
+        <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+          <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Link preview</h3>
+          <label for="settings-og-desc-input">Description</label>
+          <input type="text" id="settings-og-desc-input" maxlength="200" placeholder="A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs.">
+          <p class="form-hint">Shown under the title when someone shares your site link (iMessage, WhatsApp, X, Google). Leave empty to use the default. Applies when the site is redeployed — crawlers read the committed HTML, unlike the live title.</p>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+            <img id="settings-og-preview" alt="Current social card" hidden style="width:96px;height:auto;border-radius:8px;border:1px solid var(--border-color);flex:0 0 auto;">
+            <div style="min-width:0;">
+              <button type="button" class="btn-secondary" id="settings-og-pick-btn">Replace image…</button>
+              <p class="form-hint" style="margin-top:6px;">Social image: <code>og-card.jpg</code> at the repo root. Picking a new image writes it straight to disk — commit &amp; push to publish. Regenerate an auto collage with <code>scripts/make-og-card.mjs</code>.</p>
+            </div>
+          </div>
+        </div>
         <p class="form-hint" style="margin-bottom: 4px;">Saving applies immediately and writes <code>site.json</code>.</p>
         <div class="modal-footer">
           <button type="button" class="btn-secondary" id="cancel-settings-btn">Cancel</button>
@@ -4622,7 +4661,7 @@
     const SITE_FILE = 'site.json';
     const SETTINGS_KEY = 'personal_library_settings_v1';
     const SITE_FILE_HANDLE_KEY = 'siteJsonFileHandle';
-    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink', adaptiveDetail: true, adaptiveDetailMode: 'auto', filterBarAlwaysVisible: false };
+    const DEFAULT_SETTINGS = { title: "jon's books", defaultSort: 'year-desc', accent: 'ink', adaptiveDetail: true, adaptiveDetailMode: 'auto', filterBarAlwaysVisible: false, ogDescription: '' };
     const VALID_SORTS = ['reading-order', 'year-desc', 'year-asc', 'created-desc', 'created-asc', 'title-asc', 'random'];
     const VALID_ADAPTIVE_MODES = ['auto', 'theme'];
 
@@ -5573,6 +5612,114 @@
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
       return `covers/${fileName}`;
+    }
+
+    // --- Link-preview social card (og-card.jpg at the repo ROOT) ---
+    // Settings → Link preview overwrites this file directly (the path is
+    // fixed; it is not a site.json key). The default card is generated by
+    // scripts/make-og-card.mjs. Writes go through a persisted directory
+    // handle for the repo root — same IndexedDB kv store as the covers
+    // handle, different key. The deployed og:image URL is cache-busted at
+    // deploy time by scripts/inject-og.mjs from the file's content hash.
+    const OG_CARD_FILE = 'og-card.jpg';
+    const OG_CARD_WIDTH = 1200;
+    const OG_CARD_HEIGHT = 630;
+    const OG_CARD_QUALITY = 0.85;
+    const OG_CARD_DIR_KEY = 'ogCardDirHandle';
+
+    // Cover-CROP (not aspect-preserving) to exactly 1200×630: link platforms
+    // render og:image at this ratio, and fixed dimensions let the deploy-time
+    // injection emit static og:image:width/height.
+    function processOgImage(file) {
+      return new Promise((resolve, reject) => {
+        if (!file || !file.type.startsWith('image/')) {
+          reject(new Error('Please choose an image file.'));
+          return;
+        }
+        const objectUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          // Scale until BOTH dimensions cover the target, then center-crop.
+          const scale = Math.max(OG_CARD_WIDTH / img.naturalWidth, OG_CARD_HEIGHT / img.naturalHeight);
+          const sw = OG_CARD_WIDTH / scale;
+          const sh = OG_CARD_HEIGHT / scale;
+          const sx = (img.naturalWidth - sw) / 2;
+          const sy = (img.naturalHeight - sh) / 2;
+          const canvas = document.createElement('canvas');
+          canvas.width = OG_CARD_WIDTH;
+          canvas.height = OG_CARD_HEIGHT;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, OG_CARD_WIDTH, OG_CARD_HEIGHT);
+          URL.revokeObjectURL(objectUrl);
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not encode the image.')), 'image/jpeg', OG_CARD_QUALITY);
+        };
+        img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Could not read that image.')); };
+        img.src = objectUrl;
+      });
+    }
+
+    async function loadOgCardDirHandle() {
+      try {
+        const db = await openCoverDirDb();
+        return await new Promise((resolve, reject) => {
+          const get = db.transaction(COVER_DIR_STORE, 'readonly').objectStore(COVER_DIR_STORE).get(OG_CARD_DIR_KEY);
+          get.onsuccess = () => { db.close(); resolve(get.result || null); };
+          get.onerror = () => { db.close(); reject(get.error); };
+        });
+      } catch { return null; }
+    }
+
+    async function saveOgCardDirHandle(handle) {
+      try {
+        const db = await openCoverDirDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(COVER_DIR_STORE, 'readwrite');
+          tx.objectStore(COVER_DIR_STORE).put(handle, OG_CARD_DIR_KEY);
+          tx.oncomplete = resolve;
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      } catch { /* best-effort; picker will just appear next time */ }
+    }
+
+    // Hybrid write for og-card.jpg: File System Access API writes straight
+    // into the picked (repo-root) folder on Chrome/Edge; otherwise the file
+    // downloads and the user moves it into the repo root by hand.
+    // Returns 'written' | 'download' | 'cancelled'.
+    async function writeOgCardBlob(blob) {
+      if (window.showDirectoryPicker) {
+        try {
+          // Reuse the root folder chosen last time when its permission is
+          // still granted (same requestPermission pattern as covers).
+          let dirHandle = await loadOgCardDirHandle();
+          if (dirHandle && !(await coversDirPermissionGranted(dirHandle))) {
+            dirHandle = null; // revoked or denied → let the user pick again
+          }
+          if (!dirHandle) {
+            dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            saveOgCardDirHandle(dirHandle); // remember for next time (fire-and-forget)
+          }
+          const fileHandle = await dirHandle.getFileHandle(OG_CARD_FILE, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          return 'written';
+        } catch (err) {
+          if (err && err.name === 'AbortError') return 'cancelled'; // picker dismissed
+          // Any other FS error → fall through to the download path.
+        }
+      }
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = OG_CARD_FILE;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      return 'download';
     }
 
     // DOM Elements
@@ -9349,7 +9496,11 @@
         accent: VALID_ACCENTS.includes(src.accent) ? src.accent : DEFAULT_SETTINGS.accent,
         adaptiveDetail: typeof src.adaptiveDetail === 'boolean' ? src.adaptiveDetail : DEFAULT_SETTINGS.adaptiveDetail,
         adaptiveDetailMode: VALID_ADAPTIVE_MODES.includes(m) ? m : DEFAULT_SETTINGS.adaptiveDetailMode,
-        filterBarAlwaysVisible: typeof src.filterBarAlwaysVisible === 'boolean' ? src.filterBarAlwaysVisible : DEFAULT_SETTINGS.filterBarAlwaysVisible
+        filterBarAlwaysVisible: typeof src.filterBarAlwaysVisible === 'boolean' ? src.filterBarAlwaysVisible : DEFAULT_SETTINGS.filterBarAlwaysVisible,
+        // Deploy-time value: the link-preview description (Settings → Link
+        // preview). Empty = the static default sentence committed in the head
+        // OG block; scripts/inject-og.mjs only rewrites it when non-empty.
+        ogDescription: typeof src.ogDescription === 'string' ? src.ogDescription.trim() : DEFAULT_SETTINGS.ogDescription
       };
     }
 
@@ -9514,6 +9665,9 @@
     const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
     const settingsBtn = document.getElementById('settings-btn');
     const filterBarAlwaysToggle = document.getElementById('filter-bar-always-toggle');
+    const ogDescInput = document.getElementById('settings-og-desc-input');
+    const ogPickBtn = document.getElementById('settings-og-pick-btn');
+    const ogPreview = document.getElementById('settings-og-preview');
 
     // Build the accent swatch radiogroup once from ACCENT_PRESETS. Real
     // <button>s → natively keyboard-operable (Tab + Enter/Space); role=radio +
@@ -9585,6 +9739,45 @@
     });
     if(adaptiveModeWrap) adaptiveModeWrap.addEventListener('change', syncAdaptiveModeHint);
 
+    // Best-effort thumb of the current og-card.jpg (same origin on localhost
+    // and file://; 404/absent → thumb stays hidden). Cache-busted so a just-
+    // written card shows up without a reload.
+    function refreshOgCardPreview() {
+      if (!ogPreview) return;
+      const img = new Image();
+      img.onload = () => { ogPreview.src = img.src; ogPreview.hidden = false; };
+      img.onerror = () => { ogPreview.hidden = true; };
+      img.src = OG_CARD_FILE + '?v=' + Date.now();
+    }
+
+    // The social-image pick is a side-action, not a form field: choosing a
+    // file processes + writes og-card.jpg immediately (feedback via the
+    // export-reminder bar), so Cancel on the modal can't undo a disk write —
+    // same contract as the cover dropzone.
+    if (ogPickBtn) ogPickBtn.addEventListener('click', () => {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.onchange = async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        try {
+          const blob = await processOgImage(file);
+          const result = await writeOgCardBlob(blob);
+          if (result === 'written') {
+            refreshOgCardPreview();
+            showSiteSavedFeedback('Saved og-card.jpg — commit & push to publish it.');
+          } else if (result === 'download') {
+            showSiteNotice('og-card.jpg downloaded — move it into the repo root to publish.');
+          }
+          // 'cancelled' → no write, keep the previous card silently.
+        } catch (err) {
+          showSiteNotice(err && err.message ? err.message : 'Could not process that image.');
+        }
+      };
+      fileInput.click();
+    });
+
     function openSettingsModal() {
       if (viewOnly) return; // editing surface — never in view-only mode
       inputSiteTitle.value = siteSettings.title;
@@ -9599,6 +9792,8 @@
         const m = VALID_ADAPTIVE_MODES.includes(siteSettings.adaptiveDetailMode) ? siteSettings.adaptiveDetailMode : DEFAULT_SETTINGS.adaptiveDetailMode;
         adaptiveModeWrap.value = m;
       }
+      if (ogDescInput) ogDescInput.value = siteSettings.ogDescription || '';
+      refreshOgCardPreview();
       syncAdaptiveModeUI();
       settingsModal.classList.add('active');
     }
@@ -9640,7 +9835,8 @@
         accent: selectedAccentFromUI(),
         adaptiveDetail: adaptiveToggle ? adaptiveToggle.getAttribute('aria-checked') === 'true' : DEFAULT_SETTINGS.adaptiveDetail,
         adaptiveDetailMode: selectedAdaptiveModeFromUI(),
-        filterBarAlwaysVisible: filterBarAlwaysToggle ? filterBarAlwaysToggle.getAttribute('aria-checked') === 'true' : DEFAULT_SETTINGS.filterBarAlwaysVisible
+        filterBarAlwaysVisible: filterBarAlwaysToggle ? filterBarAlwaysToggle.getAttribute('aria-checked') === 'true' : DEFAULT_SETTINGS.filterBarAlwaysVisible,
+        ogDescription: ogDescInput ? ogDescInput.value : ''
       });
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
       applySettings(s);
@@ -9676,7 +9872,7 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    function showSiteSavedFeedback() {
+    function showSiteSavedFeedback(text) {
       const reminder = document.getElementById('export-reminder');
       const messageEl = document.getElementById('export-reminder-message');
       const btn = document.getElementById('export-reminder-btn');
@@ -9685,7 +9881,7 @@
       clearTimeout(siteSavedTimer);
       reminder.classList.add('success', 'visible');
       if (icon) icon.setAttribute('data-lucide', 'circle-check');
-      messageEl.textContent = 'Saved to site.json ✓';
+      messageEl.textContent = text || 'Saved to site.json ✓';
       if (btn) btn.style.display = 'none';
       if (window.lucide) lucide.createIcons();
       siteSavedTimer = setTimeout(() => restoreExportBar('upload'), 2500);
