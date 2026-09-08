@@ -8903,7 +8903,18 @@
       const HOVER_K = 0.001;       // chase stiffness — snappier than the release spring
       const HOVER_ZETA = 0.9;      // chase damping — tracks the cursor without wobbling
       const CLICK_IMPULSE = 0.5;   // deg/ms — click nudge (the clicked side sets direction)
+      // Desktop's own release spring (click bounce + leave-return). A hover UI
+      // doesn't need the mobile flick bounce — one small overshoot reads as
+      // weight without the wobble. Same K keeps the return rhythm identical;
+      // raise ζ toward 1.0 for a dead-calm return, lower it for more bounce.
+      const DESKTOP_SETTLE_K = 0.00005;  // desktop return stiffness (same rhythm as mobile)
+      const DESKTOP_SETTLE_ZETA = 0.7;   // desktop damping — one small overshoot, no ball bounce
+      const DESKTOP_SETTLE_C = 2 * DESKTOP_SETTLE_ZETA * Math.sqrt(DESKTOP_SETTLE_K);
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // Which input branch registered (the two are mutually exclusive). Picks
+      // the release-spring constants in stepSpring: mobile keeps the tuned
+      // ball bounce, desktop returns calmer.
+      const isTouchInput = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
       let angle = 0;       // current spin (deg)
       let vel = 0;         // angular velocity (deg/ms) — release + integrator
@@ -9008,11 +9019,14 @@
           const p = Math.max(0, Math.min(1, (now - fadeStart) / GLOSS_FADE_MS));
           glossEnv = 1 - p * p * (3 - 2 * p);
         }
-        // Chase constants: stiff + near-critically damped while hovering
-        // (cursor tracking), the finalized bouncy release spring otherwise.
+        // Spring constants by regime: hovering (no impulse) = stiff,
+        // near-critically damped cursor chase; otherwise the release spring,
+        // which differs per input branch — mobile keeps the tuned ball
+        // bounce, desktop returns calmer (see DESKTOP_SETTLE_* above).
         const chasing = hovering && !impulseActive;
-        const k = chasing ? HOVER_K : SETTLE_K;
-        const c = chasing ? 2 * HOVER_ZETA * Math.sqrt(HOVER_K) : SETTLE_C;
+        const k = chasing ? HOVER_K : (isTouchInput ? SETTLE_K : DESKTOP_SETTLE_K);
+        const c = chasing ? 2 * HOVER_ZETA * Math.sqrt(HOVER_K)
+                          : (isTouchInput ? SETTLE_C : DESKTOP_SETTLE_C);
         vel -= ((angle - target) * k + vel * c) * dt;
         // Spine-limit clamp: pull-back accel while past ±MAX_SPIN.
         const over = angle - Math.max(-MAX_SPIN, Math.min(MAX_SPIN, angle));
@@ -9068,7 +9082,7 @@
       // same spring absorbs with the bouncy release feel. Registered only on
       // fine-pointer, non-reduced-motion devices, so it can never fire
       // alongside the touch branch below.
-      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduceMotion) {
+      if (!isTouchInput && !reduceMotion) {
         detailCover.addEventListener('pointermove', (e) => {
           hideRotateHint();
           const r = detailCover.getBoundingClientRect();
@@ -9118,7 +9132,7 @@
       // the velocity to the SHARED spin spring above, which carries the
       // book back to face-front with the tuned bounce. Drag-to-dismiss
       // never engages from the cover (see sheetDragOnCover).
-      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      if (isTouchInput) {
 
         detailCover.addEventListener('touchstart', (e) => {
           if (e.touches.length !== 1) return;
@@ -9195,19 +9209,21 @@
           fadeStart = performance.now();
           startIntegrator();
         });
-
-        // Test seam (not used by the app): the integrated test browser never
-        // fires rAF, so integrator math is drivable with fake timestamps —
-        // arm(t0) → setVel(v) → stepSpring(t)… → getState().
-        window.__book3dTest = {
-          arm: (now) => { lastT = now; vel = 0; },
-          setAngle: (a) => setAngle(a),
-          setVel: (v) => { vel = v; },
-          stepSpring: (now) => stepSpring(now),
-          releaseVelocity,
-          getState: () => ({ angle, vel, lean, leanVel, target, hovering, tracking, coasting: rafId !== null })
-        };
       }
+
+      // Test seam (not used by the app): the integrated test browser never
+      // fires rAF, so integrator math is drivable with fake timestamps —
+      // arm(t0) → setVel(v) → stepSpring(t)… → getState(). Shared scope so
+      // BOTH input branches are drivable (background tabs starve rAF on
+      // desktop too).
+      window.__book3dTest = {
+        arm: (now) => { lastT = now; vel = 0; },
+        setAngle: (a) => setAngle(a),
+        setVel: (v) => { vel = v; },
+        stepSpring: (now) => stepSpring(now),
+        releaseVelocity,
+        getState: () => ({ angle, vel, lean, leanVel, target, hovering, tracking, coasting: rafId !== null })
+      };
 
       // Lifecycle hook (shared by both input branches): openReadOnlyModal /
       // closeDetailModal cancel any running integrator AND zero the module
