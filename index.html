@@ -2440,7 +2440,7 @@
       align-self: flex-start;
       overflow: hidden;
       /* 3D book needs a perspective on the container (like .cover-container). */
-      perspective: 700px;
+      perspective: 1000px;
       /* Pin the cover beside the scrolling text once the modal's content grows
          taller than the viewport (e.g. an expanded summary). `align-self:
          flex-start` keeps it a fixed-height flex item, so sticky has room to
@@ -8612,6 +8612,7 @@
             detailModal.classList.remove('demo-run');
           };
           detailCover.addEventListener('pointermove', cancelDemo, { once: true });
+          detailCover.addEventListener('pointerdown', cancelDemo, { once: true });
           detailCover.addEventListener('touchstart', cancelDemo, { once: true, passive: true });
           const book3dEl = detailCover.querySelector('.book3d');
           if (book3dEl) {
@@ -8868,212 +8869,256 @@
         }
       }
 
-      // Desktop detail hover — cursor-following tilt + gloss.
-      // TUNE: MAX_X = max vertical tilt (rotateX, ±MAX_X° at top/bottom edge);
-      //       MAX_Y = max horizontal tilt (rotateY, ±MAX_Y° at left/right edge).
-      // Only on fine pointer + no reduced motion (matches grid's initBook3DTilt).
-      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
-          !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const MAX_X = DETAIL_TILT_MAX_X;
-        const MAX_Y = DETAIL_TILT_MAX_Y;
-        let raf = null;
+      // ===== Spin spring — ONE integrator owns the detail book =====
+      // Shared by the desktop hover branch and the mobile touch branch.
+      // Input handlers never write the tilt directly while a motion is
+      // running; they move the spring's TARGET (cursor position while
+      // hovering, face-front after release) or inject a velocity impulse
+      // (tap/click) and start the integrator. Chasing a target instead of
+      // writing the angle is what lets hover + click coexist without
+      // clashing: a moving cursor and a click nudge both just reshape what
+      // the same spring is chasing. Mobile touch tracking stays zero-lag
+      // (writes the angle directly while the finger is down; the spring
+      // takes over on release).
+      //
+      // TUNE — all spin-physics feel knobs live here.
+      // -- drag + release (mobile; the release spring is shared) --
+      const SPIN_SENS = 0.5;      // deg of spin per px of horizontal drag
+      const MAX_SPIN = 70;         // spine limit (deg) — rubber-bands past this
+      const RUBBER = 0.05;         // drag resistance multiplier past the limit
+      const BOUNDARY_SPRING = 0.005; // SETTLE: spine-limit clamp accel (deg/ms^2) per deg past the limit
+      const SETTLE_K = 0.00005;    // SETTLE: spring stiffness — sets bounce rhythm (π/√K ms per bounce)
+      const SETTLE_ZETA = 0.35;    // SETTLE: damping ratio ζ — THE bounce feel (0.2–0.35 = ball bounce, 0.8 ≈ dead)
+      const SETTLE_C = 2 * SETTLE_ZETA * Math.sqrt(SETTLE_K); // derived from ζ + K — tune ζ above, not this
+      const END_ANGLE = 0.1;       // deg — settle ends below this
+      const END_VEL = 0.005;       // deg/ms — settle ends below this
+      const VEL_CAP = 0.5;         // deg/ms — max release velocity
+      const SAMPLE_MS = 80;        // release-velocity sample window
+      const TAP_DRAG_PX = 19;      // total drag below this = a tap, not a drag
+      const TAP_IMPULSE = 0.6;     // deg/ms — tap nudge, ~15-20deg glide under friction
+      const GLOSS_SWEEP = 33;      // % — how far the highlight travels across the cover
+      const GLOSS_FLOOR = 0.2;     // gloss opacity at the edge-on worst case
+      const GLOSS_FADE_MS = 700;   // ms — eased gloss fade-out after release (smoothstep 1→0)
+      // -- desktop hover/click --
+      const HOVER_K = 0.001;       // chase stiffness — snappier than the release spring
+      const HOVER_ZETA = 0.9;      // chase damping — tracks the cursor without wobbling
+      const CLICK_IMPULSE = 0.5;   // deg/ms — click nudge (the clicked side sets direction)
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        function reset(book3d) {
-          if (!book3d) return;
-          book3d.style.setProperty('--ry', '0deg');
-          book3d.style.setProperty('--rx', '0deg');
-          const g = book3d.querySelector('.book3d__gloss');
-          if (g) g.style.opacity = '0';
+      let angle = 0;       // current spin (deg)
+      let vel = 0;         // angular velocity (deg/ms) — release + integrator
+      let lean = 0;        // vertical lean (deg, --rx) — released on the same spring
+      let leanVel = 0;     // lean velocity (deg/ms)
+      let target = 0;      // spin chase target (cursor while hovering, 0 after release)
+      let leanTarget = 0;  // lean chase target
+      let hovering = false;       // desktop pointer inside → chase the cursor
+      let impulseActive = false;  // click/tap nudge → ride the bouncy release spring
+      let glossEnv = 1;    // gloss fade envelope (1 = full, → 0 during the settle)
+      let fadeStart = -1;  // integrator-clock time the release fade began (-1 = not fading)
+      let lastT = 0;       // last integrator timestamp (ms)
+      let lastX = 0;
+      let totalDrag = 0;   // Σ|dx| this touch — distinguishes a tap from a drag
+      let samples = [];    // {x, t} inside SAMPLE_MS, for release velocity
+      let rafId = null;
+      let tracking = false;
+
+      const book3dEl = () => detailCover.querySelector('.book3d');
+      const glossEl = () => detailCover.querySelector('.book3d__gloss');
+
+      function cancelCoast() {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      }
+
+      // Instant full rest — reduced-motion paths and lifecycle resets.
+      function restAll() {
+        cancelCoast();
+        angle = 0; vel = 0;
+        lean = 0; leanVel = 0;
+        target = 0; leanTarget = 0;
+        hovering = false; impulseActive = false;
+        fadeStart = -1; glossEnv = 1;
+        setAngle(0); setLean(0);
+        const g = glossEl();
+        if (g) { g.style.transition = ''; g.style.opacity = '0'; }
+      }
+
+      // Single writer for spin state: --ry on the book + gloss derived
+      // from the ANGLE, not the pointer — the light stays fixed in world
+      // space, so the highlight sweeps across the cover as the book turns
+      // and dims edge-on.
+      function setAngle(a, gyPct) {
+        angle = a;
+        const b = book3dEl();
+        if (!b) return;
+        b.style.setProperty('--ry', a.toFixed(2) + 'deg');
+        const rad = a * Math.PI / 180;
+        const cos = Math.max(0, Math.cos(rad));
+        const g = glossEl();
+        if (g) {
+          g.style.setProperty('--gx', (50 + Math.sin(rad) * GLOSS_SWEEP).toFixed(1) + '%');
+          if (gyPct != null) g.style.setProperty('--gy', gyPct.toFixed(1) + '%');
+          // glossEnv: release fade envelope (1 while touching/hovering) — see stepSpring
+          g.style.opacity = ((GLOSS_FLOOR + 0.4 * cos) * glossEnv).toFixed(2);
         }
+      }
 
+      // Vertical lean: small and direct while touching (Fitness is
+      // horizontal-dominant) — on release it rides the SAME settle spring
+      // as the spin (see stepSpring), so the whole book relaxes flat as
+      // one movement instead of snapping upright at the end. On desktop
+      // hover, lean CHASES the cursor's height via leanTarget.
+      function setLean(rx, gyPct) {
+        lean = rx;
+        const b = book3dEl();
+        if (!b) return;
+        b.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+        const g = glossEl();
+        if (g && gyPct != null) g.style.setProperty('--gy', gyPct.toFixed(1) + '%');
+      }
+
+      // Start (or ensure) the integrator. Per-frame writes need transitions
+      // off — the base .book3d transition would otherwise chase the spring.
+      function startIntegrator() {
+        if (rafId || reduceMotion) return;
+        lastT = performance.now();
+        const b = book3dEl();
+        if (b) b.style.transition = 'none';
+        const g = glossEl();
+        if (g) g.style.transition = 'none';
+        rafId = requestAnimationFrame(stepSpring);
+      }
+
+      // ONE spring integrator for every motion — hover chase, click
+      // impulse, or a mobile release. Per frame: a damped spring toward the
+      // current target (cursor while hovering, face-front otherwise) with
+      // the spine-limit clamp in the same loop, so nothing can swing past
+      // ±MAX_SPIN (the book has no back face). While purely hovering the
+      // chase uses stiffer, near-critically-damped constants (the cursor
+      // feels tracked, not jelly); a click/tap impulse rides the bouncier
+      // release spring until it comes to rest. stepSpring is separated from
+      // the rAF driver so tests can step it with fake timestamps (the
+      // integrated test browser never fires rAF).
+      function stepSpring(now) {
+        const dt = Math.min(32, Math.max(1, now - lastT));
+        lastT = now;
+        // Gloss fade-out envelope: smoothstep 1→0 over GLOSS_FADE_MS from
+        // release/leave, multiplying the angle-driven brightness — the sheen
+        // sweeps and dies WITH the motion instead of popping off at the end.
+        if (fadeStart >= 0 && GLOSS_FADE_MS > 0) {
+          const p = Math.max(0, Math.min(1, (now - fadeStart) / GLOSS_FADE_MS));
+          glossEnv = 1 - p * p * (3 - 2 * p);
+        }
+        // Chase constants: stiff + near-critically damped while hovering
+        // (cursor tracking), the finalized bouncy release spring otherwise.
+        const chasing = hovering && !impulseActive;
+        const k = chasing ? HOVER_K : SETTLE_K;
+        const c = chasing ? 2 * HOVER_ZETA * Math.sqrt(HOVER_K) : SETTLE_C;
+        vel -= ((angle - target) * k + vel * c) * dt;
+        // Spine-limit clamp: pull-back accel while past ±MAX_SPIN.
+        const over = angle - Math.max(-MAX_SPIN, Math.min(MAX_SPIN, angle));
+        if (over) vel -= over * BOUNDARY_SPRING * dt;
+        setAngle(angle + vel * dt);
+        // Vertical lean rides the SAME spring (same K + ζ) toward its own
+        // target — the whole book relaxes/moves as one.
+        leanVel -= ((lean - leanTarget) * k + leanVel * c) * dt;
+        setLean(lean + leanVel * dt);
+        const settled = Math.abs(angle - target) < END_ANGLE && Math.abs(vel) < END_VEL &&
+                        Math.abs(lean - leanTarget) < END_ANGLE && Math.abs(leanVel) < END_VEL;
+        if (settled && hovering) {
+          // Rest AT the cursor target — stay until the cursor moves again.
+          rafId = null;
+          angle = target; vel = 0;
+          lean = leanTarget; leanVel = 0;
+          impulseActive = false;
+          setAngle(angle);
+          setLean(lean);
+        } else if (settled) {
+          rafId = null;
+          angle = 0; vel = 0;
+          lean = 0; leanVel = 0;
+          impulseActive = false;
+          fadeStart = -1;
+          setAngle(0);
+          setLean(0);
+          // Hand any remaining fade to the CSS transition from the CURRENT
+          // (envelope-dimmed) brightness — mostly a no-op since the JS
+          // envelope usually reaches 0 first. The transition must be
+          // restored here because it is 'none' while the integrator runs.
+          const g = glossEl();
+          if (g) { g.style.transition = ''; g.style.opacity = '0'; }
+          glossEnv = 1; // reset for the next touch/hover (handlers re-assert)
+        } else {
+          rafId = requestAnimationFrame(stepSpring);
+        }
+      }
+
+      // Release velocity from the recent sample window: px/ms → deg/ms.
+      function releaseVelocity() {
+        const now = performance.now();
+        const recent = samples.filter(s => now - s.t <= SAMPLE_MS);
+        if (recent.length < 2) return 0;
+        const first = recent[0], last = recent[recent.length - 1];
+        const vPx = (last.x - first.x) / Math.max(16, last.t - first.t);
+        return Math.max(-VEL_CAP, Math.min(VEL_CAP, vPx * SPIN_SENS));
+      }
+
+      // ===== Desktop: hover-chase + click impulse (fine pointer only) =====
+      // The tilt TARGETS the cursor; the spring chases it (±DETAIL_TILT_MAX
+      // at the edges, like before). A click adds a velocity impulse that the
+      // same spring absorbs with the bouncy release feel. Registered only on
+      // fine-pointer, non-reduced-motion devices, so it can never fire
+      // alongside the touch branch below.
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduceMotion) {
         detailCover.addEventListener('pointermove', (e) => {
-          const book3d = detailCover.querySelector('.book3d');
-          if (!book3d) return;
           hideRotateHint();
           const r = detailCover.getBoundingClientRect();
           const px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
           const py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
-          if (raf) return;
-          raf = requestAnimationFrame(() => {
-            // px/py 0..1 on the cover -> tilt clamped to ±MAX_X/±MAX_Y.
-            const ry = (px - 0.5) * 2 * MAX_Y;  // mirrors MAX_Y above
-            const rx = -(py - 0.5) * 2 * MAX_X;  // mirrors MAX_X above (inverted)
-            book3d.style.setProperty('--ry', ry.toFixed(2) + 'deg');
-            book3d.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-            const gloss = book3d.querySelector('.book3d__gloss');
-            if (gloss) {
-              gloss.style.opacity = '1';
-              gloss.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
-              gloss.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
-            }
-            raf = null;
-          });
+          target = (px - 0.5) * 2 * DETAIL_TILT_MAX_Y;
+          leanTarget = -(py - 0.5) * 2 * DETAIL_TILT_MAX_X;
+          if (!hovering) {
+            // Re-entered: cancel any leftover fade, gloss back to full.
+            hovering = true;
+            fadeStart = -1;
+            glossEnv = 1;
+          }
+          const g = glossEl();
+          if (g) g.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+          startIntegrator();
         });
         detailCover.addEventListener('pointerleave', () => {
-          const book3d = detailCover.querySelector('.book3d');
-          reset(book3d);
+          hovering = false;
+          impulseActive = false;
+          target = 0;
+          leanTarget = 0;
+          fadeStart = performance.now(); // gloss dies with the return spring
+          startIntegrator();
+        });
+        detailCover.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return;
+          hideRotateHint();
+          const r = detailCover.getBoundingClientRect();
+          const px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+          const py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+          target = (px - 0.5) * 2 * DETAIL_TILT_MAX_Y;
+          leanTarget = -(py - 0.5) * 2 * DETAIL_TILT_MAX_X;
+          hovering = true;
+          glossEnv = 1;
+          fadeStart = -1;
+          vel += (px - 0.5) * 2 * CLICK_IMPULSE; // clicked side sets the direction
+          impulseActive = true;
+          startIntegrator();
         });
       }
 
       // Mobile detail touch — Fitness-badge-style grab-and-spin physics.
-      // Horizontal drag SPINS the book (delta-based, like grabbing the object
-      // — not position-mapped), and EVERY release — flick, slow drag, or
-      // bare tap — feeds straight into ONE damped spring that carries the
-      // book back to face-front (NO friction coast: the spring's own
-      // dynamics provide the momentum-and-bounce feel, and the spine-limit
-      // clamp lives inside the same integrator, so a hard flick can never
-      // swing past ±MAX_SPIN). Vertical drag keeps a small direct lean.
-      // Desktop hover branch + grid cards untouched.
+      // Horizontal drag SPINS the book with ZERO-LAG finger tracking (the
+      // touchmove handler writes the angle directly while the finger is
+      // down), and EVERY release — flick, slow drag, or bare tap — hands
+      // the velocity to the SHARED spin spring above, which carries the
+      // book back to face-front with the tuned bounce. Drag-to-dismiss
+      // never engages from the cover (see sheetDragOnCover).
       if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        // TUNE — all spin-physics feel knobs live here.
-        const SPIN_SENS = 0.5;      // deg of spin per px of horizontal drag
-        const MAX_SPIN = 70;         // spine limit (deg) — rubber-bands past this
-        const RUBBER = 0.05;         // drag resistance multiplier past the limit
-        const BOUNDARY_SPRING = 0.005; // SETTLE: spine-limit clamp accel (deg/ms^2) per deg past the limit
-        const SETTLE_K = 0.00005;    // SETTLE: spring stiffness — sets bounce rhythm (π/√K ms per bounce)
-        const SETTLE_ZETA = 0.35;    // SETTLE: damping ratio ζ — THE bounce feel (0.2–0.35 = ball bounce, 0.8 ≈ dead)
-        const SETTLE_C = 2 * SETTLE_ZETA * Math.sqrt(SETTLE_K); // derived from ζ + K — tune ζ above, not this
-        const END_ANGLE = 0.1;       // deg — settle ends below this
-        const END_VEL = 0.005;       // deg/ms — settle ends below this
-        const VEL_CAP = 0.5;         // deg/ms — max release velocity
-        const SAMPLE_MS = 80;        // release-velocity sample window
-        const TAP_DRAG_PX = 19;      // total drag below this = a tap, not a drag
-        const TAP_IMPULSE = 0.6;     // deg/ms — tap nudge, ~15-20deg glide under friction
-        const GLOSS_SWEEP = 33;      // % — how far the highlight travels across the cover
-        const GLOSS_FLOOR = 0.2;     // gloss opacity at the edge-on worst case
-        const GLOSS_FADE_MS = 700;   // ms — eased gloss fade-out after release (smoothstep 1→0)
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        let angle = 0;       // current spin (deg)
-        let vel = 0;         // angular velocity (deg/ms) — release + integrator
-        let lean = 0;        // vertical lean (deg, --rx) — released on the same spring
-        let leanVel = 0;     // lean velocity (deg/ms)
-        let glossEnv = 1;    // gloss fade envelope (1 = full, → 0 during the settle)
-        let fadeStart = -1;  // integrator-clock time the release fade began (-1 = not fading)
-        let lastT = 0;       // last integrator timestamp (ms)
-        let lastX = 0;
-        let totalDrag = 0;   // Σ|dx| this touch — distinguishes a tap from a drag
-        let samples = [];    // {x, t} inside SAMPLE_MS, for release velocity
-        let rafId = null;
-        let tracking = false;
-
-        const book3dEl = () => detailCover.querySelector('.book3d');
-        const glossEl = () => detailCover.querySelector('.book3d__gloss');
-
-        function cancelCoast() {
-          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        }
-
-        // Single writer for spin state: --ry on the book + gloss derived
-        // from the ANGLE, not the finger — the light stays fixed in world
-        // space, so the highlight sweeps across the cover as the book turns
-        // and dims edge-on.
-        function setAngle(a, gyPct) {
-          angle = a;
-          const b = book3dEl();
-          if (!b) return;
-          b.style.setProperty('--ry', a.toFixed(2) + 'deg');
-          const rad = a * Math.PI / 180;
-          const cos = Math.max(0, Math.cos(rad));
-          const g = glossEl();
-          if (g) {
-            g.style.setProperty('--gx', (50 + Math.sin(rad) * GLOSS_SWEEP).toFixed(1) + '%');
-            if (gyPct != null) g.style.setProperty('--gy', gyPct.toFixed(1) + '%');
-            // glossEnv: release fade envelope (1 while touching) — see stepSettle
-            g.style.opacity = ((GLOSS_FLOOR + 0.4 * cos) * glossEnv).toFixed(2);
-          }
-        }
-
-        // Vertical lean: small and direct while touching (Fitness is
-        // horizontal-dominant) — on release it rides the SAME settle spring
-        // as the spin (see stepSettle), so the whole book relaxes flat as
-        // one movement instead of snapping upright at the end. Gloss height
-        // follows the finger while touching.
-        function setLean(rx, gyPct) {
-          lean = rx;
-          const b = book3dEl();
-          if (!b) return;
-          b.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-          const g = glossEl();
-          if (g && gyPct != null) g.style.setProperty('--gy', gyPct.toFixed(1) + '%');
-        }
-
-        // ONE integrator for every release — flick, slow drag, or tap. A
-        // damped spring toward face-front takes the release/tap velocity
-        // directly (NO friction coast): the spring's own dynamics decelerate
-        // the spin, overshoot, and bounce home per ζ, and the spine-limit
-        // clamp lives in the same integrator so a hard flick can never swing
-        // past ±MAX_SPIN (the book has no back face). stepSettle is
-        // separated from the rAF driver so tests can step it with fake
-        // timestamps (the integrated test browser never fires rAF).
-        function stepSettle(now) {
-          const dt = Math.min(32, Math.max(1, now - lastT));
-          lastT = now;
-          // Gloss fade-out envelope: smoothstep 1→0 over GLOSS_FADE_MS from
-          // release, multiplying the angle-driven brightness — the sheen
-          // sweeps and dies WITH the motion instead of popping off at the end.
-          if (fadeStart >= 0 && GLOSS_FADE_MS > 0) {
-            const p = Math.max(0, Math.min(1, (now - fadeStart) / GLOSS_FADE_MS));
-            glossEnv = 1 - p * p * (3 - 2 * p);
-          }
-          vel -= (angle * SETTLE_K + vel * SETTLE_C) * dt;
-          // Spine-limit clamp: pull-back accel while past ±MAX_SPIN.
-          const over = angle - Math.max(-MAX_SPIN, Math.min(MAX_SPIN, angle));
-          if (over) vel -= over * BOUNDARY_SPRING * dt;
-          setAngle(angle + vel * dt);
-          // Vertical lean rides the SAME spring (same K + ζ): the whole book
-          // relaxes flat as one movement. It starts from wherever the finger
-          // left it (≤ ±DETAIL_TILT_MAX_X — no clamp needed at this scale).
-          leanVel -= (lean * SETTLE_K + leanVel * SETTLE_C) * dt;
-          setLean(lean + leanVel * dt);
-          if (Math.abs(angle) > END_ANGLE || Math.abs(vel) > END_VEL ||
-              Math.abs(lean) > END_ANGLE || Math.abs(leanVel) > END_VEL) {
-            rafId = requestAnimationFrame(stepSettle);
-          } else {
-            rafId = null;
-            angle = 0; vel = 0;
-            lean = 0; leanVel = 0;
-            fadeStart = -1;
-            setAngle(0);
-            setLean(0);
-            // Hand any remaining fade to the CSS transition from the CURRENT
-            // (envelope-dimmed) brightness — mostly a no-op since the JS
-            // envelope usually reaches 0 first. The transition must be
-            // restored here because it is 'none' while touching.
-            const g = glossEl();
-            if (g) { g.style.transition = ''; g.style.opacity = '0'; }
-            glossEnv = 1; // reset for the next touch (touchstart re-asserts)
-          }
-        }
-
-        // Hand the current state to the integrator (or, under reduced
-        // motion, reset instantly).
-        function release() {
-          const g = glossEl();
-          if (reduceMotion) {
-            cancelCoast();
-            angle = 0; vel = 0;
-            lean = 0; leanVel = 0;
-            fadeStart = -1;
-            glossEnv = 1;
-            setAngle(0); setLean(0);
-            if (g) { g.style.transition = ''; g.style.opacity = '0'; }
-            return;
-          }
-          lastT = performance.now();
-          fadeStart = lastT; // the gloss fade runs on the integrator clock
-          rafId = requestAnimationFrame(stepSettle);
-        }
-
-        // Release velocity from the recent sample window: px/ms → deg/ms.
-        function releaseVelocity() {
-          const now = performance.now();
-          const recent = samples.filter(s => now - s.t <= SAMPLE_MS);
-          if (recent.length < 2) return 0;
-          const first = recent[0], last = recent[recent.length - 1];
-          const vPx = (last.x - first.x) / Math.max(16, last.t - first.t);
-          return Math.max(-VEL_CAP, Math.min(VEL_CAP, vPx * SPIN_SENS));
-        }
 
         detailCover.addEventListener('touchstart', (e) => {
           if (e.touches.length !== 1) return;
@@ -9110,14 +9155,14 @@
           lastX = t.clientX;
           totalDrag += Math.abs(dx);
           // Delta-based spin with rubber-band resistance past the limit.
-          let target = angle + dx * SPIN_SENS;
-          if (target > MAX_SPIN) target = MAX_SPIN + (target - MAX_SPIN) * RUBBER;
-          else if (target < -MAX_SPIN) target = -MAX_SPIN + (target + MAX_SPIN) * RUBBER;
+          let spin = angle + dx * SPIN_SENS;
+          if (spin > MAX_SPIN) spin = MAX_SPIN + (spin - MAX_SPIN) * RUBBER;
+          else if (spin < -MAX_SPIN) spin = -MAX_SPIN + (spin + MAX_SPIN) * RUBBER;
           // Vertical: lean toward the finger (absolute, clamped, direct).
           const r = detailCover.getBoundingClientRect();
           const py = Math.max(0, Math.min(1, (t.clientY - r.top) / r.height));
           setLean(-(py - 0.5) * 2 * DETAIL_TILT_MAX_X);
-          setAngle(target, py * 100);
+          setAngle(spin, py * 100);
           samples.push({ x: t.clientX, t: now });
           while (samples.length > 2 && now - samples[0].t > SAMPLE_MS) samples.shift();
         }, { passive: false });
@@ -9125,7 +9170,7 @@
         detailCover.addEventListener('touchend', (e) => {
           if (!tracking) return;
           tracking = false;
-          if (reduceMotion) { release(); return; }
+          if (reduceMotion) { restAll(); return; }
           if (totalDrag < TAP_DRAG_PX) {
             // Bare tap: a slight nudge with momentum — the tapped side sets
             // the direction (push the side you touched), then the integrator
@@ -9136,31 +9181,47 @@
           } else {
             vel = releaseVelocity();
           }
-          release();
+          // Hand off to the shared spring: chase face-front with the
+          // finalized bounce; the gloss fade rides the integrator clock.
+          target = 0; leanTarget = 0; hovering = false;
+          fadeStart = performance.now();
+          startIntegrator();
         });
 
         detailCover.addEventListener('touchcancel', () => {
           if (!tracking) return;
           tracking = false;
-          release();
+          target = 0; leanTarget = 0; hovering = false;
+          fadeStart = performance.now();
+          startIntegrator();
         });
 
         // Test seam (not used by the app): the integrated test browser never
         // fires rAF, so integrator math is drivable with fake timestamps —
-        // arm(t0) → setVel(v) → step(t)… → getState().
+        // arm(t0) → setVel(v) → stepSpring(t)… → getState().
         window.__book3dTest = {
           arm: (now) => { lastT = now; vel = 0; },
           setAngle: (a) => setAngle(a),
           setVel: (v) => { vel = v; },
-          stepSettle: (now) => stepSettle(now),
+          stepSpring: (now) => stepSpring(now),
           releaseVelocity,
-          getState: () => ({ angle, vel, lean, leanVel, tracking, coasting: rafId !== null })
+          getState: () => ({ angle, vel, lean, leanVel, target, hovering, tracking, coasting: rafId !== null })
         };
-        // Lifecycle hook: openReadOnlyModal/closeDetailModal cancel any
-        // running integrator so a book opened mid-spin never inherits stale
-        // motion.
-        window.__book3dCancelCoast = cancelCoast;
       }
+
+      // Lifecycle hook (shared by both input branches): openReadOnlyModal /
+      // closeDetailModal cancel any running integrator AND zero the module
+      // state, so a book opened mid-spin never inherits stale motion (the
+      // fresh .book3d element renders 0 while the spring would otherwise
+      // resume from a stale angle).
+      window.__book3dCancelCoast = () => {
+        cancelCoast();
+        angle = 0; vel = 0;
+        lean = 0; leanVel = 0;
+        target = 0; leanTarget = 0;
+        hovering = false; impulseActive = false;
+        fadeStart = -1; glossEnv = 1;
+      };
 
       // Size the 3D book when modal opens (called from openReadOnlyModal).
       window.sizeDetailBook3D = sizeDetailBook3D;
