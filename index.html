@@ -1897,6 +1897,33 @@
       transform: rotateX(-90deg) translateY(calc(var(--book-depth) / 2));
       border-radius: 2px;
     }
+    /* Back cover: closes the box. Solid card tinted from the book's dominant
+       coverColor (--back-color, set inline by renderCoverHtml; falls back to
+       the spine grey). rotateY(180°) THEN +depth/2 in the rotated frame puts
+       the face at world −z facing outward, so backface-visibility hides it
+       whenever the front shows — it only becomes visible past a 90° spin.
+       Mirrored radius: the spine-side corners land on the right as seen from
+       behind. Slightly darkened vs the front (real back cards are darker). */
+    .book3d__back {
+      inset: 0;
+      transform: rotateY(180deg) translateZ(calc(var(--book-depth) / 2));
+      background-color: color-mix(in srgb, var(--back-color, #555a66) 86%, black);
+      border-radius: 5px 2px 2px 5px;
+      overflow: hidden;
+    }
+    /* Same shading language as the spine/pages so the back reads as card
+       stock, not a flat fill: hinge-dark on the page-block side, faint
+       catch-light mid, soft edge dark. */
+    .book3d__back::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+                  rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.06) 55%, rgba(0, 0, 0, 0.14));
+      mix-blend-mode: overlay;
+      border-radius: inherit;
+      pointer-events: none;
+    }
     @media (prefers-reduced-motion: reduce) {
       .book3d { transition: none; }
     }
@@ -5505,17 +5532,22 @@
       // layout time (see sizeAllBook3D), so no stored color is needed here.
       if (opts.threeD) {
         const pagesAttr = opts.pages ? ` data-pages="${parseInt(opts.pages, 10)}"` : '';
+        // Back cover: solid card tinted from the book's dominant coverColor —
+        // closes the box so no spin angle can ever reveal a hollow. Invisible
+        // at rest (backface-visibility) — only a >90° spin would show it.
+        const backStyle = opts.back ? ` style="--back-color:${escapeHtml(opts.back)}"` : '';
         // Optional rotate-hint badge (detail modal only) — a sibling AFTER
         // .book3d so it stays flat (never inherits the 3D transform).
         const hintHtml = opts.hint
           ? `<div class="book3d-hint" aria-hidden="true"><i data-lucide="rotate-3d"></i></div>`
           : '';
-        return `<div class="book3d"${pagesAttr}>
+        return `<div class="book3d"${pagesAttr}${backStyle}>
           <div class="book3d__face book3d__front">${inner}<div class="book3d__gloss"></div></div>
           <div class="book3d__face book3d__spine"></div>
           <div class="book3d__face book3d__pages book3d__pages--right"></div>
           <div class="book3d__face book3d__pages book3d__pages--top"></div>
           <div class="book3d__face book3d__pages book3d__pages--bottom"></div>
+          <div class="book3d__face book3d__back"></div>
         </div>${hintHtml}`;
       }
       return inner;
@@ -7302,7 +7334,7 @@
       return `
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container"${hoverStyle}>
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages, back: book.coverColor })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -7335,7 +7367,7 @@
         <article class="book-card" data-id="${book.id}" onclick="openBookDetails('${book.id}', this)">
           <div class="cover-container"${hoverStyle2}>
             <span class="order-badge" title="Reading order in stage">${book.readingOrder}</span>
-            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages })}
+            ${renderCoverHtml(book.cover, book.title, book.author, 'cover-img', book.id, { threeD: !mobileView.matches, pages: book.pages, back: book.coverColor })}
           </div>
           <div class="book-info">
             <div class="book-vol-stage">
@@ -8399,7 +8431,7 @@
       // Always use 3D book in detail modal for interactive viewing.
       // hint: true adds the small rotate badge (bottom-right) that tells the
       // user the cover tilts — it fades away on first interaction.
-      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true, pages: book.pages, hint: true });
+      detailCover.innerHTML = renderCoverHtml(book.cover, book.title, book.author, 'detail-cover-img', book.id, { threeD: true, pages: book.pages, hint: true, back: book.coverColor });
 
       detailTitle.textContent = book.title;
       detailAuthor.textContent = book.author;
@@ -8883,12 +8915,12 @@
       //
       // TUNE — all spin-physics feel knobs live here.
       // -- drag + release (mobile; the release spring is shared) --
-      const SPIN_SENS = 0.5;      // deg of spin per px of horizontal drag
-      const MAX_SPIN = 70;         // spine limit (deg) — rubber-bands past this
+      const SPIN_SENS = 0.45;      // deg of spin per px of horizontal drag
+      const MAX_SPIN = 80;         // spine limit (deg) — rubber-bands past this
       const RUBBER = 0.05;         // drag resistance multiplier past the limit
       const BOUNDARY_SPRING = 0.005; // SETTLE: spine-limit clamp accel (deg/ms^2) per deg past the limit
       const SETTLE_K = 0.00005;    // SETTLE: spring stiffness — sets bounce rhythm (π/√K ms per bounce)
-      const SETTLE_ZETA = 0.35;    // SETTLE: damping ratio ζ — THE bounce feel (0.2–0.35 = ball bounce, 0.8 ≈ dead)
+      const SETTLE_ZETA = 0.5;    // SETTLE: damping ratio ζ — THE bounce feel (0.2–0.35 = ball bounce, 0.8 ≈ dead)
       const SETTLE_C = 2 * SETTLE_ZETA * Math.sqrt(SETTLE_K); // derived from ζ + K — tune ζ above, not this
       const END_ANGLE = 0.1;       // deg — settle ends below this
       const END_VEL = 0.005;       // deg/ms — settle ends below this
@@ -8901,8 +8933,8 @@
       const GLOSS_FADE_MS = 700;   // ms — eased gloss fade-out after release (smoothstep 1→0)
       // -- desktop hover/click --
       const HOVER_K = 0.001;       // chase stiffness — snappier than the release spring
-      const HOVER_ZETA = 0.9;      // chase damping — tracks the cursor without wobbling
-      const CLICK_IMPULSE = 0.5;   // deg/ms — click nudge (the clicked side sets direction)
+      const HOVER_ZETA = 0.8;      // chase damping — tracks the cursor without wobbling
+      const CLICK_IMPULSE = 0.9;   // deg/ms — click nudge (the clicked side sets direction)
       // Desktop's own release spring (click bounce + leave-return). A hover UI
       // doesn't need the mobile flick bounce — one small overshoot reads as
       // weight without the wobble. Same K keeps the return rhythm identical;
