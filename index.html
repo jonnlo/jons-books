@@ -505,7 +505,8 @@
       background: var(--btn-secondary-bg-hover);
     }
 
-    .icon-btn {
+    .icon-btn,
+    .header-text-btn {
       background: transparent;
       border: none;
       color: var(--text-primary);
@@ -518,8 +519,21 @@
       cursor: pointer;
     }
 
+    .header-text-btn {
+      width: auto;
+      padding-inline: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
     .icon-btn:hover {
-      background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .header-text-btn:hover {
+      background: transparent;
+      color: var(--text-muted);
     }
 
     .btn-secondary {
@@ -4102,6 +4116,37 @@
     body.view-only .roadmap-top-bar {
       display: none !important;
     }
+    .about-modal .modal-content { max-width: 640px; }
+    .about-modal .modal-header { gap: 16px; }
+    .about-modal .modal-header h2 { min-width: 0; overflow-wrap: anywhere; }
+    .about-modal .modal-actions { flex-shrink: 0; }
+    #about-form > .form-group { margin-bottom: 16px; }
+    #about-format-help { margin: 0 0 20px; font-size: .8rem; color: var(--text-secondary); }
+    #about-format-help pre { white-space: pre-wrap; margin-top: 10px; }
+    /* About Markdown uses the same type ladder as the book detail modal:
+       the top-level heading matches .detail-title, body copy matches detail
+       notes/summary, and smaller headings step down through the author and
+       metadata-label sizes. */
+    .about-prose { font-size: .875rem; line-height: 1.55; overflow-wrap: anywhere; }
+    .about-prose > * + * { margin-top: 14px; }
+    .about-prose h2 { font-size: 1.4rem; line-height: 1.3; }
+    .about-prose h3 { font-size: .9rem; line-height: 1.3; }
+    .about-prose h4 { font-size: .7rem; line-height: 1.4; }
+    .about-prose ul, .about-prose ol { padding-left: 24px; }
+    .about-prose blockquote { font-size: .8rem; color: var(--text-secondary); border-left: 2px solid var(--border-color); padding-left: 14px; }
+    .about-prose hr { border: 0; border-top: 1px solid var(--border-color); margin-block: 24px; }
+    .about-prose a { color: var(--accent-color); text-underline-offset: 3px; }
+    .about-stats, .about-footer, #about-save-status { font-size: .8rem; color: var(--text-secondary); margin-top: 20px; }
+    .about-stats-toggle { flex-direction: row; align-items: center; gap: 8px; }
+    .about-stats-toggle input { width: 16px; height: 16px; padding: 0; border: 0; border-radius: 0; background: transparent; accent-color: var(--accent-color); }
+    #about-draft-preview { border-top: 1px solid var(--border-color); margin-top: 24px; padding-top: 20px; }
+    body:has(#about-modal.active) { overflow: hidden; }
+    @media (max-width: 600px) {
+      .about-modal .modal-content { max-width: none; }
+      .about-prose h2 { font-size: 1.2rem; letter-spacing: .01em; }
+      .about-prose h3 { font-size: .85rem; }
+    }
+
     /* Public cards open the read-only detail modal, so they're tappable. */
     body.view-only .book-card {
       cursor: pointer;
@@ -4143,6 +4188,7 @@
             <i data-lucide="eye"></i> View
           </button>
         </div>
+        <button class="header-text-btn" id="about-btn" type="button" title="About this library">About</button>
         <!-- Theme Switcher -->
         <button class="icon-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
           <i data-lucide="sun" id="theme-icon"></i>
@@ -4566,6 +4612,43 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay book-detail-modal about-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-heading">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="about-heading">About this library</h2>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="about-edit-btn">Edit</button>
+          <button type="button" class="close-btn" id="about-close-btn" aria-label="Close About"><i data-lucide="x"></i></button>
+        </div>
+      </div>
+      <div id="about-preview">
+        <div class="about-prose" id="about-body"></div>
+        <p class="about-stats" id="about-stats"></p>
+        <p class="about-footer" id="about-footer"></p>
+      </div>
+      <form id="about-form" hidden>
+        <div class="form-group"><label for="about-title-input">Heading</label><input id="about-title-input" maxlength="120" required></div>
+        <div class="form-group"><label for="about-body-input">About content</label><textarea id="about-body-input" rows="14" aria-describedby="about-format-help"></textarea></div>
+        <details id="about-format-help"><summary>Formatting help</summary><pre># Large heading
+## Section heading
+### Small heading
+**bold** and *italic*
+[Website](https://example.com)
+[[Book Title]]
+- Bullet item
+1. Numbered item
+&gt; Supporting text
+---
+Blank lines separate paragraphs.</pre></details>
+        <div class="form-group about-stats-toggle"><input type="checkbox" id="about-show-stats-input" checked><label for="about-show-stats-input">Show library stats</label></div>
+        <div class="form-group"><label for="about-footer-input">Footer (optional)</label><input id="about-footer-input" maxlength="300"></div>
+        <div class="modal-footer"><button type="button" class="btn-secondary" id="about-cancel-btn">Cancel</button><div class="modal-actions"><button type="button" class="btn-secondary" id="about-preview-btn">Preview</button><button type="submit" class="btn-primary" id="about-save-btn">Save Changes</button></div></div>
+        <div class="about-prose" id="about-draft-preview" hidden></div>
+      </form>
+      <p id="about-save-status" role="status"></p>
     </div>
   </div>
 
@@ -5456,31 +5539,54 @@
     // chips that open that book's detail modal. HTML is escaped FIRST so
     // nothing else can inject markup; unmatched [[...]] renders literally.
     function renderNotesHtml(text) {
-      let s = escapeHtml(text);
-      // Book refs first: [[Title]] → chip when a case-insensitive title match
-      // exists (exact match preferred, then prefix). The chip text uses the
-      // CANONICAL book title so refs stay consistent even if typed loosely.
-      s = s.replace(/\[\[([^\[\]]+)\]\]/g, (match, rawTitle) => {
-        const q = rawTitle.trim().toLowerCase();
-        if (!q) return match;
-        const hit =
-          books.find(b => (b.title || '').toLowerCase() === q) ||
-          books.find(b => (b.title || '').toLowerCase().startsWith(q));
-        return hit
-          ? `<button type="button" class="note-bookref" data-book-id="${escapeHtml(hit.id)}" title="${escapeHtml(hit.title)}">${escapeHtml(shortTitle(hit.title))}</button>`
-          : match;
-      });
-      // Links: [label](url). Only http(s) schemes become anchors (blocks
-      // javascript: etc.). &amp; in the escaped URL is valid inside an
-      // attribute — the browser decodes it back to &.
-      s = s.replace(/\[([^\]\[]+)\]\(([^()\s]+)\)/g, (match, label, url) => {
-        if (!/^https?:\/\//i.test(url.replace(/&amp;/g, '&'))) return match;
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-      });
-      // Bold before italic so ** isn't consumed as two italics.
-      s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-      s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
-      return s;
+      // Tokenize source before producing HTML; never run replacements over
+      // generated attributes or book titles. Notes retain their inline layout.
+      const source = String(text || '');
+      const tokens = /\[\[([^\[\]]+)\]\]|\[([^\]\[]+)\]\(([^()\s]+)\)|\*\*([^*\n]+)\*\*|\*([^*\n]+)\*/g;
+      let result = '', end = 0;
+      for (const match of source.matchAll(tokens)) {
+        result += escapeHtml(source.slice(end, match.index));
+        const [literal, title, label, url, bold, italic] = match;
+        if (title !== undefined) {
+          const q = title.trim().toLowerCase();
+          const hit = q && (books.find(b => (b.title || '').toLowerCase() === q) || books.find(b => (b.title || '').toLowerCase().startsWith(q)));
+          result += hit ? `<button type="button" class="note-bookref" data-book-id="${escapeHtml(hit.id)}" title="${escapeHtml(hit.title)}">${escapeHtml(shortTitle(hit.title))}</button>` : escapeHtml(literal);
+        } else if (label !== undefined) {
+          result += /^https?:\/\//i.test(url) ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${renderNotesHtml(label)}</a>` : escapeHtml(literal);
+        } else {
+          result += bold !== undefined ? `<strong>${escapeHtml(bold)}</strong>` : `<em>${escapeHtml(italic)}</em>`;
+        }
+        end = match.index + literal.length;
+      }
+      return result + escapeHtml(source.slice(end));
+    }
+
+    function renderMiniMarkdown(text) {
+      const lines = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+      const output = [];
+      let paragraph = [], list = [], listType = '';
+      const flushParagraph = () => { if (paragraph.length) output.push('<p>' + paragraph.map(renderNotesHtml).join('<br>') + '</p>'); paragraph = []; };
+      const flushList = () => { if (list.length) output.push(`<${listType}>` + list.map(item => '<li>' + renderNotesHtml(item) + '</li>').join('') + `</${listType}>`); list = []; listType = ''; };
+      for (const line of lines) {
+        const heading = line.match(/^(#{1,3})\s+(.+)$/);
+        const bullet = line.match(/^\s*(?:([-*])\s+|\d+\.\s+)(.+)$/);
+        const quote = line.match(/^>\s?(.*)$/);
+        if (bullet) {
+          flushParagraph();
+          const type = bullet[1] ? 'ul' : 'ol';
+          if (listType && listType !== type) flushList();
+          listType = type; list.push(bullet[2]); continue;
+        }
+        flushList();
+        if (!line.trim() || heading || quote || /^\s*---\s*$/.test(line)) {
+          flushParagraph();
+          if (heading) { const level = heading[1].length + 1; output.push(`<h${level}>${renderNotesHtml(heading[2])}</h${level}>`); }
+          else if (quote) output.push('<blockquote>' + renderNotesHtml(quote[1]) + '</blockquote>');
+          else if (line.trim()) output.push('<hr>');
+        } else paragraph.push(line);
+      }
+      flushParagraph(); flushList();
+      return output.join('');
     }
 
     // Cover Rendering
@@ -8285,6 +8391,220 @@
       closeModal();
     }
 
+    function normalizeAbout(raw) {
+      const src = raw && typeof raw === 'object' ? raw : {};
+      return {
+        title: typeof src.title === 'string' && src.title.trim() ? src.title.trim() : 'About this library',
+        body: typeof src.body === 'string' ? src.body : "A personal library, organized around ideas and connections.\n\n## How to explore\nBrowse by volume, stage, or tag. Open a book to read its notes and follow connections to other books.",
+        footer: typeof src.footer === 'string' ? src.footer : '',
+        showStats: src.showStats !== false
+      };
+    }
+
+    const aboutModal = document.getElementById('about-modal');
+    const aboutSheet = aboutModal.querySelector('.modal-content');
+    const aboutForm = document.getElementById('about-form');
+    const aboutPreview = document.getElementById('about-preview');
+    const aboutEdit = document.getElementById('about-edit-btn');
+    const aboutClose = document.getElementById('about-close-btn');
+    const aboutTitleInput = document.getElementById('about-title-input');
+    const aboutBodyInput = document.getElementById('about-body-input');
+    const aboutFooterInput = document.getElementById('about-footer-input');
+    const aboutShowStatsInput = document.getElementById('about-show-stats-input');
+    const aboutDraftPreview = document.getElementById('about-draft-preview');
+    const aboutStatus = document.getElementById('about-save-status');
+    let aboutBaseline = '', aboutTrigger = null, aboutSaving = false;
+    function aboutDraft() { return { title: aboutTitleInput.value, body: aboutBodyInput.value, footer: aboutFooterInput.value, showStats: aboutShowStatsInput.checked }; }
+    function aboutDirty() { return !aboutForm.hidden && JSON.stringify(aboutDraft()) !== aboutBaseline; }
+    function canLeaveAbout() { return !aboutSaving && (!aboutDirty() || confirm('Discard your unsaved About changes?')); }
+    function renderAbout() {
+      const content = normalizeAbout(siteSettings.about);
+      document.getElementById('about-heading').textContent = content.title;
+      document.getElementById('about-body').innerHTML = renderMiniMarkdown(content.body);
+      document.getElementById('about-footer').textContent = content.footer;
+      document.getElementById('about-footer').hidden = !content.footer;
+      const aboutStats = document.getElementById('about-stats');
+      aboutStats.textContent = `${books.length} books · ${books.filter(b => b.status === 'To Read').length} to read · ${books.filter(b => b.status === 'Reading').length} reading · ${books.filter(b => b.status === 'Completed').length} completed`;
+      aboutStats.hidden = !content.showStats;
+      aboutForm.hidden = true; aboutPreview.hidden = false; aboutDraftPreview.hidden = true;
+      aboutEdit.hidden = viewOnly;
+    }
+    function openAboutModal() {
+      if (aboutModal.classList.contains('active')) return;
+      aboutTrigger = document.activeElement;
+      if (detailModal.classList.contains('active')) closeDetailModal();
+      renderAbout(); aboutStatus.textContent = '';
+      aboutSheet.style.transform = '';
+      aboutSheet.style.transition = '';
+      aboutModal.style.opacity = '';
+      aboutModal.style.transition = '';
+      aboutDragActive = false;
+      aboutDismissing = false;
+      aboutModal.classList.add('active');
+      document.querySelector('.container').inert = true;
+      if (location.hash !== '#about') history.pushState(null, '', '#about');
+      aboutClose.focus();
+    }
+    function closeAboutModal(updateURL = true, restoreFocus = true) {
+      aboutModal.classList.remove('active');
+      aboutSheet.style.transform = '';
+      aboutSheet.style.transition = '';
+      aboutModal.style.opacity = '';
+      aboutModal.style.transition = '';
+      aboutDragActive = false;
+      aboutDismissing = false;
+      aboutForm.hidden = true;
+      document.querySelector('.container').inert = false;
+      if (updateURL && location.hash === '#about') history.replaceState(null, '', location.pathname + location.search);
+      if (restoreFocus && aboutTrigger?.isConnected) aboutTrigger.focus();
+    }
+    function requestCloseAbout() { if (canLeaveAbout()) closeAboutModal(); }
+    document.getElementById('about-btn').addEventListener('click', openAboutModal);
+    aboutClose.addEventListener('click', requestCloseAbout);
+    aboutEdit.addEventListener('click', () => {
+      if (viewOnly) return;
+      const content = normalizeAbout(siteSettings.about);
+      aboutTitleInput.value = content.title; aboutBodyInput.value = content.body; aboutFooterInput.value = content.footer; aboutShowStatsInput.checked = content.showStats;
+      aboutBaseline = JSON.stringify(aboutDraft());
+      aboutForm.hidden = false; aboutPreview.hidden = true; aboutEdit.hidden = true;
+      aboutStatus.textContent = ''; aboutTitleInput.focus();
+    });
+    document.getElementById('about-cancel-btn').addEventListener('click', () => {
+      if (canLeaveAbout()) { renderAbout(); aboutEdit.focus(); }
+    });
+    document.getElementById('about-preview-btn').addEventListener('click', () => {
+      aboutDraftPreview.hidden = !aboutDraftPreview.hidden;
+      aboutDraftPreview.innerHTML = renderMiniMarkdown(aboutBodyInput.value);
+    });
+    aboutBodyInput.addEventListener('input', () => {
+      if (!aboutDraftPreview.hidden) aboutDraftPreview.innerHTML = renderMiniMarkdown(aboutBodyInput.value);
+    });
+    aboutForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (viewOnly || aboutSaving) return;
+      const next = normalizeSiteSettings({ ...siteSettings, about: aboutDraft() });
+      aboutSaving = true;
+      const saveButton = document.getElementById('about-save-btn');
+      saveButton.disabled = true;
+      aboutForm.querySelectorAll('input, textarea, button').forEach(el => el.disabled = true);
+      aboutStatus.textContent = 'Saving…';
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+        siteSettings = next;
+        aboutBaseline = JSON.stringify(aboutDraft());
+        const result = await writeSiteJsonFile(JSON.stringify(next, null, 2));
+        renderAbout();
+        aboutStatus.textContent = result === 'written' ? 'Saved to site.json. Commit and push to publish.' : result === 'download' ? 'Saved locally. Move the downloaded site.json into your project to publish.' : 'Saved locally. File save was cancelled; edit and save again to publish.';
+        aboutEdit.focus();
+      } catch (error) {
+        aboutStatus.textContent = 'Could not finish saving: ' + (error.message || error);
+      } finally {
+        aboutSaving = false;
+        aboutForm.querySelectorAll('input, textarea, button').forEach(el => el.disabled = false);
+      }
+    });
+    let aboutBackdropDown = false;
+    aboutModal.addEventListener('pointerdown', e => { aboutBackdropDown = e.target === aboutModal; });
+    aboutModal.addEventListener('click', e => {
+      if (aboutBackdropDown && e.target === aboutModal) requestCloseAbout();
+      aboutBackdropDown = false;
+      const ref = e.target.closest('.note-bookref');
+      if (ref && canLeaveAbout()) {
+        closeAboutModal(false, false);
+        document.getElementById('about-btn').focus();
+        openReadOnlyModal(ref.dataset.bookId);
+      }
+    });
+    aboutModal.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); requestCloseAbout(); }
+      if (e.key !== 'Tab') return;
+      const focusable = [...aboutModal.querySelectorAll('button, a[href], input, textarea, summary, [tabindex="0"]')].filter(el => !el.disabled && el.getClientRects().length);
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    // View-only About sheet: pull down from its scroll origin to dismiss on
+    // touch devices. The editor deliberately has no gesture.
+    const aboutFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const aboutReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let aboutDragStartY = 0, aboutDragDy = 0, aboutDragActive = false, aboutDismissing = false;
+    let aboutLastY = 0, aboutLastT = 0, aboutVelY = 0;
+    const ABOUT_DRAG_DIST = 120;
+    const ABOUT_DRAG_VEL = 0.8;
+
+    aboutSheet.addEventListener('touchstart', e => {
+      if (!viewOnly || aboutFinePointer || e.touches.length !== 1) return;
+      if (e.target.closest('button, a, input, textarea, summary, [contenteditable]')) return;
+      aboutDragStartY = e.touches[0].clientY;
+      aboutDragDy = 0; aboutDragActive = false; aboutDismissing = false;
+      aboutLastY = aboutDragStartY; aboutLastT = performance.now(); aboutVelY = 0;
+      aboutSheet.style.transition = 'none';
+    }, { passive: true });
+
+    aboutSheet.addEventListener('touchmove', e => {
+      if (!viewOnly || aboutFinePointer || e.touches.length !== 1) return;
+      const y = e.touches[0].clientY;
+      const t = performance.now();
+      aboutVelY = (y - aboutLastY) / Math.max(t - aboutLastT, 1);
+      aboutLastY = y; aboutLastT = t;
+
+      const raw = y - aboutDragStartY;
+      if (!aboutDragActive) {
+        if (!(raw > 0 && aboutSheet.scrollTop <= 0)) return;
+        aboutDragActive = true;
+        aboutDragStartY = y;
+        aboutSheet.style.transition = 'none';
+        aboutSheet.style.transform = 'translateY(0)';
+      }
+      e.preventDefault();
+      aboutDragDy = Math.pow(y - aboutDragStartY, 0.92);
+      aboutSheet.style.transform = `translateY(${aboutDragDy}px) scale(0.99)`;
+    }, { passive: false });
+
+    function snapAboutSheetBack() {
+      if (aboutReduceMotion) {
+        aboutSheet.style.transform = '';
+        aboutDragActive = false; aboutDismissing = false;
+        return;
+      }
+      aboutSheet.style.transition = 'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)';
+      aboutSheet.style.transform = 'translateY(0)';
+      aboutDragActive = false; aboutDismissing = false;
+    }
+
+    aboutSheet.addEventListener('touchend', () => {
+      if (!viewOnly || aboutFinePointer || !aboutDragActive) return;
+      const shouldDismiss = aboutDragDy > ABOUT_DRAG_DIST || aboutVelY > ABOUT_DRAG_VEL;
+      aboutDragActive = false;
+      if (aboutReduceMotion) {
+        if (shouldDismiss) requestCloseAbout();
+        else aboutSheet.style.transform = '';
+        return;
+      }
+      aboutDismissing = shouldDismiss;
+      if (aboutDismissing) {
+        aboutSheet.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
+        aboutModal.style.transition = 'opacity 0.28s ease';
+        aboutSheet.style.transform = `translateY(${window.innerHeight}px)`;
+        aboutModal.style.opacity = '0';
+      } else {
+        snapAboutSheetBack();
+      }
+    });
+
+    aboutSheet.addEventListener('touchcancel', snapAboutSheetBack);
+    aboutSheet.addEventListener('transitionend', e => {
+      if (e.target === aboutSheet && e.propertyName === 'transform' && aboutDismissing) {
+        requestCloseAbout();
+      }
+    });
+
+    window.addEventListener('beforeunload', e => {
+      if (!aboutDirty() && !aboutSaving) return;
+      e.preventDefault(); e.returnValue = '';
+    });
+
     // --- Read-Only Book Details Modal (public / view-only) ---
     // Card clicks route here on the public site; locally they open the edit modal.
     const detailModal = document.getElementById('book-detail-modal');
@@ -8733,21 +9053,28 @@
     // Parse the open-book id from the URL, e.g. "#book=1785948535767".
     function getBookIdFromHash() {
       const m = location.hash.match(/^#book=(.+)$/);
-      return m ? decodeURIComponent(m[1]) : null;
+      try { return m ? decodeURIComponent(m[1]) : null; }
+      catch { return null; }
     }
 
     // Back/Forward (and manual hash edits) open/close the detail modal to match
     // the URL. The pushState/replaceState above don't fire hashchange, so this
     // only runs on real navigation — and by then the browser has already set the
     // hash, so openReadOnlyModal's push is skipped (no duplicate entry).
-    window.addEventListener('hashchange', () => {
+    function syncPublicRoute() {
+      if (aboutModal.classList.contains('active') && location.hash !== '#about') {
+        if (!canLeaveAbout()) { history.pushState(null, '', '#about'); return; }
+        closeAboutModal(false);
+      }
+      if (location.hash === '#about') { openAboutModal(); return; }
       const id = getBookIdFromHash();
       if (id && books.find(b => b.id === id)) {
         openReadOnlyModal(id);
       } else if (detailModal.classList.contains('active')) {
         closeDetailModal();
       }
-    });
+    }
+    window.addEventListener('hashchange', syncPublicRoute);
 
     // Summary "Read more" toggle: re-evaluate whenever the text is laid out
     // (fires on open, and on viewport/orientation changes that alter the count).
@@ -9909,7 +10236,8 @@
         // Deploy-time value: the link-preview description (Settings → Link
         // preview). Empty = the static default sentence committed in the head
         // OG block; scripts/inject-og.mjs only rewrites it when non-empty.
-        ogDescription: typeof src.ogDescription === 'string' ? src.ogDescription.trim() : DEFAULT_SETTINGS.ogDescription
+        ogDescription: typeof src.ogDescription === 'string' ? src.ogDescription.trim() : DEFAULT_SETTINGS.ogDescription,
+        about: normalizeAbout(src.about)
       };
     }
 
@@ -9996,7 +10324,15 @@
     //   'download'  — no FS API / picker or write failed (classic download)
     //   'cancelled' — user cancelled the picker (settings stay applied locally)
     async function writeSiteJsonFile(data) {
-      if (!window.showOpenFilePicker) return 'download'; // Safari/Firefox
+      function downloadSiteSettings() {
+        const url = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+        const link = document.createElement('a');
+        link.href = url; link.download = 'site.json';
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return 'download';
+      }
+      if (!window.showOpenFilePicker) return downloadSiteSettings(); // Safari/Firefox
 
       let handle = await loadSiteFileHandle();
       if (handle) {
@@ -10019,7 +10355,7 @@
         } catch (err) {
           if (err && err.name === 'AbortError') return 'cancelled';
           console.warn('[library] site.json picker failed, falling back to download:', err);
-          return 'download';
+          return downloadSiteSettings();
         }
       }
 
@@ -10030,7 +10366,7 @@
         return 'written';
       } catch (err) {
         console.warn('[library] could not write site.json via handle, falling back to download:', err);
-        return 'download';
+        return downloadSiteSettings();
       }
     }
 
@@ -10242,6 +10578,7 @@
     settingsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const s = normalizeSiteSettings({
+        ...siteSettings,
         title: inputSiteTitle.value,
         defaultSort: inputSettingsSort.value,
         accent: selectedAccentFromUI(),
@@ -10897,10 +11234,7 @@
       // detail modal once the catalog is rendered. openReadOnlyModal skips the
       // pushState because the hash already matches, so the browser's original
       // history entry is preserved.
-      const deepLinkId = getBookIdFromHash();
-      if (deepLinkId && books.find(b => b.id === deepLinkId)) {
-        openReadOnlyModal(deepLinkId);
-      }
+      syncPublicRoute();
       if (!viewOnly) {
         updateExportReminder();
         checkBooksJsonNewer(); // fire-and-forget freshness check (HTTP or file:// handle)

@@ -43,6 +43,8 @@ This started as a personal project to track and browse my reading — 223 books 
 - **Note formatting:** personal notes support light markdown at display time — `**bold**`, `*italic*`, and `[label](https://…)` external links.
 - **Book cross-references:** type `[[Book Title]]` in notes to insert a tappable chip that opens that book's details — great for "read after…" or "pairs with…" annotations.
 - **Deep linking:** every book has a shareable `#book=<id>` URL that opens its details directly; Back/Forward navigate the modal like a page.
+- **About:** the header info button opens a shareable `#about` modal. In local Edit mode, choose **Edit** to change its heading, Markdown content, optional footer, and whether to show automatic library stats, then preview or save to `site.json`. View mode and the published site show only the finished content.
+- **About formatting:** supports `#`, `##`, and `###` headings, paragraphs, `**bold**`, `*italic*`, `[label](https://…)`, `[[Book Title]]` references, flat bulleted and numbered lists, `>` supporting text, and `---` dividers. The editor includes formatting help and a draft preview. Raw HTML is displayed as text.
 - **Book details modal:** interactive 3D cover (hover tilt + gloss sheen on desktop, touch-drag rotation on mobile), volume/stage, reading order, publisher **summary** (collapsible), formatted notes, tags, and an ISBN link to Goodreads. Clicking the Volume or Stage value jumps straight to that spot in Volumes view.
 
   <p>
