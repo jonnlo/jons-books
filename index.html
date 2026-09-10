@@ -2414,7 +2414,14 @@
       gap: 10px;
     }
 
-    /* Read-Only Book Details Modal (public / view-only) */
+    #book-view-btn[hidden], #detail-edit-btn[hidden] { display: none; }
+    #book-modal .modal-header, #book-detail-modal .modal-header { gap: 16px; }
+    #book-modal .modal-header h2, #book-detail-modal .modal-header h2 { min-width: 0; overflow-wrap: anywhere; }
+    #book-modal .modal-header .modal-actions, #book-detail-modal .modal-header .modal-actions { flex-shrink: 0; align-items: center; }
+    #book-detail-modal[data-adaptive] #detail-edit-btn { background: var(--detail-surface); color: var(--detail-text); border-color: var(--detail-border); }
+    #book-detail-modal[data-adaptive] #detail-edit-btn:hover { background: var(--detail-surface-hover); }
+
+    /* Book Details Modal */
     .book-detail-modal .modal-content {
       max-width: 880px;
       overscroll-behavior: contain;
@@ -4119,7 +4126,7 @@
     .about-modal .modal-content { max-width: 640px; }
     .about-modal .modal-header { gap: 16px; }
     .about-modal .modal-header h2 { min-width: 0; overflow-wrap: anywhere; }
-    .about-modal .modal-actions { flex-shrink: 0; }
+    .about-modal .modal-actions { flex-shrink: 0; align-items: center; }
     #about-form > .form-group { margin-bottom: 16px; }
     #about-format-help { margin: 0 0 20px; font-size: .8rem; color: var(--text-secondary); }
     #about-format-help pre { white-space: pre-wrap; margin-top: 10px; }
@@ -4407,7 +4414,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modal-title">Book Details</h2>
-        <button class="close-btn" id="close-modal"><i data-lucide="x"></i></button>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="book-view-btn" hidden><i data-lucide="eye" aria-hidden="true"></i> View</button>
+          <button type="button" class="close-btn" id="close-modal" aria-label="Close book editor"><i data-lucide="x"></i></button>
+        </div>
       </div>
       <form id="book-form">
         <input type="hidden" id="book-id">
@@ -4557,7 +4567,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="book-detail-title">Book Details</h2>
-        <button class="close-btn" id="close-detail-modal" aria-label="Close book details"><i data-lucide="x"></i></button>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="detail-edit-btn" hidden><i data-lucide="pencil" aria-hidden="true"></i> Edit</button>
+          <button type="button" class="close-btn" id="close-detail-modal" aria-label="Close book details"><i data-lucide="x"></i></button>
+        </div>
       </div>
       <div class="book-detail-body">
         <div class="detail-cover" id="detail-cover"></div>
@@ -4620,7 +4633,8 @@
       <div class="modal-header">
         <h2 id="about-heading">About this library</h2>
         <div class="modal-actions">
-          <button type="button" class="btn-secondary" id="about-edit-btn">Edit</button>
+          <button type="button" class="btn-secondary" id="about-view-btn" hidden><i data-lucide="eye" aria-hidden="true"></i> View</button>
+          <button type="button" class="btn-secondary" id="about-edit-btn" hidden><i data-lucide="pencil" aria-hidden="true"></i> Edit</button>
           <button type="button" class="close-btn" id="about-close-btn" aria-label="Close About"><i data-lucide="x"></i></button>
         </div>
       </div>
@@ -8117,6 +8131,7 @@ Blank lines separate paragraphs.</pre></details>
 
       modalTitle.textContent = "Add New Volume & Book";
       inputId.value = "";
+      document.getElementById('book-view-btn').hidden = true;
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       resetTagEditor();       // ...or the tag chips/editor.
@@ -8205,6 +8220,7 @@ Blank lines separate paragraphs.</pre></details>
 
       modalTitle.textContent = `Add Stage to ${volName}`;
       inputId.value = "";
+      document.getElementById('book-view-btn').hidden = true;
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       syncCoverColorUI("");
@@ -8231,6 +8247,7 @@ Blank lines separate paragraphs.</pre></details>
 
       modalTitle.textContent = `Add Book to Stage ${stageNum}: ${stageName}`;
       inputId.value = "";
+      document.getElementById('book-view-btn').hidden = true;
       bookForm.reset();
       syncCoverColorUI("");
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
@@ -8253,6 +8270,7 @@ Blank lines separate paragraphs.</pre></details>
       if (viewOnly) return; // View-only mode — no editing.
       modalTitle.textContent = "Add New Book";
       inputId.value = "";
+      document.getElementById('book-view-btn').hidden = true;
       bookForm.reset();
       resetCoverUploadState(); // bookForm.reset() doesn't cover the preview <img>.
       syncCoverColorUI("");
@@ -8295,6 +8313,7 @@ Blank lines separate paragraphs.</pre></details>
 
       modalTitle.textContent = "Edit Book Details";
       inputId.value = book.id;
+      document.getElementById('book-view-btn').hidden = false;
       inputTitle.value = book.title;
       inputAuthor.value = book.author;
       populateVolumeDropdown(book.volumeNumber);
@@ -8406,6 +8425,7 @@ Blank lines separate paragraphs.</pre></details>
     const aboutForm = document.getElementById('about-form');
     const aboutPreview = document.getElementById('about-preview');
     const aboutEdit = document.getElementById('about-edit-btn');
+    const aboutView = document.getElementById('about-view-btn');
     const aboutClose = document.getElementById('about-close-btn');
     const aboutTitleInput = document.getElementById('about-title-input');
     const aboutBodyInput = document.getElementById('about-body-input');
@@ -8428,6 +8448,7 @@ Blank lines separate paragraphs.</pre></details>
       aboutStats.hidden = !content.showStats;
       aboutForm.hidden = true; aboutPreview.hidden = false; aboutDraftPreview.hidden = true;
       aboutEdit.hidden = viewOnly;
+      aboutView.hidden = true;
     }
     function openAboutModal() {
       if (aboutModal.classList.contains('active')) return;
@@ -8443,7 +8464,8 @@ Blank lines separate paragraphs.</pre></details>
       aboutModal.classList.add('active');
       document.querySelector('.container').inert = true;
       if (location.hash !== '#about') history.pushState(null, '', '#about');
-      aboutClose.focus();
+      if (viewOnly) aboutClose.focus();
+      else editAbout();
     }
     function closeAboutModal(updateURL = true, restoreFocus = true) {
       aboutModal.classList.remove('active');
@@ -8461,13 +8483,21 @@ Blank lines separate paragraphs.</pre></details>
     function requestCloseAbout() { if (canLeaveAbout()) closeAboutModal(); }
     document.getElementById('about-btn').addEventListener('click', openAboutModal);
     aboutClose.addEventListener('click', requestCloseAbout);
-    aboutEdit.addEventListener('click', () => {
-      if (viewOnly) return;
+    function editAbout() {
+      if (viewOnly || aboutSaving) return;
       const content = normalizeAbout(siteSettings.about);
       aboutTitleInput.value = content.title; aboutBodyInput.value = content.body; aboutFooterInput.value = content.footer; aboutShowStatsInput.checked = content.showStats;
       aboutBaseline = JSON.stringify(aboutDraft());
       aboutForm.hidden = false; aboutPreview.hidden = true; aboutEdit.hidden = true;
+      aboutView.hidden = false; aboutDraftPreview.hidden = true;
       aboutStatus.textContent = ''; aboutTitleInput.focus();
+    }
+    aboutEdit.addEventListener('click', editAbout);
+    aboutView.addEventListener('click', () => {
+      if (viewOnly || !canLeaveAbout()) return;
+      renderAbout();
+      aboutStatus.textContent = '';
+      aboutEdit.focus();
     });
     document.getElementById('about-cancel-btn').addEventListener('click', () => {
       if (canLeaveAbout()) { renderAbout(); aboutEdit.focus(); }
@@ -8733,6 +8763,24 @@ Blank lines separate paragraphs.</pre></details>
     };
 
     let detailTrigger = null;
+    let detailBookId = null;
+
+    document.getElementById('book-view-btn').addEventListener('click', () => {
+      const id = inputId.value;
+      if (viewOnly || !books.some(book => book.id === id)) return;
+      if (hasUnsavedChanges() && !confirm('Discard your unsaved changes and view the saved book?')) return;
+      closeModal();
+      detailTrigger = document.querySelector('.book-card[data-id="' + CSS.escape(id) + '"]') || document.getElementById('mode-edit-btn');
+      openReadOnlyModal(id);
+    });
+
+    document.getElementById('detail-edit-btn').addEventListener('click', () => {
+      if (viewOnly || !detailBookId) return;
+      const id = detailBookId;
+      closeDetailModal();
+      openEditModal(id);
+      document.getElementById('book-view-btn').focus();
+    });
 
     function openBookDetails(id, triggerEl) {
       if (viewOnly) {
@@ -8746,6 +8794,8 @@ Blank lines separate paragraphs.</pre></details>
     function openReadOnlyModal(id) {
       const book = books.find(b => b.id === id);
       if (!book) return;
+      detailBookId = id;
+      document.getElementById('detail-edit-btn').hidden = viewOnly;
 
       // Cover (renders the CSS jacket fallback if the image fails).
       // Always use 3D book in detail modal for interactive viewing.
@@ -9009,6 +9059,7 @@ Blank lines separate paragraphs.</pre></details>
     }
 
     function closeDetailModal() {
+      detailBookId = null;
       // Strip the book hash when closing via X / overlay / Escape / drag.
       // replaceState (not back()) keeps the history entry count stable.
       if (getBookIdFromHash()) {
