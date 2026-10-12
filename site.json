@@ -5,7 +5,7 @@
   "theme": "system",
   "adaptiveDetail": true,
   "adaptiveDetailMode": "theme",
-  "filterBarAlwaysVisible": false,
+  "filterBarAlwaysVisible": true,
   "ogDescription": "A structural library, organized not as a to-read list, but as a framework for understanding the world and oneself.",
   "about": {
     "title": "About this library",
