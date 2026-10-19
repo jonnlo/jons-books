@@ -8,7 +8,7 @@ A personal book-library web app — built for my own reading collection, but fre
 
 ## About
 
-This started as a personal project to track and browse my reading — 223 books organized into reading volumes and stages, with tags, publisher summaries, and cover images. You can browse the collection on the live site above, or clone this repo and run your own copy locally, where you get the full editing UI to add, organize, and reorder books in your own catalog.
+This started as a personal project to track my reading and organize books into volumes and stages, with tags, publisher summaries, and cover images. You can browse the collection on the live site above, or clone this repo and run your own copy locally, where you get the full editing UI to add, organize, and reorder books in your own catalog.
 
 ### Features
 
@@ -70,7 +70,7 @@ This started as a personal project to track and browse my reading — 223 books 
 | | Local (`file://` or localhost) | Public (any other host) |
 |---|---|---|
 | Data | `localStorage`, bootstrapped from `books.json` | `books.json` fetched at runtime |
-| Mode | **Edit | View** toggle in the header | Always view-only; toggle hidden |
+| Mode | **Edit / View** toggle in the header | Always view-only; toggle hidden |
 | Clicks on a book | Edit mode → edit modal; View mode → read-only details | Read-only details modal |
 
 ## Download & run it locally
@@ -94,7 +94,7 @@ Everything you edit lives in `localStorage`; **Export** writes it back to `books
 
 ### Using the app
 
-- **Add a book:** `+ Add Book` in the toolbar → fill in title/author/year/ISBN, volume & stage, status, engine, tags, notes, and summary; optionally upload a cover via the click-or-drop zone (drag in an image file or a raw image URL).
+- **Add a book:** `+ Add Book` in the toolbar → fill in title, author, publication dates, ISBN, volume & stage, status, engine, tags, notes, and summary; optionally upload a cover via the click-or-drop zone (drag in an image file or a raw image URL).
 - **Edit a book:** click any card in Grid view (in Edit mode) → the edit modal opens prefilled (with a **Delete Book** button for removal). Closing it with unsaved changes prompts a confirmation first.
 - **Reorder:** switch to the **Volumes** view and drag & drop books between volumes and stages.
 - **Assign status / engine:** via the add/edit form. A status pill only renders on cards that have one — status is opt-in.
@@ -107,14 +107,14 @@ All editing controls live in the toolbar and are hidden on the public site.
 
 ### Data model (`books.json`)
 
-`books.json` is the committed source of truth (`catalog.csv` and `CSV/` are legacy backups and are gitignored). It's an array of book objects; a complete book looks like:
+`books.json` is the committed source of truth (`catalog.csv` and `CSV/` are legacy backups and are gitignored). It's an array of book objects; a typical record looks like:
 
 ```json
 {
   "id": "1786171495955",
   "title": "Tools for Conviviality",
   "author": "Ivan Illich",
-  "year": "1973",
+  "year": "2001-12-10",
   "firstPublished": "1973",
   "isbn": "9781842300114",
   "cover": "covers/1786171495955.jpg",
@@ -151,13 +151,13 @@ All editing controls live in the toolbar and are hidden on the public site.
 | `pages` | number | Optional page count — scales the 3D book's spine depth |
 | `created` | string | ISO datetime the book was added; powers the "Added (New/Old)" sorts |
 
-Current catalog: **223 books** across **7 volumes** and **41 stages**, with a **28-tag** vocabulary. Imports and the public fetch both normalize records through the same code path, so optional fields get sensible defaults on load.
+Imports and the public fetch normalize records through the same code path, so optional fields get sensible defaults on load.
 
-### Scripts (dev tooling)
+## Maintenance scripts
 
-Both scripts are Node ESM and run from the repo root. Neither is part of the app itself — they were used for one-time data migrations and backfills.
+These optional Node.js scripts run from the repository root and update files directly. Use them to maintain the catalog; the app runs without them.
 
-#### `scripts/migrate-covers.mjs`
+### `scripts/migrate-covers.mjs`
 
 Downloads external cover URLs from `books.json` into local `covers/<id>.jpg` (downscaled JPEG, ≤800px wide, height uncapped), then rewrites each book's `cover` field to the local path. Idempotent — skips covers that already start with `covers/`.
 
@@ -168,18 +168,31 @@ node scripts/migrate-covers.mjs --force --source <old-books.json>        # re-do
 
 Requires **Node 18+** and the `sharp` dependency (`npm install` in `scripts/`).
 
-#### `scripts/hardcover-summary.mjs`
+### `scripts/hardcover-summary.mjs`
 
 Fetches publisher blurbs from the [Hardcover GraphQL API](https://docs.hardcover.app/api/getting-started) and backfills the `summary` field in `books.json`.
 
 ```sh
-HARDCOVER_TOKEN=... node scripts/hardcover-summary.mjs <isbn>                # single lookup
-HARDCOVER_TOKEN=... node scripts/hardcover-summary.mjs --backfill            # fill all missing summaries
-HARDCOVER_TOKEN=... node scripts/hardcover-summary.mjs --backfill --force    # re-fetch flat (single-paragraph) summaries
-HARDCOVER_TOKEN=... node scripts/hardcover-summary.mjs --backfill --dry-run  # report only, no writes
+node scripts/hardcover-summary.mjs <isbn>                # single lookup
+node scripts/hardcover-summary.mjs --backfill            # fill all missing summaries
+node scripts/hardcover-summary.mjs --backfill --force    # re-fetch flat (single-paragraph) summaries
+node scripts/hardcover-summary.mjs --backfill --dry-run  # report only, no writes
 ```
 
 The token is read from the `HARDCOVER_TOKEN` env var or a gitignored `.hardcover-token` file (never committed). Requests are throttled to ~1/second to stay under Hardcover's 60/min limit. Misses are logged to `scripts/hardcover-summary-misses.txt` (gitignored).
+
+### `scripts/fetch-publication-dates.mjs`
+
+Looks up publication dates through Open Library, Google Books, and optionally Hardcover. Requires Node 18+; no extra packages.
+
+```sh
+node scripts/fetch-publication-dates.mjs --dry-run  # preview changes
+node scripts/fetch-publication-dates.mjs           # update books.json
+```
+
+Updates compatible edition dates in `year` and saves sources, conflicts, and original-publication candidates in `publication-dates-report.json`. Original dates (`firstPublished`) require verification before applying. Missing months and days stay unknown.
+
+API keys load automatically from the Git-ignored `.google-books-api-key` and `.hardcover-token` files, or from `GOOGLE_BOOKS_API_KEY` and `HARDCOVER_TOKEN`. Use `--hardcover-only` or `--google-only` to select a provider, and `--help` for other options.
 
 ## Link preview (social card)
 
@@ -202,41 +215,3 @@ The public site is served from GitHub Pages, driven by `.github/workflows/deploy
 - Triggers on pushes to `main` touching `books.json`, `index.html`, `scripts/**`, `covers/**`, `site.json`, `og-card.jpg`, or the workflow file.
 
 Live: **https://jonnlo.github.io/jons-books/** — the deploy turns this same file into the public, view-only site.
-
-### Enrich publication dates
-
-Requires Node 18+. From the repository root:
-
-```sh
-node scripts/fetch-publication-dates.mjs
-node scripts/fetch-publication-dates.mjs --dry-run
-```
-
-The standalone script edits `books.json` directly with compatible date improvements and creates `publication-dates-report.json`. Run it once; it requires no HTML integration or third-party packages. The second command previews changes without editing `books.json`. Use `--limit 5` for a short trial, `--input PATH` for another JSON array, or `--report PATH` for a different report location.
-
-The script uses exact ISBN-matched Google Books results (ISBN search followed by title/author fallback) and Open Library editions for `year` and their linked work's explicit `first_publish_date` for `firstPublished`. It preserves source precision: an unknown day stays unknown. It keeps historical text and existing conflicting dates, and reports unavailable metadata, missing ISBNs, conflicts, and request failures for manual review. Provider disagreements preserve the current date. HTTP 429 disables that provider for the remainder of the run while other sources continue. Save your key in the Git-ignored `.google-books-api-key` file at the repository root to load it automatically on every run, or set `GOOGLE_BOOKS_API_KEY` in your environment to override it; keys are excluded from report URLs. Use `--google-only` to query Google without repeating Open Library lookups. Original publication candidates are saved under `review` in the report and require independent verification: Open Library work metadata can describe later editions. They are never applied automatically. Exact dates cannot be guaranteed for every book. Requests are throttled and repeated URLs are cached during a run. Source URLs and raw dates are included with proposed changes.
-
-Hardcover is included automatically when `HARDCOVER_TOKEN` is set or the repository-root `.hardcover-token` file exists (already ignored by Git). Environment values override the local file; either a bare token or a `Bearer` token works. Query just Hardcover with:
-
-```sh
-node scripts/fetch-publication-dates.mjs --hardcover-only --dry-run --report publication-dates-hardcover-report.json
-node scripts/fetch-publication-dates.mjs --hardcover-only --report publication-dates-hardcover-report.json
-```
-
-`--google-only` excludes Hardcover and Open Library; `--no-hardcover` excludes Hardcover from an otherwise normal run. Missing Hardcover credentials leave the other providers available; `--hardcover-only` requires a token.
-
-The read-only Hardcover adapter batches 25 ISBNs per request, checks every returned edition's ISBN, throttles requests, retries temporary failures, and stops that provider after authentication or persistent quota failures. Edition dates feed `year`; linked book dates are original-publication candidates under `review`, requiring independent verification before changing `firstPublished`. January 1 is treated as year-only and other first-of-month dates as month-only because imported dates can represent incomplete knowledge. Conflicts preserve researched dates. Known source errors and verification links are retained in `scripts/hardcover-date-rejections.json` so future runs do not reintroduce them. All candidates include source URLs and Hardcover record IDs. Credentials are never written into reports.
-
-`year` means publication of the catalog ISBN edition; `firstPublished` means the original work's publication, including the original language for translations. Never move an existing year to `firstPublished` without checking it: some stored years can be incorrect, and anthologies can share titles with earlier individual essays.
-
-For independently researched changes, supply a JSON file with `verifiedAt` and a `records` array. Each record needs `id`, `title`, `isbn`, and a `changes` array containing `field`, `before`, `after`, `source`, and `reason`. Apply it without API requests:
-
-```sh
-node scripts/fetch-publication-dates.mjs --verified-only --verified path/to/researched-dates.json
-```
-
-Use `--dry-run` to preview, or `--verified FILE` to combine researched changes with API lookups. Entries check the book ID, title, ISBN, and expected previous value before applying; rerunning is safe. Lookup reports are generated locally at the selected `--report` path. `--google-title-only --google-only` skips Google's ISBN search and uses the title-and-author fallback, still requiring an exact ISBN match.
-
-API references: [Hardcover editions](https://docs.hardcover.app/api/graphql/schemas/editions/), [Open Library Books API](https://openlibrary.org/dev/docs/api/books), [Google Books volumes](https://developers.google.com/books/docs/v1/reference/volumes).
-
-Run validation with `node --test scripts/test-publication-dates.mjs`.
