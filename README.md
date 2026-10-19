@@ -137,7 +137,7 @@ All editing controls live in the toolbar and are hidden on the public site.
 | `title` | string | |
 | `author` | string | |
 | `year` | string | This edition's publication date: `YYYY`, `YYYY-MM` or `YYYY-MM-DD`; month/day optional. Legacy slash dates are also accepted on input. |
-| `firstPublished` | string | Optional original publication date (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or historical text such as `65 CE`, `1st Century CE`); shown as `1949 (2020 edition)` in details when both differ; `Published` sort uses `firstPublished \|\| year` |
+| `firstPublished` | string | Optional original publication date (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or historical text such as `65 CE`, `1st Century CE`); in details when both differ, the full formatted first date is shown with just the edition year in parentheses, e.g. `Jun 08, 1949 (2020 edition)`; `Published` sort uses `firstPublished \|\| year` |
 | `isbn` | string | Empty when unknown |
 | `cover` | string | `covers/<id>.jpg`, or `""` for the generated CSS-jacket fallback |
 | `status` | string | Opt-in: `""` (none), `To Read`, `Reading`, `Completed` |
@@ -191,6 +191,8 @@ node scripts/fetch-publication-dates.mjs           # update books.json
 ```
 
 Updates compatible edition dates in `year` and saves sources, conflicts, and original-publication candidates in `publication-dates-report.json`. Original dates (`firstPublished`) require verification before applying. Missing months and days stay unknown.
+
+Google Books' fielded search operators (`isbn:`, `intitle:`, `inauthor:`) have returned empty results since October 2026, so the script searches with unfielded quoted titles plus author and proves the match by requiring the owned ISBN (in either its ISBN-10 or ISBN-13 form) on the returned volume. Transient provider outages (5xx and timeouts) are retried; a 429 disables that provider for the rest of the run.
 
 API keys load automatically from the Git-ignored `.google-books-api-key` and `.hardcover-token` files, or from `GOOGLE_BOOKS_API_KEY` and `HARDCOVER_TOKEN`. Use `--hardcover-only` or `--google-only` to select a provider, and `--help` for other options.
 

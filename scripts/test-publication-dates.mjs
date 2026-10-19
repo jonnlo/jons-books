@@ -119,7 +119,7 @@ test('Google exact matching, provider disagreements and quota isolation', async 
     if (url.includes('googleapis')) {
       googleCalls++;
       if (googleCalls === 3) return { ok: false, status: 429 };
-      const isbn = new URL(url).searchParams.get('q').slice(5);
+      const isbn = '978123456789' + new URL(url).searchParams.get('q').match(/\d/)[0];
       return ok({ items: [
         { id: 'wrong', volumeInfo: { industryIdentifiers: [{ identifier: '9780000000000' }], publishedDate: '1999' } },
         { id: 'correct', volumeInfo: { industryIdentifiers: [{ identifier: isbn }], publishedDate: googleCalls === 1 ? '2020-04-03' : '2020-05-01' } }
@@ -169,7 +169,7 @@ test('verified updates respect dry run, identity and existing edits, and are ide
   }
 });
 
-test('empty Google ISBN results fall back to title and author with exact ISBN validation', async () => {
+test('Google title searches fall back to the subtitle-stripped title and require an exact ISBN', async () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'publication-fallback-'));
   const input = path.join(dir, 'books.json'), report = path.join(dir, 'report.json');
   writeFileSync(input, JSON.stringify([{ id: 'a', title: 'Example: Subtitle', author: 'An Author', isbn: '9781234567890', year: '2020', firstPublished: '1980' }]));
@@ -178,8 +178,10 @@ test('empty Google ISBN results fall back to title and author with exact ISBN va
   globalThis.setTimeout = callback => oldTimer(callback, 0);
   globalThis.fetch = async url => {
     const query = new URL(url).searchParams.get('q'); queries.push(query);
-    return { ok: true, status: 200, json: async () => query.startsWith('isbn:') ? { totalItems: 0 } : { items: [
-      { id: 'other-edition', volumeInfo: { publishedDate: '1980', industryIdentifiers: [{ identifier: '9780000000000' }] } },
+    // The full-title search only surfaces the wrong edition; the shortened title finds the owned ISBN.
+    return { ok: true, status: 200, json: async () => query.includes('Subtitle') ? { items: [
+      { id: 'other-edition', volumeInfo: { publishedDate: '1980', industryIdentifiers: [{ identifier: '9780000000000' }] } }
+    ] } : { items: [
       { id: 'owned-edition', volumeInfo: { publishedDate: '2020-04-03', industryIdentifiers: [{ identifier: '9781234567890' }] } }
     ] } };
   };
@@ -187,9 +189,89 @@ test('empty Google ISBN results fall back to title and author with exact ISBN va
   try {
     await import('./fetch-publication-dates.mjs?fallback');
     const book = JSON.parse(readFileSync(input))[0];
-    assert.deepEqual(queries, ['isbn:9781234567890', 'intitle:Example inauthor:An Author']);
+    assert.deepEqual(queries, ['"Example: Subtitle" An Author', '"Example" An Author']);
     assert.equal(book.year, '2020-04-03');
     assert.equal(book.firstPublished, '1980');
+  } finally {
+    globalThis.fetch = oldFetch; process.argv = oldArgs; globalThis.setTimeout = oldTimer;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a year-only source agrees with a full stored date in the same year', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'publication-precision-'));
+  const input = path.join(dir, 'books.json'), report = path.join(dir, 'report.json');
+  writeFileSync(input, JSON.stringify([{ id: 'a', title: 'Example', isbn: '9781234567890', year: '2020-04-03', firstPublished: '' }]));
+  const oldFetch = globalThis.fetch, oldArgs = process.argv, oldTimer = globalThis.setTimeout;
+  globalThis.setTimeout = callback => oldTimer(callback, 0);
+  globalThis.fetch = async url => url.includes('/isbn/')
+    ? { ok: true, status: 200, json: async () => ({ publish_date: '2020', works: [] }) }
+    : { ok: true, status: 200, json: async () => ({ items: [] }) };
+  process.argv = ['node', 'script', '--no-hardcover', '--input', input, '--report', report];
+  try {
+    await import('./fetch-publication-dates.mjs?precision');
+    const result = JSON.parse(readFileSync(report)).records[0];
+    assert.equal(result.changes.length, 0);
+    assert.ok(!result.issues.some(x => x.includes('conflicting date')));
+    assert.equal(JSON.parse(readFileSync(input))[0].year, '2020-04-03');
+  } finally {
+    globalThis.fetch = oldFetch; process.argv = oldArgs; globalThis.setTimeout = oldTimer;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('Google queries avoid the broken fielded operators and accept ISBN-10/13 equivalents', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'publication-google-forms-'));
+  const input = path.join(dir, 'books.json'), report = path.join(dir, 'report.json');
+  writeFileSync(input, JSON.stringify([
+    { id: 'a', title: 'Example', author: 'An Author', isbn: '9781846140556', year: '2011', firstPublished: '' },
+    { id: 'b', title: 'Second', author: 'Another Author', isbn: '1846140552', year: '2011', firstPublished: '' }
+  ]));
+  const oldFetch = globalThis.fetch, oldArgs = process.argv, oldTimer = globalThis.setTimeout;
+  const queries = [];
+  globalThis.setTimeout = callback => oldTimer(callback, 0);
+  globalThis.fetch = async url => {
+    queries.push(new URL(url).searchParams.get('q'));
+    return { ok: true, status: 200, json: async () => ({ items: [
+      // Google lists this edition under its ISBN-10 even though the catalogue stores the ISBN-13.
+      { id: 'owned', volumeInfo: { publishedDate: '2011-10-25', industryIdentifiers: [{ type: 'ISBN_10', identifier: '1846140552' }] } },
+      // ...and this one under the ISBN-13 while the catalogue stores the ISBN-10.
+      { id: 'owned-13', volumeInfo: { publishedDate: '2011-10-25', industryIdentifiers: [{ type: 'ISBN_13', identifier: '9781846140556' }] } }
+    ] }) };
+  };
+  process.argv = ['node', 'script', '--no-hardcover', '--google-only', '--input', input, '--report', report];
+  try {
+    await import('./fetch-publication-dates.mjs?google-forms');
+    assert.ok(queries.length > 0);
+    for (const query of queries) assert.ok(!/(^|\s)(isbn|intitle|inauthor|inpublisher|lccn|oclc):/i.test(query), `fielded operator in ${query}`);
+    const updated = JSON.parse(readFileSync(input));
+    assert.equal(updated[0].year, '2011-10-25');
+    assert.equal(updated[1].year, '2011-10-25');
+  } finally {
+    globalThis.fetch = oldFetch; process.argv = oldArgs; globalThis.setTimeout = oldTimer;
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('transient Google outages are retried before a date is reported missing', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'publication-google-retry-'));
+  const input = path.join(dir, 'books.json'), report = path.join(dir, 'report.json');
+  writeFileSync(input, JSON.stringify([{ id: 'a', title: 'Example', author: 'An Author', isbn: '9781234567890', year: '2020', firstPublished: '' }]));
+  const oldFetch = globalThis.fetch, oldArgs = process.argv, oldTimer = globalThis.setTimeout;
+  let calls = 0;
+  globalThis.setTimeout = callback => oldTimer(callback, 0);
+  globalThis.fetch = async () => {
+    if (++calls <= 2) return { ok: false, status: 503 };
+    return { ok: true, status: 200, json: async () => ({ items: [
+      { id: 'owned', volumeInfo: { publishedDate: '2020-04-03', industryIdentifiers: [{ identifier: '9781234567890' }] } }
+    ] }) };
+  };
+  process.argv = ['node', 'script', '--no-hardcover', '--google-only', '--input', input, '--report', report];
+  try {
+    await import('./fetch-publication-dates.mjs?google-retry');
+    assert.equal(calls, 3);
+    assert.equal(JSON.parse(readFileSync(input))[0].year, '2020-04-03');
+    assert.ok(!JSON.parse(readFileSync(report)).records[0].issues.some(x => x.includes('503')));
   } finally {
     globalThis.fetch = oldFetch; process.argv = oldArgs; globalThis.setTimeout = oldTimer;
     rmSync(dir, { recursive: true, force: true });

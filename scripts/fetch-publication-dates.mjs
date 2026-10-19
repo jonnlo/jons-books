@@ -2,7 +2,7 @@
 // Node 18+. One-time JSON enrichment. --dry-run reports without editing.
 import { readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { fetchHardcoverPublicationDates, hardcoverDateCandidates } from './hardcover-publication-dates.mjs';
+import { fetchHardcoverPublicationDates, hardcoverDateCandidates, normalizeISBN } from './hardcover-publication-dates.mjs';
   function parsePublicationDate(value) {
     const text = String(value ?? '').trim();
     let m = text.match(/^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/);
@@ -23,11 +23,30 @@ import { fetchHardcoverPublicationDates, hardcoverDateCandidates } from './hardc
     const text = String(value ?? '').trim();
     return !!text && /^[\d/\-]+$/.test(text) && !parsePublicationDate(text);
   }
+  // Catalogue records list either ISBN-10 or ISBN-13 for the same edition, so match
+  // against every form of the owned ISBN before rejecting a provider result.
+  function isbnForms(value) {
+    const text = normalizeISBN(value);
+    const forms = new Set(text ? [text] : []);
+    if (/^\d{13}$/.test(text) && text.startsWith('978')) {
+      const core = text.slice(3, 12);
+      let sum = 0;
+      for (let i = 0; i < 9; i++) sum += (+core[i]) * (10 - i);
+      const check = (11 - (sum % 11)) % 11;
+      forms.add(core + (check === 10 ? 'X' : String(check)));
+    } else if (/^\d{9}[\dX]$/.test(text)) {
+      const core = '978' + text.slice(0, 9);
+      let sum = 0;
+      for (let i = 0; i < 12; i++) sum += (+core[i]) * (i % 2 ? 3 : 1);
+      forms.add(core + String((10 - (sum % 10)) % 10));
+    }
+    return [...forms];
+  }
 
 
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
-  console.log('node scripts/fetch-publication-dates.mjs [--dry-run] [--google-only | --hardcover-only] [--no-hardcover] [--google-title-only] [--verified-only] [--verified FILE] [--limit N] [--input books.json] [--report publication-dates-report.json]');
+  console.log('node scripts/fetch-publication-dates.mjs [--dry-run] [--google-only | --hardcover-only] [--no-hardcover] [--verified-only] [--verified FILE] [--limit N] [--input books.json] [--report publication-dates-report.json]');
   process.exit(0);
 }
 // Environment overrides the repository-local, Git-ignored key file.
@@ -56,20 +75,31 @@ const books = JSON.parse(original);
 const parse = parsePublicationDate;
 const cache = new Map();
 const disabledProviders = new Map();
-async function get(url) {
+const MAX_RETRIES = 2;
+async function get(url, attempt = 0) {
   const host = new URL(url).hostname;
   if (disabledProviders.has(host)) throw new Error(disabledProviders.get(host));
   if (cache.has(url)) return cache.get(url);
+  const retry = async () => {
+    await new Promise(resolve => setTimeout(resolve, 1500 * (attempt + 1)));
+    return get(url, attempt + 1);
+  };
   await new Promise(resolve => setTimeout(resolve, 1100));
-  const response = await fetch(url, { headers: { 'User-Agent': 'PersonalLibraryPublicationDates/1.0' }, signal: AbortSignal.timeout(20000) });
-  if (response.status === 404) { cache.set(url, null); return null; }
-  if (!response.ok) {
-    const safeUrl = new URL(url);
-    safeUrl.searchParams.delete('key');
-    const message = `HTTP ${response.status}: ${safeUrl}`;
-    if (response.status === 429) disabledProviders.set(host, `Provider quota exceeded: ${host}`);
-    throw new Error(message);
+  let response;
+  try {
+    response = await fetch(url, { headers: { 'User-Agent': 'PersonalLibraryPublicationDates/1.0' }, signal: AbortSignal.timeout(20000) });
+  } catch (error) {
+    // Network failures and timeouts are transient; only the final failure is reported.
+    if (attempt < MAX_RETRIES) return retry();
+    throw error;
   }
+  const safeUrl = new URL(url);
+  safeUrl.searchParams.delete('key');
+  if (response.status === 404) { cache.set(url, null); return null; }
+  if (response.status === 429) disabledProviders.set(host, `Provider quota exceeded: ${host}`);
+  // Provider outages surface as 5xx or as empty payloads; retry the transient ones.
+  if (!response.ok && attempt < MAX_RETRIES && (response.status >= 500 || response.status === 408)) return retry();
+  if (!response.ok) throw new Error(`HTTP ${response.status}: ${safeUrl}`);
   const data = await response.json();
   cache.set(url, data);
   return data;
@@ -114,13 +144,24 @@ for (const book of (args.includes('--verified-only') ? [] : books.slice(0, limit
   } catch (error) { row.issues.push(error.message); }
   if (!args.includes('--hardcover-only')) try {
     const clean = value => String(value ?? '').replace(/["\\]/g, ' ').trim();
-    const queries = args.includes('--google-title-only') ? [] : [`isbn:${isbn}`];
-    if (book.title && book.author) queries.push(`intitle:${clean(book.title.split(':')[0])} inauthor:${clean(book.author)}`);
+    // Google Books' fielded operators (isbn:, intitle:, inauthor:) return HTTP 200
+    // with zero items since October 2026, so search with unfielded terms and prove
+    // the match by requiring the owned ISBN on the result. Quoting the full title
+    // first keeps subtitle editions findable; the subtitle-stripped retry catches
+    // editions catalogued under a shorter title.
+    const full = clean(book.title);
+    const short = clean(String(book.title ?? '').split(':')[0]);
+    const author = clean(book.author);
+    const quoted = title => author ? `"${title}" ${author}` : `"${title}"`;
+    const queries = [];
+    if (full) queries.push(quoted(full));
+    if (short && short !== full) queries.push(quoted(short));
+    const forms = new Set(isbnForms(isbn));
     let matches = [];
     for (const query of queries) {
       const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=40`;
       const data = await get(googleBooksKey ? `${url}&key=${encodeURIComponent(googleBooksKey)}` : url);
-      matches = (data?.items ?? []).filter(item => item.volumeInfo?.industryIdentifiers?.some(identifier => String(identifier.identifier).replace(/[^0-9Xx]/g, '').toUpperCase() === isbn.toUpperCase()));
+      matches = (data?.items ?? []).filter(item => item.volumeInfo?.industryIdentifiers?.some(identifier => forms.has(normalizeISBN(identifier.identifier))));
       if (matches.length) break;
     }
     if (!matches.length) row.issues.push('Google Books: no exact ISBN match after fallback searches');
@@ -149,7 +190,9 @@ for (const book of (args.includes('--verified-only') ? [] : books.slice(0, limit
       if (field === 'year' && disagreement) continue;
       const next = sourceDate(raw), before = String(book[field] ?? '').trim(), previous = parse(before);
       if (!next) { row.issues.push(`${field}: no explicit supported date available`); continue; }
-      if (before && (!previous || previous.year !== next.year || (previous.month && previous.month !== next.month) || (previous.day && previous.day !== next.day))) {
+      // A year-only source agrees with a fuller stored date in the same year; only
+      // components both sources state can conflict (same rule as the provider check above).
+      if (before && (!previous || previous.year !== next.year || (previous.month && next.month && previous.month !== next.month) || (previous.day && next.day && previous.day !== next.day))) {
         row.issues.push(`${field}: conflicting date ${JSON.stringify(raw)} (${source}); preserved ${before}`); continue;
       }
       if (previous && previous.precision >= next.precision) continue;

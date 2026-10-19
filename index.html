@@ -8873,10 +8873,22 @@ Blank lines separate paragraphs.</pre></details>
       detailStage.textContent = `${book.stageNumber} / ${book.stageName}`;
       detailOrder.textContent = `#${book.readingOrder} in stage`;
       {
-        const y = formatPublicationDate(book.year);
+        // Show the complete first-publication date, with just the 4-digit edition
+        // year in parentheses. Same-year dates (precision differences only) skip
+        // the redundant suffix and show whichever date is more precise.
+        const firstDate = parsePublicationDate(book.firstPublished);
+        const editionDate = parsePublicationDate(book.year);
         const fp = formatPublicationDate(book.firstPublished);
-        if (y && fp && y !== fp) detailYear.textContent = `${fp} (${y} edition)`;
-        else detailYear.textContent = fp || y || '—';
+        const y = formatPublicationDate(book.year);
+        const editionYear = editionDate ? editionDate.text.slice(0, 4) : y;
+        if (fp && y && fp !== y) {
+          const sameYear = firstDate && editionDate && firstDate.year === editionDate.year;
+          detailYear.textContent = sameYear
+            ? (firstDate.precision >= editionDate.precision ? fp : y)
+            : `${fp} (${editionYear} edition)`;
+        } else {
+          detailYear.textContent = fp || y || '—';
+        }
       }
 
       // ISBN + find-this-book links (only when an ISBN exists).
