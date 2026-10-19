@@ -4480,14 +4480,15 @@
             </div>
             <div class="form-grid">
               <div class="form-group">
-                <label for="book-year-input">Publication Year</label>
-                <input type="text" id="book-year-input" placeholder="e.g. 2026">
+                <label for="book-year-input">Publication Date (this edition)</label>
+                <input type="text" id="book-year-input" placeholder="YYYY, YYYY-MM or YYYY-MM-DD" aria-describedby="publication-date-help">
               </div>
               <div class="form-group">
                 <label for="book-first-published-input">First Published</label>
-                <input type="text" id="book-first-published-input" placeholder="Original work date, e.g. 1949">
+                <input type="text" id="book-first-published-input" placeholder="YYYY, YYYY-MM, YYYY-MM-DD or 65 CE" aria-describedby="publication-date-help">
               </div>
             </div>
+            <p id="publication-date-help" class="form-hint">Month and day are optional. Use YYYY, YYYY-MM or YYYY-MM-DD. Historical dates such as 65 CE are also supported.</p>
             <div class="form-grid">
               <div class="form-group">
                 <label for="book-status-input">Reading Status</label>
@@ -5505,9 +5506,41 @@ Blank lines separate paragraphs.</pre></details>
       };
     }
 
+  function parsePublicationDate(value) {
+    const text = String(value ?? '').trim();
+    let m = text.match(/^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$/);
+    if (!m) {
+      const slash = text.match(/^(?:(\d{1,2})\/)?(\d{1,2})\/(\d{4})$/);
+      if (slash) m = [text, slash[3], slash[2], slash[1]];
+    }
+    if (!m) return null;
+    const year = +m[1], month = m[2] ? +m[2] : 0, day = m[3] ? +m[3] : 0;
+    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (!year || (m[2] && (month < 1 || month > 12)) || (m[3] && (day < 1 || day > days[month - 1]))) return null;
+    return { year, month, day, precision: day ? 3 : month ? 2 : 1,
+      sort: year + month / 100 + day / 10000,
+      text: `${m[1]}${month ? '-' + String(month).padStart(2, '0') : ''}${day ? '-' + String(day).padStart(2, '0') : ''}` };
+  }
+  // Format calendar components directly so publication dates never shift timezones.
+  function formatPublicationDate(value) {
+    const date = parsePublicationDate(value);
+    if (!date) return String(value ?? '').trim();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const year = date.text.slice(0, 4);
+    return date.day ? `${months[date.month - 1]} ${String(date.day).padStart(2, '0')}, ${year}`
+      : date.month ? `${months[date.month - 1]} ${year}` : year;
+  }
+  function invalidPublicationDate(value) {
+    const text = String(value ?? '').trim();
+    return !!text && /^[\d/\-]+$/.test(text) && !parsePublicationDate(text);
+  }
+
     // Parse free-text year for sorting: handles "65 CE", "400 BCE", "1st Century CE", "c. 1800"
     function parseYearForSort(s) {
       if (!s) return null;
+      const date = parsePublicationDate(s);
+      if (date) return date.sort;
       let t = s.trim().toLowerCase().replace(/^(c\.|ca\.|circa|~)\s*/, '');
       const isBCE = /\b(bce|bc)\b/.test(t);
       const cent = t.match(/(\d+)\s*(st|nd|rd|th)?\s*century/);
@@ -6273,6 +6306,9 @@ Blank lines separate paragraphs.</pre></details>
     const inputReadingOrder = document.getElementById('book-reading-order-input');
     const inputYear = document.getElementById('book-year-input');
     const inputFirstPublished = document.getElementById('book-first-published-input');
+    for (const field of [inputYear, inputFirstPublished]) {
+      field.addEventListener('input', () => field.setCustomValidity(''));
+    }
     const inputStatus = document.getElementById('book-status-input');
     const inputEngine = document.getElementById('book-engine-input');
     const inputCover = document.getElementById('book-cover-input');
@@ -8837,8 +8873,8 @@ Blank lines separate paragraphs.</pre></details>
       detailStage.textContent = `${book.stageNumber} / ${book.stageName}`;
       detailOrder.textContent = `#${book.readingOrder} in stage`;
       {
-        const y = (book.year || "").trim();
-        const fp = (book.firstPublished || "").trim();
+        const y = formatPublicationDate(book.year);
+        const fp = formatPublicationDate(book.firstPublished);
         if (y && fp && y !== fp) detailYear.textContent = `${fp} (${y} edition)`;
         else detailYear.textContent = fp || y || '—';
       }
@@ -8860,7 +8896,7 @@ Blank lines separate paragraphs.</pre></details>
         detailAddedRow.hidden = false;
         detailAdded.textContent = isNaN(d)
           ? book.created
-          : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+          : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
       } else {
         detailAddedRow.hidden = true;
         detailAdded.textContent = '';
@@ -9729,6 +9765,12 @@ Blank lines separate paragraphs.</pre></details>
 
     bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      for (const field of [inputYear, inputFirstPublished]) {
+        field.setCustomValidity(invalidPublicationDate(field.value) ? 'Enter a valid date: YYYY, YYYY-MM or YYYY-MM-DD.' : '');
+        if (!field.reportValidity()) return;
+        const date = parsePublicationDate(field.value);
+        if (date) field.value = date.text;
+      }
       const id = inputId.value;
       const newEngine = inputEngine.value;
 

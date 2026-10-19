@@ -1,0 +1,34 @@
+[
+  {
+    "isbn": "9781529946130",
+    "field": "year",
+    "recordId": 32679354,
+    "raw": "2026-01-13",
+    "reason": "This matches the original US release, while the owned ISBN is the UK paperback. Other catalogues disagree on the UK date; retain the known year pending exact-edition verification.",
+    "source": "https://www.penguin.co.uk/books/467676/lost-lambs-by-cash-madeline/9781529970395"
+  },
+  {
+    "isbn": "9781953953568",
+    "field": "year",
+    "recordId": 32163022,
+    "raw": "2025-03-25",
+    "reason": "Publisher announced this book's release on October 8, 2025; the Hardcover March date is contradicted by the publisher.",
+    "source": "https://stripepress.substack.com/p/the-scaling-era-an-oral-history-of"
+  },
+  {
+    "isbn": "9781953953568",
+    "field": "firstPublished",
+    "recordId": 1979312,
+    "raw": "2025-03-25",
+    "reason": "Publisher announced this book's release on October 8, 2025; the Hardcover March date is contradicted by the publisher.",
+    "source": "https://stripepress.substack.com/p/the-scaling-era-an-oral-history-of"
+  },
+  {
+    "isbn": "9781846276859",
+    "field": "year",
+    "recordId": 30441796,
+    "raw": "2016-07-27",
+    "reason": "This is the original Japanese release date. Granta identifies the owned English ebook ISBN as published July 5, 2018.",
+    "source": "https://granta.com/products/convenience-store-woman/?binding=ebook&isbn=9781846276859"
+  }
+]

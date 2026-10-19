@@ -29,3 +29,6 @@ scripts/pagecount-hardcover-misses.txt
 # Local experiments and working notes (kept locally, not published)
 exp/
 docs/
+
+# Local Google Books API credential
+.google-books-api-key

@@ -136,8 +136,8 @@ All editing controls live in the toolbar and are hidden on the public site.
 | `id` | string | Unique id (timestamp); also the cover filename |
 | `title` | string | |
 | `author` | string | |
-| `year` | string | This edition's publication year |
-| `firstPublished` | string | Optional original publication date (free-text, e.g. `1949`, `65 CE`, `1st Century CE`); shown as `1949 (2020 edition)` in details when both differ; `Published` sort uses `firstPublished \|\| year` |
+| `year` | string | This edition's publication date: `YYYY`, `YYYY-MM` or `YYYY-MM-DD`; month/day optional. Legacy slash dates are also accepted on input. |
+| `firstPublished` | string | Optional original publication date (`YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or historical text such as `65 CE`, `1st Century CE`); shown as `1949 (2020 edition)` in details when both differ; `Published` sort uses `firstPublished \|\| year` |
 | `isbn` | string | Empty when unknown |
 | `cover` | string | `covers/<id>.jpg`, or `""` for the generated CSS-jacket fallback |
 | `status` | string | Opt-in: `""` (none), `To Read`, `Reading`, `Completed` |
@@ -202,3 +202,41 @@ The public site is served from GitHub Pages, driven by `.github/workflows/deploy
 - Triggers on pushes to `main` touching `books.json`, `index.html`, `scripts/**`, `covers/**`, `site.json`, `og-card.jpg`, or the workflow file.
 
 Live: **https://jonnlo.github.io/jons-books/** — the deploy turns this same file into the public, view-only site.
+
+### Enrich publication dates
+
+Requires Node 18+. From the repository root:
+
+```sh
+node scripts/fetch-publication-dates.mjs
+node scripts/fetch-publication-dates.mjs --dry-run
+```
+
+The standalone script edits `books.json` directly with compatible date improvements and creates `publication-dates-report.json`. Run it once; it requires no HTML integration or third-party packages. The second command previews changes without editing `books.json`. Use `--limit 5` for a short trial, `--input PATH` for another JSON array, or `--report PATH` for a different report location.
+
+The script uses exact ISBN-matched Google Books results (ISBN search followed by title/author fallback) and Open Library editions for `year` and their linked work's explicit `first_publish_date` for `firstPublished`. It preserves source precision: an unknown day stays unknown. It keeps historical text and existing conflicting dates, and reports unavailable metadata, missing ISBNs, conflicts, and request failures for manual review. Provider disagreements preserve the current date. HTTP 429 disables that provider for the remainder of the run while other sources continue. Save your key in the Git-ignored `.google-books-api-key` file at the repository root to load it automatically on every run, or set `GOOGLE_BOOKS_API_KEY` in your environment to override it; keys are excluded from report URLs. Use `--google-only` to query Google without repeating Open Library lookups. Original publication candidates are saved under `review` in the report and require independent verification: Open Library work metadata can describe later editions. They are never applied automatically. Exact dates cannot be guaranteed for every book. Requests are throttled and repeated URLs are cached during a run. Source URLs and raw dates are included with proposed changes.
+
+Hardcover is included automatically when `HARDCOVER_TOKEN` is set or the repository-root `.hardcover-token` file exists (already ignored by Git). Environment values override the local file; either a bare token or a `Bearer` token works. Query just Hardcover with:
+
+```sh
+node scripts/fetch-publication-dates.mjs --hardcover-only --dry-run --report publication-dates-hardcover-report.json
+node scripts/fetch-publication-dates.mjs --hardcover-only --report publication-dates-hardcover-report.json
+```
+
+`--google-only` excludes Hardcover and Open Library; `--no-hardcover` excludes Hardcover from an otherwise normal run. Missing Hardcover credentials leave the other providers available; `--hardcover-only` requires a token.
+
+The read-only Hardcover adapter batches 25 ISBNs per request, checks every returned edition's ISBN, throttles requests, retries temporary failures, and stops that provider after authentication or persistent quota failures. Edition dates feed `year`; linked book dates are original-publication candidates under `review`, requiring independent verification before changing `firstPublished`. January 1 is treated as year-only and other first-of-month dates as month-only because imported dates can represent incomplete knowledge. Conflicts preserve researched dates. Known source errors and verification links are retained in `scripts/hardcover-date-rejections.json` so future runs do not reintroduce them. All candidates include source URLs and Hardcover record IDs. Credentials are never written into reports.
+
+`year` means publication of the catalog ISBN edition; `firstPublished` means the original work's publication, including the original language for translations. Never move an existing year to `firstPublished` without checking it: some stored years can be incorrect, and anthologies can share titles with earlier individual essays.
+
+For independently researched changes, supply a JSON file with `verifiedAt` and a `records` array. Each record needs `id`, `title`, `isbn`, and a `changes` array containing `field`, `before`, `after`, `source`, and `reason`. Apply it without API requests:
+
+```sh
+node scripts/fetch-publication-dates.mjs --verified-only --verified path/to/researched-dates.json
+```
+
+Use `--dry-run` to preview, or `--verified FILE` to combine researched changes with API lookups. Entries check the book ID, title, ISBN, and expected previous value before applying; rerunning is safe. Lookup reports are generated locally at the selected `--report` path. `--google-title-only --google-only` skips Google's ISBN search and uses the title-and-author fallback, still requiring an exact ISBN match.
+
+API references: [Hardcover editions](https://docs.hardcover.app/api/graphql/schemas/editions/), [Open Library Books API](https://openlibrary.org/dev/docs/api/books), [Google Books volumes](https://developers.google.com/books/docs/v1/reference/volumes).
+
+Run validation with `node --test scripts/test-publication-dates.mjs`.
