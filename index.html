@@ -7325,7 +7325,13 @@ Blank lines separate paragraphs.</pre></details>
     });
     if (searchCollapseBtn) searchCollapseBtn.addEventListener('click', closeMobileSearch);
 
-    // Crossing the 600px breakpoint drops any lingering search-open state
+    searchInput.addEventListener('blur', () => {
+      if (!mobileView.matches || !filterBar.classList.contains('search-open') || searchInput.value.trim()) return;
+      searchInput.value = '';
+      closeMobileSearch();
+    });
+
+    // Crossing the 460px breakpoint drops any lingering search-open state
     // (desktop always shows the full field; the class is inert there anyway).
     if (typeof mobileView.addEventListener === 'function') {
       mobileView.addEventListener('change', () => {
