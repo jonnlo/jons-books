@@ -1,6 +1,6 @@
 # jon's books
 
-A personal book-library web app — built for my own reading collection, but free for anyone to download, run, and customize. It's a single static HTML file with no build step: the same file is a full editor locally and a read-only site when deployed.
+A personal book-library web app — built for my own reading collection, but free for anyone to download, run, and customize. It's a static site with no build step: the same app is a full editor locally and a read-only site when deployed.
 
 **Live site:** https://jonnlo.github.io/jons-books/
 
@@ -63,9 +63,9 @@ This started as a personal project to track my reading and organize books into v
 
 - **Accessibility:** focus-trapped modals, ARIA labels, keyboard/Escape support, touch drag-to-dismiss on mobile, and `prefers-reduced-motion` support.
 
-### How it works: one file, two modes
+### How it works: one app, two modes
 
-`index.html` is the whole app — HTML, CSS, and JavaScript in a single static file. There's no build step, no bundler, and no server code. The same file behaves differently depending on where it's opened:
+`index.html` contains the page markup and loads `assets/css/app.css` and `assets/js/app.js`. A small theme initialization script stays inline so it can run before the page paints. There's no build step, no bundler, and no server code. The same app behaves differently depending on where it's opened:
 
 | | Local (`file://` or localhost) | Public (any other host) |
 |---|---|---|
@@ -75,7 +75,7 @@ This started as a personal project to track my reading and organize books into v
 
 ## Download & run it locally
 
-Clone or download this repo to your machine, then serve the folder:
+Clone or download this repo to your machine, keeping the `assets/` folder alongside `index.html`, then serve the folder. On macOS, you can also double-click `Start Local Server.command` to launch the preview server:
 
 ```sh
 # 1. Go to the project root — the folder that contains index.html
@@ -211,9 +211,9 @@ Link previews are baked in at **deploy time** — crawlers don't run JavaScript,
 
 The public site is served from GitHub Pages, driven by `.github/workflows/deploy.yml`:
 
-- Stages `_site/` = `index.html` + `books.json` + the `covers/` folder + `site.json` + `og-card.jpg`.
+- Stages `_site/` = `index.html` + the `assets/` folder + `books.json` + the `covers/` folder + `site.json` + `og-card.jpg`.
 - Runs `scripts/inject-og.mjs` to write the link-preview meta (title, description, canonical URL, cache-busted card image) into the staged HTML from `site.json` and the deployed Pages URL.
 - Deploys via `actions/deploy-pages`, with `workflow_dispatch` available for manual runs.
-- Triggers on pushes to `main` touching `books.json`, `index.html`, `scripts/**`, `covers/**`, `site.json`, `og-card.jpg`, or the workflow file.
+- Triggers on pushes to `main` touching `books.json`, `index.html`, `assets/**`, `scripts/**`, `covers/**`, `site.json`, `og-card.jpg`, or the workflow file.
 
-Live: **https://jonnlo.github.io/jons-books/** — the deploy turns this same file into the public, view-only site.
+Live: **https://jonnlo.github.io/jons-books/** — the deploy publishes this same app as the public, view-only site.

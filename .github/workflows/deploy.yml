@@ -6,6 +6,7 @@ on:
     paths:
       - 'books.json'
       - 'index.html'
+      - 'assets/**'
       - 'scripts/**'
       - 'covers/**'
       - 'site.json'
@@ -33,10 +34,11 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
-      - name: Stage site (index.html + books.json + covers + og-card)
+      - name: Stage site (HTML + assets + catalog + covers + og-card)
         run: |
           mkdir -p _site
           cp index.html _site/index.html
+          cp -r assets _site/assets
           cp books.json _site/books.json
           [ -f site.json ] && cp site.json _site/site.json || true
           [ -d covers ] && cp -r covers _site/covers || true

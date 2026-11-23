@@ -4,8 +4,8 @@ import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
-const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const helpers = html.slice(html.indexOf('  function parsePublicationDate('), html.indexOf('    // Parse free-text year for sorting:'));
+const app = readFileSync(new URL('../assets/js/app.js', import.meta.url), 'utf8');
+const helpers = app.slice(app.indexOf('  function parsePublicationDate('), app.indexOf('    // Parse free-text year for sorting:'));
 const { parse, invalid, format } = vm.runInNewContext(helpers + '\n({ parse: parsePublicationDate, invalid: invalidPublicationDate, format: formatPublicationDate })');
 
 test('partial dates preserve precision and validate calendars', () => {
@@ -15,8 +15,8 @@ test('partial dates preserve precision and validate calendars', () => {
 });
 
 test('published sorting includes month/day and preserves historical sorting', () => {
-  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  const code = html.match(/    function parseYearForSort\(s\) \{[\s\S]*?\n    \}/)[0];
+  const app = readFileSync(new URL('../assets/js/app.js', import.meta.url), 'utf8');
+  const code = app.match(/    function parseYearForSort\(s\) \{[\s\S]*?\n    \}/)[0];
   const sort = vm.runInNewContext(code + '\nparseYearForSort', { parsePublicationDate: parse });
   assert.ok(sort('31/12/1948') < sort('01/01/1949'));
   assert.ok(sort('01/06/1949') < sort('1949-06-08'));
@@ -60,8 +60,8 @@ test('modal dates preserve precision and historical text', () => {
 
 // Exercise the actual filtering/sorting function with its UI inputs stubbed.
 function publishedSorter(records) {
-  const yearCode = html.match(/    function parseYearForSort\(s\) \{[\s\S]*?\n    \}/)[0];
-  const filterCode = html.slice(html.indexOf('    function computeFilteredBooks() {'), html.indexOf('    // Main Render Function'));
+  const yearCode = app.match(/    function parseYearForSort\(s\) \{[\s\S]*?\n    \}/)[0];
+  const filterCode = app.slice(app.indexOf('    function computeFilteredBooks() {'), app.indexOf('    // Main Render Function'));
   const context = {
     books: records,
     searchInput: { value: '' }, filterVolume: { value: '' }, filterStatus: { value: '' },
