@@ -2127,6 +2127,41 @@
       color: var(--text-primary);
     }
 
+    #settings-modal .modal-content {
+      max-width: 900px;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .settings-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .settings-section {
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+
+    @media (min-width: 780px) {
+      .settings-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 32px;
+      }
+
+      .settings-column > .settings-section:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;

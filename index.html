@@ -620,78 +620,84 @@ Blank lines separate paragraphs.</pre></details>
   <!-- Site Settings Modal (local editing only — the ⚙ button lives in
        .book-controls, hidden on the public site with the rest of editing) -->
   <div class="modal-overlay" id="settings-modal">
-    <div class="modal-content" style="max-width: 450px;">
+    <div class="modal-content">
       <div class="modal-header">
         <h2>Site Settings</h2>
         <button class="close-btn" id="close-settings-modal" aria-label="Close site settings"><i data-lucide="x"></i></button>
       </div>
       <form id="settings-form">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label for="site-title-input">Site Title</label>
-          <input type="text" id="site-title-input" placeholder="jon's books">
-        </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label id="accent-picker-label">Accent Color</label>
-          <!-- Swatch buttons are injected by JS from ACCENT_PRESETS. -->
-          <div class="accent-swatches" id="accent-swatches" role="radiogroup" aria-labelledby="accent-picker-label"></div>
-          <p class="form-hint">Tints the whole palette — buttons, pills, focus rings, and a faint cast on the backgrounds.</p>
-        </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label for="settings-theme-input">Color theme</label>
-          <select id="settings-theme-input">
-            <option value="system">Follow system</option>
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-          <p class="form-hint">Default for anyone who hasn't picked a theme with the sun/moon toggle. "Follow system" matches each visitor's device setting and flips when it does.</p>
-        </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label for="settings-sort-input">Default Sort</label>
-          <select id="settings-sort-input">
-            <!-- Mirrors #sort-select (no selected attr — JS sets the value on open). -->
-            <option value="reading-order">Reading Order (Volumes View)</option>
-            <option value="year-desc">Published (New → Old)</option>
-            <option value="year-asc">Published (Old → New)</option>
-            <option value="created-desc">Added (New → Old)</option>
-            <option value="created-asc">Added (Old → New)</option>
-            <option value="title-asc">Title (A-Z)</option>
-            <option value="random">Random</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-          <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Filter bar</h3>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <label for="filter-bar-always-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Always visible</label>
-            <button type="button" role="switch" id="filter-bar-always-toggle" class="ios-switch" aria-checked="false" aria-label="Keep the filter bar always visible"><span class="ios-switch-thumb"></span></button>
+        <div class="settings-grid">
+          <div class="settings-column">
+            <div class="form-group">
+              <label for="site-title-input">Site Title</label>
+              <input type="text" id="site-title-input" placeholder="jon's books">
+            </div>
+            <div class="form-group">
+              <label id="accent-picker-label">Accent Color</label>
+              <!-- Swatch buttons are injected by JS from ACCENT_PRESETS. -->
+              <div class="accent-swatches" id="accent-swatches" role="radiogroup" aria-labelledby="accent-picker-label"></div>
+              <p class="form-hint">Tints the whole palette — buttons, pills, focus rings, and a faint cast on the backgrounds.</p>
+            </div>
+            <div class="form-group">
+              <label for="settings-theme-input">Color theme</label>
+              <select id="settings-theme-input">
+                <option value="system">Follow system</option>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+              <p class="form-hint">Default for anyone who hasn't picked a theme with the sun/moon toggle. "Follow system" matches each visitor's device setting and flips when it does.</p>
+            </div>
+            <div class="form-group">
+              <label for="settings-sort-input">Default Sort</label>
+              <select id="settings-sort-input">
+                <!-- Mirrors #sort-select (no selected attr — JS sets the value on open). -->
+                <option value="reading-order">Reading Order (Volumes View)</option>
+                <option value="year-desc">Published (New → Old)</option>
+                <option value="year-asc">Published (Old → New)</option>
+                <option value="created-desc">Added (New → Old)</option>
+                <option value="created-asc">Added (Old → New)</option>
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+            <div class="form-group settings-section">
+              <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Filter bar</h3>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <label for="filter-bar-always-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Always visible</label>
+                <button type="button" role="switch" id="filter-bar-always-toggle" class="ios-switch" aria-checked="false" aria-label="Keep the filter bar always visible"><span class="ios-switch-thumb"></span></button>
+              </div>
+              <p class="form-hint">When on, the filter bar stays pinned at the top at all times. When off, it tucks away while scrolling down and returns when you scroll up.</p>
+            </div>
           </div>
-          <p class="form-hint">When on, the filter bar stays pinned at the top at all times. When off, it tucks away while scrolling down and returns when you scroll up.</p>
-        </div>
-        <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-          <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Adaptive detail modal</h3>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <label for="adaptive-detail-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Enabled</label>
-            <button type="button" role="switch" id="adaptive-detail-toggle" class="ios-switch" aria-checked="true" aria-label="Enable adaptive detail modal"><span class="ios-switch-thumb"></span></button>
-          </div>
-          <p class="form-hint">Tint the detail modal from the cover's dominant color. When on, the modal ignores the site accent hue.</p>
-          <div id="adaptive-mode-group" style="margin-top:12px;">
-            <label for="adaptive-detail-mode" style="font-size:.82rem;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">Text color</label>
-            <select id="adaptive-detail-mode" aria-describedby="adaptive-mode-hint">
-              <option value="auto">Match cover</option>
-              <option value="theme">Match theme</option>
-            </select>
-            <p class="form-hint" id="adaptive-mode-hint" aria-live="polite"></p>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
-          <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Link preview</h3>
-          <label for="settings-og-desc-input">Description</label>
-          <input type="text" id="settings-og-desc-input" maxlength="200" placeholder="A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs.">
-          <p class="form-hint">Shown under the title when someone shares your site link (iMessage, WhatsApp, X, Google). Leave empty to use the default. Applies when the site is redeployed — crawlers read the committed HTML, unlike the live title.</p>
-          <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
-            <img id="settings-og-preview" alt="Current social card" hidden style="width:96px;height:auto;border-radius:8px;border:1px solid var(--border-color);flex:0 0 auto;">
-            <div style="min-width:0;">
-              <button type="button" class="btn-secondary" id="settings-og-pick-btn">Replace image…</button>
-              <p class="form-hint" style="margin-top:6px;">Social image: <code>og-card.jpg</code> at the repo root. Picking a new image writes it straight to disk — commit &amp; push to publish. Regenerate an auto collage with <code>scripts/make-og-card.mjs</code>.</p>
+          <div class="settings-column">
+            <div class="form-group settings-section">
+              <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Adaptive detail modal</h3>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <label for="adaptive-detail-toggle" style="font-size:0.85rem;color:var(--text-primary);font-weight:500;cursor:pointer;">Enabled</label>
+                <button type="button" role="switch" id="adaptive-detail-toggle" class="ios-switch" aria-checked="true" aria-label="Enable adaptive detail modal"><span class="ios-switch-thumb"></span></button>
+              </div>
+              <p class="form-hint">Tint the detail modal from the cover's dominant color. When on, the modal ignores the site accent hue.</p>
+              <div id="adaptive-mode-group" style="margin-top:12px;">
+                <label for="adaptive-detail-mode" style="font-size:.82rem;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px;">Text color</label>
+                <select id="adaptive-detail-mode" aria-describedby="adaptive-mode-hint">
+                  <option value="auto">Match cover</option>
+                  <option value="theme">Match theme</option>
+                </select>
+                <p class="form-hint" id="adaptive-mode-hint" aria-live="polite"></p>
+              </div>
+            </div>
+            <div class="form-group settings-section">
+              <h3 style="font-size:0.82rem;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:10px;">Link preview</h3>
+              <label for="settings-og-desc-input">Description</label>
+              <input type="text" id="settings-og-desc-input" maxlength="200" placeholder="A personal reading library — curated volumes, reading order, covers, notes & publisher blurbs.">
+              <p class="form-hint">Shown in shared link previews. Leave empty for the default. Redeploy to publish changes.</p>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:12px;">
+                <img id="settings-og-preview" alt="Current social card" hidden style="width:160px;max-width:100%;height:auto;border-radius:8px;border:1px solid var(--border-color);flex:0 0 auto;">
+                <div style="min-width:0;">
+                  <button type="button" class="btn-secondary" id="settings-og-pick-btn">Replace image…</button>
+                  <p class="form-hint" style="margin-top:6px;">Saves <code>og-card.jpg</code> immediately. Commit &amp; push to publish.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
