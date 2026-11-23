@@ -2483,6 +2483,28 @@
       overflow: visible;
     }
 
+    /* Paperback spine: a flat, matte fold lit from the front-cover side.
+       Local x runs from the back (0%) to the front cover (100%). Preserve
+       the experiment's narrow edge folds, with a gentle front-lit face. */
+    .detail-cover .book3d__spine {
+      box-shadow: none;
+      border-radius: 0.5px;
+    }
+    .detail-cover .book3d__spine::before {
+      border-radius: 0.5px;
+    }
+    .detail-cover .book3d__spine::after {
+      background: linear-gradient(90deg,
+        rgba(0, 0, 0, 0.18) 0%,
+        rgba(255, 255, 255, 0.03) 2.5%,
+        rgba(0, 0, 0, 0.10) 7%,
+        rgba(0, 0, 0, 0.04) 93%,
+        rgba(0, 0, 0, 0.16) 97.5%,
+        rgba(255, 255, 255, 0.05) 100%);
+      mix-blend-mode: normal;
+      border-radius: 0.5px;
+    }
+
     /* Rotate hint — tiny Lucide badge pinned to the bottom-right of the detail
        cover's 3D book ("this cover tilts/drag-rotates"). Sits OUTSIDE .book3d
        so it never inherits the 3D transform; pointer-events:none keeps tilt +
