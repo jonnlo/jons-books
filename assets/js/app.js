@@ -3585,6 +3585,7 @@
       tagEditorTags = [...(book.tags || [])];
       tagEditorInput.value = '';
       renderTagEditor();
+      deleteBookBtn.style.display = "block";
       modal.classList.add('active');
       void modal.offsetWidth;
       modal.classList.add('anim-in');
@@ -6171,7 +6172,7 @@
     // HTTP (localhost): compare the Last-Modified header against the sync anchor.
     // file://: the browser blocks silent file reads, so we use the File System
     // Access API — pick books.json once (persisted handle in IndexedDB), then
-    // re-read it automatically on every open. The "Check for Updates" button
+    // re-read it on later opens while permission remains granted. The button
     // enables this on the first pick and re-checks on demand; on browsers
     // without showOpenFilePicker (Safari/Firefox) it falls back to a manual
     // file picker (no persistence, so it stays manual there).
@@ -6228,7 +6229,8 @@
     }
 
     // Runs the freshness check. On file://, uses the persisted books.json handle
-    // (silently), or the picker when interactive and no handle is saved yet.
+    // (silently). Interactive checks can renew permission for that same file;
+    // only a missing handle/file needs a new file picker.
     async function checkBooksJsonNewer({ interactive = false } = {}) {
       if (viewOnly) return false; // view mode is read-only — sync checks are an edit concern
       lastBooksCheckCompared = false; // fresh check — no "compared" state yet
@@ -6241,24 +6243,30 @@
               types: [{ description: 'books.json', accept: { 'application/json': ['.json'] } }]
             });
             handle = picked;
-            saveBooksFileHandle(handle); // enable automatic checks on later opens
+            await saveBooksFileHandle(handle); // enable automatic checks on later opens
           } catch (err) {
             if (err && err.name === 'AbortError') return false; // user cancelled
           }
         }
         if (!handle) return false;
         try {
+          const permission = await handle.queryPermission({ mode: 'read' });
+          if (permission !== 'granted') {
+            if (!interactive) return false; // background checks must never prompt
+            if (await handle.requestPermission({ mode: 'read' }) !== 'granted') return false;
+          }
           const file = await handle.getFile();
           return evaluateNewerThanAnchor(file.lastModified, 'handle');
         } catch (err) {
           console.warn('[library] could not read books.json via saved handle:', err);
-          // Interactive click → let the user re-pick if the saved handle is stale.
-          if (interactive && window.showOpenFilePicker) {
+          // A moved/deleted file needs a replacement. Permission failures keep
+          // the saved selection so a later click can request access again.
+          if (err && err.name === 'NotFoundError' && interactive && window.showOpenFilePicker) {
             try {
               const [picked] = await window.showOpenFilePicker({
                 types: [{ description: 'books.json', accept: { 'application/json': ['.json'] } }]
               });
-              saveBooksFileHandle(picked);
+              await saveBooksFileHandle(picked);
               const file = await picked.getFile();
               return evaluateNewerThanAnchor(file.lastModified, 'handle');
             } catch (err2) {

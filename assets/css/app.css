@@ -1042,30 +1042,28 @@
       padding: 8px 12px;
       color: var(--text-primary);
       font-size: 0.875rem;
-      -webkit-appearance: none;
-      appearance: none;
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 14px;
-      padding-right: 44px; /* room for custom arrow */
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
     /* Hide IE/Edge native arrow if encountered */
-    .filter-select::-ms-expand {
+    .filter-select::-ms-expand,
+    .form-group select::-ms-expand {
       display: none;
     }
 
     /* Theme-aware SVG arrows (encoded) */
-    [data-theme="dark"] .filter-select {
+    [data-theme="dark"] .filter-select,
+    [data-theme="dark"] .form-group select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23ffffff' d='M5.5 7.5l4.5 4.5 4.5-4.5z'/%3E%3C/svg%3E");
     }
 
-    [data-theme="light"] .filter-select {
+    [data-theme="light"] .filter-select,
+    [data-theme="light"] .form-group select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%230f172a' d='M5.5 7.5l4.5 4.5 4.5-4.5z'/%3E%3C/svg%3E");
     }
 
-    .filter-select option {
+    .filter-select option,
+    .form-group select option {
       background: var(--bg-input);
       color: var(--text-primary);
     }
@@ -2164,6 +2162,18 @@
       color: var(--text-primary);
       font-size: 0.875rem;
       line-height: inherit;
+    }
+
+    /* Share the main UI arrow with settings and edit-form dropdowns.
+       Keep this after the form background/padding shorthand above. */
+    .filter-select,
+    .form-group select {
+      -webkit-appearance: none;
+      appearance: none;
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 14px;
+      padding-right: 44px;
     }
 
     .form-group textarea {
